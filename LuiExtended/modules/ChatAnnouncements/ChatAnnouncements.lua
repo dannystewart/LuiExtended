@@ -9959,7 +9959,7 @@ function ChatAnnouncements.HookFunction()
 
     --- @param self ZO_PlayerToPlayer
     --- @param isIgnored boolean
-    PLAYER_TO_PLAYER.ShowPlayerInteractMenu = function (self, isIgnored)
+    ZO_PlayerToPlayer.ShowPlayerInteractMenu = function (self, isIgnored)
         local currentTargetCharacterName = self.currentTargetCharacterName
         local currentTargetCharacterNameRaw = self.currentTargetCharacterNameRaw
         local currentTargetDisplayName = self.currentTargetDisplayName
