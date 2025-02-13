@@ -225,7 +225,7 @@ local function createTopLevelWindow(k, v, point, relativePoint, offsetX, offsetY
     tlw.preview.coordLabelBg:SetDrawLayer(DL_OVERLAY)
     tlw.preview.coordLabelBg:SetDrawLevel(5)
     tlw.preview.coordLabel:SetDrawTier(DT_MEDIUM)
-    
+
     -- Create label background
     tlw.preview.coordLabelBg = UI:Backdrop(tlw.preview.coordLabel, "fill", nil, { 0, 0, 0, 1 }, { 0, 0, 0, 1 }, false)
     tlw.preview.coordLabelBg:SetDrawLayer(DL_OVERLAY)
