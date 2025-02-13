@@ -565,17 +565,41 @@ local DECONSTRUCTIBLE_CRAFTING_TYPES =
     [CRAFTING_TYPE_JEWELRYCRAFTING] = true,
 }
 
+--- @alias SmithingMode integer
+--- | `SMITHING_MODE_ROOT` # 0
+--- | `SMITHING_MODE_REFINEMENT` # 1
+--- | `SMITHING_MODE_CREATION` # 2
+--- | `SMITHING_MODE_DECONSTRUCTION` # 3
+--- | `SMITHING_MODE_IMPROVEMENT` # 4
+--- | `SMITHING_MODE_RESEARCH` # 5
+--- | `SMITHING_MODE_RECIPES` # 6
+--- | `SMITHING_MODE_CONSOLIDATED_SET_SELECTION` # 7
+
 -- -----------------------------------------------------------------------------
 --- Get the current crafting mode, accounting for both keyboard and gamepad UI
---- @return number @The current crafting mode
+--- @return integer|SmithingMode mode The current crafting mode
 function LUIE.GetMode()
+    local mode
     if SCENE_MANAGER:IsShowingBaseScene() then
-        -- Gamepad UI
-        return SMITHING_GAMEPAD and SMITHING_GAMEPAD.mode or SMITHING.mode
+        -- In Gamepad UI, use SMITHING_GAMEPAD.mode if available, otherwise fall back to SMITHING.mode.
+        mode = SMITHING_GAMEPAD and SMITHING_GAMEPAD.mode or SMITHING.mode
     else
-        -- Keyboard UI
-        return SMITHING.mode
+        -- For Keyboard UI, simply use SMITHING.mode.
+        mode = SMITHING.mode
     end
+    --- @cast mode SmithingMode
+    -- At this point, mode should already be one of:
+    -- SMITHING_MODE_ROOT                       = 0
+    -- SMITHING_MODE_REFINEMENT                 = 1
+    -- SMITHING_MODE_CREATION                   = 2
+    -- SMITHING_MODE_DECONSTRUCTION             = 3
+    -- SMITHING_MODE_IMPROVEMENT                = 4
+    -- SMITHING_MODE_RESEARCH                   = 5
+    -- SMITHING_MODE_RECIPES                    = 6
+    -- SMITHING_MODE_CONSOLIDATED_SET_SELECTION = 7
+    --
+    -- Return mode (defaulting to SMITHING_MODE_ROOT if for some reason mode is nil)
+    return mode or SMITHING_MODE_ROOT
 end
 
 -- -----------------------------------------------------------------------------
