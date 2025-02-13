@@ -785,6 +785,9 @@ end
 --- @param soundCategory ItemUISoundCategory
 --- @return string
 function LUIE.GetItemSoundCategoryName(soundCategory)
+    -- Ensure soundCategory is a valid number; if nil, default to 0.
+    soundCategory = tonumber(soundCategory) or 0
+
     local soundCategories =
     {
         [0] = "ITEM_SOUND_CATEGORY_DEFAULT",
