@@ -3326,9 +3326,9 @@ function ChatAnnouncements.ResolveQuestItemChange()
             -- Lower
             if newValue < questItemIndex[itemId].stack then
                 -- Easy temporary debug for my accounts only
-                if LUIE.IsDevDebugEnabled() then
-                    LUIE.Debug(itemId .. " Removed")
-                end
+                -- if LUIE.IsDevDebugEnabled() then
+                --     LUIE.Debug(itemId .. " Removed")
+                -- end
                 --
 
                 countChange = newValue + questItemIndex[itemId].counter
@@ -3395,9 +3395,9 @@ function ChatAnnouncements.ResolveQuestItemChange()
             -- Higher
             if newValue > questItemIndex[itemId].stack then
                 -- Easy debug for my devs only
-                if LUIE.IsDevDebugEnabled() then
-                    LUIE.Debug(itemId .. " Added")
-                end
+                -- if LUIE.IsDevDebugEnabled() then
+                --     LUIE.Debug(itemId .. " Added")
+                -- end
                 --
                 countChange = newValue - questItemIndex[itemId].stack
                 g_questItemAdded[itemId] = true
