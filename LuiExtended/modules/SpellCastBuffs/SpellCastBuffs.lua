@@ -4065,19 +4065,24 @@ function SpellCastBuffs.OnUpdate(currentTime)
         end
     end
 
-    -- TODO: Fix implementation if possible
-    --[[
     -- Display Block buff for player if enabled
     if SpellCastBuffs.SV.ShowBlockPlayer and not SpellCastBuffs.SV.HidePlayerBuffs then
         if IsBlockActive() and not IsPlayerStunned() then -- Is Block Active returns true when the player is stunned currently.
             local abilityId = 974
             local abilityName = Abilities.Innate_Brace
             local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)
-            SpellCastBuffs.EffectsList[context][abilityId] = {
-                target=SpellCastBuffs.DetermineTarget(context), type=1,
-                id=abilityId, name=abilityName, icon='LuiExtended/media/icons/abilities/ability_innate_block.dds',
-                dur=0, starts=currentTime, ends=nil,
-                restart=true, iconNum=0,
+            SpellCastBuffs.EffectsList[context][abilityId] =
+            {
+                target = SpellCastBuffs.DetermineTarget(context),
+                type = 1,
+                id = abilityId,
+                name = abilityName,
+                icon = "LuiExtended/media/icons/abilities/ability_innate_block.dds",
+                dur = 0,
+                starts = currentTime,
+                ends = nil,
+                restart = true,
+                iconNum = 0,
                 forced = "short",
                 toggle = true,
             }
@@ -4085,7 +4090,6 @@ function SpellCastBuffs.OnUpdate(currentTime)
             SpellCastBuffs.ClearPlayerBuff(974)
         end
     end
-    ]]
 end
 
 function SpellCastBuffs.updateBar(currentTime, sortedList, container)
