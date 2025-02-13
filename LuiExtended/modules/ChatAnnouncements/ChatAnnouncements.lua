@@ -465,7 +465,7 @@ end
 function ChatAnnouncements.RegisterQuestEvents()
     eventManager:RegisterForEvent(moduleName, EVENT_QUEST_SHARED, ChatAnnouncements.QuestShared)
     -- Create a table for quests
-    for i = 1, 25 do
+    for i = 1, MAX_JOURNAL_QUESTS do
         if IsValidQuestIndex(i) then
             local name = GetJournalQuestName(i)
             local questType = GetJournalQuestType(i)
