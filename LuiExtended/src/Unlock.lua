@@ -261,69 +261,93 @@ local function createTopLevelWindow(k, v, point, relativePoint, offsetX, offsetY
 
     return tlw
 end
+
 -- -----------------------------------------------------------------------------
---- Setup Movers for Elements, called by the menu unlock settings
---- @param state boolean The state indicating whether the elements are unlocked or not
+-- Element Movers.
+-- -----------------------------------------------------------------------------
+
+-- Helper function to initialize the mover for a given element
+local function initializeElementMover(element, config)
+    -- Adjust width and height constraints if provided
+    if config[2] then
+        element:SetWidth(config[2])
+    end
+    if config[3] then
+        element:SetHeight(config[3])
+    end
+
+    -- Retrieve the anchor information for the element
+    local isValidAnchor, point, relativeTo, relativePoint, offsetX, offsetY, anchorConstraints = element:GetAnchor()
+    if not isValidAnchor then
+        return
+    end
+
+    -- Special handling for the Alert Text Notification element
+    if element == ZO_AlertTextNotification then
+        local frameName = element:GetName()
+        if not LUIE.SV[frameName] then
+            point = TOPRIGHT
+            relativeTo = GuiRoot
+            relativePoint = TOPRIGHT
+            offsetX = 0
+            offsetY = 0
+            anchorConstraints = anchorConstraints or ANCHOR_CONSTRAINS_XY
+        end
+    end
+
+    -- Create and configure the top-level window (mover) for the element
+    local mover = createTopLevelWindow(element, config, point, relativePoint, offsetX, offsetY, relativeTo)
+    mover:SetHandler("OnMoveStop", function (self)
+        local left, top = self:GetLeft(), self:GetTop()
+
+        -- Apply grid snapping if enabled
+        if LUIE.SV.snapToGrid_default then
+            left, top = ApplyGridSnap(left, top, "default")
+            self:ClearAnchors()
+            self:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, left, top)
+        end
+
+        -- Save the new position and update the element positions
+        LUIE.SV[self.customPositionAttr] = { left, top }
+        LUIE.SetElementPosition()
+    end)
+
+    return mover
+end
+
+-- Helper function to register the scene callback for hiding movers
+local function registerSceneCallback()
+    local scene = sceneManager:GetScene("gameMenuInGame")
+    scene:RegisterCallback("StateChange", sceneChange)
+end
+
+-- Main function to setup element movers based on the provided state
+---
+--- @param state boolean
 function LUIE.SetupElementMover(state)
     g_framesUnlocked = state
-    for k, v in pairs(defaultPanels) do
+
+    for element, config in pairs(defaultPanels) do
         if firstRun then
-            -- Adjust constraints so we can move elements.
-            if v[2] then
-                k:SetWidth(v[2])
+            local mover = initializeElementMover(element, config)
+            if mover then
+                g_LUIE_Movers[mover.customPositionAttr] = mover
             end
-            if v[3] then
-                k:SetHeight(v[3])
-            end
-            -- Create a top-level window for backbar buttons.
-            local isValidAnchor, point, relativeTo, relativePoint, offsetX, offsetY, anchorConstrains = k:GetAnchor()
-            if not isValidAnchor then return end
-            -- Default Alert text doesn't really align with the frame so we just move this visually on initial setup.
-            if k == ZO_AlertTextNotification then
-                local frameName = k:GetName()
-                if not LUIE.SV[frameName] then
-                    point = TOPRIGHT
-                    relativeTo = GuiRoot
-                    relativePoint = TOPRIGHT
-                    offsetX = 0
-                    offsetY = 0
-                    anchorConstrains = anchorConstrains or ANCHOR_CONSTRAINS_XY
-                end
-            end
-            --- @type TopLevelWindow
-            local tlw = createTopLevelWindow(k, v, point, relativePoint, offsetX, offsetY, relativeTo)
-            -- Setup handlers to set the custom position SV and call LUIE.SetElementPosition() to apply this positioning
-            tlw:SetHandler("OnMoveStop",
-
-                --- @param self TopLevelWindow
-                function (self)
-                    local left, top = self:GetLeft(), self:GetTop()
-
-                    -- Apply grid snapping if enabled
-                    if LUIE.SV.snapToGrid_default then
-                        left, top = ApplyGridSnap(left, top, "default")
-                        self:ClearAnchors()
-                        self:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, left, top)
-                    end
-
-                    LUIE.SV[self.customPositionAttr] = { left, top }
-                    LUIE.SetElementPosition()
-                end)
-            --- @diagnostic disable-next-line: undefined-field
-            g_LUIE_Movers[tlw.customPositionAttr] = tlw
         end
-        --- @type TopLevelWindow
-        local tlw = g_LUIE_Movers[k:GetName()]
-        tlw:SetMouseEnabled(state)
-        tlw:SetMovable(state)
-        tlw:SetHidden(not state)
+
+        local mover = g_LUIE_Movers[element:GetName()]
+        --- @cast mover userdata
+        if mover then
+            mover:SetMouseEnabled(state)
+            mover:SetMovable(state)
+            mover:SetHidden(not state)
+        end
     end
+
     if firstRun then
-        -- Register scene updates to hide elements when entering the menu settings.
-        local scene = sceneManager:GetScene("gameMenuInGame")
-        scene:RegisterCallback("StateChange", sceneChange)
+        registerSceneCallback()
+        firstRun = false
     end
-    firstRun = false
 end
 
 -- -----------------------------------------------------------------------------
