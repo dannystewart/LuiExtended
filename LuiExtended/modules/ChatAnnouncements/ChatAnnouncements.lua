@@ -3922,12 +3922,10 @@ end
 -- Simple posthook into ZOS crafting mode functions, based off MultiCraft, thanks Ayantir!
 function ChatAnnouncements.CraftModeOverrides()
     -- Get SMITHING mode
-    g_smithing.GetMode = LUIE.GetMode
+    g_smithing.GetMode = LUIE.GetSmithingMode
 
     -- Get ENCHANTING mode
-    g_enchanting.GetMode = function ()
-        return ENCHANTING:GetEnchantingMode()
-    end
+    g_enchanting.GetMode = LUIE.GetEnchantingMode
 
     -- NOTE: Alchemy and provisioning don't matter, as the only options are to craft and use materials.
 

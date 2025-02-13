@@ -575,17 +575,23 @@ local DECONSTRUCTIBLE_CRAFTING_TYPES =
 --- | `SMITHING_MODE_RECIPES` # 6
 --- | `SMITHING_MODE_CONSOLIDATED_SET_SELECTION` # 7
 
+--- @alias EnchanthingMode integer
+--- | `ENCHANTING_MODE_NONE` # 0
+--- | `ENCHANTING_MODE_CREATION` # 1
+--- | `ENCHANTING_MODE_EXTRACTION` # 2
+--- | `ENCHANTING_MODE_RECIPES` # 3
+
 -- -----------------------------------------------------------------------------
 --- Get the current crafting mode, accounting for both keyboard and gamepad UI
 --- @return integer|SmithingMode mode The current crafting mode
-function LUIE.GetMode()
+function LUIE.GetSmithingMode()
     local mode
-    if SCENE_MANAGER:IsShowingBaseScene() then
-        -- In Gamepad UI, use SMITHING_GAMEPAD.mode if available, otherwise fall back to SMITHING.mode.
-        mode = SMITHING_GAMEPAD and SMITHING_GAMEPAD.mode or SMITHING.mode
+    if IsInGamepadPreferredMode() == true then
+        -- In Gamepad UI, use SMITHING_GAMEPAD.mode
+        mode = SMITHING_GAMEPAD and SMITHING_GAMEPAD.mode
     else
-        -- For Keyboard UI, simply use SMITHING.mode.
-        mode = SMITHING.mode
+        -- For Keyboard UI, use SMITHING.mode
+        mode = SMITHING and SMITHING.mode
     end
     --- @cast mode SmithingMode
     -- At this point, mode should already be one of:
@@ -602,17 +608,29 @@ function LUIE.GetMode()
     return mode or SMITHING_MODE_ROOT
 end
 
+function LUIE.GetEnchantingMode()
+    local enchantingmode
+    if IsInGamepadPreferredMode() == true then
+        enchantingmode = GAMEPAD_ENCHANTING
+    else
+        enchantingmode = ENCHANTING
+    end
+    local mode = enchantingmode:GetEnchantingMode()
+    --- @cast mode EnchanthingMode
+    return mode or ENCHANTING_MODE_NONE
+end
+
 -- -----------------------------------------------------------------------------
 --- Checks if an item type is valid for deconstruction in the current crafting context
 --- @param itemType number The item type to check
 --- @return boolean @Returns true if the item can be deconstructed in current context
 function LUIE.ResolveCraftingUsed(itemType)
     local craftingType = GetCraftingInteractionType()
-    local DECONSTRUCTION_MODE = 4
+    local DECONSTRUCTION_MODE = 3
 
     -- Check if current crafting type allows deconstruction and we're in deconstruction mode
     return DECONSTRUCTIBLE_CRAFTING_TYPES[craftingType]
-        and LUIE.GetMode() == DECONSTRUCTION_MODE
+        and LUIE.GetSmithingMode() == DECONSTRUCTION_MODE
         and DECONSTRUCTIBLE_ITEM_TYPES[itemType] or false
 end
 
