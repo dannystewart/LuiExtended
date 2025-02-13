@@ -10379,7 +10379,7 @@ function ChatAnnouncements.HookFunction()
     end
 
     -- Hook for EVENT_GUILD_MEMBER_ADDED
-    GUILD_ROSTER_MANAGER.OnGuildMemberAdded = function (self, guildId, displayName)
+    ZO_GuildRosterManager.OnGuildMemberAdded = function (self, guildId, displayName)
         self:RefreshData()
 
         local data = self:FindDataByDisplayName(displayName)
@@ -10403,7 +10403,7 @@ function ChatAnnouncements.HookFunction()
     end
 
     -- Hook for EVENT_GUILD_MEMBER_REMOVED
-    GUILD_ROSTER_MANAGER.OnGuildMemberRemoved = function (self, guildId, rawCharacterName, displayName)
+    ZO_GuildRosterManager.OnGuildMemberRemoved = function (self, guildId, rawCharacterName, displayName)
         local displayNameLink = ChatAnnouncements.ResolveNameLink(rawCharacterName, displayName)
         local guildName = self.guildName
         local guildAlliance = GetGuildAlliance(guildId)
