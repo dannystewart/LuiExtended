@@ -9492,17 +9492,17 @@ function ChatAnnouncements.HookFunction()
 
         -- Debug function
         if ChatAnnouncements.SV.DisplayAnnouncements.Debug and not debugDisable then
-            d("EVENT_DISPLAY_ANNOUNCEMENT: If you see this message please post a screenshot and context for the event on the LUI Extended ESOUI page.")
+            CHAT_ROUTER:AddSystemMessage("EVENT_DISPLAY_ANNOUNCEMENT: If you see this message please post a screenshot and context for the event on the LUI Extended ESOUI page.")
             if primaryText then
-                d("Primary Text: " .. primaryText)
+                CHAT_ROUTER:AddSystemMessage("Primary Text: " .. primaryText)
             end
             if secondaryText then
-                d("Secondary Text: " .. secondaryText)
+                CHAT_ROUTER:AddSystemMessage("Secondary Text: " .. secondaryText)
             end
             local zoneid = GetZoneId(GetCurrentMapZoneIndex())
-            d("Zone Id: " .. zoneid)
+            CHAT_ROUTER:AddSystemMessage("Zone Id: " .. zoneid)
             local mapid = GetCurrentMapId()
-            d("Map Id: " .. mapid)
+            CHAT_ROUTER:AddSystemMessage("Map Id: " .. mapid)
         end
 
         -- Display CA if enabled
