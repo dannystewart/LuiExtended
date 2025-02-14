@@ -287,6 +287,7 @@ function SpellCastBuffs.CreateSettings()
         width = "full",
         warning = GetString(LUIE_STRING_LAM_BUFF_HARDLOCK_WARNING),
         default = Defaults.lockPositionToUnitFrames,
+        requiresReload = true,
     }
 
     -- Buffs&Debuffs - Position and Display Options Submenu
