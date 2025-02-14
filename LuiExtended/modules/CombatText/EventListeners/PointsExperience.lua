@@ -58,7 +58,7 @@ function CombatTextPointsExperienceEventListener:OnEvent(unit, currentXp, maxXp)
         -- Trigger custom event (500ms buffer)
         if self.gain > 0 and not self.timeoutActive then
             self.timeoutActive = true
-            zo_callLater(function ()
+            LUIE_CallLater(function ()
                 self:TriggerEvent(eventType.POINT, pointType.EXPERIENCE_POINTS, self.gain)
                 self.gain = 0
                 self.timeoutActive = false

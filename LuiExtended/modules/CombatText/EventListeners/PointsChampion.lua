@@ -46,7 +46,7 @@ function CombatTextPointsChampionEventListener:OnEvent(unit, currentPoints, maxP
         -- Trigger custom event (500ms buffer)
         if self.gain > 0 and not self.timeoutActive then
             self.timeoutActive = true
-            zo_callLater(function ()
+            LUIE_CallLater(function ()
                 self:TriggerEvent(eventType.POINT, pointType.CHAMPION_POINTS, self.gain)
                 self.gain = 0
                 self.timeoutActive = false

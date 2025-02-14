@@ -77,7 +77,7 @@ function CombatTextPointEventViewer:OnEvent(pointType, value)
     animation:Play()
 
     -- Add items back into pool after animation
-    zo_callLater(function ()
+    LUIE_CallLater(function ()
         self.poolManager:ReleasePoolObject(poolTypes.CONTROL, controlPoolKey)
         self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
         self.activePoints = self.activePoints - 1

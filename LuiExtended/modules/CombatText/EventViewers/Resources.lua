@@ -68,7 +68,7 @@ function CombatTextResourceEventViewer:OnEvent(resourceType, value)
         PlaySound("Quest_StepFailed")
     end
 
-    zo_callLater(function ()
+    LUIE_CallLater(function ()
         self.poolManager:ReleasePoolObject(poolTypes.CONTROL, controlPoolKey)
         self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
         self.activeResources = self.activeResources - 1

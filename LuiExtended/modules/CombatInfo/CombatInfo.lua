@@ -1849,7 +1849,7 @@ function CombatInfo.ClientInteractResult(eventCode, result, interactTargetName)
                 local name = data.name
                 local duration = data.duration
                 local delay = data.delay
-                zo_callLater(function() DisplayInteractCast(icon, name, duration) end, delay)
+                LUIE_CallLater(function() DisplayInteractCast(icon, name, duration) end, delay)
             end
         end
     end
@@ -2065,7 +2065,7 @@ function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abili
 
     -- Fix to lower the duration of the next cast of Profane Symbol quest ability for Scion of the Blood Matron (Vampire)
     if abilityId == 39507 then
-        zo_callLater(function ()
+        LUIE_CallLater(function ()
             Castbar.CastDurationFix[39507] = 19500
         end, 5000)
     end
@@ -2317,7 +2317,7 @@ end
 
 function CombatInfo.InventoryItemUsed()
     g_potionUsed = true
-    zo_callLater(function ()
+    LUIE_CallLater(function ()
         g_potionUsed = false
     end, 200)
 end

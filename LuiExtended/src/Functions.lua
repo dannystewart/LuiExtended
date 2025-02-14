@@ -7,6 +7,31 @@
 local LUIE = LUIE
 -- -----------------------------------------------------------------------------
 local string_format = string.format
+local eventManager = GetEventManager()
+
+-- -----------------------------------------------------------------------------
+-- This is needed due to LibDebugLogger hooking zo_callLater.
+-- -----------------------------------------------------------------------------
+do
+    local LUIE_CallLaterId = 1
+    ---
+    --- @param func function
+    --- @param ms integer
+    --- @return integer
+    local function callLater(func, ms)
+        local id = LUIE_CallLaterId
+        local name = "LUIE_CallLaterFunction" .. id
+        LUIE_CallLaterId = LUIE_CallLaterId + 1
+
+        eventManager:RegisterForUpdate(name, ms, function ()
+            eventManager:UnregisterForUpdate(name)
+            func(id)
+        end)
+        return id
+    end
+
+    LUIE_CallLater = callLater
+end
 
 -- -----------------------------------------------------------------------------
 --- Called from the menu and on initialization to update the timestamp color when changed.

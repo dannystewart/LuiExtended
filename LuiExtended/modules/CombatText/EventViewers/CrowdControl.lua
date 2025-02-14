@@ -101,7 +101,7 @@ function CombatTextCrowdControlEventViewer:OnEvent(crowdControlType, eventCombat
     animation:Play()
 
     -- Add items back into pool after animation
-    zo_callLater(function ()
+    LUIE_CallLater(function ()
         self.poolManager:ReleasePoolObject(poolTypes.CONTROL, controlPoolKey)
         self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
         self.activeCrowdControls[eventCombatType] = self.activeCrowdControls[eventCombatType] - 1

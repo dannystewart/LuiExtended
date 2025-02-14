@@ -16966,6 +16966,9 @@ local DebugAuras =
     -- Infinite Archive
     [212753] = true, -- Deposit Ink : Spammed event
     [212754] = true, -- Deposit Ink : Spammed event
+    [203124] = true, -- Event - Verse Select. GAIN/GAINDUR/STUN
+    [203125] = true, -- Event - Verse Select. GAIN/GAINDUR/STUN
+    
 }
 
 --- @type DebugAuras

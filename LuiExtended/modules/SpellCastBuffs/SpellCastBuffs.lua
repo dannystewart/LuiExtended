@@ -1824,18 +1824,18 @@ function SpellCastBuffs.Buff_OnMouseEnter(control)
 
         local thirdLine
         local duration = control.duration / 1000
+
         if Effects.EffectOverride[control.effectId] and Effects.EffectOverride[control.effectId].duration then
             duration = duration + Effects.EffectOverride[control.effectId].duration
         end
-        --[[
-        if Effects.TooltipNameOverride[control.effectName] then
-            thirdLine = zo_strformat(Effects.TooltipNameOverride[control.effectName], duration)
-        end
-        if Effects.TooltipNameOverride[control.effectId] then
-            thirdLine = zo_strformat(Effects.TooltipNameOverride[control.effectId], duration)
-        end
-        ]]
-        --
+
+        -- if Effects.TooltipNameOverride[control.effectName] then
+        --     thirdLine = zo_strformat(Effects.TooltipNameOverride[control.effectName], duration)
+        -- end
+        -- if Effects.TooltipNameOverride[control.effectId] then
+        --     thirdLine = zo_strformat(Effects.TooltipNameOverride[control.effectId], duration)
+        -- end
+
         -- Have to trim trailing spaces on the end of tooltips
         if tooltipText ~= "" then
             tooltipText = string.match(tooltipText, ".*%S")
@@ -1870,21 +1870,21 @@ function SpellCastBuffs.Buff_OnMouseEnter(control)
 
         -- Debug show default Tooltip on my account
         -- if LUIE.PlayerDisplayName == "@ArtOfShred" or LUIE.PlayerDisplayName == "@ArtOfShredPTS" --[[or LUIE.PlayerDisplayName == '@dack_janiels']] then
-        -- if LUIE.IsDevDebugEnabled() then
-        --     GameTooltip:AddLine("Default Tooltip Below:", "", colorText:UnpackRGBA())
+        if LUIE.IsDevDebugEnabled() then
+            GameTooltip:AddLine("Default Tooltip Below:", "", colorText:UnpackRGBA())
 
-        --     local newtooltipText
+            local newtooltipText
 
-        --     if GetAbilityEffectDescription(control.buffSlot) ~= "" then
-        --         newtooltipText = GetAbilityEffectDescription(control.buffSlot)
-        --     end
-        --     if newtooltipText ~= "" and newtooltipText ~= nil then
-        --         GameTooltip:SetVerticalPadding(1)
-        --         ZO_Tooltip_AddDivider(GameTooltip)
-        --         GameTooltip:SetVerticalPadding(5)
-        --         GameTooltip:AddLine(newtooltipText, "", colorText:UnpackRGBA())
-        --     end
-        -- end
+            if GetAbilityEffectDescription(control.buffSlot) ~= "" then
+                newtooltipText = GetAbilityEffectDescription(control.buffSlot)
+            end
+            if newtooltipText ~= "" and newtooltipText ~= nil then
+                GameTooltip:SetVerticalPadding(1)
+                ZO_Tooltip_AddDivider(GameTooltip)
+                GameTooltip:SetVerticalPadding(5)
+                GameTooltip:AddLine(newtooltipText, "", colorText:UnpackRGBA())
+            end
+        end
     end
 end
 
@@ -4398,21 +4398,21 @@ function SpellCastBuffs.OnPlayerActivated(eventCode)
 
     -- Resolve Mounted icon
     if not SpellCastBuffs.SV.IgnoreMountPlayer and IsMounted() then
-        zo_callLater(function ()
+        LUIE_CallLater(function ()
             SpellCastBuffs.MountStatus("", true)
         end, 50)
     end
 
     -- Resolve Disguise Icon
     if not SpellCastBuffs.SV.IgnoreDisguise then
-        zo_callLater(function ()
+        LUIE_CallLater(function ()
             SpellCastBuffs.DisguiseItem(nil, BAG_WORN, 10)
         end, 50)
     end
 
     -- Resolve Assistant Icon
     if not SpellCastBuffs.SV.IgnorePet or not SpellCastBuffs.SV.IgnoreAssistant then
-        zo_callLater(function ()
+        LUIE_CallLater(function ()
             SpellCastBuffs.CollectibleBuff()
         end, 50)
     end

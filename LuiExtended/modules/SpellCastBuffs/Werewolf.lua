@@ -80,7 +80,7 @@ function SpellCastBuffs.WerewolfState(eventCode, werewolf, onActivation)
         eventManager:UnregisterForUpdate(moduleName .. "WerewolfTicker")
         g_werewolfCounter = 0
         -- Delay resetting this value - as the quest werewolf transform event causes werewolf true, false, true in succession.
-        zo_callLater(function ()
+        LUIE_CallLater(function ()
             g_werewolfQuest = 0
         end, 5000)
     end
@@ -101,7 +101,7 @@ function SpellCastBuffs.OnPowerUpdate(eventCode, unitTag, powerIndex, powerType,
         eventManager:UnregisterForUpdate(moduleName .. "WerewolfTicker")
         g_werewolfCounter = 0
         -- Delay resetting this value - as the quest werewolf transform event causes werewolf true, false, true in succession.
-        zo_callLater(function ()
+        LUIE_CallLater(function ()
             g_werewolfQuest = 0
         end, 5000)
     end

@@ -141,7 +141,7 @@ function CombatTextCombatEventListener:OnCombatIn(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.DISORIENTED, combatType)
                 isWarned.disoriented = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.disoriented = false
                 end, 1000)
             end -- 1 second buffer
@@ -153,7 +153,7 @@ function CombatTextCombatEventListener:OnCombatIn(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.FEARED, combatType)
                 isWarned.feared = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.feared = false
                 end, 1000)
             end -- 1 second buffer
@@ -165,7 +165,7 @@ function CombatTextCombatEventListener:OnCombatIn(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.OFFBALANCED, combatType)
                 isWarned.offBalanced = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.offBalanced = false
                 end, 1000)
             end -- 1 second buffer
@@ -177,7 +177,7 @@ function CombatTextCombatEventListener:OnCombatIn(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.SILENCED, combatType)
                 isWarned.silenced = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.silenced = false
                 end, 1000)
             end -- 1 second buffer
@@ -189,7 +189,7 @@ function CombatTextCombatEventListener:OnCombatIn(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.STUNNED, combatType)
                 isWarned.stunned = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.stunned = false
                 end, 1000)
             end -- 1 second buffer
@@ -201,7 +201,7 @@ function CombatTextCombatEventListener:OnCombatIn(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.CHARMED, combatType)
                 isWarned.charmed = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.charmed = false
                 end, 1000)
             end -- 1 second buffer
@@ -267,7 +267,7 @@ function CombatTextCombatEventListener:OnCombatOut(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.DISORIENTED, combatType)
                 isWarned.disoriented = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.disoriented = false
                 end, 1000)
             end -- 1 second buffer
@@ -279,7 +279,7 @@ function CombatTextCombatEventListener:OnCombatOut(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.FEARED, combatType)
                 isWarned.feared = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.feared = false
                 end, 1000)
             end -- 1 second buffer
@@ -291,7 +291,7 @@ function CombatTextCombatEventListener:OnCombatOut(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.OFFBALANCED, combatType)
                 isWarned.offBalanced = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.offBalanced = false
                 end, 1000)
             end -- 1 second buffer
@@ -303,7 +303,7 @@ function CombatTextCombatEventListener:OnCombatOut(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.SILENCED, combatType)
                 isWarned.silenced = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.silenced = false
                 end, 1000)
             end -- 1 second buffer
@@ -315,7 +315,7 @@ function CombatTextCombatEventListener:OnCombatOut(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.STUNNED, combatType)
                 isWarned.stunned = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.stunned = false
                 end, 1000)
             end -- 1 second buffer
@@ -327,7 +327,7 @@ function CombatTextCombatEventListener:OnCombatOut(...)
             else
                 self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, CombatTextConstants.crowdControlType.CHARMED, combatType)
                 isWarned.charmed = true
-                zo_callLater(function ()
+                LUIE_CallLater(function ()
                     isWarned.charmed = false
                 end, 1000)
             end -- 1 second buffer
