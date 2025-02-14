@@ -4481,10 +4481,10 @@ function SpellCastBuffs.UpdateContextHideList()
     -- If the setting is enabled in SpellCastBuffs.SV, then for either:
     --   - a provided effect table, merge its key/values into the target
     --   - a constant ID via 'defaultValue'
-    ---@param targetTable table The table to merge effects into
-    ---@param settingKey string The setting key to check
-    ---@param effectSource table|nil The effect source table, or nil if using a constant ID
-    ---@param defaultValue integer|nil The constant ID to use if effectSource is nil
+    --- @param targetTable table The table to merge effects into
+    --- @param settingKey string The setting key to check
+    --- @param effectSource table|nil The effect source table, or nil if using a constant ID
+    --- @param defaultValue integer|nil The constant ID to use if effectSource is nil
     local function mergeEffects(targetTable, settingKey, effectSource, defaultValue)
         if SpellCastBuffs.SV[settingKey] then
             if effectSource and type(effectSource) == "table" then
