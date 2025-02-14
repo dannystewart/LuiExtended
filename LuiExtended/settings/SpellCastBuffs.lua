@@ -215,6 +215,10 @@ function SpellCastBuffs.CreateSettings()
         end,
         setFunc = function (value)
             g_BuffsMovingEnabled = value
+            -- Ensure lockPositionToUnitFrames is properly initialized when unlocking frames
+            if value and SpellCastBuffs.SV.lockPositionToUnitFrames == nil then
+                SpellCastBuffs.SV.lockPositionToUnitFrames = false
+            end
             SpellCastBuffs.SetMovingState(value)
         end,
         width = "half",
