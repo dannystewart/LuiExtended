@@ -82,6 +82,7 @@ local g_itemStringLoss = ""        -- Combined string variable for items removed
 local g_oldItem = {}               -- Saved old item for crafting upgrades
 
 -- Mail
+local g_mailCategory = nil     -- Tracks the category of the currently opened mail.
 local g_mailCOD = 0            -- Tracks COD amount
 local g_postageAmount = 0      -- Tracks Postage amount
 local g_mailAmount = 0         -- Tracks sent money amount
@@ -2514,10 +2515,13 @@ function ChatAnnouncements.MailRemoved(eventCode)
 end
 
 function ChatAnnouncements.OnMailReadable(eventCode, mailId)
-    local senderDisplayName, senderCharacterName, _, _, _, fromSystem, fromCustomerService, _, _, _, codAmount = GetMailItemInfo(mailId)
+    local senderDisplayName, senderCharacterName, subject, icon, unread, fromSystem, fromCustomerService, returned, numAttachments, attachedMoney, codAmount, expiresInDays, secsSinceReceived, category = GetMailItemInfo(mailId)
 
-    -- Use different color if the mail is from System (Hireling Mail, Rewards for the Worthy, etc)
-    if fromSystem or fromCustomerService then
+    -- Store the mail category globally for later use in related functions.
+    g_mailCategory = category
+
+    -- Use system colors if the mail falls into a system category or originates as a system message.
+    if category == MAIL_CATEGORY_SYSTEM_MAIL or category == MAIL_CATEGORY_INFO_ONLY_SYSTEM_MAIL or fromSystem or fromCustomerService then
         g_mailTarget = ZO_GAME_REPRESENTATIVE_TEXT:Colorize(senderDisplayName)
     elseif senderDisplayName ~= "" and senderCharacterName ~= "" then
         local finalName = ChatAnnouncements.ResolveNameLink(senderCharacterName, senderDisplayName)
@@ -2540,14 +2544,29 @@ end
 function ChatAnnouncements.OnMailTakeAttachedItem(eventCode, mailId)
     if ChatAnnouncements.SV.Notify.NotificationMailSendCA or ChatAnnouncements.SV.Notify.NotificationMailSendAlert then
         local mailString
+        -- Determine if this mail is system-generated using the stored category variable (set in OnMailReadable)
+        local isSystemMail = (g_mailCategory == MAIL_CATEGORY_SYSTEM_MAIL or g_mailCategory == MAIL_CATEGORY_INFO_ONLY_SYSTEM_MAIL)
+
+        -- For COD mails, choose the appropriate localization string;
+        -- for player mail, include the sender's name (g_mailTarget) as a placeholder if available.
         if g_mailCODPresent then
-            mailString = GetString(LUIE_STRING_CA_MAIL_RECEIVED_COD)
+            if not isSystemMail and g_mailTarget and g_mailTarget ~= "" then
+                mailString = string_format(GetString(LUIE_STRING_CA_MAIL_RECEIVED_COD), g_mailTarget)
+            else
+                mailString = GetString(LUIE_STRING_CA_MAIL_RECEIVED_COD)
+            end
         else
-            mailString = GetString(LUIE_STRING_CA_MAIL_RECEIVED)
+            if not isSystemMail and g_mailTarget and g_mailTarget ~= "" then
+                mailString = string_format(GetString(LUIE_STRING_CA_MAIL_RECEIVED), g_mailTarget)
+            else
+                mailString = GetString(LUIE_STRING_CA_MAIL_RECEIVED)
+            end
         end
+
         if mailString then
             if ChatAnnouncements.SV.Notify.NotificationMailSendCA then
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = mailString, type = "NOTIFICATION", isSystem = true }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                { message = mailString, type = "NOTIFICATION", isSystem = isSystemMail }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
