@@ -23,7 +23,7 @@ local UI = {}
 UI.__index = UI
 -- -----------------------------------------------------------------------------
 -- Debug flag - exposed through UI for testing
-UI.isInDebug = true
+UI.isInDebug = false
 -- -----------------------------------------------------------------------------
 -- Local control counters
 local controlCounters =

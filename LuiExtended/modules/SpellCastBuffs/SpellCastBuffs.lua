@@ -1870,21 +1870,21 @@ function SpellCastBuffs.Buff_OnMouseEnter(control)
 
         -- Debug show default Tooltip on my account
         -- if LUIE.PlayerDisplayName == "@ArtOfShred" or LUIE.PlayerDisplayName == "@ArtOfShredPTS" --[[or LUIE.PlayerDisplayName == '@dack_janiels']] then
-        if LUIE.IsDevDebugEnabled() then
-            GameTooltip:AddLine("Default Tooltip Below:", "", colorText:UnpackRGBA())
+        -- if LUIE.IsDevDebugEnabled() then
+        --     GameTooltip:AddLine("Default Tooltip Below:", "", colorText:UnpackRGBA())
 
-            local newtooltipText
+        --     local newtooltipText
 
-            if GetAbilityEffectDescription(control.buffSlot) ~= "" then
-                newtooltipText = GetAbilityEffectDescription(control.buffSlot)
-            end
-            if newtooltipText ~= "" and newtooltipText ~= nil then
-                GameTooltip:SetVerticalPadding(1)
-                ZO_Tooltip_AddDivider(GameTooltip)
-                GameTooltip:SetVerticalPadding(5)
-                GameTooltip:AddLine(newtooltipText, "", colorText:UnpackRGBA())
-            end
-        end
+        --     if GetAbilityEffectDescription(control.buffSlot) ~= "" then
+        --         newtooltipText = GetAbilityEffectDescription(control.buffSlot)
+        --     end
+        --     if newtooltipText ~= "" and newtooltipText ~= nil then
+        --         GameTooltip:SetVerticalPadding(1)
+        --         ZO_Tooltip_AddDivider(GameTooltip)
+        --         GameTooltip:SetVerticalPadding(5)
+        --         GameTooltip:AddLine(newtooltipText, "", colorText:UnpackRGBA())
+        --     end
+        -- end
     end
 end
 

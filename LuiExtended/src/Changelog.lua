@@ -12,6 +12,15 @@ local table_concat = table.concat
 local changelogMessages =
 {
     -- Version Header
+    "|cFFA500LuiExtended Version 6.8.7.2|r",
+    "",
+    -- General Changes
+    "|cFFFF00General:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fixed frame snapping calculations for edge cases",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Optimized grid snapping performance",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Adjusted UI elements for better visual alignment",
+    "",
+    -- Version Header
     "|cFFA500LuiExtended Version 6.8.7.1|r",
     "",
     -- General Changes
