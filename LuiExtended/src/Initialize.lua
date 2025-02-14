@@ -149,17 +149,20 @@ local function OnAddonOnLoaded(eventCode, addonName)
     end
     -- Once we know it's ours, lets unregister the event listener
     eventManager:UnregisterForEvent(addonName, eventCode)
-
+    -- -----------------------------------------------------------------------------
     -- Load saved variables
     LoadSavedVars()
+    -- -----------------------------------------------------------------------------
     -- Initialize Hooks
     LUIE.InitializeHooks()
+    -- -----------------------------------------------------------------------------
     -- Toggle Alert Frame Visibility if needed
     LUIE.SetupAlertFrameVisibility()
     LUIE.PlayerNameRaw = GetRawUnitName("player")
     LUIE.PlayerNameFormatted = zo_strformat("<<C:1>>", GetUnitName("player"))
     LUIE.PlayerDisplayName = zo_strformat("<<C:1>>", GetUnitDisplayName("player"))
     LUIE.PlayerFaction = GetUnitAlliance("player")
+    -- -----------------------------------------------------------------------------
     -- Initialize this addon modules according to user preferences
     LUIE.ChatAnnouncements.Initialize(LUIE.SV.ChatAnnouncements_Enable)
     LUIE.CombatInfo.Initialize(LUIE.SV.CombatInfo_Enabled)
@@ -168,8 +171,10 @@ local function OnAddonOnLoaded(eventCode, addonName)
     LUIE.UnitFrames.Initialize(LUIE.SV.UnitFrames_Enabled)
     LUIE.SpellCastBuffs.Initialize(LUIE.SV.SpellCastBuff_Enable)
     LUIE.SlashCommands.Initialize(LUIE.SV.SlashCommands_Enable)
+    -- -----------------------------------------------------------------------------
     -- Load Timestamp Color
     LUIE.UpdateTimeStampColor()
+    -- -----------------------------------------------------------------------------
     -- Create settings menus for our addon
     LUIE.CreateSettings()
     LUIE.ChatAnnouncements.CreateSettings()
@@ -180,8 +185,10 @@ local function OnAddonOnLoaded(eventCode, addonName)
     LUIE.SpellCastBuffs.CreateSettings()
     LUIE.SlashCommands.CreateSettings()
     LUIE.SlashCommands.MigrateSettings()
+    -- -----------------------------------------------------------------------------
     -- Display changelog screen
     LUIE.ChangelogScreen()
+    -- -----------------------------------------------------------------------------
     -- Register global event listeners
     RegisterEvents()
 end

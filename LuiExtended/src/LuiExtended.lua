@@ -35,7 +35,6 @@ LUIE.SV = {}
 LUIE.SVVer = 2
 LUIE.SVName = "LUIESV"
 -- -----------------------------------------------------------------------------
--- Callbacks
 LUIE.callbackObject = ZO_CallbackObject:New()
 -- -----------------------------------------------------------------------------
 -- Components
@@ -55,7 +54,6 @@ LUIE.Defaults =
     StartupInfo               = false,
     HideAlertFrame            = false,
     AlertFrameAlignment       = 3,
-    -- CustomIcons_Enabled = true,
     HideXPBar                 = false,
     TempAlertHome             = false,
     TempAlertCampaign         = false,
