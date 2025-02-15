@@ -12,6 +12,14 @@ local table_concat = table.concat
 local changelogMessages =
 {
     -- Version Header
+    "|cFFA500LuiExtended Version 6.8.7.3|r",
+    "",
+    -- General Changes
+    "|cFFFF00General:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Revert a change to the mail chat message, further investigation needed.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Due to frequency of updates, I have disabled showing the changelog when there is a version increase.\nIf you still would like to see a popup there is a setting under Miscellaneous Settings to enable that.",
+    "",
+    -- Version Header
     "|cFFA500LuiExtended Version 6.8.7.2|r",
     "",
     -- General Changes

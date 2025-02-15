@@ -478,53 +478,22 @@ function LUIE.CreateSettings()
         width = "full",
     }
 
-    -- -- Alert Text Alignment
-    -- optionsData[#optionsData + 1] =
-    -- {
-    --     type = "dropdown",
-    --     name = GetString(LUIE_STRING_LAM_ALERT_TEXT_ALIGNMENT),
-    --     tooltip = GetString(LUIE_STRING_LAM_ALERT_TEXT_ALIGNMENT_TP),
-    --     choices = alignmentOptions,
-    --     getFunc = function () return alignmentOptions[Settings.AlertFrameAlignment] end,
-    --     setFunc = function (value) Settings.AlertFrameAlignment = alignmentOptionsKeys[value] end,
-    --     width = "full",
-    --     default = Defaults.AlertFrameAlignment,
-    -- }
+    -- Show Changelog
+    optionsData[#optionsData + 1] =
+    {
+        type = "checkbox",
+        name = "Show Changelog when there is a update to LUIE.",
+        tooltip = "Show Changelog when there is a update to LUIE.",
+        getFunc = function ()
+            return Settings.ShowChangeLog
+        end,
+        setFunc = function (value)
+            Settings.ShowChangeLog = value
+        end,
+        width = "full",
+        default = Defaults.ShowChangeLog,
+    }
 
-    --
-    -- Modules Header
-    -- optionsData[#optionsData + 1] =
-    -- {
-    --     type = "header",
-    --     name = GetString(LUIE_STRING_LAM_MODULEHEADER),
-    --     width = "full",
-    -- }
-
-    -- -- Custom Icons Toggle
-    -- optionsData[#optionsData + 1] =
-    -- {
-    --     type = "checkbox",
-    --     name = GetString(LUIE_STRING_LAM_CUSTOM_ICONS_ENABLE),
-    --     tooltip = GetString(LUIE_STRING_LAM_CUSTOM_ICONS_ENABLE_TP),
-    --     getFunc = function()
-    --         return Settings.CustomIcons_Enabled
-    --     end,
-    --     setFunc = function(value)
-    --         Settings.CustomIcons_Enabled = value
-    --         -- Queue UI reload since this requires reinitialization of hooks
-    --         ReloadUI("ingame")
-    --     end,
-    --     width = "half",
-    --     warning = GetString(LUIE_STRING_LAM_RELOADUI_WARNING),
-    --     default = Defaults.CustomIcons_Enabled,
-    -- }
-    -- -- Custom Icons Description
-    -- optionsData[#optionsData + 1] =
-    -- {
-    --     type = "description",
-    --     width = "half",
-    --     text = GetString(LUIE_STRING_LAM_CUSTOM_ICONS_DESCRIPTION),
-    -- }
     -- Hide Alerts
     optionsData[#optionsData + 1] =
     {

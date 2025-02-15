@@ -22,7 +22,7 @@ local LUIE = LUIE
 -- -----------------------------------------------------------------------------
 LUIE.tag = "LUIE"
 LUIE.name = "LuiExtended"
-LUIE.version = "6.8.7.2"
+LUIE.version = "6.8.7.3"
 LUIE.author = "ArtOfShred, DakJaniels, psypanda, Saenic & SpellBuilder"
 LUIE.website = "https://www.esoui.com/downloads/info818-LuiExtended.html"
 LUIE.github = "https://github.com/DakJaniels/LuiExtended"
@@ -59,6 +59,7 @@ LUIE.Defaults =
     TempAlertCampaign         = false,
     TempAlertOutfit           = false,
     WelcomeVersion            = 0,
+    ShowChangeLog             = false,
 
     -- Modules
     UnitFrames_Enabled        = true,

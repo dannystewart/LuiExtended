@@ -187,7 +187,9 @@ local function OnAddonOnLoaded(eventCode, addonName)
     LUIE.SlashCommands.MigrateSettings()
     -- -----------------------------------------------------------------------------
     -- Display changelog screen
-    LUIE.ChangelogScreen()
+    if LUIE.SV.ShowChangeLog == true then
+        LUIE.ChangelogScreen()
+    end
     -- -----------------------------------------------------------------------------
     -- Register global event listeners
     RegisterEvents()

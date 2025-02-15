@@ -3528,6 +3528,17 @@ local function DisplayQuestItem(itemId, stackCount, icon, reset)
     eventManager:RegisterForUpdate(moduleName .. "QuestItemUpdater", 25, ChatAnnouncements.ResolveQuestItemChange)
 end
 
+--- @param eventCode integer
+--- @param receivedBy string
+--- @param itemLink string
+--- @param quantity integer
+--- @param itemSound ItemUISoundCategory
+--- @param lootType LootItemType
+--- @param lootedBySelf bool
+--- @param isPickpocketLoot bool
+--- @param questItemIcon string
+--- @param itemId integer
+--- @param isStolen bool
 function ChatAnnouncements.OnLootReceived(eventCode, receivedBy, itemLink, quantity, itemSound, lootType, lootedBySelf, isPickpocketLoot, questItemIcon, itemId, isStolen)
     if LUIE.IsDevDebugEnabled() then
         local Debug = LUIE.Debug
@@ -3780,7 +3791,7 @@ function ChatAnnouncements.ItemPrinter(icon, stack, itemType, itemId, itemLink, 
         end
 
         g_itemCounterLossTracker = g_itemCounterLossTracker + 1
-        if g_itemCounterLossTracker > 100 then
+        if g_itemCounterLossTracker > 50 then
             g_itemStringLoss = string_format("|c%stoo many items to display|r", color)
         end
 
