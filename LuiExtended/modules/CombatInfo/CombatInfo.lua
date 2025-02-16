@@ -117,6 +117,22 @@ local KEYBOARD_CONSTANTS =
     ultimateSlotOffsetX = 62,
 }
 
+local isFancyActionBarEnabled = false
+local function is_it_enabled()
+    local addonManager = GetAddOnManager()
+    local numAddOns = addonManager:GetNumAddOns()
+
+    for i = 1, numAddOns do
+        local name, _, _, _, _, state, _, _ = addonManager:GetAddOnInfo(i)
+
+        if name == "FancyActionBar" and state == ADDON_STATE_ENABLED then
+            return true
+        end
+    end
+
+    return false
+end
+
 -- Set Marker - Called by the menu & EVENT_PLAYER_ACTIVATED (needs to be reset on the player changing zones)
 -- @param removeMarker boolean: Remove the marker by making an empty dummy marker (only called from the menu toggle)
 function CombatInfo.SetMarker(removeMarker)
@@ -187,7 +203,7 @@ function CombatInfo.Initialize(enabled)
         return
     end
     CombatInfo.Enabled = true
-
+    isFancyActionBarEnabled = is_it_enabled()
     CombatInfo.ApplyFont()
     CombatInfo.ApplyProcSound()
     local QSB = _G["QuickslotButton"]
@@ -1351,8 +1367,8 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
         stackCount = Effects.BarHighlightStack[abilityId]
     end
 
-    -- Only proceed with ability ID hijacking if FancyActionBar is not active
-    if not FancyActionBar then
+    -- Only proceed with ability ID hijacking if FancyActionBar is not active.
+    if not isFancyActionBarEnabled then
         -- Hijack the abilityId here if we have it in the override for extra bar highlights
         if Effects.BarHighlightExtraId[abilityId] then
             for k, v in pairs(Effects.BarHighlightExtraId) do
