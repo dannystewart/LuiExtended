@@ -339,27 +339,26 @@ function SpellCastBuffs.ShouldUseDefaultIcon(abilityId)
 end
 
 function SpellCastBuffs.GetDefaultIcon(ccType)
-    if ccType == LUIE_CC_TYPE_STUN then
-        return LUIE_CC_ICON_STUN
-    elseif ccType == LUIE_CC_TYPE_KNOCKDOWN then
-        return LUIE_CC_ICON_STUN
-    elseif ccType == LUIE_CC_TYPE_KNOCKBACK then
-        return LUIE_CC_ICON_KNOCKBACK
-    elseif ccType == LUIE_CC_TYPE_PULL then
-        return LUIE_CC_ICON_PULL
-    elseif ccType == LUIE_CC_TYPE_DISORIENT then
-        return LUIE_CC_ICON_DISORIENT
-    elseif ccType == LUIE_CC_TYPE_FEAR then
-        return LUIE_CC_ICON_FEAR
-    elseif ccType == LUIE_CC_TYPE_STAGGER then
-        return LUIE_CC_ICON_SILENCE
-    elseif ccType == LUIE_CC_TYPE_SILENCE then
-        return LUIE_CC_ICON_SILENCE
-    elseif ccType == LUIE_CC_TYPE_SNARE then
-        return LUIE_CC_ICON_SNARE
-    elseif ccType == LUIE_CC_TYPE_ROOT then
-        return LUIE_CC_ICON_ROOT
-    end
+    -- Define mapping of action results to icons
+    local iconMap =
+    {
+        [ACTION_RESULT_STUNNED] = LUIE_CC_ICON_STUN,
+        [ACTION_RESULT_KNOCKBACK] = LUIE_CC_ICON_KNOCKBACK,
+        [ACTION_RESULT_LEVITATED] = LUIE_CC_ICON_PULL,
+        [ACTION_RESULT_FEARED] = LUIE_CC_ICON_FEAR,
+        [ACTION_RESULT_CHARMED] = LUIE_CC_ICON_CHARM,
+        [ACTION_RESULT_DISORIENTED] = LUIE_CC_ICON_DISORIENT,
+        [ACTION_RESULT_SILENCED] = LUIE_CC_ICON_SILENCE,
+        [ACTION_RESULT_ROOTED] = LUIE_CC_ICON_ROOT,
+        [ACTION_RESULT_SNARED] = LUIE_CC_ICON_SNARE,
+        -- Group immune-type results
+        [ACTION_RESULT_IMMUNE] = LUIE_CC_ICON_IMMUNE,
+        [ACTION_RESULT_DODGED] = LUIE_CC_ICON_IMMUNE,
+        [ACTION_RESULT_BLOCKED] = LUIE_CC_ICON_IMMUNE,
+        [ACTION_RESULT_BLOCKED_DAMAGE] = LUIE_CC_ICON_IMMUNE,
+    }
+
+    return iconMap[ccType]
 end
 
 -- Function for determining container context for prominent effects
@@ -3593,6 +3592,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
             return
         end
         if not DoesUnitExist("reticleover") then
+            return
         end
         -- if GetUnitReaction("reticleover") ~= UNIT_REACTION_HOSTILE then return end
         local displayName = GetDisplayName()
