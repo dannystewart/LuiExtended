@@ -1243,6 +1243,28 @@ function LUIE.InitializeHooks()
         self:UpdateCooldown(FORCE_SUPPRESS_COOLDOWN_SOUND)
     end
 
+    ActionButton.HandleSlotChanged = function (self, hotbarCategory)
+        -- We no longer use self.button.hotbarCategory, but are keeping it around for addon compatibility
+        self.slot.hotbarCategory = hotbarCategory
+        self.button.hotbarCategory = hotbarCategory
+
+        local slotId = self:GetSlot()
+        local slotType = GetSlotType(slotId, hotbarCategory)
+
+        local setupSlotHandler = SetupSlotHandlers[slotType]
+        if assert(setupSlotHandler, "update slot handlers") then
+            setupSlotHandler(self, slotId)
+        end
+
+        self:SetShowCooldown(false)
+        self:UpdateState()
+
+        local mouseOverControl = WINDOW_MANAGER:GetMouseOverControl()
+        if mouseOverControl == self.button then
+            ZO_AbilitySlot_OnMouseEnter(self.button)
+        end
+    end
+
     -- Hook campaign screen to fix icons
     local function GetFormattedBonusString(data)
         if data and data.stringId then
