@@ -1961,11 +1961,8 @@ function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abili
     end
 
     -- Bail out past here if the cast bar is disabled or
-    if
-    not CombatInfo.SV.CastBarEnable or (
-        (sourceType ~= COMBAT_UNIT_TYPE_PLAYER and not Castbar.CastOverride[abilityId]) -- source isn't the player and the ability is not on the list of abilities to show the cast bar for
-        and (targetType ~= COMBAT_UNIT_TYPE_PLAYER or result ~= ACTION_RESULT_EFFECT_FADED)
-    )                                                                                   -- target isn't the player with effect faded
+    if not CombatInfo.SV.CastBarEnable or ((sourceType ~= COMBAT_UNIT_TYPE_PLAYER and not Castbar.CastOverride[abilityId]) -- source isn't the player and the ability is not on the list of abilities to show the cast bar for
+        and (targetType ~= COMBAT_UNIT_TYPE_PLAYER or result ~= ACTION_RESULT_EFFECT_FADED))                               -- target isn't the player with effect faded
     then
         return
     end
