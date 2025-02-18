@@ -2582,7 +2582,8 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
 
         -- If this effect doesn't properly display stacks - then add them.
         if Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].displayStacks then
-            for _, effectsList in pairs(SpellCastBuffs.EffectsList) do
+            local list = SpellCastBuffs.EffectsList
+            for _, effectsList in pairs(list) do
                 for _, v in pairs(effectsList) do
                     -- Add stacks
                     if v.id == abilityId then
@@ -2857,7 +2858,7 @@ function SpellCastBuffs.AddZoneBuffs()
         local toggle
 
         local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)
-        SpellCastBuffs.EffectsList["player1"][abilityId] =
+        SpellCastBuffs.EffectsList.player1[abilityId] =
         {
             target = SpellCastBuffs.DetermineTarget(context),
             type = 1,
@@ -3623,7 +3624,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
                 return
             end
             if unitName == target then
-                SpellCastBuffs.EffectsList["ground"][abilityId] =
+                SpellCastBuffs.EffectsList.ground[abilityId] =
                 {
                     target = SpellCastBuffs.DetermineTarget(context),
                     type = effectType,
@@ -3642,7 +3643,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
                     groundLabel = groundLabel,
                 }
             else
-                SpellCastBuffs.EffectsList["saved"][abilityId] =
+                SpellCastBuffs.EffectsList.saved[abilityId] =
                 {
                     target = SpellCastBuffs.DetermineTarget(context),
                     type = effectType,
@@ -3693,7 +3694,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
                 return
             end
             if unitName == target then
-                SpellCastBuffs.EffectsList["ground"][abilityId] =
+                SpellCastBuffs.EffectsList.ground[abilityId] =
                 {
                     target = SpellCastBuffs.DetermineTarget(context),
                     type = BUFF_EFFECT_TYPE_DEBUFF,
@@ -3711,7 +3712,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
                     groundLabel = groundLabel,
                 }
             else
-                SpellCastBuffs.EffectsList["saved"][abilityId] =
+                SpellCastBuffs.EffectsList.saved[abilityId] =
                 {
                     target = SpellCastBuffs.DetermineTarget(context),
                     type = BUFF_EFFECT_TYPE_DEBUFF,
@@ -3895,21 +3896,21 @@ end
 -- Called by EVENT_RETICLE_TARGET_CHANGED listener - Saves active FAKE debuffs on enemies and moves them back and forth between the active container or hidden.
 function SpellCastBuffs.RestoreSavedFakeEffects()
     -- Restore Ground Effects
-    for _, effectsList in pairs({ SpellCastBuffs.EffectsList["ground"], SpellCastBuffs.EffectsList["saved"] }) do
+    for _, effectsList in pairs({ SpellCastBuffs.EffectsList.ground, SpellCastBuffs.EffectsList.saved }) do
         -- local container = containerRouting[context]
         for k, v in pairs(effectsList) do
             if v.savedName ~= nil then
                 local unitName = zo_strformat("<<C:1>>", GetUnitName("reticleover"))
                 if unitName == v.savedName then
-                    if SpellCastBuffs.EffectsList["saved"][k] then
-                        SpellCastBuffs.EffectsList["ground"][k] = SpellCastBuffs.EffectsList["saved"][k]
-                        SpellCastBuffs.EffectsList["ground"][k].iconNum = 0
-                        SpellCastBuffs.EffectsList["saved"][k] = nil
+                    if SpellCastBuffs.EffectsList.saved[k] then
+                        SpellCastBuffs.EffectsList.ground[k] = SpellCastBuffs.EffectsList.saved[k]
+                        SpellCastBuffs.EffectsList.ground[k].iconNum = 0
+                        SpellCastBuffs.EffectsList.saved[k] = nil
                     end
                 else
-                    if SpellCastBuffs.EffectsList["ground"][k] then
-                        SpellCastBuffs.EffectsList["saved"][k] = SpellCastBuffs.EffectsList["ground"][k]
-                        SpellCastBuffs.EffectsList["ground"][k] = nil
+                    if SpellCastBuffs.EffectsList.ground[k] then
+                        SpellCastBuffs.EffectsList.saved[k] = SpellCastBuffs.EffectsList.ground[k]
+                        SpellCastBuffs.EffectsList.ground[k] = nil
                     end
                 end
             end
