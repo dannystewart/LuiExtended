@@ -13,6 +13,13 @@
 --- @field name string The addon name
 --- @field log_to_chat boolean Whether to output logs to chat
 --- @field logger LibDebugLogger|NOP The logger instance
+--- @field author string The addon author
+--- @field version string The addon version
+--- @field SVName string SavedVariables name
+--- @field SVVer number SavedVariables version
+--- @field Defaults table Default settings
+--- @field SV table Current saved variables
+--- @field UI LUIE.UI
 LUIE = {}
 LUIE.__index = LUIE
 LUIE.__newindex = NewIndexHandler

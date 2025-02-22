@@ -9,6 +9,7 @@ local LUIE = LUIE
 --- @class CombatTextPool : ZO_ObjectPool
 --- @field private poolType string The type of pool (control or animation)
 LUIE.CombatTextPool = ZO_ObjectPool:Subclass()
+--- @class CombatTextPool : ZO_ObjectPool
 local CombatTextPool = LUIE.CombatTextPool
 
 -- Import constants and utilities
@@ -112,10 +113,13 @@ function CombatTextPool:New(poolType)
         error("poolType is required for CombatTextPool:New()")
     end
 
+    ---@class CombatTextPool:ZO_ObjectPool
     local obj
     if poolType == poolTypes.CONTROL then
+        ---@class CombatTextPool:ZO_ObjectPool
         obj = ZO_ObjectPool:New(self.CreateNewControl, self.ResetControl)
     else
+        ---@class CombatTextPool:ZO_ObjectPool
         obj = ZO_ObjectPool:New(self.CreateNewAnimation, function () end)
     end
 
@@ -132,6 +136,7 @@ end
 --- Creates a new control for the pool
 --- @return Control
 function CombatTextPool:CreateNewControl()
+    ---@type LUIE_CombatText_Virtual
     local control = CreateControlFromVirtual("LUIE_CombatText_Virtual_Instance", LUIE_CombatText, "LUIE_CombatText_Virtual", self:GetNextControlId())
     control.label = control:GetNamedChild("_Amount")
     control.icon = control:GetNamedChild("_Icon")

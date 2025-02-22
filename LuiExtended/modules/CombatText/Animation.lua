@@ -8,7 +8,7 @@ local LUIE = LUIE
 
 --- @class CombatTextAnimation : ZO_InitializingObject
 --- @field private timeline AnimationTimeline  The animation timeline
---- @field private namedSteps table<string, Animation> Named animation steps
+--- @field private namedSteps table<string, AnimationTimeline> Named animation steps
 local CombatTextAnimation = ZO_InitializingObject:Subclass()
 LUIE.CombatTextAnimation = CombatTextAnimation
 local animationManager = GetAnimationManager()
@@ -16,6 +16,7 @@ local animationManager = GetAnimationManager()
 --- Creates a new CombatTextAnimation instance
 --- @return CombatTextAnimation
 function CombatTextAnimation:New()
+    --- @class CombatTextAnimation
     local obj = setmetatable({}, self)
     obj.timeline = animationManager:CreateTimeline()
     obj.timeline:SetPlaybackType(0, 0)
@@ -64,6 +65,7 @@ end
 --- @param easingFunc? function Optional easing function
 --- @return AnimationObjectAlpha
 function CombatTextAnimation:Alpha(stepName, startAlpha, endAlpha, duration, delay, easingFunc)
+    --- @class AnimationObjectAlpha
     local step = self.timeline:InsertAnimation(ANIMATION_ALPHA, nil, delay or 0)
     step:SetAlphaValues(startAlpha, endAlpha)
     step:SetDuration(duration)
@@ -83,6 +85,7 @@ end
 --- @param easingFunc? function Optional easing function
 --- @return AnimationObjectScale
 function CombatTextAnimation:Scale(stepName, startScale, endScale, duration, delay, easingFunc)
+    --- @class AnimationObjectScale
     local step = self.timeline:InsertAnimation(ANIMATION_SCALE, nil, delay or 0)
     step:SetScaleValues(startScale, endScale)
     step:SetDuration(duration)
@@ -102,6 +105,7 @@ end
 --- @param easingFunc? function Optional easing function
 --- @return AnimationObjectTranslate
 function CombatTextAnimation:Move(stepName, offsetX, offsetY, duration, delay, easingFunc)
+    --- @class AnimationObjectTranslate
     local step = self.timeline:InsertAnimation(ANIMATION_TRANSLATE, nil, delay or 0)
     step:SetTranslateDeltas(offsetX, offsetY, TRANSLATE_ANIMATION_DELTA_TYPE_FROM_START)
     step:SetDuration(duration)
@@ -126,14 +130,14 @@ end
 
 --- Gets an animation step by index
 --- @param i integer The index of the animation step
---- @return Animation?
+--- @return userdata|AnimationTimeline?
 function CombatTextAnimation:GetStep(i)
     return self.timeline:GetAnimation(i)
 end
 
 --- Gets an animation step by name
 --- @param stepName string The name of the animation step
---- @return AnimationObjectTranslate ?
+--- @return userdata|AnimationTimeline ?
 function CombatTextAnimation:GetStepByName(stepName)
     if stepName ~= nil and stepName ~= "" then
         return self.namedSteps[stepName]
@@ -141,15 +145,14 @@ function CombatTextAnimation:GetStepByName(stepName)
 end
 
 --- Gets the last animation step in the timeline
---- @return AnimationObjectTranslate ?
+--- @return userdata|AnimationTimeline ?
 function CombatTextAnimation:GetLastStep()
     return self.timeline:GetLastAnimation()
 end
 
 --- Sets the delay for an animation step
---- @param step Animation The animation step
+--- @param step AnimationTimeline The animation step
 --- @param delay number The delay in milliseconds
---- @return fun(step:Animation, delay:number):nil
 function CombatTextAnimation:SetStepDelay(step, delay)
     return self.timeline:SetAnimationOffset(step, delay)
 end

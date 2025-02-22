@@ -4,13 +4,6 @@
 -- -----------------------------------------------------------------------------
 
 --- @class (partial) LuiExtended
---- @field name string The addon name
---- @field author string The addon author
---- @field version string The addon version
---- @field SVName string SavedVariables name
---- @field SVVer number SavedVariables version
---- @field Defaults table Default settings
---- @field SV table Current saved variables
 local LUIE = LUIE
 
 -- Local references for better performance

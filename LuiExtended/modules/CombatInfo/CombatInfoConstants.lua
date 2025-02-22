@@ -8,8 +8,6 @@ local LUIE = LUIE
 
 -- CombatInfo namespace
 --- @class LUIE.CombatInfo
---- @field AbilityAlerts AbilityAlerts
---- @field CrowdControlTracker CrowdControlTracker
 LUIE.CombatInfo = {}
 LUIE.CombatInfo.__index = LUIE.CombatInfo
 

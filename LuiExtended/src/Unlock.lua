@@ -5,8 +5,6 @@
 
 -- -----------------------------------------------------------------------------
 --- @class (partial) LuiExtended
---- @field UI table UI utilities
---- @field SV table Saved variables
 local LUIE = LUIE
 -- -----------------------------------------------------------------------------
 local UI = LUIE.UI

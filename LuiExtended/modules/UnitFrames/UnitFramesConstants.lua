@@ -200,5 +200,74 @@ UnitFrames.Defaults =
 --- @class (partial) LUIE_UnitFrames_SV
 UnitFrames.SV = {}
 
-UnitFrames.CustomFrames = {}
+--- @class LUIE_Boss_Group
+--- @field [32] LUIE_Boss_Group_Health
+--- @field control Control
+--- @field name LabelControl
+--- @field dead LabelControl
+--- @field tld TopLevelWindow
+--- @field unitTag string
+
+--- @class LUIE_Boss_Group_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field invulnerable StatusBarControl
+--- @field invulnerableInlay StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+--- @field threshold integer
+--- @field trauma StatusBarControl
+
+--- @class LUIE_PetGroup_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+--- @field trauma StatusBarControl
+
+--- @class LUIE_PetGroup
+--- @field tlw TopLevelWindow
+--- @field name LabelControl
+--- @field dead LabelControl
+--- @field control Control
+--- @field [32] LUIE_PetGroup_Health
+
+
+UnitFrames.CustomFrames =
+{
+    boss1 = {}, --- @type LUIE_Boss_Group
+    boss2 = {}, --- @type LUIE_Boss_Group
+    boss3 = {}, --- @type LUIE_Boss_Group
+    boss4 = {}, --- @type LUIE_Boss_Group
+    boss5 = {}, --- @type LUIE_Boss_Group
+    boss6 = {}, --- @type LUIE_Boss_Group
+    boss7 = {}, --- @type LUIE_Boss_Group
+    companion = {},
+    controlledsiege = {},
+    PetGroup1 = {}, --- @type LUIE_PetGroup
+    PetGroup2 = {}, --- @type LUIE_PetGroup
+    PetGroup3 = {}, --- @type LUIE_PetGroup
+    PetGroup4 = {}, --- @type LUIE_PetGroup
+    PetGroup5 = {}, --- @type LUIE_PetGroup
+    PetGroup6 = {}, --- @type LUIE_PetGroup
+    PetGroup7 = {}, --- @type LUIE_PetGroup
+    player = {},
+    RaidGroup1 = {},
+    RaidGroup2 = {},
+    RaidGroup3 = {},
+    RaidGroup4 = {},
+    RaidGroup5 = {},
+    RaidGroup6 = {},
+    RaidGroup7 = {},
+    RaidGroup8 = {},
+    RaidGroup9 = {},
+    RaidGroup10 = {},
+    RaidGroup11 = {},
+    RaidGroup12 = {},
+    reticleover = {},
+    SmallGroup1 = {},
+    SmallGroup2 = {},
+    SmallGroup3 = {},
+    SmallGroup4 = {},
+}
 UnitFrames.CustomFramesMovingState = false
