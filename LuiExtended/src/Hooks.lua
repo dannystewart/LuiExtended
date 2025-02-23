@@ -1101,7 +1101,7 @@ function LUIE.InitializeHooks()
     }
 
     local function SetupActionSlot(slotObject, slotId)
-        -- pass slotObject.button.hotbarCategory which will be nil or companion
+        -- pass slotObject.slot.hotbarCategory which will be nil or companion
         local slotIcon = GetSlotTexture(slotId, slotObject:GetHotbarCategory())
 
         -- Added function - Replace icons if needed
@@ -1176,7 +1176,7 @@ function LUIE.InitializeHooks()
     --- @diagnostic disable-next-line: duplicate-set-field
     ActionButton.UpdateActivationHighlight = function (self)
         local slotnum = self:GetSlot()
-        local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or self.button.hotbarCategory
+        local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or self.slot.hotbarCategory
         local slotType = GetSlotType(slotnum, hotbarCategory)
         local slotIsEmpty = (slotType == ACTION_TYPE_NOTHING)
 
@@ -1216,7 +1216,7 @@ function LUIE.InitializeHooks()
     --- @diagnostic disable-next-line: duplicate-set-field
     ActionButton.UpdateState = function (self)
         local slotnum = self:GetSlot()
-        local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or self.button.hotbarCategory
+        local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or self.slot.hotbarCategory
         local slotType = GetSlotType(slotnum, hotbarCategory)
         local slotIsEmpty = (slotType == ACTION_TYPE_NOTHING)
         local abilityId = LUIE.GetSlotTrueBoundId(slotnum, hotbarCategory) -- Check AbilityId for if this should be a fake activation highlight
