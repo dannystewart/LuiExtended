@@ -1167,6 +1167,8 @@ end
 
 function CombatInfo.BarHighlightSwap(abilityId, overrideRank, casterUnitTag)
     local effect = Effects.BarHighlightCheckOnFade[abilityId]
+    if not effect then return end
+
     local ids = { effect.id1 or 0, effect.id2 or 0, effect.id3 or 0 }
     local tags = { effect.unitTag, effect.id2Tag, effect.id3Tag }
     local duration = effect.duration or 0
@@ -1178,20 +1180,39 @@ function CombatInfo.BarHighlightSwap(abilityId, overrideRank, casterUnitTag)
             return
         end
 
+        -- Handle duration-based effects
         if duration > 0 then
-            duration = ((LUIE.GetAbilityDuration(duration, overrideRank, casterUnitTag) or 0) - (LUIE.GetAbilityDuration(durationMod, overrideRank, casterUnitTag) or 0))
-            local timeStarted = GetGameTimeSeconds()
-            local timeEnding = timeStarted + (duration / 1000)
-            CombatInfo.OnEffectChanged(nil, EFFECT_RESULT_GAINED, nil, nil, unitTag, timeStarted, timeEnding, 0, nil, nil, 1, ABILITY_TYPE_BONUS, 0, nil, nil, abilityId, 1, true)
+            local baseDuration = LUIE.GetAbilityDuration(duration, overrideRank, casterUnitTag) or 0
+            local modDuration = LUIE.GetAbilityDuration(durationMod, overrideRank, casterUnitTag) or 0
+            local finalDuration = baseDuration - modDuration
+
+            local timeStarted = GetGameTimeMilliseconds()
+            local timeEnding = timeStarted + finalDuration
+
+            CombatInfo.OnEffectChanged(
+                nil, EFFECT_RESULT_GAINED, nil, nil,
+                unitTag, timeStarted, timeEnding, 0,
+                nil, nil, 1, ABILITY_TYPE_BONUS,
+                0, nil, nil, abilityId, 1, true
+            )
             return
         end
 
+        -- Handle buff-based effects
         if id ~= 0 then
-            for j = 1, GetNumBuffs(unitTag) do
-                local buffName, timeStarted, timeEnding, buffSlot, stackCount, iconFilename, buffType, effectType, abilityType, statusEffectType, abilityIdNew, canClickOff, castByPlayer = GetUnitBuffInfo(unitTag, j)
+            local numBuffs = GetNumBuffs(unitTag)
+            for j = 1, numBuffs do
+                local buffInfo = { GetUnitBuffInfo(unitTag, j) }
+                local abilityIdNew = buffInfo[11]
+                local castByPlayer = buffInfo[13]
+
                 if id == abilityIdNew and castByPlayer then
-                    -- Custom stack count for certain abilities
-                    CombatInfo.OnEffectChanged(nil, EFFECT_RESULT_GAINED, nil, nil, unitTag, timeStarted, timeEnding, stackCount, nil, buffType, effectType, abilityType, statusEffectType, nil, nil, abilityId, 1, true, abilityIdNew)
+                    CombatInfo.OnEffectChanged(
+                        nil, EFFECT_RESULT_GAINED, nil, nil,
+                        unitTag, buffInfo[2], buffInfo[3], buffInfo[5],
+                        buffInfo[6], buffInfo[7], buffInfo[8], buffInfo[9],
+                        buffInfo[10], nil, nil, abilityId, 1, true, abilityIdNew
+                    )
                     return
                 end
             end
