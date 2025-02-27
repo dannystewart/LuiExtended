@@ -5,12 +5,9 @@
 
 --- @class (partial) LuiExtended
 local LUIE = LUIE
--- SpellCastBuffs namespace
+
 --- @class (partial) LUIE.SpellCastBuffs
-local SpellCastBuffs = {}
-SpellCastBuffs.__index = SpellCastBuffs
---- @class (partial) LUIE.SpellCastBuffs
-LUIE.SpellCastBuffs = SpellCastBuffs
+local SpellCastBuffs = LUIE.SpellCastBuffs
 
 local UI = LUIE.UI
 --- @type Data
@@ -50,194 +47,25 @@ local windowTitles =
     prominentdebuffs = GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTDEBUFFS),
 }
 
-SpellCastBuffs.Enabled = false
-SpellCastBuffs.Defaults =
+local uiTlw = {} -- GUI
+
+-- Routing for Auras
+local containerRouting =
 {
-    ColorCosmetic = true,
-    ColorUnbreakable = true,
-    ColorCC = false,
-    colors =
-    {
-        buff = { 0, 1, 0, 1 },
-        debuff = { 1, 0, 0, 1 },
-        prioritybuff = { 1, 1, 0, 1 },
-        prioritydebuff = { 1, 1, 0, 1 },
-        unbreakable = { 224 / 255, 224 / 255, 1, 1 },
-        cosmetic = { 0, 100 / 255, 0, 1 },
-        nocc = { 0, 0, 0, 1 },
-        stun = { 1, 0, 0, 1 },
-        knockback = { 1, 0, 0, 1 },
-        levitate = { 1, 0, 0, 1 },
-        disorient = { 0, 127 / 255, 1, 1 },
-        fear = { 143 / 255, 9 / 255, 236 / 255, 1 },
-        charm = { 64 / 255, 255 / 255, 32 / 255, 1 },
-        silence = { 0, 1, 1, 1 },
-        stagger = { 1, 127 / 255, 0, 1 },
-        snare = { 1, 242 / 255, 32 / 255, 1 },
-        root = { 1, 165 / 255, 0, 1 },
-    },
-    IconSize = 40,
-    LabelPosition = 0,
-    BuffFontFace = "Univers 67",
-    BuffFontStyle = "outline",
-    BuffFontSize = 16,
-    BuffShowLabel = true,
-    AlignmentBuffsPlayer = "Centered",
-    SortBuffsPlayer = "Left to Right",
-    AlignmentDebuffsPlayer = "Centered",
-    SortDebuffsPlayer = "Left to Right",
-    AlignmentBuffsTarget = "Centered",
-    SortBuffsTarget = "Left to Right",
-    AlignmentDebuffsTarget = "Centered",
-    SortDebuffsTarget = "Left to Right",
-    AlignmentLongHorz = "Centered",
-    SortLongHorz = "Left to Right",
-    AlignmentLongVert = "Top",
-    SortLongVert = "Top to Bottom",
-    AlignmentPromBuffsHorz = "Centered",
-    SortPromBuffsHorz = "Left to Right",
-    AlignmentPromBuffsVert = "Bottom",
-    SortPromBuffsVert = "Bottom to Top",
-    AlignmentPromDebuffsHorz = "Centered",
-    SortPromDebuffsHorz = "Left to Right",
-    AlignmentPromDebuffsVert = "Bottom",
-    SortPromDebuffsVert = "Bottom to Top",
-    StackPlayerBuffs = "Down",
-    StackPlayerDebuffs = "Up",
-    StackTargetBuffs = "Down",
-    StackTargetDebuffs = "Up",
-    WidthPlayerBuffs = 1920,
-    WidthPlayerDebuffs = 1920,
-    WidthTargetBuffs = 1920,
-    WidthTargetDebuffs = 1920,
-    GlowIcons = false,
-    RemainingText = true,
-    RemainingTextColoured = false,
-    RemainingTextMillis = true,
-    RemainingCooldown = true,
-    FadeOutIcons = false,
-    lockPositionToUnitFrames = true,
-    LongTermEffects_Player = true,
-    LongTermEffects_Target = true,
-    ShortTermEffects_Player = true,
-    ShortTermEffects_Target = true,
-    IgnoreMundusPlayer = false,
-    IgnoreMundusTarget = false,
-    IgnoreVampPlayer = false,
-    IgnoreVampTarget = false,
-    IgnoreLycanPlayer = false,
-    IgnoreLycanTarget = false,
-    IgnoreDiseasePlayer = false,
-    IgnoreDiseaseTarget = false,
-    IgnoreBitePlayer = false,
-    IgnoreBiteTarget = false,
-    IgnoreCyrodiilPlayer = false,
-    IgnoreCyrodiilTarget = false,
-    IgnoreBattleSpiritPlayer = false,
-    IgnoreBattleSpiritTarget = false,
-    IgnoreEsoPlusPlayer = true,
-    IgnoreEsoPlusTarget = true,
-    IgnoreSoulSummonsPlayer = false,
-    IgnoreSoulSummonsTarget = false,
-    IgnoreSetICDPlayer = false,
-    IgnoreAbilityICDPlayer = false,
-    IgnoreFoodPlayer = false,
-    IgnoreFoodTarget = false,
-    IgnoreExperiencePlayer = false,
-    IgnoreExperienceTarget = false,
-    IgnoreAllianceXPPlayer = false,
-    IgnoreAllianceXPTarget = false,
-    IgnoreDisguise = false,
-    IgnoreCostume = true,
-    IgnoreHat = true,
-    IgnoreSkin = true,
-    IgnorePolymorph = true,
-    IgnoreAssistant = true,
-    IgnorePet = true,
-    PetDetail = true,
-    IgnoreMountPlayer = false,
-    IgnoreMountTarget = false,
-    MountDetail = true,
-    LongTermEffectsSeparate = true,
-    LongTermEffectsSeparateAlignment = 2,
-    ShowBlockPlayer = true,
-    ShowBlockTarget = true,
-    StealthStatePlayer = true,
-    StealthStateTarget = true,
-    DisguiseStatePlayer = true,
-    DisguiseStateTarget = true,
-    -- ShowSprint                          = true,
-    -- ShowGallop                          = true,
-    ShowResurrectionImmunity = true,
-    ShowRecall = true,
-    ShowWerewolf = true,
-    HideOakenSoul = false,
-    HidePlayerBuffs = false,
-    HidePlayerDebuffs = false,
-    HideTargetBuffs = false,
-    HideTargetDebuffs = false,
-    HideGroundEffects = false,
-    ExtraBuffs = true,
-    ExtraExpanded = false,
-    ShowDebugCombat = false,
-    ShowDebugEffect = false,
-    ShowDebugFilter = false,
-    ShowDebugAbilityId = false,
-    HideReduce = true,
-    GroundDamageAura = true,
-    ProminentLabel = true,
-    ProminentLabelFontFace = "Univers 67",
-    ProminentLabelFontStyle = "outline",
-    ProminentLabelFontSize = 16,
-    ProminentProgress = true,
-    ProminentProgressTexture = "Plain",
-    ProminentProgressBuffC1 = { 0, 1, 0 },
-    ProminentProgressBuffC2 = { 0, 0.4, 0 },
-    ProminentProgressDebuffC1 = { 1, 0, 0 },
-    ProminentProgressDebuffC2 = { 0.4, 0, 0 },
-    ProminentProgressBuffPriorityC1 = { 1, 1, 0 },
-    ProminentProgressBuffPriorityC2 = { 0.6, 0.6, 0 },
-    ProminentProgressDebuffPriorityC1 = { 1, 1, 0 },
-    ProminentProgressDebuffPriorityC2 = { 0.6, 0.6, 0 },
-    ProminentBuffContainerAlignment = 2,
-    ProminentDebuffContainerAlignment = 2,
-    ProminentBuffLabelDirection = "Left",
-    ProminentDebuffLabelDirection = "Right",
-    PriorityBuffTable = {},
-    PriorityDebuffTable = {},
-    PromBuffTable = {},
-    PromDebuffTable = {},
-    BlacklistTable = {},
-    TooltipEnable = true,
-    TooltipCustom = false,
-    TooltipSticky = 0,
-    TooltipAbilityId = false,
-    TooltipBuffType = false,
-    UseDefaultIcon = false,
-    DefaultIconOptions = 1,
-    ShowSharedEffects = true,
-    ShowSharedMajorMinor = true,
+    player1 = nil,
+    player2 = nil,
+    reticleover1 = nil,
+    reticleover2 = nil,
+    ground = nil,
+    player_long = nil,
+    promb_ground = nil,
+    promb_target = nil,
+    promb_player = nil,
+    promd_ground = nil,
+    promd_target = nil,
+    promd_player = nil,
 }
-SpellCastBuffs.SV = {}
 
-SpellCastBuffs.EffectsList =
-{
-    ground = {},
-    player1 = {},
-    player2 = {},
-    promb_ground = {},
-    promb_player = {},
-    promb_target = {},
-    promd_ground = {},
-    promd_player = {},
-    promd_target = {},
-    reticleover1 = {},
-    reticleover2 = {},
-    saved = {},
-}                                  -- Saved Effects
-
-local uiTlw = {}                   -- GUI
-local containerRouting = {}        -- Routing for Auras
 local g_alignmentDirection = {}    -- Holds alignment direction for all containers
 local g_sortDirection = {}         -- Holds sorting direction for all containers
 
@@ -339,7 +167,7 @@ function SpellCastBuffs.ShouldUseDefaultIcon(abilityId)
 end
 
 function SpellCastBuffs.GetDefaultIcon(ccType)
-    -- Define mapping of action results to icons
+    -- Mapping of action results to icons.
     local iconMap =
     {
         [ACTION_RESULT_STUNNED] = LUIE_CC_ICON_STUN,
@@ -2764,7 +2592,7 @@ end
 local InternalStackCounter = {}
 
 -- Combat Event - Add Name Aura to Target
-function SpellCastBuffs.OnCombatAddNameEvent(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId)
+function SpellCastBuffs.OnCombatAddNameEvent(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     -- Get the name of the target to apply the buff to
     local name = Effects.AddNameOnEvent[abilityId].name
     local id = Effects.AddNameOnEvent[abilityId].id
@@ -2880,7 +2708,25 @@ function SpellCastBuffs.AddZoneBuffs()
 end
 
 -- Combat Event (Target = Player)
-function SpellCastBuffs.OnCombatEventIn(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overrideRank, casterUnitTag)
+--- @param eventCode integer
+--- @param result ActionResult
+--- @param isError bool
+--- @param abilityName string
+--- @param abilityGraphic integer
+--- @param abilityActionSlotType ActionSlotType
+--- @param sourceName string
+--- @param sourceType CombatUnitType
+--- @param targetName string
+--- @param targetType CombatUnitType
+--- @param hitValue integer
+--- @param powerType CombatMechanicFlags
+--- @param damageType DamageType
+--- @param log bool
+--- @param sourceUnitId integer
+--- @param targetUnitId integer
+--- @param abilityId integer
+--- @param overflow integer
+function SpellCastBuffs.OnCombatEventIn(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     if not (Effects.FakeExternalBuffs[abilityId] or Effects.FakeExternalDebuffs[abilityId] or Effects.FakePlayerBuffs[abilityId] or Effects.FakeStagger[abilityId] or Effects.AddGroundDamageAura[abilityId]) then
         return
     end
@@ -3318,7 +3164,7 @@ function SpellCastBuffs.OnCombatEventIn(eventCode, result, isError, abilityName,
         effectName = Effects.FakePlayerBuffs[abilityId].name or GetAbilityName(abilityId)
         duration = Effects.FakePlayerBuffs[abilityId].duration
         if duration == "GET" then
-            duration = LUIE.GetAbilityDuration(abilityId, overrideRank, casterUnitTag) or 0
+            duration = LUIE.GetAbilityDuration(abilityId) or 0
         end
         local finalId = Effects.FakePlayerBuffs[abilityId].shiftId or abilityId
         if Effects.FakePlayerBuffs[abilityId].shiftId then
@@ -3409,7 +3255,25 @@ local function isValidDamageResult(result)
 end
 
 -- Combat Event (Source = Player)
-function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overrideRank, casterUnitTag)
+--- @param eventCode integer
+--- @param result ActionResult
+--- @param isError bool
+--- @param abilityName string
+--- @param abilityGraphic integer
+--- @param abilityActionSlotType ActionSlotType
+--- @param sourceName string
+--- @param sourceType CombatUnitType
+--- @param targetName string
+--- @param targetType CombatUnitType
+--- @param hitValue integer
+--- @param powerType CombatMechanicFlags
+--- @param damageType DamageType
+--- @param log bool
+--- @param sourceUnitId integer
+--- @param targetUnitId integer
+--- @param abilityId integer
+--- @param overflow integer
+function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     if targetType == COMBAT_UNIT_TYPE_PLAYER or targetType == COMBAT_UNIT_TYPE_PLAYER_PET then
         return
     end
@@ -3436,17 +3300,21 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
             end
             if compareId then
                 -- Remove mine buff if damage is triggered
-                local context
-                if Effects.FakePlayerOfflineAura[compareId].ground then
+                local context = "player1" -- Default context
+
+                -- Check if the compareId exists in FakePlayerOfflineAura before accessing its properties
+                if Effects.FakePlayerOfflineAura[compareId] and Effects.FakePlayerOfflineAura[compareId].ground then
                     context = "ground"
-                else
-                    context = "player1"
                 end
+
+                -- Check for prominent buff/debuff settings
                 if SpellCastBuffs.SV.PromDebuffTable[compareId] then
                     context = "promd_player"
                 elseif SpellCastBuffs.SV.PromBuffTable[compareId] then
                     context = "promb_player"
                 end
+
+                -- Remove the effect from the appropriate context
                 SpellCastBuffs.EffectsList[context][compareId] = nil
             end
         end
@@ -3518,7 +3386,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
         effectName = Effects.FakePlayerOfflineAura[abilityId].name or GetAbilityName(abilityId)
         duration = Effects.FakePlayerOfflineAura[abilityId].duration
         if duration == "GET" then
-            duration = LUIE.GetAbilityDuration(abilityId, overrideRank, casterUnitTag) or 0
+            duration = LUIE.GetAbilityDuration(abilityId) or 0
         end
         local finalId = Effects.FakePlayerOfflineAura[abilityId].shiftId or abilityId
         if Effects.FakePlayerOfflineAura[abilityId].shiftId then
@@ -4031,6 +3899,8 @@ local function buffSort(x, y)
 end
 
 -- Runs OnUpdate - 100 ms buffer
+---
+--- @param currentTime integer
 function SpellCastBuffs.OnUpdate(currentTime)
     local buffsSorted = {}
     local needs_update = {}
