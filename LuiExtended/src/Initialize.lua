@@ -19,9 +19,7 @@ end
 -- Reference to CALLBACK_MANAGER for registering callbacks
 local cm = LUIE.callbackObject
 
---[[
-    Load saved settings.
-]]
+-- Load saved settings.
 local function LoadSavedVars()
     -- Addon options
     LUIE.SV = ZO_SavedVars:NewAccountWide(LUIE.SVName, LUIE.SVVer, nil, LUIE.Defaults)
@@ -30,10 +28,8 @@ local function LoadSavedVars()
     end
 end
 
---[[
-    Load additional fonts from LMP.
-]]
-function LUIE.UpdateFonts()
+-- Load additional fonts from LMP.
+local function UpdateFonts()
     -- First register our own fonts
     for fontName, fontPath in pairs(LUIE.Fonts) do
         LMP:Register(LMP.MediaType.FONT, fontName, fontPath)
@@ -47,10 +43,8 @@ function LUIE.UpdateFonts()
     end
 end
 
---[[
-    Load additional status bar textures from LMP.
-]]
-function LUIE.UpdateStatusbarTextures()
+-- Load additional status bar textures from LMP.
+local function UpdateStatusbarTextures()
     -- First register our own textures
     for textureName, texturePath in pairs(LUIE.StatusbarTextures) do
         LMP:Register(LMP.MediaType.STATUSBAR, textureName, texturePath)
@@ -64,10 +58,8 @@ function LUIE.UpdateStatusbarTextures()
     end
 end
 
---[[
-    Load additional sounds from LMP.
-]]
-function LUIE.UpdateSounds()
+-- Load additional sounds from LMP.
+local function UpdateSounds()
     -- First register our own sounds
     for soundName, soundId in pairs(LUIE.Sounds) do
         LMP:Register(LMP.MediaType.SOUND, soundName, soundId)
@@ -81,18 +73,14 @@ function LUIE.UpdateSounds()
     end
 end
 
---[[
-    Load additional media from LMP.
-]]
+-- Load additional media from LMP.
 local function LoadMedia()
-    LUIE.UpdateFonts()
-    LUIE.UpdateStatusbarTextures()
-    LUIE.UpdateSounds()
+    UpdateFonts()
+    UpdateStatusbarTextures()
+    UpdateSounds()
 end
 
---[[
-    Startup Info string.
-]]
+-- Startup Info string.
 local function LoadScreen()
     eventManager:UnregisterForEvent(LUIE.name, EVENT_PLAYER_ACTIVATED)
     -- Set Positions for moved Default UI elements
@@ -102,9 +90,7 @@ local function LoadScreen()
     end
 end
 
---[[
-    Register events.
-]]
+-- Register events.
 local function RegisterEvents()
     eventManager:RegisterForEvent(LUIE.name, EVENT_PLAYER_ACTIVATED, LoadScreen)
 
@@ -132,9 +118,7 @@ local function RegisterEvents()
     LoadMedia()
 end
 
---[[
-    LuiExtended Initialization.
-]]
+-- LuiExtended Initialization.
 local function OnAddonOnLoaded(eventCode, addonName)
     -- Only initialize our own addon
     if LUIE.name ~= addonName then
