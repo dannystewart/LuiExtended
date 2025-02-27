@@ -18,6 +18,8 @@ local Castbar = LUIE.Data.CastBarTable
 local pairs = pairs
 local ipairs = ipairs
 local printToChat = LUIE.PrintToChat
+local GetSlotTrueBoundId = LUIE.GetSlotTrueBoundId
+local GetAbilityDuration = LUIE.GetAbilityDuration
 local zo_strformat = zo_strformat
 local string_format = string.format
 local eventManager = GetEventManager()
@@ -63,7 +65,7 @@ local g_disableProcSound = {}                                 -- When we play a 
 local g_hotbarCategory = GetActiveHotbarCategory()            -- Set on initialization and when we swap weapons to determine the current hotbar category
 local g_actionBarActiveWeaponPair = GetActiveWeaponPairInfo() -- Toggled on when weapon swapping, TODO: maybe not needed
 local g_backbarButtons = {}                                   -- Table to hold backbar buttons
-local g_activeWeaponSwapInProgress = false                    -- Toggled on when weapon swapping, TODO: maybe not needed
+-- local g_activeWeaponSwapInProgress = false                    -- Toggled on when weapon swapping, TODO: maybe not needed
 local g_castbarWorldMapFix = false                            -- Fix for viewing the World Map changing the player coordinates for some reason
 local ACTION_BAR_META = ZO_ActionBar1
 local ACTION_BAR = ACTION_BAR_META
@@ -134,7 +136,7 @@ local function is_it_enabled()
 end
 
 -- Set Marker - Called by the menu & EVENT_PLAYER_ACTIVATED (needs to be reset on the player changing zones)
--- @param removeMarker boolean: Remove the marker by making an empty dummy marker (only called from the menu toggle)
+--- @param removeMarker boolean? Remove the marker by making an empty dummy marker (only called from the menu toggle)
 function CombatInfo.SetMarker(removeMarker)
     -- Only call with removeMarker param from menu toggle setting - there doesn't appear to be any way to remove floating markers so we only do this so the player doesn't have to reloadUI after toggling the setting off
     -- We don't wanna draw a pointless marker with no texture otherwise.
@@ -152,163 +154,161 @@ function CombatInfo.SetMarker(removeMarker)
     eventManager:RegisterForEvent(moduleName .. "Marker", EVENT_PLAYER_ACTIVATED, CombatInfo.OnPlayerActivatedMarker)
 end
 
-local slotsUpdated = {}
+do
+    local slotsUpdated = {}
 
-local function OnSwapAnimationHalfDone(animation, button, isBackBarSlot)
-    for i = BAR_INDEX_START, BAR_INDEX_END do
-        if not slotsUpdated[i] then
-            local targetButton = g_backbarButtons[i + BACKBAR_INDEX_OFFSET]
-            CombatInfo.BarSlotUpdate(i, false, false)
-            CombatInfo.BarSlotUpdate(i + BACKBAR_INDEX_OFFSET, false, false)
-            -- Don't try to setup back bar ultimate
-            if i < 8 then
-                CombatInfo.SetupBackBarIcons(targetButton, true)
+    local function OnSwapAnimationHalfDone(animation, button, isBackBarSlot)
+        for i = BAR_INDEX_START, BAR_INDEX_END do
+            if not slotsUpdated[i] then
+                local targetButton = g_backbarButtons[i + BACKBAR_INDEX_OFFSET]
+                CombatInfo.BarSlotUpdate(i, false, false)
+                CombatInfo.BarSlotUpdate(i + BACKBAR_INDEX_OFFSET, false, false)
+                -- Don't try to setup back bar ultimate
+                if i < 8 then
+                    CombatInfo.SetupBackBarIcons(targetButton, true)
+                end
+                if i == 8 then
+                    CombatInfo.UpdateUltimateLabel()
+                end
+                slotsUpdated[i] = true
             end
-            if i == 8 then
-                CombatInfo.UpdateUltimateLabel()
-            end
-            slotsUpdated[i] = true
         end
     end
-end
 
-local function OnSwapAnimationDone(animation, button)
-    button.noUpdates = false
-    if button:GetSlot() == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
-        g_activeWeaponSwapInProgress = false
-    end
-    slotsUpdated = {}
-end
-
-local function SetupSwapAnimation(button)
-    button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
-end
-
-local function FormatDurationSeconds(remain)
-    return string_format((CombatInfo.SV.BarMillis and ((remain < CombatInfo.SV.BarMillisThreshold * 1000) or CombatInfo.SV.BarMillisAboveTen)) and "%.1f" or "%.1d", remain / 1000)
-end
-
--- Module initialization
-function CombatInfo.Initialize(enabled)
-    -- Load settings
-    local isCharacterSpecific = LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
-    if isCharacterSpecific then
-        CombatInfo.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
-    else
-        CombatInfo.SV = ZO_SavedVars:NewAccountWide(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
+    local function OnSwapAnimationDone(animation, button)
+        button.noUpdates = false
+        if button:GetSlot() == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
+            g_activeWeaponSwapInProgress = false
+        end
+        slotsUpdated = {}
     end
 
-    -- Disable module if setting not toggled on
-    if not enabled then
-        return
-    end
-    CombatInfo.Enabled = true
-    isFancyActionBarEnabled = is_it_enabled()
-    CombatInfo.ApplyFont()
-    CombatInfo.ApplyProcSound()
-    local QSB = _G["QuickslotButton"]
-    uiQuickSlot.label = UI:Label(QSB, { CENTER, CENTER }, nil, nil, g_potionFont, nil, true)
-    uiQuickSlot.label:SetFont(g_potionFont)
-    if CombatInfo.SV.PotionTimerColor then
-        uiQuickSlot.label:SetColor(unpack(uiQuickSlot.color))
-    else
-        uiQuickSlot.label:SetColor(1, 1, 1, 1)
-    end
-    uiQuickSlot.label:SetDrawLayer(DL_OVERLAY)
-    uiQuickSlot.label:SetDrawTier(DT_HIGH)
-    CombatInfo.ResetPotionTimerLabel() -- Set the label position
-
-    -- Create Ultimate overlay labels
-    local AB8 = _G["ActionButton8"]
-    uiUltimate.LabelVal = UI:Label(AB8, { BOTTOM, TOP, 0, -3 }, nil, { 1, 2 }, "$(BOLD_FONT)|16|soft-shadow-thick", nil, true)
-    uiUltimate.LabelPct = UI:Label(AB8, nil, nil, nil, g_ultimateFont, nil, true)
-    local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot, g_hotbarCategory)
-    uiUltimate.LabelPct:SetAnchor(TOPLEFT, actionButton.slot, nil, 0, 0)
-    uiUltimate.LabelPct:SetAnchor(BOTTOMRIGHT, actionButton.slot, nil, 0, -CombatInfo.SV.UltimateLabelPosition)
-
-    uiUltimate.LabelPct:SetColor(unpack(uiUltimate.color))
-    -- And buff texture
-    uiUltimate.Texture = UI:Texture(AB8, { CENTER, CENTER }, { 160, 160 }, "/esoui/art/crafting/white_burst.dds", DL_BACKGROUND, true)
-
-    -- Create a top level window for backbar buttons using UI:Control
-    local tlw = UI:Control(
-        ACTION_BAR,    -- parent
-        "fill",        -- anchors
-        "inherit",     -- dims
-        false,         -- hidden
-        "LUIE_Backbar" -- name
-    )
-
-
-    for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-        local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, tlw, "ZO_ActionButton")
-        SetupSwapAnimation(button)
-        button:SetupBounceAnimation()
-        g_backbarButtons[i] = button
+    local function SetupSwapAnimation(button)
+        button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
     end
 
-    CombatInfo.BackbarSetupTemplate()
-    CombatInfo.BackbarToggleSettings()
-    -------------------------------------------------------------------------------------
+    -- Module initialization
+    function CombatInfo.Initialize(enabled)
+        -- Load settings
+        local isCharacterSpecific = LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+        if isCharacterSpecific then
+            CombatInfo.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
+        else
+            CombatInfo.SV = ZO_SavedVars:NewAccountWide(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
+        end
 
-    CombatInfo.RegisterCombatInfo()
+        -- Disable module if setting not toggled on
+        if not enabled then
+            return
+        end
+        CombatInfo.Enabled = true
+        isFancyActionBarEnabled = is_it_enabled()
+        CombatInfo.ApplyFont()
+        CombatInfo.ApplyProcSound()
+        local QSB = _G["QuickslotButton"]
+        uiQuickSlot.label = UI:Label(QSB, { CENTER, CENTER }, nil, nil, g_potionFont, nil, true)
+        uiQuickSlot.label:SetFont(g_potionFont)
+        if CombatInfo.SV.PotionTimerColor then
+            uiQuickSlot.label:SetColor(unpack(uiQuickSlot.color))
+        else
+            uiQuickSlot.label:SetColor(1, 1, 1, 1)
+        end
+        uiQuickSlot.label:SetDrawLayer(DL_OVERLAY)
+        uiQuickSlot.label:SetDrawTier(DT_HIGH)
+        CombatInfo.ResetPotionTimerLabel() -- Set the label position
 
-    if CombatInfo.SV.GlobalShowGCD then
-        CombatInfo.HookGCD()
+        -- Create Ultimate overlay labels
+        local AB8 = _G["ActionButton8"]
+        uiUltimate.LabelVal = UI:Label(AB8, { BOTTOM, TOP, 0, -3 }, nil, { 1, 2 }, "$(BOLD_FONT)|16|soft-shadow-thick", nil, true)
+        uiUltimate.LabelPct = UI:Label(AB8, nil, nil, nil, g_ultimateFont, nil, true)
+        local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot, g_hotbarCategory)
+        uiUltimate.LabelPct:SetAnchor(TOPLEFT, actionButton.slot, nil, 0, 0)
+        uiUltimate.LabelPct:SetAnchor(BOTTOMRIGHT, actionButton.slot, nil, 0, -CombatInfo.SV.UltimateLabelPosition)
+
+        uiUltimate.LabelPct:SetColor(unpack(uiUltimate.color))
+        -- And buff texture
+        uiUltimate.Texture = UI:Texture(AB8, { CENTER, CENTER }, { 160, 160 }, "/esoui/art/crafting/white_burst.dds", DL_BACKGROUND, true)
+
+        -- Create a top level window for backbar buttons using UI:Control
+        local tlw = UI:Control(
+            ACTION_BAR,    -- parent
+            "fill",        -- anchors
+            "inherit",     -- dims
+            false,         -- hidden
+            "LUIE_Backbar" -- name
+        )
+
+
+        for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
+            local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, tlw, "ZO_ActionButton")
+            SetupSwapAnimation(button)
+            button:SetupBounceAnimation()
+            g_backbarButtons[i] = button
+        end
+
+        CombatInfo.BackbarSetupTemplate()
+        CombatInfo.BackbarToggleSettings()
+        -------------------------------------------------------------------------------------
+
+        CombatInfo.RegisterCombatInfo()
+
+        if CombatInfo.SV.GlobalShowGCD then
+            CombatInfo.HookGCD()
+        end
+
+        -- Setup Floating Marker
+        CombatInfo.SetMarker()
+
+        -- Create and update Cast Bar
+        CombatInfo.CreateCastBar()
+        CombatInfo.UpdateCastBar()
+        CombatInfo.SetCastBarPosition()
+
+        -- Setup Alerts
+        CombatInfo.AbilityAlerts.CreateAlertFrame()
+        CombatInfo.AbilityAlerts.SetAlertFramePosition()
+        CombatInfo.AbilityAlerts.SetAlertColors()
+
+        -- Setup CCT
+        CombatInfo.CrowdControlTracker.UpdateAOEList()
+        CombatInfo.CrowdControlTracker.Initialize()
+
+        -- Variable adjustment if needed
+        if not LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI then
+            LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI = 0
+        end
+        if LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI < 2 then
+            -- Set ability alert default colors
+            CombatInfo.SV.alerts.colors.stunColor = CombatInfo.Defaults.alerts.colors.stunColor
+            CombatInfo.SV.alerts.colors.knockbackColor = CombatInfo.Defaults.alerts.colors.knockbackColor
+            CombatInfo.SV.alerts.colors.levitateColor = CombatInfo.Defaults.alerts.colors.levitateColor
+            CombatInfo.SV.alerts.colors.disorientColor = CombatInfo.Defaults.alerts.colors.disorientColor
+            CombatInfo.SV.alerts.colors.fearColor = CombatInfo.Defaults.alerts.colors.fearColor
+            CombatInfo.SV.alerts.colors.charmColor = CombatInfo.Defaults.alerts.colors.charmColor
+            CombatInfo.SV.alerts.colors.silenceColor = CombatInfo.Defaults.alerts.colors.silenceColor
+            CombatInfo.SV.alerts.colors.staggerColor = CombatInfo.Defaults.alerts.colors.staggerColor
+            CombatInfo.SV.alerts.colors.unbreakableColor = CombatInfo.Defaults.alerts.colors.unbreakableColor
+            CombatInfo.SV.alerts.colors.snareColor = CombatInfo.Defaults.alerts.colors.snareColor
+            CombatInfo.SV.alerts.colors.rootColor = CombatInfo.Defaults.alerts.colors.rootColor
+            -- Set CCT default colors
+            CombatInfo.SV.cct.colors[ACTION_RESULT_STUNNED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_STUNNED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_KNOCKBACK] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_KNOCKBACK]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_LEVITATED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_LEVITATED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_DISORIENTED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_DISORIENTED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_FEARED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_FEARED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_CHARMED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_CHARMED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_SILENCED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_SILENCED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_STAGGERED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_STAGGERED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_IMMUNE] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_IMMUNE]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_DODGED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_DODGED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_BLOCKED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_BLOCKED]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_BLOCKED_DAMAGE] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_BLOCKED_DAMAGE]
+            CombatInfo.SV.cct.colors[ACTION_RESULT_AREA_EFFECT] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_AREA_EFFECT]
+            CombatInfo.SV.cct.colors.unbreakable = CombatInfo.Defaults.cct.colors.unbreakable
+        end
+        -- Increment so this doesn't occur again.
+        LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI = 2
     end
-
-    -- Setup Floating Marker
-    CombatInfo.SetMarker()
-
-    -- Create and update Cast Bar
-    CombatInfo.CreateCastBar()
-    CombatInfo.UpdateCastBar()
-    CombatInfo.SetCastBarPosition()
-
-    -- Setup Alerts
-    CombatInfo.AbilityAlerts.CreateAlertFrame()
-    CombatInfo.AbilityAlerts.SetAlertFramePosition()
-    CombatInfo.AbilityAlerts.SetAlertColors()
-
-    -- Setup CCT
-    CombatInfo.CrowdControlTracker.UpdateAOEList()
-    CombatInfo.CrowdControlTracker.Initialize()
-
-    -- Variable adjustment if needed
-    if not LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI then
-        LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI = 0
-    end
-    if LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI < 2 then
-        -- Set ability alert default colors
-        CombatInfo.SV.alerts.colors.stunColor = CombatInfo.Defaults.alerts.colors.stunColor
-        CombatInfo.SV.alerts.colors.knockbackColor = CombatInfo.Defaults.alerts.colors.knockbackColor
-        CombatInfo.SV.alerts.colors.levitateColor = CombatInfo.Defaults.alerts.colors.levitateColor
-        CombatInfo.SV.alerts.colors.disorientColor = CombatInfo.Defaults.alerts.colors.disorientColor
-        CombatInfo.SV.alerts.colors.fearColor = CombatInfo.Defaults.alerts.colors.fearColor
-        CombatInfo.SV.alerts.colors.charmColor = CombatInfo.Defaults.alerts.colors.charmColor
-        CombatInfo.SV.alerts.colors.silenceColor = CombatInfo.Defaults.alerts.colors.silenceColor
-        CombatInfo.SV.alerts.colors.staggerColor = CombatInfo.Defaults.alerts.colors.staggerColor
-        CombatInfo.SV.alerts.colors.unbreakableColor = CombatInfo.Defaults.alerts.colors.unbreakableColor
-        CombatInfo.SV.alerts.colors.snareColor = CombatInfo.Defaults.alerts.colors.snareColor
-        CombatInfo.SV.alerts.colors.rootColor = CombatInfo.Defaults.alerts.colors.rootColor
-        -- Set CCT default colors
-        CombatInfo.SV.cct.colors[ACTION_RESULT_STUNNED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_STUNNED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_KNOCKBACK] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_KNOCKBACK]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_LEVITATED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_LEVITATED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_DISORIENTED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_DISORIENTED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_FEARED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_FEARED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_CHARMED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_CHARMED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_SILENCED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_SILENCED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_STAGGERED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_STAGGERED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_IMMUNE] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_IMMUNE]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_DODGED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_DODGED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_BLOCKED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_BLOCKED]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_BLOCKED_DAMAGE] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_BLOCKED_DAMAGE]
-        CombatInfo.SV.cct.colors[ACTION_RESULT_AREA_EFFECT] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_AREA_EFFECT]
-        CombatInfo.SV.cct.colors.unbreakable = CombatInfo.Defaults.cct.colors.unbreakable
-    end
-    -- Increment so this doesn't occur again.
-    LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI = 2
 end
 
 -- Called on initialization and on full update to swap icons on backbar
@@ -316,7 +316,7 @@ function CombatInfo.SetupBackBarIcons(button, flip)
     -- Setup icons for backbar
     local hotbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP
     local slotNum = button.slot.slotNum
-    local slotId = LUIE.GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, hotbarCategory)
+    local slotId = GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, hotbarCategory)
 
     -- Check backbar weapon type
     local weaponSlot = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and 4 or 20
@@ -372,7 +372,6 @@ end
 
 function CombatInfo.OnActiveWeaponPairChanged(eventCode, activeWeaponPair)
     if activeWeaponPair ~= g_actionBarActiveWeaponPair then
-        g_hotbarCategory = GetActiveHotbarCategory()
         g_activeWeaponSwapInProgress = true
         g_actionBarActiveWeaponPair = activeWeaponPair
     end
@@ -531,7 +530,7 @@ end
 local function GetUpdatedAbilityDuration(abilityId, overrideRank, casterUnitTag)
     overrideRank = overrideRank or nil
     casterUnitTag = casterUnitTag or "player"
-    local duration = g_barDurationOverride[abilityId] or LUIE.GetAbilityDuration(abilityId, overrideRank, casterUnitTag) or 0
+    local duration = g_barDurationOverride[abilityId] or GetAbilityDuration(abilityId, overrideRank, casterUnitTag) or 0
     return duration
 end
 
@@ -738,6 +737,10 @@ function CombatInfo.OnPlayerActivated(eventCode)
     CombatInfo.OnPowerUpdatePlayer(EVENT_POWER_UPDATE, "player", nil, COMBAT_MECHANIC_FLAGS_ULTIMATE, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_ULTIMATE))
 end
 
+local function FormatDurationSeconds(remain)
+    return string_format((CombatInfo.SV.BarMillis and ((remain < CombatInfo.SV.BarMillisThreshold * 1000) or CombatInfo.SV.BarMillisAboveTen)) and "%.1f" or "%.1d", remain / 1000)
+end
+
 local savedPlayerX = 0
 local savedPlayerZ = 0
 local playerX
@@ -914,7 +917,8 @@ local function CastBarWorldMapFix()
     eventManager:UnregisterForEvent(moduleName .. "CastBarFix")
 end
 
--- Run on the EVENT_GAME_CAMERA_UI_MODE_CHANGED handler
+-- Runs on the `EVENT_GAME_CAMERA_UI_MODE_CHANGED` handler.
+--- @param eventCode integer
 function CombatInfo.OnGameCameraUIModeChanged(eventCode)
     -- Changing zones in the World Map for some reason changes the player coordinates so when the player clicks on a Wayshrine to teleport the cast gets interrupted
     -- This buffer fixes this issue
@@ -926,21 +930,26 @@ function CombatInfo.OnGameCameraUIModeChanged(eventCode)
     end
 end
 
--- Run on the EVENT_END_SIEGE_CONTROL handler
+-- Runs on the `EVENT_END_SIEGE_CONTROL` handler.
 -- Used to break the cast for Stow Siege Weapon if the player exits siege control.
+--- @param eventCode integer
 function CombatInfo.OnSiegeEnd(eventCode)
     if castbar.id == 12256 then
         CombatInfo.StopCastBar()
     end
 end
 
+-- Runs on the `EVENT_ACTION_SLOT_ABILITY_USED` handler.
 -- Stops Attack Cast when releasing heavy attacks
+--- @param eventCode integer
+--- @param actionSlotIndex luaindex
 function CombatInfo.OnAbilityUsed(eventCode, actionSlotIndex)
     if actionSlotIndex == 2 then
         CombatInfo.StopCastBar()
     end
 end
 
+-- Stops cast bar.
 function CombatInfo.StopCastBar()
     local state = CombatInfo.CastBarUnlocked
     -- Don't hide the cast bar if we have it unlocked to move.
@@ -958,7 +967,10 @@ function CombatInfo.StopCastBar()
     end
 end
 
--- Updates Cast Bar - only enabled when Cast Bar is unhidden
+-- Updates Cast Bar.
+-- Only enabled when the Cast Bar is unhidden.
+---
+--- @param currentTime number
 function CombatInfo.OnUpdateCastbar(currentTime)
     -- Update castbar
     local castStarts = castbar.starts
@@ -978,7 +990,7 @@ function CombatInfo.OnUpdateCastbar(currentTime)
     end
 end
 
--- Updates local variables with new font
+-- Updates local variables with new font.
 function CombatInfo.ApplyFont()
     if not CombatInfo.Enabled then
         return
@@ -1017,7 +1029,7 @@ function CombatInfo.ApplyFont()
     g_castbarFont = setupFont("CastBarFontFace", "CastBarFontStyle", "CastBarFontSize", "soft-shadow-thin", 16)
 end
 
--- Updates Proc Sound - called on initialization and menu changes
+-- Updates Proc Sound - called on initialization and menu changes.
 function CombatInfo.ApplyProcSound(menu)
     local barProcSound = LUIE.Sounds[CombatInfo.SV.ProcSoundName]
     if not barProcSound or barProcSound == "" then
@@ -1032,7 +1044,7 @@ function CombatInfo.ApplyProcSound(menu)
     end
 end
 
--- Resets the ultimate labels on menu option change
+-- Resets the ultimate labels on menu option change.
 function CombatInfo.ResetUltimateLabel()
     uiUltimate.LabelPct:ClearAnchors()
     local actionButton = ZO_ActionBar_GetButton(8)
@@ -1040,7 +1052,7 @@ function CombatInfo.ResetUltimateLabel()
     uiUltimate.LabelPct:SetAnchor(BOTTOMRIGHT, actionButton.slot, nil, 0, -CombatInfo.SV.UltimateLabelPosition)
 end
 
--- Resets bar labels on menu option change
+-- Resets bar labels on menu option change.
 function CombatInfo.ResetBarLabel()
     for k, _ in pairs(g_uiProcAnimation) do
         g_uiProcAnimation[k].procLoopTexture.label:SetText("")
@@ -1051,7 +1063,7 @@ function CombatInfo.ResetBarLabel()
     end
 
     for i = BAR_INDEX_START, BAR_INDEX_END do
-        -- Clear base action bars
+        -- Clear base action bars.
         local actionButton = ZO_ActionBar_GetButton(i)
         if g_uiCustomToggle[i] then
             g_uiCustomToggle[i].label:ClearAnchors()
@@ -1077,17 +1089,20 @@ function CombatInfo.ResetBarLabel()
     end
 end
 
--- Resets Potion Timer label - called on initialization and menu changes
+-- Resets Potion Timer label.
+-- Called on initialization and menu changes.
 function CombatInfo.ResetPotionTimerLabel()
-    local QSB = ACTION_BAR:GetNamedChild("QuickslotButtonButton")
+    local QSB = _G["QuickslotButton"]
     uiQuickSlot.label:ClearAnchors()
     uiQuickSlot.label:SetAnchor(TOPLEFT, QSB, nil, 0, 0)
     uiQuickSlot.label:SetAnchor(BOTTOMRIGHT, QSB, nil, 0, -CombatInfo.SV.PotionTimerLabelPosition)
 end
 
--- Runs on the EVENT_TARGET_CHANGE listener.
+-- Runs on the `EVENT_TARGET_CHANGE` listener.
 -- This handler fires every time the someone target changes.
--- This function is needed in case the player teleports via Way Shrine
+-- This function is needed in case the player teleports via Way Shrine.
+--- @param eventCode integer
+--- @param unitTag string
 function CombatInfo.OnTargetChange(eventCode, unitTag)
     if unitTag ~= "player" then
         return
@@ -1095,8 +1110,9 @@ function CombatInfo.OnTargetChange(eventCode, unitTag)
     CombatInfo.OnReticleTargetChanged(eventCode)
 end
 
--- Runs on the EVENT_RETICLE_TARGET_CHANGED listener.
--- This handler fires every time the player's reticle target changes
+-- Runs on the `EVENT_RETICLE_TARGET_CHANGED` listener.
+-- This handler fires every time the player's reticle target changes.
+--- @param eventCode integer
 function CombatInfo.OnReticleTargetChanged(eventCode)
     if not eventCode then return end
     -- Clear existing toggles that should be removed on target change
@@ -1165,7 +1181,9 @@ function CombatInfo.OnReticleTargetChanged(eventCode)
     end
 end
 
-function CombatInfo.BarHighlightSwap(abilityId, overrideRank, casterUnitTag)
+-- Handles bar highlight swap event.
+--- @param abilityId integer Ability ID
+function CombatInfo.BarHighlightSwap(abilityId)
     local effect = Effects.BarHighlightCheckOnFade[abilityId]
     local ids = { effect.id1 or 0, effect.id2 or 0, effect.id3 or 0 }
     local tags = { effect.unitTag, effect.id2Tag, effect.id3Tag }
@@ -1179,10 +1197,10 @@ function CombatInfo.BarHighlightSwap(abilityId, overrideRank, casterUnitTag)
         end
 
         if duration > 0 then
-            duration = ((LUIE.GetAbilityDuration(duration, overrideRank, casterUnitTag) or 0) - (LUIE.GetAbilityDuration(durationMod, overrideRank, casterUnitTag) or 0))
+            duration = ((GetAbilityDuration(duration) or 0) - (GetAbilityDuration(durationMod) or 0))
             local timeStarted = GetGameTimeSeconds()
             local timeEnding = timeStarted + (duration / 1000)
-            CombatInfo.OnEffectChanged(nil, EFFECT_RESULT_GAINED, nil, nil, unitTag, timeStarted, timeEnding, 0, nil, nil, 1, ABILITY_TYPE_BONUS, 0, nil, nil, abilityId, 1, true)
+            CombatInfo.OnEffectChanged(nil, EFFECT_RESULT_GAINED, nil, nil, unitTag, timeStarted, timeEnding, 0, nil, nil, 1, ABILITY_TYPE_BONUS, 0, nil, nil, abilityId, 1, true, abilityId)
             return
         end
 
@@ -1200,14 +1218,34 @@ function CombatInfo.BarHighlightSwap(abilityId, overrideRank, casterUnitTag)
 end
 
 -- Extra returns here - passThrough & savedId
-function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, castByPlayer, passThrough, savedId)
+--- Handles effect changed event
+--- @param eventCode integer
+--- @param changeType EffectResult
+--- @param effectSlot integer
+--- @param effectName string
+--- @param unitTag string
+--- @param beginTime number
+--- @param endTime number
+--- @param stackCount integer
+--- @param iconName string
+--- @param deprecatedBuffType string
+--- @param effectType BuffEffectType
+--- @param abilityType AbilityType
+--- @param statusEffectType StatusEffectType
+--- @param unitName string
+--- @param unitId integer
+--- @param abilityId integer
+--- @param sourceType CombatUnitType
+--- @param passThrough boolean
+--- @param savedId integer
+function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, deprecatedBuffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceType, passThrough, savedId)
     -- If we're displaying a fake bar highlight then bail out here (sometimes we need a fake aura that doesn't end to simulate effects that can be overwritten, such as Major/Minor buffs. Technically we don't want to stop the
     -- highlight of the original ability since we can only track one buff per slot and overwriting the buff with a longer duration buff shouldn't throw the player off by making the glow disappear earlier.
     if g_barFakeAura[abilityId] and not passThrough then
         return
     end
     -- Bail out if this effect wasn't cast by the player.
-    if castByPlayer ~= COMBAT_UNIT_TYPE_PLAYER then
+    if sourceType ~= COMBAT_UNIT_TYPE_PLAYER then
         return
     end
 
@@ -1502,6 +1540,9 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
     end
 end
 
+--- Hides slot.
+--- @param slotNum integer Slot number
+--- @param abilityId integer Ability ID
 function CombatInfo.HideSlot(slotNum, abilityId)
     g_uiCustomToggle[slotNum]:SetHidden(true)
     if slotNum > BACKBAR_INDEX_OFFSET then
@@ -1515,6 +1556,11 @@ function CombatInfo.HideSlot(slotNum, abilityId)
     end
 end
 
+--- Hides slot.
+--- @param slotNum number
+--- @param abilityId number
+--- @param currentTime number
+--- @param desaturate boolean
 function CombatInfo.ShowSlot(slotNum, abilityId, currentTime, desaturate)
     CombatInfo.ShowCustomToggle(slotNum)
     if slotNum > BACKBAR_INDEX_OFFSET then
@@ -1545,6 +1591,8 @@ function CombatInfo.ShowSlot(slotNum, abilityId, currentTime, desaturate)
     end
 end
 
+--- Handles backbar hide slot event.
+--- @param slotNum number
 function CombatInfo.BackbarHideSlot(slotNum)
     if CombatInfo.SV.BarHideUnused then
         if g_backbarButtons[slotNum] then
@@ -1553,6 +1601,8 @@ function CombatInfo.BackbarHideSlot(slotNum)
     end
 end
 
+--- Handles backbar show slot event.
+--- @param slotNum number
 function CombatInfo.BackbarShowSlot(slotNum)
     -- Unhide the slot
     if CombatInfo.SV.BarShowBack then
@@ -1562,6 +1612,9 @@ function CombatInfo.BackbarShowSlot(slotNum)
     end
 end
 
+--- Handles backbar saturation toggle event.
+--- @param slotNum number
+--- @param desaturate boolean
 function CombatInfo.ToggleBackbarSaturation(slotNum, desaturate)
     local button = g_backbarButtons[slotNum]
     if CombatInfo.SV.BarDarkUnused then
@@ -1791,6 +1844,8 @@ function CombatInfo.SetCastBarPosition()
     uiTlw.castBar.preview.anchorLabel:SetText((savedPos ~= nil and #savedPos == 2) and zo_strformat("<<1>>, <<2>>", savedPos[1], savedPos[2]) or "default")
 end
 
+---
+--- @param state boolean
 function CombatInfo.SetMovingState(state)
     if not CombatInfo.Enabled then
         return
@@ -1804,6 +1859,8 @@ function CombatInfo.SetMovingState(state)
 end
 
 -- Called by CombatInfo.SetMovingState from the menu as well as by CombatInfo.OnUpdateCastbar when preview is enabled
+---
+--- @param state boolean
 function CombatInfo.GenerateCastbarPreview(state)
     local previewIcon = "/esoui/art/icons/icon_missing.dds"
     castbar.icon:SetTexture(previewIcon)
@@ -1874,6 +1931,9 @@ end
 ]]
 --
 
+---
+--- @param eventCode number
+--- @param durationMs number
 function CombatInfo.SoulGemResurrectionStart(eventCode, durationMs)
     -- Just in case any other casts are present - stop them first
     CombatInfo.StopCastBar()
@@ -1908,12 +1968,33 @@ function CombatInfo.SoulGemResurrectionStart(eventCode, durationMs)
     eventManager:RegisterForUpdate(moduleName .. "CastBar", 20, CombatInfo.OnUpdateCastbar)
 end
 
+---
+--- @param eventCode number
 function CombatInfo.SoulGemResurrectionEnd(eventCode)
     CombatInfo.StopCastBar()
 end
 
--- Very basic handler registered to only read CC events on the player
-function CombatInfo.OnCombatEventBreakCast(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId)
+-- Very basic handler registered to only read CC events on the player.
+---
+--- @param eventCode integer
+--- @param result ActionResult
+--- @param isError bool
+--- @param abilityName string
+--- @param abilityGraphic integer
+--- @param abilityActionSlotType ActionSlotType
+--- @param sourceName string
+--- @param sourceType CombatUnitType
+--- @param targetName string
+--- @param targetType CombatUnitType
+--- @param hitValue integer
+--- @param powerType CombatMechanicFlags
+--- @param damageType DamageType
+--- @param log bool
+--- @param sourceUnitId integer
+--- @param targetUnitId integer
+--- @param abilityId integer
+--- @param overflow integer
+function CombatInfo.OnCombatEventBreakCast(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     -- Some cast/channel abilities (or effects we use to simulate this) stun the player - ignore the effects of these ids when this happens.
     if Castbar.IgnoreCastBarStun[abilityId] or Castbar.IgnoreCastBreakingActions[castbar.id] then
         return
@@ -1924,13 +2005,48 @@ function CombatInfo.OnCombatEventBreakCast(eventCode, result, isError, abilityNa
     end
 end
 
+---
+--- @param result ActionResult
+--- @return boolean
 local function isValidDamageResult(result)
     if result == ACTION_RESULT_BLOCKED or result == ACTION_RESULT_BLOCKED_DAMAGE or result == ACTION_RESULT_CRITICAL_DAMAGE or result == ACTION_RESULT_DAMAGE or result == ACTION_RESULT_DAMAGE_SHIELDED or result == ACTION_RESULT_IMMUNE or result == ACTION_RESULT_MISS or result == ACTION_RESULT_PARTIAL_RESIST or result == ACTION_RESULT_REFLECTED or result == ACTION_RESULT_RESIST or result == ACTION_RESULT_WRECKING_DAMAGE or result == ACTION_RESULT_DODGED then
         return true
     end
+    return false
+end
+
+---
+--- @param abilityId integer
+--- @param overrideActiveRank integer?
+--- @param overrideCasterUnitTag string?
+--- @return boolean channeled
+--- @return integer durationValue
+local function getAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
+    overrideActiveRank = overrideActiveRank or nil
+    overrideCasterUnitTag = overrideCasterUnitTag or "player"
+    local channeled, durationValue = GetAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
+    return channeled, durationValue
 end
 
 -- Listens to EVENT_COMBAT_EVENT
+--- @param eventCode integer
+--- @param result ActionResult
+--- @param isError bool
+--- @param abilityName string
+--- @param abilityGraphic integer
+--- @param abilityActionSlotType ActionSlotType
+--- @param sourceName string
+--- @param sourceType CombatUnitType
+--- @param targetName string
+--- @param targetType CombatUnitType
+--- @param hitValue integer
+--- @param powerType CombatMechanicFlags
+--- @param damageType DamageType
+--- @param log bool
+--- @param sourceUnitId integer
+--- @param targetUnitId integer
+--- @param abilityId integer
+--- @param overflow integer
 function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     -- Track ultimate generation when we block an attack or hit a target with a light/medium/heavy attack.
     if CombatInfo.SV.UltimateGeneration and uiUltimate.NotFull and ((result == ACTION_RESULT_BLOCKED_DAMAGE and targetType == COMBAT_UNIT_TYPE_PLAYER) or (Effects.IsWeaponAttack[abilityName] and sourceType == COMBAT_UNIT_TYPE_PLAYER and targetName ~= "")) then
@@ -1989,7 +2105,7 @@ function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abili
     end
 
     local duration
-    local channeled, durationValue = GetAbilityCastInfo(abilityId)
+    local channeled, durationValue = getAbilityCastInfo(abilityId)
     local forceChanneled = false
 
     -- Override certain things to display as a channel rather than cast.
@@ -2091,7 +2207,25 @@ end
 ]]
 --
 
-function CombatInfo.OnCombatEventBar(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId)
+--- @param eventCode integer
+--- @param result ActionResult
+--- @param isError bool
+--- @param abilityName string
+--- @param abilityGraphic integer
+--- @param abilityActionSlotType ActionSlotType
+--- @param sourceName string
+--- @param sourceType CombatUnitType
+--- @param targetName string
+--- @param targetType CombatUnitType
+--- @param hitValue integer
+--- @param powerType CombatMechanicFlags
+--- @param damageType DamageType
+--- @param log bool
+--- @param sourceUnitId integer
+--- @param targetUnitId integer
+--- @param abilityId integer
+--- @param overflow integer
+function CombatInfo.OnCombatEventBar(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     -- If the source/target isn't the player then bail out now.
     if sourceType ~= COMBAT_UNIT_TYPE_PLAYER and targetType ~= COMBAT_UNIT_TYPE_PLAYER then
         return
@@ -2187,6 +2321,9 @@ function CombatInfo.OnCombatEventBar(eventCode, result, isError, abilityName, ab
     end
 end
 
+--- Handles slot updated event.
+--- @param eventCode integer
+--- @param slotNum integer
 function CombatInfo.OnSlotUpdated(eventCode, slotNum)
     -- Update ultimate label
     if slotNum == 8 then
@@ -2194,6 +2331,9 @@ function CombatInfo.OnSlotUpdated(eventCode, slotNum)
     end
 end
 
+---
+--- @param table table<integer, integer>
+--- @param slotNum integer
 local function removeSlotFromTable(table, slotNum)
     for abilityId, slot in pairs(table) do
         if slot == slotNum then
@@ -2202,6 +2342,10 @@ local function removeSlotFromTable(table, slotNum)
     end
 end
 
+---
+--- @param slotNum integer
+--- @param wasfullUpdate boolean
+--- @param onlyProc boolean
 function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
     if not slotNum or not BACKBAR_INDEX_OFFSET then
         return
@@ -2239,10 +2383,10 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
         return
     end
 
-    local ability_id = LUIE.GetSlotTrueBoundId(slotNum, g_hotbarCategory)
+    local ability_id = GetSlotTrueBoundId(slotNum, g_hotbarCategory)
     if slotNum > BACKBAR_INDEX_OFFSET then
         local hotbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP
-        ability_id = LUIE.GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, hotbarCategory)
+        ability_id = GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, hotbarCategory)
 
         -- Check backbar weapon type
         local weaponSlot = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and 4 or 20
@@ -2319,6 +2463,7 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
     end
 end
 
+---
 function CombatInfo.UpdateUltimateLabel()
     -- Get the currently slotted ultimate cost
     local bar = g_hotbarCategory
@@ -2328,6 +2473,7 @@ function CombatInfo.UpdateUltimateLabel()
     CombatInfo.OnPowerUpdatePlayer(EVENT_POWER_UPDATE, "player", nil, COMBAT_MECHANIC_FLAGS_ULTIMATE, g_ultimateCurrent, 0, 0)
 end
 
+---
 function CombatInfo.InventoryItemUsed()
     g_potionUsed = true
     LUIE_CallLater(function ()
@@ -2335,6 +2481,11 @@ function CombatInfo.InventoryItemUsed()
     end, 200)
 end
 
+---
+--- @param eventCode integer
+--- @param didActiveHotbarChange boolean
+--- @param shouldUpdateAbilityAssignments boolean
+--- @param activeHotbarCategory HotBarCategory
 function CombatInfo.OnActiveHotbarUpdate(eventCode, didActiveHotbarChange, shouldUpdateAbilityAssignments, activeHotbarCategory)
     if didActiveHotbarChange == true or shouldUpdateAbilityAssignments == true then
         for _, physicalSlot in pairs(g_backbarButtons) do
@@ -2348,7 +2499,8 @@ function CombatInfo.OnActiveHotbarUpdate(eventCode, didActiveHotbarChange, shoul
     end
 end
 
-function CombatInfo.OnSlotsFullUpdate(eventCode)
+---
+function CombatInfo.OnSlotsFullUpdate()
     -- Don't update bars if this full update event was from using an inventory item
     if g_potionUsed == true then
         return
@@ -2369,6 +2521,8 @@ function CombatInfo.OnSlotsFullUpdate(eventCode)
     end
 end
 
+---
+--- @param slotNum integer
 function CombatInfo.PlayProcAnimations(slotNum)
     if not g_uiProcAnimation[slotNum] then
         local color = uiQuickSlot.color -- default color in case none is found
@@ -2423,6 +2577,10 @@ function CombatInfo.PlayProcAnimations(slotNum)
     end
 end
 
+---
+--- @param eventCode integer
+--- @param unitTag string
+--- @param isDead boolean
 function CombatInfo.OnDeath(eventCode, unitTag, isDead)
     -- And toggle buttons
     if unitTag == "player" then
@@ -2444,6 +2602,8 @@ function CombatInfo.OnDeath(eventCode, unitTag, isDead)
 end
 
 -- Displays custom toggle texture
+---
+--- @param slotNum integer
 function CombatInfo.ShowCustomToggle(slotNum)
     if not g_uiCustomToggle[slotNum] then
         local color = uiQuickSlot.color -- default color in case none is found
@@ -2502,6 +2662,14 @@ function CombatInfo.ShowCustomToggle(slotNum)
     end
 end
 
+--- Runs on the `EVENT_POWER_UPDATE` handler.
+--- @param eventCode integer
+--- @param unitTag string
+--- @param powerIndex luaindex
+--- @param powerType CombatMechanicFlags
+--- @param powerValue integer
+--- @param powerMax integer
+--- @param powerEffectiveMax integer
 function CombatInfo.OnPowerUpdatePlayer(eventCode, unitTag, powerIndex, powerType, powerValue, powerMax, powerEffectiveMax)
     if unitTag ~= "player" then
         return
@@ -2570,7 +2738,19 @@ function CombatInfo.OnPowerUpdatePlayer(eventCode, unitTag, powerIndex, powerTyp
     g_ultimateCurrent = powerValue
 end
 
-function CombatInfo.OnInventorySlotUpdate(eventCode, bagId, slotId, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange)
+--- Runs on the `EVENT_INVENTORY_SINGLE_SLOT_UPDATE` handler.
+--- @param eventCode integer
+--- @param bagId Bag
+--- @param slotIndex integer
+--- @param isNewItem bool
+--- @param itemSoundCategory ItemUISoundCategory
+--- @param inventoryUpdateReason integer
+--- @param stackCountChange integer
+--- @param triggeredByCharacterName string?
+--- @param triggeredByDisplayName string?
+--- @param isLastUpdateForMessage bool
+--- @param bonusDropSource BonusDropSource
+function CombatInfo.OnInventorySlotUpdate(eventCode, bagId, slotIndex, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange, triggeredByCharacterName, triggeredByDisplayName, isLastUpdateForMessage, bonusDropSource)
     if stackCountChange >= 0 then
         CombatInfo.UpdateUltimateLabel()
     end
