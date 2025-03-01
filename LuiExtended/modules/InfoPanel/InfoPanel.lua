@@ -343,9 +343,9 @@ function InfoPanel.Initialize(enabled)
     -- Set event handlers
     eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, InfoPanel.OnBagUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, InfoPanel.OnBagUpdate)
-    eventManager:RegisterForUpdate(moduleName .. "01", 1000, InfoPanel.OnUpdate01)
-    eventManager:RegisterForUpdate(moduleName .. "10", 10000, InfoPanel.OnUpdate10)
-    eventManager:RegisterForUpdate(moduleName .. "60", 60000, InfoPanel.OnUpdate60)
+    eventManager:RegisterForUpdate(moduleName .. "01", ZO_ONE_SECOND_IN_MILLISECONDS, InfoPanel.OnUpdate01)
+    eventManager:RegisterForUpdate(moduleName .. "10", ZO_ONE_SECOND_IN_MILLISECONDS * 10, InfoPanel.OnUpdate10)
+    eventManager:RegisterForUpdate(moduleName .. "60", ZO_ONE_MINUTE_IN_MILLISECONDS, InfoPanel.OnUpdate60)
 end
 
 function InfoPanel.ResetPosition()
@@ -391,7 +391,7 @@ function InfoPanel.OnBagUpdate()
     -- We shall not execute bags size calculation immediately, but rather set a flag with delay function
     -- This is needed to avoid lockups when the game start flooding us with same event for every bag slot used
     -- While we do not need any good latency, we can afford to update info-panel label with 250ms delay
-    eventManager:RegisterForUpdate(moduleName .. "PendingBagsUpdate", 250, InfoPanel.DoBagUpdate)
+    eventManager:RegisterForUpdate(moduleName .. "PendingBagsUpdate", ZO_ONE_SECOND_IN_MILLISECONDS / 4, InfoPanel.DoBagUpdate)
 end
 
 -- Performs calculation of empty space in bags
@@ -491,8 +491,8 @@ function InfoPanel.OnUpdate60()
                     InfoPanel.RearrangePanel()
                 end
             elseif mountFeedTimer > 0 then
-                local hours = zo_floor(mountFeedTimer / 3600000)
-                local minutes = zo_floor((mountFeedTimer - (hours * 3600000)) / 60000)
+                local hours = zo_floor(mountFeedTimer / ZO_ONE_HOUR_IN_MILLISECONDS)
+                local minutes = zo_floor((mountFeedTimer - (hours * ZO_ONE_HOUR_IN_MILLISECONDS)) / ZO_ONE_MINUTE_IN_MILLISECONDS)
                 mountFeedMessage = string_format("%dh %dm", hours, minutes)
             end
         end
