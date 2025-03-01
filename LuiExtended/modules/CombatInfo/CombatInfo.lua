@@ -747,6 +747,10 @@ local playerX
 local playerZ
 
 -- Hide duration label if the ability is Grim Focus or one of its morphs
+---
+--- @param remain number
+--- @param abilityId number
+--- @return string
 local function SetBarRemainLabel(remain, abilityId)
     if Effects.IsGrimFocus[abilityId] or Effects.IsBloodFrenzy[abilityId] then
         return ""
