@@ -24,6 +24,9 @@ UI.__index = UI
 -- -----------------------------------------------------------------------------
 -- Debug flag - exposed through UI for testing
 UI.isInDebug = false
+if LUIE.IsDevDebugEnabled() then
+    UI.isInDebug = true
+end
 -- -----------------------------------------------------------------------------
 -- Local control counters
 local controlCounters =
