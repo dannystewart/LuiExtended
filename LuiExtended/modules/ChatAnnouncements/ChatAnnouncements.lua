@@ -744,7 +744,7 @@ end
 
 -- Called by most functions that use character or display name to resolve NON-LINK display method (mostly used for alerts).
 function ChatAnnouncements.ResolveNameNoLink(characterName, displayName)
-    local nameLink
+    local nameLink = ""
     if ChatAnnouncements.SV.ChatPlayerDisplayOptions == 1 then
         nameLink = displayName
     elseif ChatAnnouncements.SV.ChatPlayerDisplayOptions == 2 then
