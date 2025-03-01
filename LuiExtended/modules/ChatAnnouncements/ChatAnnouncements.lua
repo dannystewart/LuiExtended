@@ -6549,7 +6549,7 @@ function ChatAnnouncements.HookFunction()
         local alert = nil
         local message2 = nil
         local alert2 = nil
-        local sound = nil
+        local sound = SOUNDS.NONE
 
         local finalName = ChatAnnouncements.ResolveNameLink(characterName, displayName)
         local finalAlertName = ChatAnnouncements.ResolveNameNoLink(characterName, displayName)
@@ -8343,7 +8343,7 @@ function ChatAnnouncements.HookFunction()
                         messageParams:SetText(stepOverrideText)
                         messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_QUEST_PROGRESSION_CHANGED)
                         CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
-                        sound = nil -- no longer needed, we played it once
+                        sound = SOUNDS.NONE -- no longer needed, we played it once
                     end
                     if ChatAnnouncements.SV.Quests.QuestObjUpdateAlert then
                         ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, stepOverrideText)
@@ -8370,7 +8370,7 @@ function ChatAnnouncements.HookFunction()
                                 messageParams:SetText(conditionText)
                                 messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_QUEST_PROGRESSION_CHANGED)
                                 CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
-                                sound = nil -- no longer needed, we played it once
+                                sound = SOUNDS.NONE -- no longer needed, we played it once
                             end
                             if ChatAnnouncements.SV.Quests.QuestObjUpdateAlert then
                                 ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, conditionText)
