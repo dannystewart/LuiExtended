@@ -289,8 +289,6 @@ local g_firstLoad = true
 
 local ChatEventFormattersDelete =
 {
-    [EVENT_BATTLEGROUND_INACTIVITY_WARNING] = true,
-    [EVENT_BROADCAST] = true,
     [EVENT_FRIEND_PLAYER_STATUS_CHANGED] = true,
     [EVENT_GROUP_INVITE_RESPONSE] = true,
     [EVENT_GROUP_MEMBER_LEFT] = true,
@@ -298,7 +296,6 @@ local ChatEventFormattersDelete =
     [EVENT_IGNORE_ADDED] = true,
     [EVENT_IGNORE_REMOVED] = true,
     [EVENT_SOCIAL_ERROR] = true,
-    [EVENT_TRIAL_FEATURE_RESTRICTED] = true,
 }
 
 function ChatAnnouncements.SlayChatHandlers()
@@ -307,10 +304,27 @@ function ChatAnnouncements.SlayChatHandlers()
         EVENT_MANAGER:UnregisterForEvent("ChatRouter", eventCode)
     end
 
-    -- Slay these events in case LibChatMessage is active and hooks them
+    -- Instead of setting to nil, replace with dummy formatters that do nothing
+    -- This preserves LibChatMessage's ability to restore chat history
     local ChatEventFormatters = CHAT_ROUTER:GetRegisteredMessageFormatters()
     for eventType, _ in pairs(ChatEventFormattersDelete) do
-        ChatEventFormatters[eventType] = nil
+        local originalFormatter = ChatEventFormatters[eventType]
+        -- Only replace if a formatter exists
+        if originalFormatter then
+            -- Replace with a dummy function that returns empty string when restoring
+            ChatEventFormatters[eventType] = function (timeStamp, formattedEventText, ...)
+                -- If this is being called during history restoration, just return empty string
+                -- Check for the isRestoring parameter that LibChatMessage passes
+                local argCount = select("#", ...)
+                if argCount >= 1 and select(argCount, ...) == true then
+                    return ""
+                end
+
+                -- For normal (non-restoration) use, we still want to prevent these messages
+                -- so return nil to prevent the message from showing
+                return nil
+            end
+        end
     end
 end
 
