@@ -6520,8 +6520,8 @@ function ChatAnnouncements.HookFunction()
 
     -- EVENT_GROUP_UPDATE (Alert Handler)
     local function GroupUpdateAlert()
-        g_currentGroupLeaderRawName = GetRawUnitName(GetGroupLeaderUnitTag())
-        g_currentGroupLeaderDisplayName = GetUnitDisplayName(GetGroupLeaderUnitTag())
+        g_currentGroupLeaderRawName = zo_strformat(SI_UNIT_NAME, GetRawUnitName(GetGroupLeaderUnitTag()))
+        g_currentGroupLeaderDisplayName = zo_strformat(SI_UNIT_NAME, GetUnitDisplayName(GetGroupLeaderUnitTag()))
     end
 
     -- EVENT_GROUP_MEMBER_LEFT (Alert Handler)
