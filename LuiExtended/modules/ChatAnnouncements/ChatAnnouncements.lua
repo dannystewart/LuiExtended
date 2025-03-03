@@ -333,8 +333,8 @@ function ChatAnnouncements.Initialize(enabled)
     ChatAnnouncements.Enabled = true
 
     -- Get current group leader
-    g_currentGroupLeaderRawName = GetRawUnitName(GetGroupLeaderUnitTag())
-    g_currentGroupLeaderDisplayName = GetUnitDisplayName(GetGroupLeaderUnitTag())
+    g_currentGroupLeaderRawName = zo_strformat(SI_UNIT_NAME, GetRawUnitName(GetGroupLeaderUnitTag()))
+    g_currentGroupLeaderDisplayName = zo_strformat(SI_UNIT_NAME, GetUnitDisplayName(GetGroupLeaderUnitTag()))
     g_currentActivityId = GetCurrentLFGActivityId()
 
     -- Posthook Crafting Interface (Keyboard)
@@ -6624,8 +6624,8 @@ function ChatAnnouncements.HookFunction()
         end
 
         if isLocalPlayer then
-            g_currentGroupLeaderRawName = GetRawUnitName(GetGroupLeaderUnitTag())
-            g_currentGroupLeaderDisplayName = GetUnitDisplayName(GetGroupLeaderUnitTag())
+            g_currentGroupLeaderRawName = zo_strformat(SI_UNIT_NAME, GetRawUnitName(GetGroupLeaderUnitTag()))
+            g_currentGroupLeaderDisplayName = zo_strformat(SI_UNIT_NAME, GetUnitDisplayName(GetGroupLeaderUnitTag()))
         end
 
         -- Only print this out if we didn't JUST join an LFG group.
@@ -6661,8 +6661,8 @@ function ChatAnnouncements.HookFunction()
     local function OnGroupMemberJoined(characterName, displayName, isLocalPlayer)
         -- Update index for Group Loot
         ChatAnnouncements.IndexGroupLoot()
-        g_currentGroupLeaderRawName = GetRawUnitName(GetGroupLeaderUnitTag())
-        g_currentGroupLeaderDisplayName = GetUnitDisplayName(GetGroupLeaderUnitTag())
+        g_currentGroupLeaderRawName = zo_strformat(SI_UNIT_NAME, GetRawUnitName(GetGroupLeaderUnitTag()))
+        g_currentGroupLeaderDisplayName = zo_strformat(SI_UNIT_NAME, GetUnitDisplayName(GetGroupLeaderUnitTag()))
 
         -- Determine if the member that joined a group is the player or another member.
         if isLocalPlayer then
@@ -6688,10 +6688,10 @@ function ChatAnnouncements.HookFunction()
     -- EVENT_LEADER_UPDATE (Alert Handler)
     -- Note: This event only fires if the characterId of the leader has changed (it's a new leader)
     local function LeaderUpdateAlert(leaderTag)
-        local leaderRawName = GetRawUnitName(leaderTag)
+        local leaderRawName = zo_strformat(SI_UNIT_NAME, GetRawUnitName(leaderTag))
         local showAlert = leaderRawName ~= "" and (g_currentGroupLeaderRawName ~= "" and g_currentGroupLeaderRawName ~= nil)
         g_currentGroupLeaderRawName = leaderRawName
-        g_currentGroupLeaderDisplayName = GetUnitDisplayName(leaderTag)
+        g_currentGroupLeaderDisplayName = zo_strformat(SI_UNIT_NAME, GetUnitDisplayName(leaderTag))
 
         -- If for some reason we don't have a valid leader name, bail out now.
         if g_currentGroupLeaderRawName == "" or g_currentGroupLeaderRawName == nil or g_currentGroupLeaderDisplayName == "" or g_currentGroupLeaderDisplayName == nil then
