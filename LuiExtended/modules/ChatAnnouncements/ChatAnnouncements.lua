@@ -10537,6 +10537,8 @@ function ChatAnnouncements.HookFunction()
     end
 end
 
+--- Handles trade invite accepted events.
+--- @param eventCode number The event code that triggered this function
 function ChatAnnouncements.TradeInviteAccepted(eventCode)
     if ChatAnnouncements.SV.Notify.NotificationTradeCA then
         printToChat(GetString(LUIE_STRING_CA_TRADE_INVITE_ACCEPTED), true)
@@ -10554,7 +10556,11 @@ function ChatAnnouncements.TradeInviteAccepted(eventCode)
     g_inTrade = true
 end
 
--- Adds items to index if they are added in a trade
+--- Adds items to index if they are added in a trade.
+--- @param eventCode number The event code that triggered this function
+--- @param who TradeParticipant The name of the trading partner
+--- @param tradeIndex luaindex The trade slot index
+--- @param itemSoundCategory ItemUISoundCategory The item sound category
 function ChatAnnouncements.OnTradeAdded(eventCode, who, tradeIndex, itemSoundCategory)
     local index = tradeIndex
     local name, icon, stack = GetTradeItemInfo(who, tradeIndex)
@@ -10569,7 +10575,11 @@ function ChatAnnouncements.OnTradeAdded(eventCode, who, tradeIndex, itemSoundCat
     end
 end
 
--- Removes items from index if they are removed from the trade
+--- Removes items from index if they are removed from the trade.
+--- @param eventCode integer The event code that triggered this function
+--- @param who TradeParticipant The name of the trading partner
+--- @param tradeIndex luaindex The trade slot index
+--- @param itemSoundCategory ItemUISoundCategory The item sound category
 function ChatAnnouncements.OnTradeRemoved(eventCode, who, tradeIndex, itemSoundCategory)
     local indexOut = tradeIndex
     if who == 0 then
@@ -10634,7 +10644,9 @@ function ChatAnnouncements.CheckLFGStatusJoin()
     end
 end
 
--- Called when another player joins the group.
+--- Called when another player joins the group.
+--- @param SendMessage boolean Whether to send a chat message
+--- @param SendAlert boolean Whether to send an alert
 function ChatAnnouncements.PrintJoinStatusNotSelf(SendMessage, SendAlert)
     -- Bail out if we're hiding events from LFG.
     if g_stopGroupLeaveQueue or g_lfgDisableGroupEvents then
@@ -10650,7 +10662,8 @@ function ChatAnnouncements.PrintJoinStatusNotSelf(SendMessage, SendAlert)
     end
 end
 
--- Called on player leaving a group to determine if message syntax should show group or LFG group.
+--- Called on player leaving a group to determine if message syntax should show group or LFG group.
+--- @param WasKicked boolean Whether the player was kicked from the group
 function ChatAnnouncements.CheckLFGStatusLeave(WasKicked)
     -- Bail out if we joined an LFG group.
     if g_stopGroupLeaveQueue or g_lfgDisableGroupEvents then
@@ -10668,7 +10681,10 @@ function ChatAnnouncements.CheckLFGStatusLeave(WasKicked)
     g_leaveLFGOverride = false
 end
 
--- EVENT_GROUP_INVITE_RECEIVED
+--- Handles group invite received events. Runs on the `EVENT_GROUP_INVITE_RECEIVED` event.
+--- @param eventCode number The event code that triggered this function
+--- @param inviterName string The name of the inviter
+--- @param inviterDisplayName string The display name of the inviter
 function ChatAnnouncements.OnGroupInviteReceived(eventCode, inviterName, inviterDisplayName)
     if ChatAnnouncements.SV.Group.GroupCA then
         local finalName = ChatAnnouncements.ResolveNameLink(inviterName, inviterDisplayName)
@@ -10682,6 +10698,7 @@ function ChatAnnouncements.OnGroupInviteReceived(eventCode, inviterName, inviter
     end
 end
 
+--- Indexes group loot.
 function ChatAnnouncements.IndexGroupLoot()
     local groupSize = GetGroupSize()
     for i = 1, groupSize do
@@ -10691,7 +10708,9 @@ function ChatAnnouncements.IndexGroupLoot()
     end
 end
 
--- EVENT_GROUP_TYPE_CHANGED
+--- Handles group type change events. Runs on the `EVENT_GROUP_TYPE_CHANGED` event.
+--- @param eventCode number The event code that triggered this function
+--- @param largeGroup boolean Whether the group is now a large group
 function ChatAnnouncements.OnGroupTypeChanged(eventCode, largeGroup)
     local message
     if largeGroup then
@@ -10708,7 +10727,8 @@ function ChatAnnouncements.OnGroupTypeChanged(eventCode, largeGroup)
     end
 end
 
--- EVENT_GROUP_ELECTION_NOTIFICATION_ADDED
+--- Handles vote notification events. Runs on the `EVENT_GROUP_ELECTION_NOTIFICATION_ADDED` event.
+--- @param eventCode number The event code that triggered this function
 function ChatAnnouncements.VoteNotify(eventCode)
     local electionType, timeRemainingSeconds, electionDescriptor, targetUnitTag = GetGroupElectionInfo()
     if electionType == GROUP_ELECTION_TYPE_GENERIC_UNANIMOUS then -- Ready Check
@@ -10737,12 +10757,17 @@ function ChatAnnouncements.VoteNotify(eventCode)
     end
 end
 
--- EVENT_GROUPING_TOOLS_NO_LONGER_LFG
+--- Handles LFG leave events. Runs on the `EVENT_GROUPING_TOOLS_NO_LONGER_LFG` event.
+--- @param eventCode number The event code that triggered this function
 function ChatAnnouncements.LFGLeft(eventCode)
     g_leaveLFGOverride = true
 end
 
--- EVENT_PLEDGE_OF_MARA_OFFER - EVENT HANDLER
+--- Handles marriage offer events. Runs on the `EVENT_PLEDGE_OF_MARA_OFFER` event.
+--- @param eventCode number The event code that triggered this function
+--- @param characterName string The character name of the player
+--- @param isSender boolean Whether the local player is the sender
+--- @param displayName string The display name of the player
 function ChatAnnouncements.MaraOffer(eventCode, characterName, isSender, displayName)
     -- Display CA
     if ChatAnnouncements.SV.Social.PledgeOfMaraCA then
@@ -10767,7 +10792,8 @@ function ChatAnnouncements.MaraOffer(eventCode, characterName, isSender, display
     end
 end
 
--- EVENT_DUEL_STARTED -- EVENT HANDLER
+--- Handles duel start events. Runs on the `EVENT_DUEL_STARTED` event.
+--- @param eventCode number The event code that triggered this function
 function ChatAnnouncements.DuelStarted(eventCode)
     -- Display CA
     if ChatAnnouncements.SV.Social.DuelStartCA or ChatAnnouncements.SV.Social.DuelStartAlert then
@@ -10796,11 +10822,13 @@ function ChatAnnouncements.DuelStarted(eventCode)
     end
 end
 
+--- Resets stack split tracking.
 function ChatAnnouncements.ResetStackSplit()
     g_stackSplit = false
     eventManager:UnregisterForUpdate(moduleName .. "StackTracker")
 end
 
+--- Prints queued messages
 function ChatAnnouncements.PrintQueuedMessages()
     local messageTypes =
     {
@@ -10846,6 +10874,7 @@ local mementoTable =
     [479] = GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_WITCH),
 }
 
+--- Announces memento usage in chat.
 function ChatAnnouncements.AnnounceMemento()
     local string = mementoTable[LUIE.LastMementoUsed] or nil
     if string == nil then
@@ -10873,6 +10902,10 @@ function ChatAnnouncements.AnnounceMemento()
     LUIE.LastMementoUsed = 0
 end
 
+--- Handles collectible usage events. Runs on the `EVENT_COLLECTIBLE_USE_RESULT` event.
+--- @param eventCode number The event code that triggered this function
+--- @param result CollectibleUsageBlockReason The result of the collectible usage attempt (COLLECTIBLE_USAGE_BLOCK_REASON_*)
+--- @param isAttemptingActivation boolean
 function ChatAnnouncements.CollectibleUsed(eventCode, result, isAttemptingActivation)
     if result ~= COLLECTIBLE_USAGE_BLOCK_REASON_NOT_BLOCKED then
         return
@@ -10882,6 +10915,7 @@ function ChatAnnouncements.CollectibleUsed(eventCode, result, isAttemptingActiva
     LUIE_CallLater(ChatAnnouncements.CollectibleResult, latency)
 end
 
+--- Processes the result of a collectible usage.
 function ChatAnnouncements.CollectibleResult()
     ChatAnnouncements.AnnounceMemento()
 
