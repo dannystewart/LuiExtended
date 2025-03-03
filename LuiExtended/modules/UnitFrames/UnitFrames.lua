@@ -61,18 +61,15 @@ local playerDisplayName = GetUnitDisplayName("player")
 -- local playerTlw
 local CP_BAR_COLORS = ZO_CP_BAR_GRADIENT_COLORS
 
--- Define marker colors at module level
-local TARGET_MARKER_COLORS =
-{
-    [TARGET_MARKER_TYPE_ONE] = ZO_ColorDef:New("0080FF"),   -- Blue Square
-    [TARGET_MARKER_TYPE_TWO] = ZO_ColorDef:New("FFD700"),   -- Gold Star
-    [TARGET_MARKER_TYPE_THREE] = ZO_ColorDef:New("00CC00"), -- Green Circle
-    [TARGET_MARKER_TYPE_FOUR] = ZO_ColorDef:New("FF8000"),  -- Orange Triangle
-    [TARGET_MARKER_TYPE_FIVE] = ZO_ColorDef:New("FF66B2"),  -- Pink Moons
-    [TARGET_MARKER_TYPE_SIX] = ZO_ColorDef:New("9900CC"),   -- Purple Oblivion
-    [TARGET_MARKER_TYPE_SEVEN] = ZO_ColorDef:New("E60000"), -- Red Weapons
-    [TARGET_MARKER_TYPE_EIGHT] = ZO_ColorDef:New("E6E6E6"), -- White Skull
-}
+---
+--- @param iconPath string
+--- @param text string
+--- @param iconSize number?
+--- @return string
+local function FormatTextWithIcon(iconPath, text, iconSize)
+    iconSize = iconSize or 20
+    return zo_iconFormat(iconPath, iconSize, iconSize) .. " " .. text
+end
 
 local g_PendingUpdate =
 {
@@ -608,8 +605,8 @@ local function CreateCustomFrames()
         end
 
         UnitFrames.CustomFrames.controlledsiege =
-        { -- placeholder for alternative bar when using siege weapon
-            ["unitTag"] = "controlledsiege",
+        {
+            ["unitTag"] = "controlledsiege", -- placeholder for alternative bar when using siege weapon
         }
     end
 
@@ -1714,15 +1711,12 @@ function UnitFrames.Initialize(enabled)
         eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MEMBER_ADDED, UnitFrames.SocialUpdateFrames)
         eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MEMBER_REMOVED, UnitFrames.SocialUpdateFrames)
 
+        eventManager:RegisterForEvent(moduleName, EVENT_CURRENT_CAMPAIGN_CHANGED, UnitFrames.OnCurrentCampaignChanged)
+        eventManager:RegisterForEvent(moduleName, EVENT_CAMPAIGN_EMPEROR_CHANGED, UnitFrames.OnCampaignEmperorChanged)
+
         if UnitFrames.SV.CustomTargetMarker then
             eventManager:RegisterForEvent(moduleName, EVENT_TARGET_MARKER_UPDATE, UnitFrames.OnTargetMarkerUpdate)
         end
-    end
-
-    -- New AvA frames
-    if false then
-        eventManager:RegisterForEvent(moduleName, EVENT_CURRENT_CAMPAIGN_CHANGED, UnitFrames.OnCurrentCampaignChanged) -- (integer eventCode, integer newCurrentCampaignId)
-        eventManager:RegisterForEvent(moduleName, EVENT_CAMPAIGN_EMPEROR_CHANGED, UnitFrames.OnCampaignEmperorChanged) -- (integer eventCode, integer campaignId)
     end
 
     g_defaultTargetNameLabel = ZO_TargetUnitFramereticleoverName
@@ -1732,13 +1726,17 @@ function UnitFrames.Initialize(enabled)
     UnitFrames.ReticleColorByReaction()
 end
 
-function UnitFrames.OnCurrentCampaignChanged(_)
+--- @param eventCode integer
+--- @param campaignId integer
+function UnitFrames.OnCurrentCampaignChanged(eventCode, campaignId)
     local self = ZO_PlayerToPlayer
     self:RemoveFromIncomingQueue(ZO_INTERACT_TYPE.CAMPAIGN_LOCK_PENDING)
     MarkAllianceLockPendingNotificationSeen()
 end
 
-function UnitFrames.OnCampaignEmperorChanged(campaignId)
+--- @param eventCode integer
+--- @param campaignId integer
+function UnitFrames.OnCampaignEmperorChanged(eventCode, campaignId)
     local self = CampaignEmperor_Shared
     if self.campaignId == campaignId then
         self:RefreshEmperor()
@@ -2675,14 +2673,14 @@ function UnitFrames.UpdateStaticControls(unitFrame)
             nameText = GetUnitName(unitFrame.unitTag)
         end
 
-        local defaultMarkerColor = ZO_ColorDef:New(1, 1, 1)
-
-        -- Add target marker color if present
+        -- Add target marker icon if present
         if UnitFrames.SV.CustomTargetMarker then
             local targetMarkerType = GetUnitTargetMarkerType(unitFrame.unitTag)
             if targetMarkerType ~= TARGET_MARKER_TYPE_NONE then
-                local color = TARGET_MARKER_COLORS[targetMarkerType] or defaultMarkerColor
-                unitFrame.name:SetColor(color:UnpackRGB())
+                local iconPath = ZO_GetPlatformTargetMarkerIcon(targetMarkerType)
+                if iconPath then
+                    nameText = FormatTextWithIcon(iconPath, nameText)
+                end
             end
         end
 
@@ -3425,15 +3423,37 @@ function UnitFrames.OnTargetMarkerUpdate(eventId)
         -- Handle base unit frame (no index)
         local baseFrame = UnitFrames.CustomFrames[baseType]
         if baseFrame then
-            -- Update marker color before updating static controls
             if UnitFrames.SV.CustomTargetMarker then
                 local markerType = GetUnitTargetMarkerType(baseType)
-                local color = TARGET_MARKER_COLORS[markerType]
-                if color and markerType ~= TARGET_MARKER_TYPE_NONE then
-                    baseFrame.name:SetColor(color:UnpackRGBA())
+                if markerType ~= TARGET_MARKER_TYPE_NONE then
+                    local nameText = GetUnitName(baseType)
+                    local iconPath = ZO_GetPlatformTargetMarkerIcon(markerType)
+                    if iconPath then
+                        nameText = FormatTextWithIcon(iconPath, nameText)
+                        baseFrame.name:SetText(nameText)
+                    end
                 else
-                    -- Reset to default color when no marker is present
-                    baseFrame.name:SetColor(1, 1, 1, 1)
+                    -- If no marker, reset to default name
+                    local nameText
+                    if IsUnitPlayer(baseType) then
+                        local DisplayOption = UnitFrames.SV.DisplayOptionsGroupRaid
+                        if baseType == "player" then
+                            DisplayOption = UnitFrames.SV.DisplayOptionsPlayer
+                        elseif baseType == "reticleover" then
+                            DisplayOption = UnitFrames.SV.DisplayOptionsTarget
+                        end
+
+                        if DisplayOption == 3 then
+                            nameText = GetUnitName(baseType) .. " " .. GetUnitDisplayName(baseType)
+                        elseif DisplayOption == 1 then
+                            nameText = GetUnitDisplayName(baseType)
+                        else
+                            nameText = GetUnitName(baseType)
+                        end
+                    else
+                        nameText = GetUnitName(baseType)
+                    end
+                    baseFrame.name:SetText(nameText)
                 end
             end
             UnitFrames.UpdateStaticControls(baseFrame)
@@ -3444,15 +3464,32 @@ function UnitFrames.OnTargetMarkerUpdate(eventId)
             local unitTag = baseType .. i
             local unitFrame = UnitFrames.CustomFrames[unitTag]
             if unitFrame then
-                -- Update marker color before updating static controls
                 if UnitFrames.SV.CustomTargetMarker then
                     local markerType = GetUnitTargetMarkerType(unitTag)
-                    local color = TARGET_MARKER_COLORS[markerType]
-                    if color and markerType ~= TARGET_MARKER_TYPE_NONE then
-                        unitFrame.name:SetColor(color:UnpackRGBA())
+                    if markerType ~= TARGET_MARKER_TYPE_NONE then
+                        local nameText = GetUnitName(unitTag)
+                        local iconPath = ZO_GetPlatformTargetMarkerIcon(markerType)
+                        if iconPath then
+                            nameText = FormatTextWithIcon(iconPath, nameText)
+                            unitFrame.name:SetText(nameText)
+                        end
                     else
-                        -- Reset to default color when no marker is present
-                        unitFrame.name:SetColor(1, 1, 1, 1)
+                        -- If no marker, reset to default name
+                        local nameText
+                        if IsUnitPlayer(unitTag) then
+                            local DisplayOption = UnitFrames.SV.DisplayOptionsGroupRaid
+
+                            if DisplayOption == 3 then
+                                nameText = GetUnitName(unitTag) .. " " .. GetUnitDisplayName(unitTag)
+                            elseif DisplayOption == 1 then
+                                nameText = GetUnitDisplayName(unitTag)
+                            else
+                                nameText = GetUnitName(unitTag)
+                            end
+                        else
+                            nameText = GetUnitName(unitTag)
+                        end
+                        unitFrame.name:SetText(nameText)
                     end
                 end
                 UnitFrames.UpdateStaticControls(unitFrame)
