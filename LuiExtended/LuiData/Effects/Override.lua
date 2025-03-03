@@ -61,10 +61,10 @@ local EffectOverride =
 {
 
     -- Companion Buffs
-    [169475] = {hide = true},
-    [157737] = {hide = true},
-    [157736] = {hide = true},
-    [157732] = {hide = true},
+    [169475] = { hide = true },
+    [157737] = { hide = true },
+    [157736] = { hide = true },
+    [157732] = { hide = true },
 
     -- TEMP MOVE LATER
     [54119] = { forcedContainer = "short" }, -- Remembrance (The Anger of a King)
