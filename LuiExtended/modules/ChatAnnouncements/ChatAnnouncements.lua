@@ -6088,18 +6088,7 @@ local SUPPRESS_SKILL_POINT_CSA_REASONS =
     [SKILL_POINT_CHANGE_REASON_SKILL_RESET] = true,
 }
 
--- TODO: Check if there is an equivalency in one of the handlers for this
-local GUILD_SKILL_ICONS =
-{
-    [45] = "/esoui/art/icons/mapkey/mapkey_fightersguild.dds",
-    [44] = "/esoui/art/icons/mapkey/mapkey_magesguild.dds",
-    [55] = "/esoui/art/icons/mapkey/mapkey_undaunted.dds",
-    [117] = "/esoui/art/icons/mapkey/mapkey_thievesguild.dds",
-    [118] = "/esoui/art/icons/mapkey/mapkey_darkbrotherhood.dds",
-    [130] = "LuiExtended/media/unitframes/mapkey_psijicorder.dds",
-}
-
--- A:ERT & EVENT HANDLER PREHOOK FUNCTIONS
+--- ALERT & EVENT HANDLER PREHOOK FUNCTIONS!
 function ChatAnnouncements.HookFunction()
     local alertHandlers = ZO_AlertText_GetHandlers()
 
@@ -6840,23 +6829,6 @@ function ChatAnnouncements.HookFunction()
             messageText = ZO_GroupElectionDescriptorToRequestAlertText[ZO_GROUP_ELECTION_DESCRIPTORS.NONE]
             alertText = ZO_GroupElectionDescriptorToRequestAlertText[ZO_GROUP_ELECTION_DESCRIPTORS.NONE]
         end
-
-        -- If this is a votekick then change the message.
-        -- TODO: GetGroupElectionInfo() doesn't update with EVENT_GROUP_ELECTION_REQUESTED
-        --[[
-        local electionType, _, _, targetUnitTag = GetGroupElectionInfo()
-        if electionType == GROUP_ELECTION_TYPE_KICK_MEMBER then -- Vote Kick
-            local kickMemberName = GetUnitName(targetUnitTag)
-            local kickMemberAccountName = GetUnitDisplayName(targetUnitTag)
-            if kickMemberName ~= nil and kickMemberName ~= "" and kickMemberAccountName ~= nil and kickMemberAccountName ~= "" then
-                local finalNameCA = ChatAnnouncements.ResolveNameLink(kickMemberName, kickMemberAccountName)
-                messageText = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_VOTEKICK_START_SELF), finalNameCA)
-                local finalNameAlert = ChatAnnouncements.ResolveNameNoLink(kickMemberName, kickMemberAccountName)
-                alertText = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_VOTEKICK_START_SELF), finalNameAlert)
-            end
-        end
-        ]]
-        --
 
         if ChatAnnouncements.SV.Group.GroupVoteCA then
             printToChat(messageText, true)
@@ -10543,33 +10515,6 @@ function ChatAnnouncements.HookFunction()
         -- Set selected guild for use when resolving Rank/Heraldry updates
         g_selectedGuild = guildId
     end
-
-    -- Used to pull the cost of guild Heraldry change
-    -- TODO: Fix later
-    --[[
-    ZO_GuildHeraldryManager_Shared.AttemptSaveAndExit = function(self, showBaseScene)
-        local blocked = false
-
-        if HasPendingHeraldryChanges() then
-            self:SetPendingExit(true)
-            if not IsCreatingHeraldryForFirstTime() then
-                local pendingCost = GetPendingHeraldryCost()
-                -- Pull Heraldry Cost to currency function to use
-                g_pendingHeraldryCost = pendingCost
-                local heraldryFunds = GetHeraldryGuildBankedMoney()
-                if heraldryFunds and pendingCost <= heraldryFunds then
-                    self:ConfirmHeraldryApplyChanges()
-                    blocked = true
-                end
-            end
-        end
-
-        if not blocked then
-            self:ConfirmExit(showBaseScene)
-        end
-    end
-    ]]
-    --
 
     -- Replace the default DeclineLFGReadyCheckNotification function to display the message that we are not in queue any longer + LFG activity join event.
     local zos_DeclineLFGReadyCheckNotification = DeclineLFGReadyCheckNotification
