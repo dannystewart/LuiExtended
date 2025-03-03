@@ -1730,7 +1730,10 @@ end
 --- @param campaignId integer
 function UnitFrames.OnCurrentCampaignChanged(eventCode, campaignId)
     local self = ZO_PlayerToPlayer
-    self:RemoveFromIncomingQueue(ZO_INTERACT_TYPE.CAMPAIGN_LOCK_PENDING)
+    -- Check if the incomingQueue exists for this type before removing from it
+    if self and self.incomingQueue and self.incomingQueue[ZO_INTERACT_TYPE.CAMPAIGN_LOCK_PENDING] then
+        self:RemoveFromIncomingQueue(ZO_INTERACT_TYPE.CAMPAIGN_LOCK_PENDING)
+    end
     MarkAllianceLockPendingNotificationSeen()
 end
 
@@ -1738,7 +1741,7 @@ end
 --- @param campaignId integer
 function UnitFrames.OnCampaignEmperorChanged(eventCode, campaignId)
     local self = CampaignEmperor_Shared
-    if self.campaignId == campaignId then
+    if self and self.campaignId and self.campaignId == campaignId then
         self:RefreshEmperor()
     end
 end
