@@ -304,11 +304,11 @@ function ChatAnnouncements.SlayChatHandlers()
         EVENT_MANAGER:UnregisterForEvent("ChatRouter", eventCode)
     end
 
-    -- -- Slay these events in case LibChatMessage is active and hooks them
-    -- local ChatEventFormatters = CHAT_ROUTER:GetRegisteredMessageFormatters()
-    -- for eventType, _ in pairs(ChatEventFormattersDelete) do
-    --     ChatEventFormatters[eventType] = nil
-    -- end
+    -- Slay these events in case LibChatMessage is active and hooks them
+    local ChatEventFormatters = CHAT_ROUTER:GetRegisteredMessageFormatters()
+    for eventType, _ in pairs(ChatEventFormattersDelete) do
+        ChatEventFormatters[eventType] = nil
+    end
 end
 
 function ChatAnnouncements.Initialize(enabled)
