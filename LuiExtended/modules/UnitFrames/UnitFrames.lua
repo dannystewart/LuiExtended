@@ -1792,10 +1792,40 @@ function UnitFrames.ReticleColorByReaction(value)
     end
 end
 
+-- Helper function to format label alignment and position
+function UnitFrames.FormatLabelAlignment(label, isCenter, centerFmt, leftFmt, parent)
+    if isCenter then
+        label.fmt = centerFmt
+        label:ClearAnchors()
+        label:SetHorizontalAlignment(TEXT_ALIGN_CENTER)
+        label:SetAnchor(CENTER, parent, CENTER, 0, 0)
+    else
+        label.fmt = leftFmt
+        label:ClearAnchors()
+        label:SetHorizontalAlignment(TEXT_ALIGN_LEFT)
+        label:SetAnchor(LEFT, parent, LEFT, 5, 0)
+    end
+end
+
+-- Helper function to format secondary label
+function UnitFrames.FormatSecondaryLabel(label, isCenter, secondaryFmt)
+    label.fmt = isCenter and "Nothing" or secondaryFmt
+end
+
+-- Helper function to format a simple label
+function UnitFrames.FormatSimpleLabel(label, fmt)
+    label.fmt = fmt
+end
+
+-- Helper function to reload unit values if needed
+function UnitFrames.ReloadIfExists(unitTag, menu)
+    if menu and DoesUnitExist(unitTag) then
+        UnitFrames.ReloadValues(unitTag)
+    end
+end
+
 -- Update format for labels on CustomFrames
 function UnitFrames.CustomFramesFormatLabels(menu)
-    -- Search CustomFrames for attribute bars with correct labels
-
     -- Format Player Labels
     if UnitFrames.CustomFrames.player then
         for _, powerType in pairs(
@@ -1805,136 +1835,127 @@ function UnitFrames.CustomFramesFormatLabels(menu)
                 COMBAT_MECHANIC_FLAGS_STAMINA,
             }) do
             if UnitFrames.CustomFrames.player[powerType] then
-                if UnitFrames.CustomFrames.player[powerType].labelOne then
-                    if UnitFrames.SV.BarAlignCenterLabelPlayer then
-                        UnitFrames.CustomFrames.player[powerType].labelOne.fmt = UnitFrames.SV.CustomFormatCenterLabel
-                        UnitFrames.CustomFrames.player[powerType].labelOne:ClearAnchors()
-                        UnitFrames.CustomFrames.player[powerType].labelOne:SetHorizontalAlignment(TEXT_ALIGN_CENTER)
-                        UnitFrames.CustomFrames.player[powerType].labelOne:SetAnchor(CENTER, UnitFrames.CustomFrames.player[powerType].backdrop, CENTER, 0, 0)
-                    else
-                        UnitFrames.CustomFrames.player[powerType].labelOne.fmt = UnitFrames.SV.CustomFormatOnePT
-                        UnitFrames.CustomFrames.player[powerType].labelOne:ClearAnchors()
-                        UnitFrames.CustomFrames.player[powerType].labelOne:SetHorizontalAlignment(TEXT_ALIGN_LEFT)
-                        UnitFrames.CustomFrames.player[powerType].labelOne:SetAnchor(LEFT, UnitFrames.CustomFrames.player[powerType].backdrop, LEFT, 5, 0)
-                    end
+                local frame = UnitFrames.CustomFrames.player[powerType]
+                local isCenter = UnitFrames.SV.BarAlignCenterLabelPlayer
+
+                if frame.labelOne then
+                    UnitFrames.FormatLabelAlignment(
+                        frame.labelOne,
+                        isCenter,
+                        UnitFrames.SV.CustomFormatCenterLabel,
+                        UnitFrames.SV.CustomFormatOnePT,
+                        frame.backdrop
+                    )
                 end
-                if UnitFrames.CustomFrames.player[powerType].labelTwo then
-                    if UnitFrames.SV.BarAlignCenterLabelPlayer then
-                        UnitFrames.CustomFrames.player[powerType].labelTwo.fmt = "Nothing"
-                    else
-                        UnitFrames.CustomFrames.player[powerType].labelTwo.fmt = UnitFrames.SV.CustomFormatTwoPT
-                    end
+
+                if frame.labelTwo then
+                    UnitFrames.FormatSecondaryLabel(
+                        frame.labelTwo,
+                        isCenter,
+                        UnitFrames.SV.CustomFormatTwoPT
+                    )
                 end
             end
         end
     end
-    if menu and DoesUnitExist("player") then
-        UnitFrames.ReloadValues("player")
-    end
+    UnitFrames.ReloadIfExists("player", menu)
 
     -- Format Target Labels
-    if UnitFrames.CustomFrames.reticleover then
-        if UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
-            if UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne then
-                if UnitFrames.SV.BarAlignCenterLabelTarget then
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne.fmt = UnitFrames.SV.CustomFormatCenterLabel
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne:ClearAnchors()
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne:SetHorizontalAlignment(TEXT_ALIGN_CENTER)
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne:SetAnchor(CENTER, UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].backdrop, CENTER, 0, 0)
-                else
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne.fmt = UnitFrames.SV.CustomFormatOnePT
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne:ClearAnchors()
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne:SetHorizontalAlignment(TEXT_ALIGN_LEFT)
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne:SetAnchor(LEFT, UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].backdrop, LEFT, 5, 0)
-                end
-            end
-            if UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelTwo then
-                if UnitFrames.SV.BarAlignCenterLabelTarget then
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelTwo.fmt = "Nothing"
-                else
-                    UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].labelTwo.fmt = UnitFrames.SV.CustomFormatTwoPT
-                end
-            end
+    if UnitFrames.CustomFrames.reticleover and UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
+        local frame = UnitFrames.CustomFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH]
+        local isCenter = UnitFrames.SV.BarAlignCenterLabelTarget
+
+        if frame.labelOne then
+            UnitFrames.FormatLabelAlignment(
+                frame.labelOne,
+                isCenter,
+                UnitFrames.SV.CustomFormatCenterLabel,
+                UnitFrames.SV.CustomFormatOnePT,
+                frame.backdrop
+            )
+        end
+
+        if frame.labelTwo then
+            UnitFrames.FormatSecondaryLabel(
+                frame.labelTwo,
+                isCenter,
+                UnitFrames.SV.CustomFormatTwoPT
+            )
         end
     end
-    if menu and DoesUnitExist("reticleover") then
-        UnitFrames.ReloadValues("reticleover")
-    end
+    UnitFrames.ReloadIfExists("reticleover", menu)
 
     -- Format Companion Labels
-    if UnitFrames.CustomFrames.companion then
-        if UnitFrames.CustomFrames.companion[COMBAT_MECHANIC_FLAGS_HEALTH] then
-            if UnitFrames.CustomFrames.companion[COMBAT_MECHANIC_FLAGS_HEALTH].label then
-                UnitFrames.CustomFrames.companion[COMBAT_MECHANIC_FLAGS_HEALTH].label.fmt = UnitFrames.SV.CustomFormatCompanion
-            end
-        end
+    if UnitFrames.CustomFrames.companion and
+    UnitFrames.CustomFrames.companion[COMBAT_MECHANIC_FLAGS_HEALTH] and
+    UnitFrames.CustomFrames.companion[COMBAT_MECHANIC_FLAGS_HEALTH].label then
+        UnitFrames.FormatSimpleLabel(
+            UnitFrames.CustomFrames.companion[COMBAT_MECHANIC_FLAGS_HEALTH].label,
+            UnitFrames.SV.CustomFormatCompanion
+        )
     end
-    if menu and DoesUnitExist("companion") then
-        UnitFrames.ReloadValues("companion")
-    end
+    UnitFrames.ReloadIfExists("companion", menu)
 
     -- Format Small Group Labels
     for i = 1, 4 do
         local unitTag = "SmallGroup" .. i
-        if UnitFrames.CustomFrames[unitTag] then
-            if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] then
-                if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].labelOne then
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].labelOne.fmt = UnitFrames.SV.CustomFormatOneGroup
-                end
-                if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].labelTwo then
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].labelTwo.fmt = UnitFrames.SV.CustomFormatTwoGroup
-                end
+        if UnitFrames.CustomFrames[unitTag] and
+        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] then
+            local frame = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH]
+
+            if frame.labelOne then
+                UnitFrames.FormatSimpleLabel(frame.labelOne, UnitFrames.SV.CustomFormatOneGroup)
+            end
+
+            if frame.labelTwo then
+                UnitFrames.FormatSimpleLabel(frame.labelTwo, UnitFrames.SV.CustomFormatTwoGroup)
             end
         end
-        if menu and DoesUnitExist(unitTag) then
-            UnitFrames.ReloadValues(unitTag)
-        end
+        UnitFrames.ReloadIfExists(unitTag, menu)
     end
 
     -- Format Raid Labels
     for i = 1, 12 do
         local unitTag = "RaidGroup" .. i
-        if UnitFrames.CustomFrames[unitTag] then
-            if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] then
-                if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label then
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label.fmt = UnitFrames.SV.CustomFormatRaid
-                end
-            end
+        if UnitFrames.CustomFrames[unitTag] and
+        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] and
+        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label then
+            UnitFrames.FormatSimpleLabel(
+                UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label,
+                UnitFrames.SV.CustomFormatRaid
+            )
         end
         local baseTag = GetGroupUnitTagByIndex(i)
-        if menu and DoesUnitExist(baseTag) then
-            UnitFrames.ReloadValues(baseTag)
-        end
+        UnitFrames.ReloadIfExists(baseTag, menu)
     end
 
     -- Format Boss Labels
     for i = 1, 7 do
         local unitTag = "boss" .. i
-        if UnitFrames.CustomFrames[unitTag] then
-            if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] then
-                if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label then
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label.fmt = UnitFrames.SV.CustomFormatBoss
-                end
-            end
+        if UnitFrames.CustomFrames[unitTag] and
+        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] and
+        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label then
+            UnitFrames.FormatSimpleLabel(
+                UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label,
+                UnitFrames.SV.CustomFormatBoss
+            )
         end
-        if menu and DoesUnitExist(unitTag) then
-            UnitFrames.ReloadValues(unitTag)
-        end
+        UnitFrames.ReloadIfExists(unitTag, menu)
     end
 
+    -- Format Pet Labels
     for i = 1, 7 do
         local unitTag = "PetGroup" .. i
-        if UnitFrames.CustomFrames[unitTag] then
-            if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] then
-                if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label then
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label.fmt = UnitFrames.SV.CustomFormatPet
-                end
-            end
+        if UnitFrames.CustomFrames[unitTag] and
+        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] and
+        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label then
+            UnitFrames.FormatSimpleLabel(
+                UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label,
+                UnitFrames.SV.CustomFormatPet
+            )
         end
         local baseTag = "playerpet" .. i
-        if menu and DoesUnitExist(baseTag) then
-            UnitFrames.ReloadValues(baseTag)
-        end
+        UnitFrames.ReloadIfExists(baseTag, menu)
     end
 end
 
