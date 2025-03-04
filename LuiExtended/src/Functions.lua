@@ -154,18 +154,30 @@ end
 do
     --- Adds a system message to the chat.
     --- @param messageOrFormatter string: The message to be printed.
-    --- @param ... string: Variable number of arguments to be passed to CHAT_ROUTER:AddSystemMessage.
+    --- @param ... string: Variable number of arguments to be formatted into the message.
     local function AddSystemMessage(messageOrFormatter, ...)
+        -- Format the message if there are arguments
         local formattedMessage
         if select("#", ...) > 0 then
-            -- Escape '%' characters to prevent illegal format specifiers.
+            -- Escape '%' characters to prevent illegal format specifiers
             local safeFormat = zo_strgsub(messageOrFormatter, "%%", "%%%%")
             formattedMessage = string_format(safeFormat, ...)
         else
             formattedMessage = messageOrFormatter
         end
-        CHAT_ROUTER:AddSystemMessage(formattedMessage)
+
+        -- Use LibChatMessage if available, otherwise use default CHAT_ROUTER
+        if LibChatMessage then
+            -- Use cached chat instance for better performance
+            if not LUIE.chatInstance then
+                LUIE.chatInstance = LibChatMessage("LuiExtended", "LUIE")
+            end
+            LUIE.chatInstance:Print(formattedMessage)
+        else
+            CHAT_ROUTER:AddSystemMessage(formattedMessage)
+        end
     end
+
     LUIE.AddSystemMessage = AddSystemMessage
 end
 -- -----------------------------------------------------------------------------
