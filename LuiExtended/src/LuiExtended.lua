@@ -287,7 +287,7 @@ local DEVS = readonlytable
         ["@dack_janiels"] =
         {
             enabled = true,
-            debug = false,
+            debug = true,
         },
     }
 

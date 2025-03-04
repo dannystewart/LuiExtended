@@ -200,8 +200,8 @@ function UnitFrames.ClearCustomList(list)
     for k, v in pairs(list) do
         list[k] = nil
     end
-    CHAT_SYSTEM:Maximize()
-    CHAT_SYSTEM.primaryContainer:FadeIn()
+    ZO_GetChatSystem():Maximize()
+    ZO_GetChatSystem().primaryContainer:FadeIn()
     printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_CLEARED), listRef), true)
 end
 
@@ -210,8 +210,8 @@ function UnitFrames.AddToCustomList(list, input)
     local listRef = list == UnitFrames.SV.whitelist and GetString(LUIE_STRING_CUSTOM_LIST_UF_WHITELIST) or ""
     if input ~= "" then
         list[input] = true
-        CHAT_SYSTEM:Maximize()
-        CHAT_SYSTEM.primaryContainer:FadeIn()
+        ZO_GetChatSystem():Maximize()
+        ZO_GetChatSystem().primaryContainer:FadeIn()
         printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_ADDED_NAME), input, listRef), true)
     end
 end
@@ -221,8 +221,8 @@ function UnitFrames.RemoveFromCustomList(list, input)
     local listRef = list == UnitFrames.SV.whitelist and GetString(LUIE_STRING_CUSTOM_LIST_UF_WHITELIST) or ""
     if input ~= "" then
         list[input] = nil
-        CHAT_SYSTEM:Maximize()
-        CHAT_SYSTEM.primaryContainer:FadeIn()
+        ZO_GetChatSystem():Maximize()
+        ZO_GetChatSystem().primaryContainer:FadeIn()
         printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_REMOVED_NAME), input, listRef), true)
     end
 end
@@ -1711,8 +1711,8 @@ function UnitFrames.Initialize(enabled)
         eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MEMBER_ADDED, UnitFrames.SocialUpdateFrames)
         eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MEMBER_REMOVED, UnitFrames.SocialUpdateFrames)
 
-        eventManager:RegisterForEvent(moduleName, EVENT_CURRENT_CAMPAIGN_CHANGED, UnitFrames.OnCurrentCampaignChanged)
-        eventManager:RegisterForEvent(moduleName, EVENT_CAMPAIGN_EMPEROR_CHANGED, UnitFrames.OnCampaignEmperorChanged)
+--[[         eventManager:RegisterForEvent(moduleName, EVENT_CURRENT_CAMPAIGN_CHANGED, UnitFrames.OnCurrentCampaignChanged)
+        eventManager:RegisterForEvent(moduleName, EVENT_CAMPAIGN_EMPEROR_CHANGED, UnitFrames.OnCampaignEmperorChanged) ]]
 
         if UnitFrames.SV.CustomTargetMarker then
             eventManager:RegisterForEvent(moduleName, EVENT_TARGET_MARKER_UPDATE, UnitFrames.OnTargetMarkerUpdate)
@@ -1726,7 +1726,7 @@ function UnitFrames.Initialize(enabled)
     UnitFrames.ReticleColorByReaction()
 end
 
---- @param eventCode integer
+--[[ --- @param eventCode integer
 --- @param campaignId integer
 function UnitFrames.OnCurrentCampaignChanged(eventCode, campaignId)
     local self = ZO_PlayerToPlayer
@@ -1744,7 +1744,7 @@ function UnitFrames.OnCampaignEmperorChanged(eventCode, campaignId)
     if self and self.campaignId and self.campaignId == campaignId then
         self:RefreshEmperor()
     end
-end
+end ]]
 
 -- Sets out-of-combat transparency values for default user-frames
 function UnitFrames.SetDefaultFramesTransparency(min_pct_value, max_pct_value)
@@ -1992,7 +1992,7 @@ function UnitFrames.OnPlayerActivated(eventCode)
         end
     end
 
-    UnitFrames.OnReticleTargetChanged(nil)
+    UnitFrames.OnReticleTargetChanged()
     UnitFrames.OnBossesChanged()
     UnitFrames.OnPlayerCombatState(EVENT_PLAYER_COMBAT_STATE, IsUnitInCombat("player"))
     UnitFrames.CustomFramesGroupAlpha()

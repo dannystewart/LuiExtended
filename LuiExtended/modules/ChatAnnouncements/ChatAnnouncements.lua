@@ -301,13 +301,14 @@ local ChatEventFormattersDelete =
 function ChatAnnouncements.SlayChatHandlers()
     -- Unregister ZOS handlers for events we need to modify
     for eventCode, _ in pairs(ChatEventFormattersDelete) do
-        EVENT_MANAGER:UnregisterForEvent("ChatRouter", eventCode)
+        eventManager:UnregisterForEvent("ChatRouter", eventCode)
     end
 
     -- Slay these events in case LibChatMessage is active and hooks them
     local ChatEventFormatters = CHAT_ROUTER:GetRegisteredMessageFormatters()
     for eventType, _ in pairs(ChatEventFormattersDelete) do
-        ChatEventFormatters[eventType] = nil
+        ChatEventFormatters[eventType] = function(...)
+        end
     end
 end
 

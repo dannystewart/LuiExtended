@@ -81,7 +81,7 @@ function SlashCommands.Initialize(enabled)
 end
 
 function SlashCommands.RegisterSlashCommands()
-    -- CHAT_SYSTEM.textEntry.slashCommandAutoComplete:InvalidateSlashCommandCache()
+    -- ZO_GetChatSystem().textEntry.slashCommandAutoComplete:InvalidateSlashCommandCache()
     SlashCommandAutoComplete:InvalidateSlashCommandCache()
 
     -- Register commands that replace default functions

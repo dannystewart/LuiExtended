@@ -189,9 +189,9 @@ do
     --- @param msg string: The message to be printed.
     --- @param isSystem? boolean: If true, the message is considered a system message.
     local function PrintToChat(msg, isSystem)
-        if CHAT_SYSTEM.primaryContainer then
+        if ZO_GetChatSystem().primaryContainer then
             if LUIE.ChatAnnouncements.SV.ChatMethod == "Print to All Tabs" then
-                if not LUIE.ChatAnnouncements.SV.ChatBypassFormat and CHAT_SYSTEM.primaryContainer then
+                if not LUIE.ChatAnnouncements.SV.ChatBypassFormat and ZO_GetChatSystem().primaryContainer then
                     -- Add timestamps if bypass is not enabled
                     local formattedMsg = FormatMessage(msg or "no message", LUIE.ChatAnnouncements.SV.TimeStamp)
                     SystemMessage(formattedMsg)
@@ -209,7 +209,7 @@ do
                         SystemMessage(msg)
                     end
                 else
-                    for k, cc in ipairs(CHAT_SYSTEM.containers) do
+                    for k, cc in ipairs(ZO_GetChatSystem().containers) do
                         for i = 1, #cc.windows do
                             if LUIE.ChatAnnouncements.SV.ChatTab[i] == true then
                                 local chatContainer = cc

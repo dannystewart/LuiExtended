@@ -72,7 +72,7 @@ end
 --- @param name string Raw unit name
 --- @return string Formatted name
 local function FormatUnitName(name)
-    return (name == LUIE.PlayerDisplayName) and "Player" or (name == "" and "NIL" or zo_strformat("<<C:1>>", name))
+    return (name == LUIE.PlayerDisplayName) and "player" or (name == "" and "NIL" or zo_strformat("<<C:1>>", name))
 end
 -- -----------------------------------------------------------------------------
 --- Format unit name for effect messages
@@ -80,7 +80,7 @@ end
 --- @param unitTag string Unit tag
 --- @return string Formatted name with tag
 local function FormatEffectUnitName(unitName, unitTag)
-    local formatted = (unitName == LUIE.PlayerDisplayName) and "Player" or zo_strformat("<<C:1>>", unitName)
+    local formatted = (unitName == LUIE.PlayerDisplayName) and "player" or zo_strformat("<<C:1>>", unitName)
     return formatted .. " (" .. unitTag .. ")"
 end
 -- -----------------------------------------------------------------------------
@@ -187,10 +187,10 @@ end
 --- Formats the message and adds it to window 3 of each chat container
 --- @param message string The debug message to send to chat
 local function SendToChatWindows(message)
-    if not CHAT_SYSTEM.primaryContainer then return end
+    if not ZO_GetChatSystem().primaryContainer then return end
     local formattedMessage = FormatDebugMessage(message)
 
-    for _, container in ipairs(CHAT_SYSTEM.containers) do
+    for _, container in ipairs(ZO_GetChatSystem().containers) do
         if container then
             local chatWindow = container.windows[3]
             if chatWindow == nil then
