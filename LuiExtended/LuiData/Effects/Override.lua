@@ -13,7 +13,10 @@ local Abilities = LuiData.Data.Abilities
 
 local zo_strformat = zo_strformat
 
-
+local Innate_Sneak = 20299
+if GetAPIVersion() >= 101045 then
+    Innate_Sneak = 55080     -- Sneak
+end
 --------------------------------------------------------------------------------------------------------------------------------
 -- Override various information displayed for Effect auras
 --------------------------------------------------------------------------------------------------------------------------------
@@ -211,7 +214,7 @@ local EffectOverride =
     [69143] = { icon = "LuiExtended/media/icons/abilities/ability_innate_dodge_fatigue.dds", type = BUFF_EFFECT_TYPE_DEBUFF, unbreakable = 1, tooltip = Tooltips.Innate_Dodge_Fatigue }, -- Dodge Fatigue
 
     -- Crouch
-    [20299] = { icon = "LuiExtended/media/icons/abilities/ability_innate_hidden.dds", dynamicTooltip = true },                                                                                                                          -- Sneak
+    [Innate_Sneak] = { icon = "LuiExtended/media/icons/abilities/ability_innate_hidden.dds", dynamicTooltip = true },                                                                                                                          -- Sneak
     [20309] = { icon = "LuiExtended/media/icons/abilities/ability_innate_invisible.dds", tooltip = Tooltips.Innate_Invisible },                                                                                                         -- Hidden
     [26245] = { icon = "LuiExtended/media/icons/abilities/ability_innate_block_stun.dds", name = zo_strformat("<<1>> <<2>>", Abilities.Innate_Sneak, Abilities.Innate_Stun), tooltip = Tooltips.Generic_Stun, cc = LUIE_CC_TYPE_STUN }, -- Slam Stun (Stun from crouch attack)
 
@@ -250,7 +253,7 @@ local EffectOverride =
     -- Basic Attacks
     [16593] = { icon = "LuiExtended/media/icons/abilities/ability_spell_pin.dds", tooltip = Tooltips.Generic_Snare, tooltipValue2 = 25, cc = LUIE_CC_TYPE_SNARE }, -- Melee Snare
     [48532] = { icon = "LuiExtended/media/icons/abilities/ability_spell_pin.dds", hide = true },                                                                   -- Charge Snare
-    [55080] = { hide = true },                                                                                                                                     -- Pet Hidden
+    [Innate_Sneak] = { hide = true },                                                                                                                                     -- Pet Hidden
     [28301] = { icon = "LuiExtended/media/icons/abilities/ability_innate_cc_immunity.dds", tooltip = Tooltips.Generic_CC_Immunity },                               -- Crowd Control Immunity
     [38117] = { icon = "LuiExtended/media/icons/abilities/ability_innate_cc_immunity.dds", tooltip = Tooltips.Generic_CC_Immunity },                               -- Crowd Control Immunity
 

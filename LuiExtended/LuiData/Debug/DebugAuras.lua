@@ -7,6 +7,11 @@
 --- @class (partial) LuiData
 local LuiData = LuiData
 
+local Innate_Sneak = 20299
+if GetAPIVersion() >= 101045 then
+    Innate_Sneak = 55080     -- Sneak
+end
+
 -- List of all abilityId's that have been processed so far
 -- These id's don't show up on the debug event for EVENT_COMBAT_EVENT or EVENT_EFFECT_CHANGED
 --- @class DebugAuras
@@ -161,7 +166,7 @@ local DebugAuras =
     [69143] = true,  -- Dodge Fatigue
 
     -- Crouch
-    [20299] = true, -- Sneak
+    [Innate_Sneak] = true, -- Sneak
     -- [20304] = true, -- Crouch Slow
     [76463] = true, -- Clairvoyance Fx
     [20307] = true, -- Trying to Hide
@@ -233,7 +238,7 @@ local DebugAuras =
     -- [16593] = true, -- Melee Snare
     -- [48532] = true, -- Charge Snare
     -- [41952] = true, -- Cower
-    [55080] = true, -- Pet Hidden
+    [Innate_Sneak] = true, -- Pet Hidden
     [16566] = true, -- CC Immunity
     [28301] = true, -- Crowd Control Immunity
     [38117] = true, -- Crowd Control Immunity
@@ -16969,6 +16974,11 @@ local DebugAuras =
     [203124] = true, -- Event - Verse Select. GAIN/GAINDUR/STUN
     [203125] = true, -- Event - Verse Select. GAIN/GAINDUR/STUN
     
+    -- West Weald
+    [210068] = true, -- Trigger Central VO 1
+    [209292] = true, -- Rift Projectile B
+    [209293] = true, -- Rift Projectile C
+    [209294] = true, -- Rift Projectile D
 }
 
 --- @type DebugAuras
