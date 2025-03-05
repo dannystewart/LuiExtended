@@ -2417,6 +2417,20 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
         end
     end
 
+    -- If this ability should show a fake aura, register it in the appropriate tracking tables
+    if showFakeAura then
+        -- Register this ability in the fake aura tracking table if it's not already there
+        if not g_barFakeAura[ability_id] then
+            g_barFakeAura[ability_id] = true
+            g_barOverrideCI[ability_id] = true
+
+            -- If there's a duration override for this ability, apply it
+            if Effects.BarHighlightOverride[ability_id] and Effects.BarHighlightOverride[ability_id].duration then
+                g_barDurationOverride[ability_id] = Effects.BarHighlightOverride[ability_id].duration
+            end
+        end
+    end
+
     local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, GetAbilityName(ability_id))
     local abilityName = Effects.EffectOverride[ability_id] and Effects.EffectOverride[ability_id].name or cachedName
     local duration = GetUpdatedAbilityDuration(ability_id) or 0
