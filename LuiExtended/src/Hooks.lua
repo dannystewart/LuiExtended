@@ -928,7 +928,7 @@ function LUIE.InitializeHooks()
             local message = zo_strformat(GetString(LUIE_STRING_SLASHCMDS_FRIEND_INVITE_MSG), option1)
             printToChat(message, true)
             if LUIE.ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, message)
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, message)
             end
         end
     end
@@ -941,7 +941,7 @@ function LUIE.InitializeHooks()
         if IsIgnored(option) then -- Only lists account names, unfortunately
             printToChat(GetString(LUIE_STRING_SLASHCMDS_IGNORE_FAILED_ALREADYIGNORE), true)
             if LUIE.ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_IGNORE_FAILED_ALREADYIGNORE)))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_IGNORE_FAILED_ALREADYIGNORE)))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
             return

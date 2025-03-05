@@ -19,7 +19,7 @@ function SlashCommands.SlashGuildInvite(option)
     if option == "" or option == nil then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -41,7 +41,7 @@ function SlashCommands.SlashGuildInvite(option)
     if guildnumber == nil or name == nil then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -60,7 +60,7 @@ function SlashCommands.SlashGuildInvite(option)
     else -- If we enter anything outside of the range of 1-5, display an error and end.
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_INV)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -84,7 +84,7 @@ function SlashCommands.SlashGuildQuit(guildnumber)
     else
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILD_LEAVE), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILD_LEAVE)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILD_LEAVE)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -94,7 +94,7 @@ function SlashCommands.SlashGuildQuit(guildnumber)
     if guildnumber == nil then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILD_LEAVE), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILD_LEAVE)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILD_LEAVE)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -110,7 +110,7 @@ function SlashCommands.SlashGuildKick(option)
     if option == "" or option == nil then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -132,7 +132,7 @@ function SlashCommands.SlashGuildKick(option)
     if guildnumber == nil or name == nil then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -152,7 +152,7 @@ function SlashCommands.SlashGuildKick(option)
     else
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDGUILDACC_KICK)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -161,7 +161,7 @@ function SlashCommands.SlashGuildKick(option)
     if not DoesPlayerHaveGuildPermission(guildnumber, GUILD_PERMISSION_REMOVE) then
         printToChat(GetString(SI_SOCIALACTIONRESULT18), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(SI_SOCIALACTIONRESULT18)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(SI_SOCIALACTIONRESULT18)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -207,7 +207,7 @@ function SlashCommands.SlashGuildKick(option)
     else
         printToChat(GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDNAME_GUILD), true)
         if LUIE.ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDNAME_GUILD)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_KICK_FAILED_NOVALIDNAME_GUILD)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
     end

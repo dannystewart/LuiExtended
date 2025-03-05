@@ -27,7 +27,7 @@ function SlashCommands.SlashHome(option)
         if option ~= "inside" and option ~= "outside" then
             printToChat(GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_OPTION), true)
             if LUIE.SV.TempAlertHome then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_OPTION)))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_OPTION)))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
             return
@@ -39,7 +39,7 @@ function SlashCommands.SlashHome(option)
     if IsUnitInCombat("player") then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_IN_COMBAT), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_IN_COMBAT)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_IN_COMBAT)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -48,7 +48,7 @@ function SlashCommands.SlashHome(option)
     if IsInImperialCity() then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_IC), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_IC)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_IC)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -57,7 +57,7 @@ function SlashCommands.SlashHome(option)
     if IsPlayerInAvAWorld() then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_AVA), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_AVA)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_AVA)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -66,7 +66,7 @@ function SlashCommands.SlashHome(option)
     if IsActiveWorldBattleground() then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_BG), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_BG)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_BG)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -76,7 +76,7 @@ function SlashCommands.SlashHome(option)
     if primaryHouse == 0 then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_NOHOME), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_NOHOME)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_FAILED_NOHOME)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
     else
@@ -108,7 +108,7 @@ function SlashCommands.SlashSetPrimaryHome()
             if IsPrimaryHouse(currentHouse) then
                 printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_ALREADY), houseName), true)
                 if LUIE.SV.TempAlertHome then
-                    ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (zo_strformat(GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_ALREADY), houseName)))
+                    ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (zo_strformat(GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_ALREADY), houseName)))
                 end
                 PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
                 return
@@ -122,7 +122,7 @@ function SlashCommands.SlashSetPrimaryHome()
         else
             printToChat(GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_NOT_OWNER), true)
             if LUIE.SV.TempAlertHome then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_NOT_OWNER)))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_NOT_OWNER)))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
             return
@@ -130,7 +130,7 @@ function SlashCommands.SlashSetPrimaryHome()
     else
         printToChat(GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_NOHOME), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_NOHOME)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_SET_HOME_FAILED_NOHOME)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -158,7 +158,7 @@ function SlashCommands.SlashCampaignQ(option)
     if option == "" or option == nil then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_NONAME), true)
         if LUIE.SV.TempAlertCampaign then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_NONAME))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_NONAME))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -168,7 +168,7 @@ function SlashCommands.SlashCampaignQ(option)
     if IsActiveWorldBattleground() then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_BG), true)
         if LUIE.SV.TempAlertCampaign then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_BG))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_BG))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -203,7 +203,7 @@ function SlashCommands.SlashCampaignQ(option)
         else
             printToChat(GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_NOT_ENTERED), true)
             if LUIE.SV.TempAlertCampaign then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_NOT_ENTERED))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_NOT_ENTERED))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
             return
@@ -213,7 +213,7 @@ function SlashCommands.SlashCampaignQ(option)
     -- Otherwise, return an error message that the campaign doesn't exist.
     printToChat(GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_WRONGCAMPAIGN), true)
     if LUIE.SV.TempAlertCampaign then
-        ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_WRONGCAMPAIGN))
+        ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_FAILED_WRONGCAMPAIGN))
     end
     PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
 end
@@ -228,7 +228,7 @@ function SlashCommands.SlashCollectible(id)
     if IsInImperialCity() then
         printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_IC), GetCollectibleName(id)), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_IC), GetCollectibleName(id)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_IC), GetCollectibleName(id)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -237,7 +237,7 @@ function SlashCommands.SlashCollectible(id)
     if IsPlayerInAvAWorld() then
         printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_AVA), GetCollectibleName(id)), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_AVA), GetCollectibleName(id)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_AVA), GetCollectibleName(id)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -246,7 +246,7 @@ function SlashCommands.SlashCollectible(id)
     if IsActiveWorldBattleground() then
         printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_BG), GetCollectibleName(id)), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_BG), GetCollectibleName(id)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_BG), GetCollectibleName(id)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -259,7 +259,7 @@ function SlashCommands.SlashCollectible(id)
         if currentHouse ~= nil and currentHouse > 0 then
             printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_HOME), GetCollectibleName(id)), true)
             if LUIE.SV.TempAlertHome then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_HOME), GetCollectibleName(id)))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_HOME), GetCollectibleName(id)))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
             return
@@ -275,7 +275,7 @@ function SlashCommands.SlashCollectible(id)
     else
         printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_NOTUNLOCKED), GetCollectibleName(id)), true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_NOTUNLOCKED), GetCollectibleName(id)))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_FAILED_NOTUNLOCKED), GetCollectibleName(id)))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -311,7 +311,7 @@ function SlashCommands.SlashOutfit(option)
     if option == "" or option == nil then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_VALID))
         if LUIE.SV.TempAlertOutfit then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_VALID))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_VALID))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -321,7 +321,7 @@ function SlashCommands.SlashOutfit(option)
     if not valid or valid > 10 then
         printToChat(GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_VALID))
         if LUIE.SV.TempAlertOutfit then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_VALID))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_VALID))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return
@@ -332,7 +332,7 @@ function SlashCommands.SlashOutfit(option)
     if valid > numOutfits then
         printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_UNLOCKED), valid))
         if LUIE.SV.TempAlertOutfit then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_UNLOCKED), valid))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_OUTFIT_NOT_UNLOCKED), valid))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return

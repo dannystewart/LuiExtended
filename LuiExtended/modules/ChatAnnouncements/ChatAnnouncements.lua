@@ -6389,9 +6389,9 @@ function ChatAnnouncements.HookFunction()
             local finalAlertName = ChatAnnouncements.ResolveNameNoLink(targetDisplayName, targetCharacterName)
             local formattedString = zo_strformat(GetString("LUIE_STRING_CA_DUEL_INVITE_FAILREASON", reason), finalAlertName)
             if userFacingName then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, formattedString)
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, formattedString)
             else
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, (GetString("LUIE_STRING_CA_DUEL_INVITE_FAILREASON", reason)))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString("LUIE_STRING_CA_DUEL_INVITE_FAILREASON", reason)))
             end
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
@@ -6407,7 +6407,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Display Alert
         if ChatAnnouncements.SV.Social.DuelAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_CA_DUEL_INVITE_DECLINED))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_CA_DUEL_INVITE_DECLINED))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return true
@@ -6422,7 +6422,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Display Alert
         if ChatAnnouncements.SV.Social.DuelAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_CA_DUEL_INVITE_CANCELED))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_CA_DUEL_INVITE_CANCELED))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return true
@@ -6489,7 +6489,7 @@ function ChatAnnouncements.HookFunction()
     local function GroupInviteTimeoutAlert()
         printToChat(GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_GENERIC_JOIN_FAILURE), true)
         if ChatAnnouncements.SV.Group.GroupAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_GENERIC_JOIN_FAILURE))
+            ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_GENERIC_JOIN_FAILURE))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         return true
@@ -6501,7 +6501,7 @@ function ChatAnnouncements.HookFunction()
         if message ~= "" then
             printToChat(message, true)
             if ChatAnnouncements.SV.Group.GroupAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, message)
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, message)
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         end
@@ -6725,7 +6725,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(GetString("SI_ACTIVITYQUEUERESULT", result), true)
             end
             if ChatAnnouncements.SV.Group.GroupLFGAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString("SI_ACTIVITYQUEUERESULT", result))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString("SI_ACTIVITYQUEUERESULT", result))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         end
@@ -6741,7 +6741,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(GetString("SI_GROUPELECTIONFAILURE", failureType), true)
             end
             if ChatAnnouncements.SV.Group.GroupVoteAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString("SI_GROUPELECTIONFAILURE", failureType))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString("SI_GROUPELECTIONFAILURE", failureType))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         end
@@ -6926,7 +6926,7 @@ function ChatAnnouncements.HookFunction()
             if ChatAnnouncements.SV.Social.GuildCA then
                 printToChat(GetString("SI_SOCIALACTIONRESULT", result), true)
             elseif ChatAnnouncements.SV.Social.GuildAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString("SI_SOCIALACTIONRESULT", result))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString("SI_SOCIALACTIONRESULT", result))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         end
@@ -6957,7 +6957,7 @@ function ChatAnnouncements.HookFunction()
         if formatString ~= "" then
             printToChat(zo_strformat(formatString, interactTargetName))
             if ChatAnnouncements.SV.Notify.NotificationLockpickAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(formatString, interactTargetName))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, zo_strformat(formatString, interactTargetName))
             end
             local sound = ZO_ClientInteractResultSpecificSound[result] or SOUNDS.GENERAL_ALERT_ERROR
             PlaySound(sound)
@@ -7168,7 +7168,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(GetString("SI_SENDMAILRESULT", reason), true)
             end
             if ChatAnnouncements.SV.Notify.NotificationMailErrorAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString("SI_SENDMAILRESULT", reason))
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString("SI_SENDMAILRESULT", reason))
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
 
@@ -9656,7 +9656,7 @@ function ChatAnnouncements.HookFunction()
                 if result == PLEDGE_OF_MARA_RESULT_PLEDGED and not ChatAnnouncements.SV.Social.PledgeOfMaraAlertOnlyFail then
                     ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_MARA_PLEDGEOFMARARESULT3, finalAlertName))
                 elseif result ~= PLEDGE_OF_MARA_RESULT_PLEDGED and result ~= PLEDGE_OF_MARA_RESULT_BEGIN_PLEDGE then
-                    ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(GetString("LUIE_STRING_CA_MARA_PLEDGEOFMARARESULT", result), finalAlertName))
+                    ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, zo_strformat(GetString("LUIE_STRING_CA_MARA_PLEDGEOFMARARESULT", result), finalAlertName))
                 end
             end
         end
@@ -10218,7 +10218,7 @@ function ChatAnnouncements.HookFunction()
                         printToChat(GetString(LUIE_STRING_CA_MAIL_ERROR_NO_COD_VALUE), true)
                     end
                     if ChatAnnouncements.SV.Notify.NotificationMailSendAlert then
-                        ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, GetString(LUIE_STRING_CA_MAIL_ERROR_NO_COD_VALUE))
+                        ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, GetString(LUIE_STRING_CA_MAIL_ERROR_NO_COD_VALUE))
                     end
                     PlaySound(SOUNDS.NEGATIVE_CLICK)
                 else
@@ -10295,7 +10295,6 @@ function ChatAnnouncements.HookFunction()
     local function CompleteGroupInvite(characterOrDisplayName, sentFromChat, displayInvitedMessage, isMenu)
         local isLeader = IsUnitGroupLeader("player")
         local groupSize = GetGroupSize()
-        local ALERT = true
 
         if isLeader and groupSize == SMALL_GROUP_SIZE_THRESHOLD then
             ZO_Dialogs_ShowPlatformDialog("LARGE_GROUP_INVITE_WARNING", characterOrDisplayName, { mainTextParams = { SMALL_GROUP_SIZE_THRESHOLD } })
@@ -10312,12 +10311,12 @@ function ChatAnnouncements.HookFunction()
                 end
                 printToChat(zo_strformat(GetString(LUIE_STRING_CA_GROUP_INVITE_MENU), link), true)
                 if ChatAnnouncements.SV.Group.GroupAlert then
-                    ZO_Alert(ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GROUP_INVITE_MENU), ZO_FormatUserFacingCharacterOrDisplayName(characterOrDisplayName)))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GROUP_INVITE_MENU), ZO_FormatUserFacingCharacterOrDisplayName(characterOrDisplayName)))
                 end
             else
                 printToChat(zo_strformat(GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_INVITED), ZO_FormatUserFacingCharacterOrDisplayName(characterOrDisplayName)), true)
                 if ChatAnnouncements.SV.Group.GroupAlert then
-                    ZO_Alert(ALERT, nil, zo_strformat(GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_INVITED), ZO_FormatUserFacingCharacterOrDisplayName(characterOrDisplayName)))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_INVITED), ZO_FormatUserFacingCharacterOrDisplayName(characterOrDisplayName)))
                 end
             end
         end
