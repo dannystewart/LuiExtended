@@ -184,56 +184,69 @@ end
 do
     local FormatMessage = LUIE.FormatMessage
     local SystemMessage = LUIE.AddSystemMessage
-    --- Easy Print to Chat.
-    --- Prints a message to the chat.
-    --- @param msg string: The message to be printed.
-    --- @param isSystem? boolean: If true, the message is considered a system message.
-    local function PrintToChat(msg, isSystem)
-        if ZO_GetChatSystem().primaryContainer then
-            if LUIE.ChatAnnouncements.SV.ChatMethod == "Print to All Tabs" then
-                if not LUIE.ChatAnnouncements.SV.ChatBypassFormat and ZO_GetChatSystem().primaryContainer then
-                    -- Add timestamps if bypass is not enabled
-                    local formattedMsg = FormatMessage(msg or "no message", LUIE.ChatAnnouncements.SV.TimeStamp)
-                    SystemMessage(formattedMsg)
-                else
-                    SystemMessage(msg)
-                end
-            else
-                -- If we have system messages sent to display in all windows then just print to all windows at once, otherwise send messages to individual tabs.
-                if isSystem and LUIE.ChatAnnouncements.SV.ChatSystemAll then
-                    if not LUIE.ChatAnnouncements.SV.ChatBypassFormat then
-                        -- Add timestamps if bypass is not enabled
-                        local formattedMsg = FormatMessage(msg or "no message", LUIE.ChatAnnouncements.SV.TimeStamp)
-                        SystemMessage(formattedMsg)
-                    else
-                        SystemMessage(msg)
-                    end
-                else
-                    for k, cc in ipairs(ZO_GetChatSystem().containers) do
-                        for i = 1, #cc.windows do
-                            if LUIE.ChatAnnouncements.SV.ChatTab[i] == true then
-                                local chatContainer = cc
-                                if chatContainer then
-                                    local chatWindow = cc.windows[i]
-                                    local formattedMsg = FormatMessage(msg or "no message", LUIE.ChatAnnouncements.SV.TimeStamp)
-                                    -- Don't print into the Combat Metrics Log window if CMX is enabled.
-                                    local flagHide = false
-                                    if CMX and CMX.db and CMX.db.chatLog then
-                                        if chatContainer:GetTabName(i) == CMX.db.chatLog.name then
-                                            flagHide = true
-                                        end
-                                    end
-                                    if not flagHide then
-                                        chatContainer:AddEventMessageToWindow(chatWindow, formattedMsg, CHAT_CATEGORY_SYSTEM)
-                                    end
-                                end
-                            end
+
+    --- Prints a message to specific chat windows based on user settings
+    --- @param formattedMsg string: The message to print
+    --- @param isSystem boolean: Whether this is a system message
+    local function PrintToChatWindows(formattedMsg, isSystem)
+        -- If system messages should go to all windows and this is a system message, use SystemMessage
+        if isSystem and LUIE.ChatAnnouncements.SV.ChatSystemAll then
+            SystemMessage(formattedMsg)
+            return
+        end
+
+        -- Otherwise, print to individual tabs based on settings
+        for _, cc in ipairs(ZO_GetChatSystem().containers) do
+            for i = 1, #cc.windows do
+                if LUIE.ChatAnnouncements.SV.ChatTab[i] == true then
+                    local chatContainer = cc
+                    local chatWindow = cc.windows[i]
+
+                    -- Skip Combat Metrics Log window if CMX is enabled
+                    local skipWindow = false
+                    if CMX and CMX.db and CMX.db.chatLog then
+                        if chatContainer:GetTabName(i) == CMX.db.chatLog.name then
+                            skipWindow = true
                         end
+                    end
+
+                    if not skipWindow then
+                        chatContainer:AddEventMessageToWindow(chatWindow, formattedMsg, CHAT_CATEGORY_SYSTEM)
                     end
                 end
             end
         end
     end
+
+    --- Easy Print to Chat.
+    --- Prints a message to the chat.
+    --- @param msg string: The message to be printed.
+    --- @param isSystem? boolean: If true, the message is considered a system message.
+    local function PrintToChat(msg, isSystem)
+        -- Guard clause: exit early if chat system not ready
+        if not ZO_GetChatSystem().primaryContainer then
+            return
+        end
+
+        -- Default message if none provided
+        msg = msg or "no message"
+
+        -- Determine if we should format the message with a timestamp
+        local shouldFormat = not LUIE.ChatAnnouncements.SV.ChatBypassFormat
+        local formattedMsg = shouldFormat
+            and FormatMessage(msg, LUIE.ChatAnnouncements.SV.TimeStamp)
+            or msg
+
+        -- Method 1: Print to all tabs (uses SystemMessage)
+        if LUIE.ChatAnnouncements.SV.ChatMethod == "Print to All Tabs" then
+            SystemMessage(formattedMsg)
+            return
+        end
+
+        -- Method 2: Print to specific tabs
+        PrintToChatWindows(formattedMsg, isSystem)
+    end
+
     LUIE.PrintToChat = PrintToChat
 end
 -- -----------------------------------------------------------------------------
@@ -241,7 +254,7 @@ end
 --- @param number number The number to format
 --- @param shorten? boolean Whether to abbreviate large numbers (e.g. 1.5M)
 --- @param comma? boolean Whether to add localized digit separators
---- @return string|number The formatted number
+--- @return string|number @The formatted number
 function LUIE.AbbreviateNumber(number, shorten, comma)
     if number > 0 and shorten then
         local value
