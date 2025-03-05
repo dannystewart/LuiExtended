@@ -123,7 +123,7 @@ function ChatAnnouncements.SkillXPUpdate(eventCode, skillType, skillIndex, reaso
 
         if ChatAnnouncements.SV.Skills.SkillGuildAlert then
             local text = zo_strformat(GetString(LUIE_STRING_CA_SKILL_GUILD_ALERT), formattedName)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
         end
 
         -- Bail out or save value if Throttle/Threshold conditions are met

@@ -18,7 +18,7 @@ function SlashCommands.SlashRegroup()
     local function RegroupInvite()
         printToChat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_REINVITE_MSG), true)
         if LUIE.ChatAnnouncements.SV.Group.GroupAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_SLASHCMDS_REGROUP_REINVITE_MSG))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_REGROUP_REINVITE_MSG))
         end
         for i = 1, #g_regroupStacks do
             local member = g_regroupStacks[i]
@@ -27,7 +27,7 @@ function SlashCommands.SlashRegroup()
                 GroupInviteByName(member.memberName)
                 printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_REINVITE_SENT_MSG), member.memberLink), true)
                 if LUIE.ChatAnnouncements.SV.Group.GroupAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_REINVITE_SENT_MSG), member.memberNoLink))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_REINVITE_SENT_MSG), member.memberNoLink))
                 end
             end
         end
@@ -110,14 +110,14 @@ function SlashCommands.SlashRegroup()
         if #g_regroupStacks > 1 then
             printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_SOME_OFF_MSG), flagOffline, flagOffline, flagOffline), true)
             if LUIE.ChatAnnouncements.SV.Group.GroupAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_SOME_OFF_MSG), flagOffline, flagOffline, flagOffline))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_SOME_OFF_MSG), flagOffline, flagOffline, flagOffline))
             end
             GroupDisband()
             LUIE_CallLater(RegroupInvite, 5000)
         else
             printToChat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_ALL_OFF_MSG), true)
             if LUIE.ChatAnnouncements.SV.Group.GroupAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_ALL_OFF_MSG))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_ALL_OFF_MSG))
             end
             g_pendingRegroup = false -- Allow Regroup command to be used again
             g_regroupStacks = {}     -- Allow index to be used again.
@@ -125,7 +125,7 @@ function SlashCommands.SlashRegroup()
     else
         printToChat(GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_MSG), true)
         if LUIE.ChatAnnouncements.SV.Group.GroupAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_MSG))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_SLASHCMDS_REGROUP_SAVED_MSG))
         end
         GroupDisband()
         LUIE_CallLater(RegroupInvite, 5000)
@@ -423,6 +423,6 @@ function SlashCommands.SlashInvite(option)
     GroupInviteByName(option)
     printToChat(zo_strformat(GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_INVITED), option), true)
     if LUIE.ChatAnnouncements.SV.Group.GroupAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_INVITED), option))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_INVITED), option))
     end
 end

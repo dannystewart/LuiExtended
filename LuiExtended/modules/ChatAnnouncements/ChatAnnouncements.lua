@@ -796,7 +796,7 @@ function ChatAnnouncements.GuildHeraldrySaved()
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages )
         end
         if ChatAnnouncements.SV.Social.GuildManageAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_HERALDRY_UPDATE), guildNameAllianceAlert))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_HERALDRY_UPDATE), guildNameAllianceAlert))
         end
     end
 end
@@ -841,7 +841,7 @@ function ChatAnnouncements.GuildRanksSaved(eventCode, guildId)
         eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
     end
     if ChatAnnouncements.SV.Social.GuildManageAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANKS_UPDATE), guildNameAllianceAlert))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANKS_UPDATE), guildNameAllianceAlert))
     end
 end
 
@@ -870,7 +870,7 @@ function ChatAnnouncements.GuildRankSaved(eventCode, guildId, rankIndex)
         printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_UPDATE), rankSyntax, guildNameAlliance), true)
     end
     if ChatAnnouncements.SV.Social.GuildManageAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_UPDATE), rankSyntaxAlert, guildNameAllianceAlert))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_UPDATE), rankSyntaxAlert, guildNameAllianceAlert))
     end
 end
 
@@ -891,7 +891,7 @@ function ChatAnnouncements.GuildTextChanged(eventCode, guildId)
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
         if ChatAnnouncements.SV.Social.GuildManageAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(messageString), guildNameAllianceAlert))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(messageString), guildNameAllianceAlert))
         end
     end
 end
@@ -942,7 +942,7 @@ function ChatAnnouncements.GuildRankChanged(eventCode, guildId, displayName, new
                     printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED), displayNameLink, guildNameAlliance, rankSyntax), true)
                 end
                 if ChatAnnouncements.SV.Social.GuildRankAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED), displayName, guildNameAllianceAlert, rankSyntaxAlert))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED), displayName, guildNameAllianceAlert, rankSyntaxAlert))
                 end
                 break
             end
@@ -968,14 +968,14 @@ function ChatAnnouncements.GuildPlayerRankChanged(eventId, guildId, rankIndex, g
             printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_UP_SELF), rankSyntax, guildNameAlliance), true)
         end
         if ChatAnnouncements.SV.Social.GuildRankAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_UP_SELF), rankSyntaxAlert, guildNameAllianceAlert))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_UP_SELF), rankSyntaxAlert, guildNameAllianceAlert))
         end
     elseif guildRankChangeAction == GUILD_RANK_CHANGE_ACTION_DEMOTE then
         if ChatAnnouncements.SV.Social.GuildRankCA then
             printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_DOWN_SELF), rankSyntax, guildNameAlliance), true)
         end
         if ChatAnnouncements.SV.Social.GuildRankAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_DOWN_SELF), rankSyntaxAlert, guildNameAllianceAlert))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_DOWN_SELF), rankSyntaxAlert, guildNameAllianceAlert))
         end
     end
 end
@@ -1003,7 +1003,7 @@ function ChatAnnouncements.GuildMemberPromoteSuccessful(eventId, displayName, ne
             printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED_PROMOTE), displayNameLink, rankSyntax, guildNameAlliance), true)
         end
         if ChatAnnouncements.SV.Social.GuildRankAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED_PROMOTE), displayName, rankSyntaxAlert, guildNameAllianceAlert))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED_PROMOTE), displayName, rankSyntaxAlert, guildNameAllianceAlert))
         end
     end
     g_disableRankMessage = true
@@ -1032,7 +1032,7 @@ function ChatAnnouncements.GuildMemberDemoteSuccessful(eventId, displayName, new
             printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED_DEMOTE), displayNameLink, rankSyntax, guildNameAlliance), true)
         end
         if ChatAnnouncements.SV.Social.GuildRankAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED_DEMOTE), displayName, rankSyntaxAlert, guildNameAllianceAlert))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANK_CHANGED_DEMOTE), displayName, rankSyntaxAlert, guildNameAllianceAlert))
         end
     end
     g_disableRankMessage = true
@@ -1055,7 +1055,7 @@ function ChatAnnouncements.GuildAddedSelf(eventCode, guildId, guildName)
                 printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_JOIN_SELF), guildNameAlliance), true)
             end
             if ChatAnnouncements.SV.Social.GuildAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_JOIN_SELF), guildNameAllianceAlert))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_JOIN_SELF), guildNameAllianceAlert))
             end
             break
         end
@@ -1077,7 +1077,7 @@ function ChatAnnouncements.GuildInviteAdded(eventCode, guildId, guildName, guild
         printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_INCOMING_GUILD_REQUEST), displayNameLink, guildNameAlliance), true)
     end
     if ChatAnnouncements.SV.Social.GuildAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_INCOMING_GUILD_REQUEST), inviterName, guildNameAllianceAlert))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_INCOMING_GUILD_REQUEST), inviterName, guildNameAllianceAlert))
     end
 end
 
@@ -1092,7 +1092,7 @@ function ChatAnnouncements.FriendAdded(eventCode, displayName)
         printToChat(zo_strformat(LUIE_STRING_CA_FRIENDS_FRIEND_ADDED, displayNameLink), true)
     end
     if ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_FRIENDS_FRIEND_ADDED, displayName))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_FRIENDS_FRIEND_ADDED, displayName))
     end
 end
 
@@ -1107,7 +1107,7 @@ function ChatAnnouncements.FriendRemoved(eventCode, displayName)
         printToChat(zo_strformat(LUIE_STRING_CA_FRIENDS_FRIEND_REMOVED, displayNameLink), true)
     end
     if ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_FRIENDS_FRIEND_REMOVED, displayName))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_FRIENDS_FRIEND_REMOVED, displayName))
     end
 end
 
@@ -1122,7 +1122,7 @@ function ChatAnnouncements.FriendInviteAdded(eventCode, displayName)
         printToChat(zo_strformat(LUIE_STRING_CA_FRIENDS_INCOMING_FRIEND_REQUEST, displayNameLink), true)
     end
     if ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_FRIENDS_INCOMING_FRIEND_REQUEST, displayName))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_FRIENDS_INCOMING_FRIEND_REQUEST, displayName))
     end
 end
 
@@ -1137,7 +1137,7 @@ function ChatAnnouncements.IgnoreAdded(eventCode, displayName)
         printToChat(zo_strformat(LUIE_STRING_CA_FRIENDS_LIST_IGNORE_ADDED, displayNameLink), true)
     end
     if ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_FRIENDS_LIST_IGNORE_ADDED, displayName))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_FRIENDS_LIST_IGNORE_ADDED, displayName))
     end
 end
 
@@ -1152,7 +1152,7 @@ function ChatAnnouncements.IgnoreRemoved(eventCode, displayName)
         printToChat(zo_strformat(LUIE_STRING_CA_FRIENDS_LIST_IGNORE_REMOVED, displayNameLink), true)
     end
     if ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_FRIENDS_LIST_IGNORE_REMOVED, displayName))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_FRIENDS_LIST_IGNORE_REMOVED, displayName))
     end
 end
 
@@ -1194,7 +1194,7 @@ function ChatAnnouncements.FriendPlayerStatus(eventCode, displayName, characterN
             printToChat(chatText, true)
         end
         if ChatAnnouncements.SV.Social.FriendStatusAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertText)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertText)
         end
     end
 end
@@ -1212,7 +1212,7 @@ function ChatAnnouncements.QuestShared(eventCode, questId)
             printToChat(message, true)
         end
         if ChatAnnouncements.SV.Quests.QuestShareAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
         end
     end
 end
@@ -1239,7 +1239,7 @@ function ChatAnnouncements.GroupingToolsLFGJoined(eventCode, locationName)
             printToChat(zo_strformat(LUIE_STRING_CA_GROUPFINDER_ALERT_LFG_JOINED, locationName), true)
         end
         if ChatAnnouncements.SV.Group.GroupLFGAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_GROUPFINDER_ALERT_LFG_JOINED, locationName))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_GROUPFINDER_ALERT_LFG_JOINED, locationName))
         end
         g_lfgDisableGroupEvents = true
         LUIE_CallLater(function ()
@@ -1285,7 +1285,7 @@ function ChatAnnouncements.ActivityStatusUpdate(eventCode, status)
             printToChat(message, true)
         end
         if ChatAnnouncements.SV.Group.GroupLFGQueueAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
     end
 
@@ -1365,7 +1365,7 @@ function ChatAnnouncements.ReadyCheckUpdate(eventCode)
             printToChat(message, true)
         end
         if ChatAnnouncements.SV.Group.GroupLFGAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertText)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertText)
         end
     end
 
@@ -1540,7 +1540,7 @@ function ChatAnnouncements.PointRespecDisplay(respecType)
     end
 
     if ChatAnnouncements.SV.DisplayAnnouncements.Respec.Alert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
     end
 end
 
@@ -2157,7 +2157,7 @@ function ChatAnnouncements.MiscAlertLockSuccess(eventCode)
         eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
     end
     if ChatAnnouncements.SV.Notify.NotificationLockpickAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_LOCKPICK_SUCCESS))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_LOCKPICK_SUCCESS))
     end
     g_lockpickBroken = true
     LUIE_CallLater(function ()
@@ -2176,7 +2176,7 @@ function ChatAnnouncements.StorageBag(eventCode, previousCapacity, currentCapaci
 
         if ChatAnnouncements.SV.Notify.StorageBagAlert then
             local text = zo_strformat(LUIE_STRING_CA_STORAGE_BAG_UPGRADE)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
         end
     end
 end
@@ -2192,7 +2192,7 @@ function ChatAnnouncements.StorageBank(eventCode, previousCapacity, currentCapac
 
         if ChatAnnouncements.SV.Notify.StorageBagAlert then
             local text = zo_strformat(LUIE_STRING_CA_STORAGE_BANK_UPGRADE)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
         end
     end
 end
@@ -2506,7 +2506,7 @@ function ChatAnnouncements.MailRemoved(eventCode)
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
         if ChatAnnouncements.SV.Notify.NotificationMailSendAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_MAIL_DELETED_MSG))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_MAIL_DELETED_MSG))
         end
     end
 end
@@ -2550,7 +2550,7 @@ function ChatAnnouncements.OnMailTakeAttachedItem(eventCode, mailId)
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
             if ChatAnnouncements.SV.Notify.NotificationMailSendAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, mailString)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, mailString)
             end
         end
     end
@@ -2635,7 +2635,7 @@ function ChatAnnouncements.OnMailSuccess(eventCode)
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
             if ChatAnnouncements.SV.Notify.NotificationMailSendAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, mailString)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, mailString)
             end
         end
     end
@@ -2821,7 +2821,7 @@ function ChatAnnouncements.OnAchievementUpdated(eventCode, id)
 
         if ChatAnnouncements.SV.Achievement.AchievementUpdateAlert then
             local alertMessage = zo_strformat("<<1>>: <<2>>", ChatAnnouncements.SV.Achievement.AchievementProgressMsg, name)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
         end
     end
 end
@@ -2864,7 +2864,7 @@ function ChatAnnouncements.OnTimedActivityProgressUpdated(eventCode, timedActivi
 
         if ChatAnnouncements.SV.Notify.TimedActivityAlert then
             local alertMessage = zo_strformat(GetString(SI_APPLYOUTFITCHANGESRESULT0), GetString(SI_ACTIVITY_FINDER_CATEGORY_TIMED_ACTIVITIES))
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
         end
     end
 end
@@ -2898,7 +2898,7 @@ function ChatAnnouncements.OnPromotionalEventsActivityProgressUpdated(eventCode,
 
         if ChatAnnouncements.SV.Notify.PromotionalEventsActivityAlert then
             local alertMessage = zo_strformat(GetString(SI_APPLYOUTFITCHANGESRESULT0), GetString(SI_PROMOTIONAL_EVENT_TRACKER_HEADER))
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
         end
     end
 end
@@ -2940,7 +2940,7 @@ function ChatAnnouncements.OnCraftedAbilityLockStateChanged(eventCode, craftedAb
         end
 
         if ChatAnnouncements.SV.Notify.CraftedAbilityAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
     end
 end
@@ -2981,7 +2981,7 @@ function ChatAnnouncements.OnCraftedAbilityScriptLockStateChanged(eventCode, cra
         end
 
         if ChatAnnouncements.SV.Notify.CraftedAbilityScriptAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
     end
 end
@@ -5668,7 +5668,7 @@ function ChatAnnouncements.JusticeDisplayConfiscate()
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         else
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, ConfiscateMessage)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, ConfiscateMessage)
         end
     end
     g_itemsConfiscated = false
@@ -5792,7 +5792,7 @@ function ChatAnnouncements.DisguiseState(eventCode, unitTag, disguiseState)
             CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
         end
         if ChatAnnouncements.SV.Notify.DisguiseWarnAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_DANGER))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_DANGER))
         end
 
         if (ChatAnnouncements.SV.Notify.DisguiseWarnCA or ChatAnnouncements.SV.Notify.DisguiseWarnAlert) and not ChatAnnouncements.SV.Notify.DisguiseWarnCSA then
@@ -5814,7 +5814,7 @@ function ChatAnnouncements.DisguiseState(eventCode, unitTag, disguiseState)
             CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
         end
         if ChatAnnouncements.SV.Notify.DisguiseWarnAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_SUSPICIOUS))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_SUSPICIOUS))
         end
         if (ChatAnnouncements.SV.Notify.DisguiseWarnCA or ChatAnnouncements.SV.Notify.DisguiseWarnAlert) and not ChatAnnouncements.SV.Notify.DisguiseWarnCSA then
             PlaySound(SOUNDS.GROUP_ELECTION_REQUESTED)
@@ -5834,7 +5834,7 @@ function ChatAnnouncements.DisguiseState(eventCode, unitTag, disguiseState)
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
         if ChatAnnouncements.SV.Notify.DisguiseAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
         if ChatAnnouncements.SV.Notify.DisguiseCSA then
             local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
@@ -5853,7 +5853,7 @@ function ChatAnnouncements.DisguiseState(eventCode, unitTag, disguiseState)
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
         if ChatAnnouncements.SV.Notify.DisguiseAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
         if ChatAnnouncements.SV.Notify.DisguiseCSA then
             local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
@@ -5903,7 +5903,7 @@ function ChatAnnouncements.OnPlayerActivated(eventCode)
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
                 if ChatAnnouncements.SV.Notify.DisguiseAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
                 end
                 if ChatAnnouncements.SV.Notify.DisguiseCSA then
                     local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
@@ -5923,7 +5923,7 @@ function ChatAnnouncements.OnPlayerActivated(eventCode)
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
                 if ChatAnnouncements.SV.Notify.DisguiseAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
                 end
                 if ChatAnnouncements.SV.Notify.DisguiseCSA then
                     local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
@@ -6106,10 +6106,10 @@ function ChatAnnouncements.HookFunction()
             if not isDefaultRacialStyle then
                 if chapterIndex == ITEM_STYLE_CHAPTER_ALL then
                     local text = zo_strformat(SI_NEW_STYLE_LEARNED, GetItemStyleName(itemStyleId))
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
                 else
                     local text = zo_strformat(SI_NEW_STYLE_CHAPTER_LEARNED, GetItemStyleName(itemStyleId), GetString("SI_ITEMSTYLECHAPTER", chapterIndex))
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
                 end
             end
         end
@@ -6190,7 +6190,7 @@ function ChatAnnouncements.HookFunction()
 
             if ChatAnnouncements.SV.Notify.StorageRidingAlert then
                 local text = zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkill), previous, current)
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
             end
 
             if ChatAnnouncements.SV.Notify.StorageRidingCSA then
@@ -6264,7 +6264,7 @@ function ChatAnnouncements.HookFunction()
                 -- Alert Announcement
                 if ChatAnnouncements.SV.Lorebooks.LorebookAlert then
                     local text = collectionName ~= "" and zo_strformat("<<1>> <<2>>.", GetString(LUIE_STRING_CA_LOREBOOK_ADDED_CA), collectionName) or zo_strformat(" <<1>> <<2>>.", GetString(LUIE_STRING_CA_LOREBOOK_ADDED_CA), GetString(SI_WINDOW_TITLE_LORE_LIBRARY))
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat("<<1>> <<2>>", title, text))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat("<<1>> <<2>>", title, text))
                 end
 
                 -- Center Screen Announcement
@@ -6306,7 +6306,7 @@ function ChatAnnouncements.HookFunction()
         if ChatAnnouncements.SV.Social.DuelAlert then
             local finalAlertName = ChatAnnouncements.ResolveNameNoLink(inviterCharacterName, inviterDisplayName)
             local formattedString = zo_strformat(GetString(LUIE_STRING_CA_DUEL_INVITE_RECEIVED), finalAlertName)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, formattedString)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, formattedString)
         end
 
         return true
@@ -6321,7 +6321,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Display Alert
         if ChatAnnouncements.SV.Social.DuelAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_DUEL_INVITE_ACCEPTED))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_DUEL_INVITE_ACCEPTED))
         end
         PlaySound(SOUNDS.DUEL_ACCEPTED)
         return true
@@ -6339,7 +6339,7 @@ function ChatAnnouncements.HookFunction()
         if ChatAnnouncements.SV.Social.DuelAlert then
             local finalAlertName = ChatAnnouncements.ResolveNameNoLink(inviteeCharacterName, inviteeDisplayName)
             local formattedString = zo_strformat(GetString(LUIE_STRING_CA_DUEL_INVITE_SENT), finalAlertName)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, formattedString)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, formattedString)
         end
         return true
     end
@@ -6478,7 +6478,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(message, true)
             end
             if ChatAnnouncements.SV.Group.GroupAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         end
@@ -6627,7 +6627,7 @@ function ChatAnnouncements.HookFunction()
                     printToChat(message, true)
                 end
                 if ChatAnnouncements.SV.Group.GroupAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alert)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alert)
                 end
                 if sound ~= nil then
                     PlaySound(sound)
@@ -6639,7 +6639,7 @@ function ChatAnnouncements.HookFunction()
                     printToChat(message2, true)
                 end
                 if ChatAnnouncements.SV.Group.GroupAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alert2)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alert2)
                 end
             end
         end
@@ -6711,7 +6711,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(displayString, true)
             end
             if ChatAnnouncements.SV.Group.GroupAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertString)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertString)
             end
             PlaySound(SOUNDS.GROUP_PROMOTE)
         end
@@ -6809,7 +6809,7 @@ function ChatAnnouncements.HookFunction()
                     printToChat(message, true)
                 end
                 if ChatAnnouncements.SV.Group.GroupVoteAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertText)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertText)
                 end
                 PlaySound(GroupElectionResultToSoundId[resultType])
             end
@@ -6835,7 +6835,7 @@ function ChatAnnouncements.HookFunction()
             printToChat(messageText, true)
         end
         if ChatAnnouncements.SV.Group.GroupVoteAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertText)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertText)
         end
         PlaySound(SOUNDS.GROUP_ELECTION_REQUESTED)
         return true
@@ -6851,7 +6851,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(message, true)
             end
             if ChatAnnouncements.SV.Group.GroupLFGAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
             end
         end
 
@@ -6888,7 +6888,7 @@ function ChatAnnouncements.HookFunction()
             printToChat(message, true)
         end
         if ChatAnnouncements.SV.Group.GroupAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
         PlaySound(sound)
 
@@ -6910,7 +6910,7 @@ function ChatAnnouncements.HookFunction()
                     printToChat(zo_strformat(GetString(messageString), guildNameAlliance), true)
                 end
                 if ChatAnnouncements.SV.Social.GuildAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(messageString), guildNameAllianceAlert))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(messageString), guildNameAllianceAlert))
                 end
                 PlaySound(sound)
                 break
@@ -6942,7 +6942,7 @@ function ChatAnnouncements.HookFunction()
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
         if ChatAnnouncements.SV.Notify.NotificationLockpickAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_LOCKPICK_FAILED))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_LOCKPICK_FAILED))
         end
         g_lockpickBroken = true
         LUIE_CallLater(function ()
@@ -6976,7 +6976,7 @@ function ChatAnnouncements.HookFunction()
             end
 
             if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString("LUIE_STRING_CA_TRADEACTIONRESULT", errorReason), finalAlertName))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString("LUIE_STRING_CA_TRADEACTIONRESULT", errorReason), finalAlertName))
             end
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
@@ -6995,7 +6995,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(zo_strformat(GetString(LUIE_STRING_CA_TRADE_INVITE_MESSAGE), finalName), true)
             end
             if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_TRADE_INVITE_MESSAGE), finalAlertName))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_TRADE_INVITE_MESSAGE), finalAlertName))
             end
         end
         return true
@@ -7012,7 +7012,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(zo_strformat(GetString(LUIE_STRING_CA_TRADE_INVITE_CONFIRM), finalName), true)
             end
             if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_TRADE_INVITE_CONFIRM), finalAlertName))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_TRADE_INVITE_CONFIRM), finalAlertName))
             end
         end
         return true
@@ -7024,7 +7024,7 @@ function ChatAnnouncements.HookFunction()
             printToChat(GetString(LUIE_STRING_CA_TRADE_INVITE_DECLINED), true)
         end
         if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_TRADE_INVITE_DECLINED))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_TRADE_INVITE_DECLINED))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         g_tradeTarget = ""
@@ -7039,7 +7039,7 @@ function ChatAnnouncements.HookFunction()
             printToChat(GetString(LUIE_STRING_CA_TRADE_INVITE_CANCELED), true)
         end
         if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_TRADE_INVITE_CANCELED))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_TRADE_INVITE_CANCELED))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
         g_tradeTarget = ""
@@ -7054,7 +7054,7 @@ function ChatAnnouncements.HookFunction()
             printToChat(GetString(SI_TRADE_CANCELED), true)
         end
         if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(SI_TRADE_CANCELED))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(SI_TRADE_CANCELED))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
 
@@ -7079,7 +7079,7 @@ function ChatAnnouncements.HookFunction()
             printToChat(GetString("LUIE_STRING_CA_TRADEACTIONRESULT", reason), true)
         end
         if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString("LUIE_STRING_CA_TRADEACTIONRESULT", reason))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString("LUIE_STRING_CA_TRADEACTIONRESULT", reason))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
 
@@ -7097,7 +7097,7 @@ function ChatAnnouncements.HookFunction()
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
         if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(SI_TRADE_COMPLETE))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(SI_TRADE_COMPLETE))
         end
         PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
 
@@ -7287,7 +7287,7 @@ function ChatAnnouncements.HookFunction()
             -- Alert Announcement
             if ChatAnnouncements.SV.Lorebooks.LorebookAlert then
                 local text = collectionName ~= "" and zo_strformat("<<1>> <<2>>.", GetString(LUIE_STRING_CA_LOREBOOK_ADDED_CA), collectionName) or zo_strformat(" <<1>> <<2>>.", GetString(LUIE_STRING_CA_LOREBOOK_ADDED_CA), GetString(SI_WINDOW_TITLE_LORE_LIBRARY))
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat("<<1>> <<2>>", title, text))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat("<<1>> <<2>>", title, text))
             end
 
             -- Center Screen Announcement
@@ -7362,7 +7362,7 @@ function ChatAnnouncements.HookFunction()
 
                 if ChatAnnouncements.SV.Lorebooks.LorebookCollectionAlert then
                     local text = zo_strformat(SI_LORE_LIBRARY_COLLECTION_COMPLETED_SMALL, collectionName)
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
                 end
                 if not ChatAnnouncements.SV.Lorebooks.LorebookCSA then
                     PlaySound(SOUNDS.BOOK_COLLECTION_COMPLETED)
@@ -7421,7 +7421,7 @@ function ChatAnnouncements.HookFunction()
 
                 if ChatAnnouncements.SV.Lorebooks.LorebookCollectionAlert then
                     local text = zo_strformat(SI_LORE_LIBRARY_COLLECTION_COMPLETED_SMALL, collectionName)
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
                 end
                 if not ChatAnnouncements.SV.Lorebooks.LorebookCSA then
                     PlaySound(SOUNDS.BOOK_COLLECTION_COMPLETED)
@@ -7512,7 +7512,7 @@ function ChatAnnouncements.HookFunction()
                 CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
             end
             if ChatAnnouncements.SV.Skills.SkillPointAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, finalText)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, finalText)
             end
             if not ChatAnnouncements.SV.Skills.SkillPointCSA then
                 PlaySound(sound)
@@ -7546,7 +7546,7 @@ function ChatAnnouncements.HookFunction()
             if ChatAnnouncements.SV.Skills.SkillLineUnlockAlert then
                 local formattedIcon = ""
                 local text = zo_strformat(SI_SKILL_LINE_ADDED, formattedIcon, lineName)
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
             end
             if not ChatAnnouncements.SV.Skills.SkillLineUnlockCSA then
                 PlaySound(SOUNDS.SKILL_LINE_ADDED)
@@ -7577,7 +7577,7 @@ function ChatAnnouncements.HookFunction()
 
             if ChatAnnouncements.SV.Skills.SkillAbilityAlert then
                 local text = zo_strformat(SI_MORPH_AVAILABLE_ANNOUNCEMENT, name) .. "."
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
             end
 
             if not ChatAnnouncements.SV.Skills.SkillAbilityCSA then
@@ -7600,7 +7600,7 @@ function ChatAnnouncements.HookFunction()
 
             if ChatAnnouncements.SV.Skills.SkillAbilityAlert then
                 local text = zo_strformat(LUIE_STRING_CA_ABILITY_RANK_UP, name, rank) .. "."
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
             end
 
             if not ChatAnnouncements.SV.Skills.SkillAbilityCSA then
@@ -7635,7 +7635,7 @@ function ChatAnnouncements.HookFunction()
 
                 if ChatAnnouncements.SV.Skills.SkillLineAlert then
                     local formattedText = zo_strformat(SI_SKILL_RANK_UP, lineName, rank) .. "."
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, formattedText)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, formattedText)
                 end
 
                 if not ChatAnnouncements.SV.Skills.SkillLineCSA then
@@ -7703,7 +7703,7 @@ function ChatAnnouncements.HookFunction()
 
                     if ChatAnnouncements.SV.Collectibles.CollectibleAlert then
                         local text = zo_strformat(SI_COLLECTIBLES_UPDATED_ANNOUNCEMENT_BODY, #nowOwnedCollectibles) .. "."
-                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
                     end
                     return true
                 else
@@ -7791,7 +7791,7 @@ function ChatAnnouncements.HookFunction()
                                 alertString = zo_strformat(SI_COLLECTIONS_UPDATED_ANNOUNCEMENT_BODY, collectibleName, categoryName .. ".")
                             end
                             local text = alertString
-                            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
                         end
                     end
                     return true
@@ -7843,7 +7843,7 @@ function ChatAnnouncements.HookFunction()
             else
                 alertString = zo_strformat(SI_NOTIFYTEXT_QUEST_ACCEPT, questName)
             end
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertString)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertString)
         end
 
         -- If we don't have either CSA or Alert on (then we want to play a sound here)
@@ -7910,7 +7910,7 @@ function ChatAnnouncements.HookFunction()
             else
                 alertString = zo_strformat(SI_NOTIFYTEXT_QUEST_COMPLETE, questName)
             end
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertString)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertString)
         end
 
         if ChatAnnouncements.SV.Quests.QuestCompleteCA then
@@ -7961,7 +7961,7 @@ function ChatAnnouncements.HookFunction()
         formattedText = zo_strformat(SI_NOTIFYTEXT_OBJECTIVE_COMPLETE, nameFormatted)
 
         if ChatAnnouncements.SV.Quests.QuestCompleteAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(SI_NOTIFYTEXT_OBJECTIVE_COMPLETE, name))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(SI_NOTIFYTEXT_OBJECTIVE_COMPLETE, name))
         end
 
         if ChatAnnouncements.SV.Quests.QuestCompleteCSA then
@@ -8121,7 +8121,7 @@ function ChatAnnouncements.HookFunction()
                 CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
             end
             if ChatAnnouncements.SV.Quests.QuestObjCompleteAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
             end
             if not ChatAnnouncements.SV.Quests.QuestObjCompleteCSA then
                 PlaySound(sound)
@@ -8144,7 +8144,7 @@ function ChatAnnouncements.HookFunction()
                 CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
             end
             if ChatAnnouncements.SV.Quests.QuestFailAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
             end
             if not ChatAnnouncements.SV.Quests.QuestFailCSA then
                 PlaySound(sound)
@@ -8174,7 +8174,7 @@ function ChatAnnouncements.HookFunction()
             end
 
             if ChatAnnouncements.SV.Quests.QuestObjCompleteAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, formattedString)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, formattedString)
             end
             if not ChatAnnouncements.SV.Quests.QuestObjCompleteCSA then
                 PlaySound(SOUNDS.QUEST_OBJECTIVE_COMPLETE)
@@ -8232,7 +8232,7 @@ function ChatAnnouncements.HookFunction()
                 else
                     formattedString = zo_strformat(LUIE_STRING_CA_QUEST_ABANDONED, questName)
                 end
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, formattedString)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, formattedString)
             end
         end
         if not ChatAnnouncements.SV.Quests.QuestAbandonCSA then
@@ -8302,7 +8302,7 @@ function ChatAnnouncements.HookFunction()
                         sound = SOUNDS.NONE -- no longer needed, we played it once
                     end
                     if ChatAnnouncements.SV.Quests.QuestObjUpdateAlert then
-                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, stepOverrideText)
+                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, stepOverrideText)
                     end
                 else
                     for conditionIndex = 1, conditionCount do
@@ -8329,7 +8329,7 @@ function ChatAnnouncements.HookFunction()
                                 sound = SOUNDS.NONE -- no longer needed, we played it once
                             end
                             if ChatAnnouncements.SV.Quests.QuestObjUpdateAlert then
-                                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, conditionText)
+                                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, conditionText)
                             end
                         end
                     end
@@ -8391,7 +8391,7 @@ function ChatAnnouncements.HookFunction()
         end
 
         if ChatAnnouncements.SV.Quests.QuestLocDiscoveryAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_QUEST_DISCOVER, subzoneName))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_QUEST_DISCOVER, subzoneName))
         end
 
         if not ChatAnnouncements.SV.Quests.QuestLocDiscoveryCSA then
@@ -8422,7 +8422,7 @@ function ChatAnnouncements.HookFunction()
         end
 
         if ChatAnnouncements.SV.Quests.QuestLocObjectiveAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(SI_NOTIFYTEXT_OBJECTIVE_DISCOVERED, name), startDescription)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(SI_NOTIFYTEXT_OBJECTIVE_DISCOVERED, name), startDescription)
         end
         return true
     end
@@ -8524,7 +8524,7 @@ function ChatAnnouncements.HookFunction()
             if ChatAnnouncements.SV.XP.ExperienceLevelUpAlert then
                 local iconAlert = ChatAnnouncements.SV.XP.ExperienceLevelUpIcon and (" " .. zo_iconFormat("LuiExtended/media/unitframes/unitframes_level_up.dds", "75%", "75%")) or ""
                 local text = zo_strformat("<<1>><<2>> <<3>> <<4>>!", GetString(LUIE_STRING_CA_LVL_ANNOUNCE_XP), iconAlert, GetString(SI_GAMEPAD_QUEST_JOURNAL_QUEST_LEVEL), CurrentLevel)
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
             end
 
             -- Play Sound even if CSA is disabled
@@ -8558,7 +8558,7 @@ function ChatAnnouncements.HookFunction()
         end
 
         if ChatAnnouncements.SV.XP.ExperienceEnlightenedAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, formattedString)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, formattedString)
         end
 
         if not ChatAnnouncements.SV.XP.ExperienceEnlightenedCSA then
@@ -8599,7 +8599,7 @@ function ChatAnnouncements.HookFunction()
             end
 
             if ChatAnnouncements.SV.XP.ExperienceEnlightenedAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, formattedString)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, formattedString)
             end
 
             if not ChatAnnouncements.SV.XP.ExperienceEnlightenedCSA then
@@ -8679,7 +8679,7 @@ function ChatAnnouncements.HookFunction()
 
             if ChatAnnouncements.SV.Notify.StorageRidingAlert then
                 local text = zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkill), previous, current)
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
             end
 
             if ChatAnnouncements.SV.Notify.StorageRidingCSA then
@@ -8768,7 +8768,7 @@ function ChatAnnouncements.HookFunction()
         if ChatAnnouncements.SV.XP.ExperienceLevelUpAlert then
             local formattedIcon = ChatAnnouncements.SV.XP.ExperienceLevelUpIcon and zo_strformat("<<1>> ", zo_iconFormat(icon, "75%", "75%")) or ""
             local text = zo_strformat(GetString(SI_CHAMPION_ANNOUNCEMENT_UNLOCKED), formattedIcon)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
         end
 
         if not ChatAnnouncements.SV.XP.ExperienceLevelUpCSA then
@@ -8846,7 +8846,7 @@ function ChatAnnouncements.HookFunction()
 
         if ChatAnnouncements.SV.XP.ExperienceLevelUpAlert then
             local text = zo_strformat("<<1>>!", GetString(SI_CHAMPION_POINT_EARNED, savedPointDelta))
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, text)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
         end
 
         if not ChatAnnouncements.SV.XP.ExperienceLevelUpCSA then
@@ -8896,7 +8896,7 @@ function ChatAnnouncements.HookFunction()
 
             -- Display Alert
             if ChatAnnouncements.SV.Social.DuelBoundaryAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, (GetString(LUIE_STRING_CA_DUEL_NEAR_BOUNDARY_CSA)))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, (GetString(LUIE_STRING_CA_DUEL_NEAR_BOUNDARY_CSA)))
             end
 
             -- Play Sound if CSA if off
@@ -8969,7 +8969,7 @@ function ChatAnnouncements.HookFunction()
 
             -- Display Alert
             if ChatAnnouncements.SV.Social.DuelWonAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, resultCSAString)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, resultCSAString)
             end
         end
 
@@ -9012,7 +9012,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Display Alert
         if ChatAnnouncements.SV.Group.GroupRaidAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_GROUP_TRIAL_STARTED, raidName))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_GROUP_TRIAL_STARTED, raidName))
         end
 
         -- Play sound if CSA is not enabled
@@ -9071,7 +9071,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Display Alert
         if ChatAnnouncements.SV.Group.GroupRaidAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(SI_TRIAL_COMPLETED_LARGE, raidName))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(SI_TRIAL_COMPLETED_LARGE, raidName))
         end
 
         -- Play sound if CSA is not enabled
@@ -9099,7 +9099,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Display Alert
         if ChatAnnouncements.SV.Group.GroupRaidAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_GROUP_TRIAL_FAILED, raidName))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_GROUP_TRIAL_FAILED, raidName))
         end
 
         -- Play sound if CSA is not enabled
@@ -9128,7 +9128,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Display Alert
         if ChatAnnouncements.SV.Group.GroupRaidBestScoreAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(isWeekly and SI_TRIAL_NEW_BEST_SCORE_WEEKLY or SI_TRIAL_NEW_BEST_SCORE_LIFETIME, raidName))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(isWeekly and SI_TRIAL_NEW_BEST_SCORE_WEEKLY or SI_TRIAL_NEW_BEST_SCORE_LIFETIME, raidName))
         end
 
         -- Play sound ONLY if normal score is not set to display, otherwise the audio will overlap
@@ -9159,7 +9159,7 @@ function ChatAnnouncements.HookFunction()
 
             if ChatAnnouncements.SV.Group.GroupRaidReviveAlert then
                 local iconAlert = zo_iconFormat("EsoUI/Art/Trials/VitalityDepletion.dds", "75%", "75%")
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_GROUP_REVIVE_COUNTER_UPDATED, iconAlert))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_GROUP_REVIVE_COUNTER_UPDATED, iconAlert))
             end
 
             -- Play Sound if CSA is not enabled
@@ -9248,7 +9248,7 @@ function ChatAnnouncements.HookFunction()
             -- Display Alert
             if ChatAnnouncements.SV.Group.GroupRaidScoreAlert then
                 local iconAlert = zo_iconFormat(reasonAssets.icon, "75%", "75%")
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_GROUP_TRIAL_SCORE_UPDATED, iconAlert, scoreAmount))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_GROUP_TRIAL_SCORE_UPDATED, iconAlert, scoreAmount))
             end
 
             -- Play Sound if CSA is not enabled
@@ -9274,7 +9274,7 @@ function ChatAnnouncements.HookFunction()
         end
 
         if ChatAnnouncements.SV.Group.GroupLFGCompleteAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
 
         if not ChatAnnouncements.SV.Group.GroupLFGCompleteCSA then
@@ -9529,11 +9529,11 @@ function ChatAnnouncements.HookFunction()
         -- Display Alert if enabled
         if settings.Alert then
             if primaryText and secondaryText then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, (primaryText .. ": " .. secondaryText))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, (primaryText .. ": " .. secondaryText))
             elseif primaryText then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, primaryText)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, primaryText)
             elseif secondaryText then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, secondaryText)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, secondaryText)
             end
         end
 
@@ -9618,7 +9618,7 @@ function ChatAnnouncements.HookFunction()
         -- Display Alert
         if ChatAnnouncements.SV.Achievement.AchievementCompleteAlert then
             local alertMessage = zo_strformat("<<1>>: <<2>>", ChatAnnouncements.SV.Achievement.AchievementCompleteMsg, name)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
         end
 
         -- Play sound if CSA is disabled
@@ -9654,7 +9654,7 @@ function ChatAnnouncements.HookFunction()
             if ChatAnnouncements.SV.Social.PledgeOfMaraAlert then
                 -- If the menu setting to only display Alert on Failure state is toggled, then do not display an Alert on successful Mara Event
                 if result == PLEDGE_OF_MARA_RESULT_PLEDGED and not ChatAnnouncements.SV.Social.PledgeOfMaraAlertOnlyFail then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_MARA_PLEDGEOFMARARESULT3, finalAlertName))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_MARA_PLEDGEOFMARARESULT3, finalAlertName))
                 elseif result ~= PLEDGE_OF_MARA_RESULT_PLEDGED and result ~= PLEDGE_OF_MARA_RESULT_BEGIN_PLEDGE then
                     ZO_Alert(UI_ALERT_CATEGORY_ERROR, nil, zo_strformat(GetString("LUIE_STRING_CA_MARA_PLEDGEOFMARARESULT", result), finalAlertName))
                 end
@@ -9704,7 +9704,7 @@ function ChatAnnouncements.HookFunction()
 
         if ChatAnnouncements.SV.Antiquities.AntiquityAlert then
             local alertMessage = zo_strformat("<<1>>: <<2>> <<3>>", ChatAnnouncements.SV.Antiquities.AntiquityPrefix, antiquityName, ChatAnnouncements.SV.Antiquities.AntiquitySuffix)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertMessage)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertMessage)
         end
 
         if ChatAnnouncements.SV.Antiquities.AntiquityCSA then
@@ -10067,7 +10067,7 @@ function ChatAnnouncements.HookFunction()
                         local formattedMessage = zo_strformat(LUIE_STRING_SLASHCMDS_FRIEND_INVITE_MSG_LINK, displayNameLink)
 
                         if ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-                            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, formattedMessage)
+                            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, formattedMessage)
                         end
                     end
                     local function FriendIgnore()
@@ -10328,7 +10328,7 @@ function ChatAnnouncements.HookFunction()
         if IsPlayerInGroup(characterOrDisplayName) then
             printToChat(GetString(SI_GROUP_ALERT_INVITE_PLAYER_ALREADY_MEMBER), true)
             if ChatAnnouncements.SV.Group.GroupAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, SI_GROUP_ALERT_INVITE_PLAYER_ALREADY_MEMBER)
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, SI_GROUP_ALERT_INVITE_PLAYER_ALREADY_MEMBER)
             end
             PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
             return
@@ -10338,7 +10338,7 @@ function ChatAnnouncements.HookFunction()
         local groupSize = GetGroupSize()
 
         if not isLeader and groupSize > 0 then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_ONLY_LEADER_CAN_INVITE))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_ONLY_LEADER_CAN_INVITE))
             return
         end
 
@@ -10356,7 +10356,7 @@ function ChatAnnouncements.HookFunction()
             if IsIgnored(characterOrDisplayName) then
                 printToChat(GetString(LUIE_STRING_IGNORE_ERROR_GROUP), true)
                 if ChatAnnouncements.SV.Group.GroupAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, LUIE_STRING_IGNORE_ERROR_GROUP)
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, LUIE_STRING_IGNORE_ERROR_GROUP)
                 end
                 PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
                 return
@@ -10384,7 +10384,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_ROSTER_ADDED), displayNameLink, guildNameAlliance), true)
             end
             if ChatAnnouncements.SV.Social.GuildAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_ROSTER_ADDED), displayName, guildNameAllianceAlert))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_ROSTER_ADDED), displayName, guildNameAllianceAlert))
             end
             PlaySound(SOUNDS.GUILD_ROSTER_ADDED)
         end
@@ -10403,7 +10403,7 @@ function ChatAnnouncements.HookFunction()
             printToChat(zo_strformat(GetString(LUIE_STRING_CA_GUILD_ROSTER_LEFT), displayNameLink, guildNameAlliance), true)
         end
         if ChatAnnouncements.SV.Social.GuildAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_CA_GUILD_ROSTER_LEFT), displayName, guildNameAllianceAlert))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_CA_GUILD_ROSTER_LEFT), displayName, guildNameAllianceAlert))
         end
         PlaySound(SOUNDS.GUILD_ROSTER_REMOVED)
 
@@ -10447,7 +10447,7 @@ function ChatAnnouncements.HookFunction()
                         printToChat(zo_strformat(LUIE_STRING_CA_GUILD_ROSTER_INVITED_MESSAGE, UndecorateDisplayName(displayName), guildNameAlliance), true)
                     end
                     if ChatAnnouncements.SV.Social.GuildAlert then
-                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_GUILD_ROSTER_INVITED_MESSAGE, UndecorateDisplayName(displayName), guildNameAllianceAlert))
+                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_GUILD_ROSTER_INVITED_MESSAGE, UndecorateDisplayName(displayName), guildNameAllianceAlert))
                     end
                 end
             end
@@ -10460,7 +10460,7 @@ function ChatAnnouncements.HookFunction()
                     printToChat(GetString(LUIE_STRING_IGNORE_ERROR_GUILD), true)
                 end
                 if ChatAnnouncements.SV.Social.GuildAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_IGNORE_ERROR_GUILD))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_IGNORE_ERROR_GUILD))
                 end
                 PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
                 return
@@ -10471,7 +10471,7 @@ function ChatAnnouncements.HookFunction()
                 printToChat(zo_strformat(LUIE_STRING_CA_GUILD_ROSTER_INVITED_MESSAGE, displayName, guildNameAlliance), true)
             end
             if ChatAnnouncements.SV.Social.GuildAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(LUIE_STRING_CA_GUILD_ROSTER_INVITED_MESSAGE, displayName, guildNameAllianceAlert))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(LUIE_STRING_CA_GUILD_ROSTER_INVITED_MESSAGE, displayName, guildNameAllianceAlert))
             end
         end
     end
@@ -10533,7 +10533,7 @@ function ChatAnnouncements.HookFunction()
             printToChat(message, true)
         end
         if ChatAnnouncements.SV.Group.GroupLFGQueueAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
     end
 end
@@ -10545,7 +10545,7 @@ function ChatAnnouncements.TradeInviteAccepted(eventCode)
         printToChat(GetString(LUIE_STRING_CA_TRADE_INVITE_ACCEPTED), true)
     end
     if ChatAnnouncements.SV.Notify.NotificationTradeAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_TRADE_INVITE_ACCEPTED))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_TRADE_INVITE_ACCEPTED))
     end
 
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
@@ -10599,7 +10599,7 @@ function ChatAnnouncements.CheckLFGStatusJoin()
                     printToChat(GetString(LUIE_STRING_CA_GROUP_MEMBER_JOIN_SELF_LFG), true)
                 end
                 if ChatAnnouncements.SV.Group.GroupAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_GROUP_MEMBER_JOIN_SELF_LFG))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_GROUP_MEMBER_JOIN_SELF_LFG))
                 end
             elseif not IsInLFGGroup() and not g_joinLFGOverride then
                 local isLeader = IsUnitGroupLeader("player") -- If the player is the leader, then they must have formed the group.
@@ -10612,9 +10612,9 @@ function ChatAnnouncements.CheckLFGStatusJoin()
                 end
                 if ChatAnnouncements.SV.Group.GroupAlert then
                     if isLeader then
-                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_GROUP_MEMBER_JOIN_FORM))
+                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_GROUP_MEMBER_JOIN_FORM))
                     else
-                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_GROUP_MEMBER_JOIN_SELF))
+                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_GROUP_MEMBER_JOIN_SELF))
                     end
                 end
                 -- If the player is the leader, show the other member as joining the group.
@@ -10659,7 +10659,7 @@ function ChatAnnouncements.PrintJoinStatusNotSelf(SendMessage, SendAlert)
         printToChat(SendMessage, true)
     end
     if ChatAnnouncements.SV.Group.GroupAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, SendAlert)
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, SendAlert)
     end
 end
 
@@ -10676,7 +10676,7 @@ function ChatAnnouncements.CheckLFGStatusLeave(WasKicked)
             printToChat(GetString(LUIE_STRING_CA_GROUP_QUIT_LFG), true)
         end
         if ChatAnnouncements.SV.Group.GroupAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(LUIE_STRING_CA_GROUP_QUIT_LFG))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_CA_GROUP_QUIT_LFG))
         end
     end
     g_leaveLFGOverride = false
@@ -10695,7 +10695,7 @@ function ChatAnnouncements.OnGroupInviteReceived(eventCode, inviterName, inviter
     if ChatAnnouncements.SV.Group.GroupAlert then
         local finalAlertName = ChatAnnouncements.ResolveNameNoLink(inviterName, inviterDisplayName)
         local alertText = zo_strformat(GetString(LUIE_STRING_CA_GROUP_INVITE_MESSAGE), finalAlertName)
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertText)
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertText)
     end
 end
 
@@ -10724,7 +10724,7 @@ function ChatAnnouncements.OnGroupTypeChanged(eventCode, largeGroup)
         printToChat(message, true)
     end
     if ChatAnnouncements.SV.Group.GroupAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
     end
 end
 
@@ -10737,7 +10737,7 @@ function ChatAnnouncements.VoteNotify(eventCode)
             printToChat(GetString(SI_GROUP_ELECTION_READY_CHECK_MESSAGE), true)
         end
         if ChatAnnouncements.SV.Group.GroupVoteAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, GetString(SI_GROUP_ELECTION_READY_CHECK_MESSAGE))
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(SI_GROUP_ELECTION_READY_CHECK_MESSAGE))
         end
     end
 
@@ -10753,7 +10753,7 @@ function ChatAnnouncements.VoteNotify(eventCode)
         if ChatAnnouncements.SV.Group.GroupVoteAlert then
             local finalAlertName = ChatAnnouncements.ResolveNameNoLink(kickMemberName, kickMemberAccountName)
             local alertText = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_VOTEKICK_START), finalAlertName)
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertText)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertText)
         end
     end
 end
@@ -10789,7 +10789,7 @@ function ChatAnnouncements.MaraOffer(eventCode, characterName, isSender, display
         else
             alertString = zo_strformat(GetString(SI_PLEDGE_OF_MARA_MESSAGE), finalAlertName)
         end
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alertString)
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertString)
     end
 end
 
@@ -10813,7 +10813,7 @@ function ChatAnnouncements.DuelStarted(eventCode)
         end
 
         if ChatAnnouncements.SV.Social.DuelStartAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, message)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
     end
 
@@ -10897,7 +10897,7 @@ function ChatAnnouncements.AnnounceMemento()
         printToChat(message)
     end
     if alert and ChatAnnouncements.SV.Collectibles.CollectibleUseAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alert)
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alert)
     end
 
     LUIE.LastMementoUsed = 0
@@ -11140,7 +11140,7 @@ function ChatAnnouncements.CollectibleResult()
         printToChat(message)
     end
     if alert and ChatAnnouncements.SV.Collectibles.CollectibleUseAlert then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, alert)
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alert)
     end
 
     lastCollectibleUsed = 0

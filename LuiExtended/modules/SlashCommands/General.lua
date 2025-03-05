@@ -95,7 +95,7 @@ function SlashCommands.SlashHome(option)
         local string = outside and GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_SUCCESS_MSG_OUT) or GetString(LUIE_STRING_SLASHCMDS_HOME_TRAVEL_SUCCESS_MSG_IN)
         printToChat(string, true)
         if LUIE.SV.TempAlertHome then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, string)
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, string)
         end
     end
 end
@@ -116,7 +116,7 @@ function SlashCommands.SlashSetPrimaryHome()
                 SetHousingPrimaryHouse(currentHouse)
                 printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_SET_HOME_SUCCESS_MSG), houseName), true)
                 if LUIE.SV.TempAlertHome then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, (zo_strformat(GetString(LUIE_STRING_SLASHCMDS_SET_HOME_SUCCESS_MSG), houseName)))
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, (zo_strformat(GetString(LUIE_STRING_SLASHCMDS_SET_HOME_SUCCESS_MSG), houseName)))
                 end
             end
         else
@@ -197,7 +197,7 @@ function SlashCommands.SlashCampaignQ(option)
             QueueForCampaign(campaignId, queueAsGroup)
             printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_QUEUE), campaignName), true)
             if LUIE.SV.TempAlertCampaign then
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_QUEUE), campaignName))
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_CAMPAIGN_QUEUE), campaignName))
             end
             return
         else
@@ -346,7 +346,7 @@ function SlashCommands.SlashOutfit(option)
     end
     printToChat(zo_strformat(GetString(LUIE_STRING_SLASHCMDS_OUTFIT_CONFIRMATION), name))
     if LUIE.SV.TempAlertOutfit then
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_OUTFIT_CONFIRMATION), name))
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, zo_strformat(GetString(LUIE_STRING_SLASHCMDS_OUTFIT_CONFIRMATION), name))
     end
 end
 

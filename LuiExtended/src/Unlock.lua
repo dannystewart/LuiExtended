@@ -147,7 +147,7 @@ function Unlock.SetAnchor(element, frameName)
     -- Thanks to Phinix (Azurah) for this method of adjusting the fadingControlBuffer anchor to reposition the alert text.
     if element == ZO_AlertTextNotification then
         -- Throw a dummy alert just in case so alert text exists.
-        ZO_Alert(UI_ALERT_CATEGORY_ALERT, nil, " ")
+        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, " ")
         local alertText
         if not IsInGamepadPreferredMode() then
             alertText = ZO_AlertTextNotification:GetChild(1)
