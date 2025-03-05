@@ -372,6 +372,7 @@ end
 
 function CombatInfo.OnActiveWeaponPairChanged(eventCode, activeWeaponPair)
     if activeWeaponPair ~= g_actionBarActiveWeaponPair then
+        g_hotbarCategory = GetActiveHotbarCategory()
         g_activeWeaponSwapInProgress = true
         g_actionBarActiveWeaponPair = activeWeaponPair
     end
