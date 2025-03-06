@@ -1711,9 +1711,6 @@ function UnitFrames.Initialize(enabled)
         eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MEMBER_ADDED, UnitFrames.SocialUpdateFrames)
         eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MEMBER_REMOVED, UnitFrames.SocialUpdateFrames)
 
---[[         eventManager:RegisterForEvent(moduleName, EVENT_CURRENT_CAMPAIGN_CHANGED, UnitFrames.OnCurrentCampaignChanged)
-        eventManager:RegisterForEvent(moduleName, EVENT_CAMPAIGN_EMPEROR_CHANGED, UnitFrames.OnCampaignEmperorChanged) ]]
-
         if UnitFrames.SV.CustomTargetMarker then
             eventManager:RegisterForEvent(moduleName, EVENT_TARGET_MARKER_UPDATE, UnitFrames.OnTargetMarkerUpdate)
         end
@@ -1725,26 +1722,6 @@ function UnitFrames.Initialize(enabled)
     UnitFrames.TargetColorByReaction()
     UnitFrames.ReticleColorByReaction()
 end
-
---[[ --- @param eventCode integer
---- @param campaignId integer
-function UnitFrames.OnCurrentCampaignChanged(eventCode, campaignId)
-    local self = ZO_PlayerToPlayer
-    -- Check if the incomingQueue exists for this type before removing from it
-    if self and self.incomingQueue and self.incomingQueue[ZO_INTERACT_TYPE.CAMPAIGN_LOCK_PENDING] then
-        self:RemoveFromIncomingQueue(ZO_INTERACT_TYPE.CAMPAIGN_LOCK_PENDING)
-    end
-    MarkAllianceLockPendingNotificationSeen()
-end
-
---- @param eventCode integer
---- @param campaignId integer
-function UnitFrames.OnCampaignEmperorChanged(eventCode, campaignId)
-    local self = CampaignEmperor_Shared
-    if self and self.campaignId and self.campaignId == campaignId then
-        self:RefreshEmperor()
-    end
-end ]]
 
 -- Sets out-of-combat transparency values for default user-frames
 function UnitFrames.SetDefaultFramesTransparency(min_pct_value, max_pct_value)
@@ -4174,16 +4151,6 @@ function UnitFrames.CustomFramesResetPosition(playerOnly)
     UnitFrames.CustomFramesSetPositions()
 end
 
--- -- Apply grid snapping to unit frame positions
--- local function ApplyUnitFrameGridSnap(left, top)
---     if LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGridUnitFrames then
---         local gridSize = LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGridUnitFramesSize or 15
---         left = LUIE.SnapToGrid(left, gridSize)
---         top = LUIE.SnapToGrid(top, gridSize)
---     end
---     return left, top
--- end
-
 -- Unlock CustomFrames for moving. Called from Settings Menu.
 function UnitFrames.CustomFramesSetMovingState(state)
     UnitFrames.CustomFramesMovingState = state
@@ -5892,8 +5859,11 @@ local function calculateFramePosition(index, itemsPerColumn, spacerHeight)
     local xOffset = UnitFrames.SV.RaidBarWidth * column
     local yOffset = UnitFrames.SV.RaidBarHeight * (row - 1)
 
+    -- Add spacers if enabled (every 4 members)
     if UnitFrames.SV.RaidSpacers then
-        yOffset = yOffset + (spacerHeight * (zo_floor((index - 1) / 4) - zo_floor(column * itemsPerColumn / 4)))
+        -- Calculate how many spacer sections we've passed in the current column
+        local spacersInCurrentColumn = zo_floor((row - 1) / 4)
+        yOffset = yOffset + (spacerHeight * spacersInCurrentColumn)
     end
 
     return xOffset, yOffset
@@ -5969,30 +5939,46 @@ local function applyIconSettings(unitFrame, unitTag, role, rhb)
 end
 
 function UnitFrames.CustomFramesApplyLayoutRaid(unhide)
+    -- Early return if raid group frames don't exist
     if not UnitFrames.CustomFrames.RaidGroup1 then
         return
     end
 
+    -- Configuration constants
     local spacerHeight = 3
-    local itemsPerColumn = (UnitFrames.SV.RaidLayout == "6 x 2") and 2
-        or (UnitFrames.SV.RaidLayout == "3 x 4") and 4
-        or (UnitFrames.SV.RaidLayout == "2 x 6") and 6
-        or 12
 
-    local raid = UnitFrames.CustomFrames.RaidGroup1.tlw
-    local totalWidth = UnitFrames.SV.RaidBarWidth * (12 / itemsPerColumn)
-    if UnitFrames.SV.RaidSpacers then
-        totalWidth = totalWidth + (spacerHeight * (itemsPerColumn / 4))
+    -- Determine layout dimensions based on selected layout option
+    local columns, rows
+    if UnitFrames.SV.RaidLayout == "6 x 2" then
+        columns, rows = 6, 2
+    elseif UnitFrames.SV.RaidLayout == "3 x 4" then
+        columns, rows = 3, 4
+    elseif UnitFrames.SV.RaidLayout == "2 x 6" then
+        columns, rows = 2, 6
+    else -- Default "1 x 12"
+        columns, rows = 1, 12
     end
 
-    raid:SetDimensions(totalWidth, UnitFrames.SV.RaidBarHeight * itemsPerColumn)
+    local itemsPerColumn = rows
 
-    local groupWidth = UnitFrames.SV.RaidBarWidth * (zo_floor(0.5 + 12 / itemsPerColumn))
-    local groupHeight = UnitFrames.SV.RaidBarHeight * zo_min(12, itemsPerColumn)
+    -- Get reference to main raid frame container
+    local raid = UnitFrames.CustomFrames.RaidGroup1.tlw
+
+    -- Calculate total width including optional spacers
+    local totalWidth = UnitFrames.SV.RaidBarWidth * columns
+    if UnitFrames.SV.RaidSpacers then
+        totalWidth = totalWidth + (spacerHeight * (rows / 4))
+    end
+
+    -- Set main frame dimensions
+    raid:SetDimensions(totalWidth, UnitFrames.SV.RaidBarHeight * rows)
+
+    -- Set preview dimensions
+    local groupWidth = UnitFrames.SV.RaidBarWidth * columns
+    local groupHeight = UnitFrames.SV.RaidBarHeight * rows
     raid.preview:SetDimensions(groupWidth, groupHeight)
 
-
-
+    -- Build player list (sorted by role if enabled)
     local playerList = {}
     if UnitFrames.SV.SortRoleRaid then
         local roles = { LFG_ROLE_TANK, LFG_ROLE_HEAL, LFG_ROLE_DPS, LFG_ROLE_INVALID }
@@ -6001,24 +5987,26 @@ function UnitFrames.CustomFramesApplyLayoutRaid(unhide)
         end
     end
 
-
-
-
-
+    -- Position and configure each unit frame
     for i = 1, GetGroupSize() do
         local index = UnitFrames.SV.SortRoleRaid and playerList[i] or i
         local unitFrame = UnitFrames.CustomFrames["RaidGroup" .. index]
         local unitTag = GetGroupUnitTagByIndex(index)
+
+        -- Calculate position based on layout
         local xOffset, yOffset = calculateFramePosition(i, itemsPerColumn, spacerHeight)
 
+        -- Set frame position and dimensions
         unitFrame.control:ClearAnchors()
         unitFrame.control:SetAnchor(TOPLEFT, raid, TOPLEFT, xOffset, yOffset)
         unitFrame.control:SetDimensions(UnitFrames.SV.RaidBarWidth, UnitFrames.SV.RaidBarHeight)
 
+        -- Apply role and class icon settings
         local role = GetGroupMemberSelectedRole(unitTag)
         local rhb = nil -- Health bar reference for anchoring
         applyIconSettings(unitFrame, unitTag, role, rhb)
 
+        -- Apply special settings for group leader
         if IsUnitGroupLeader(unitTag) then
             unitFrame.name:SetDimensions(UnitFrames.SV.RaidBarWidth - UnitFrames.SV.RaidNameClip - 27, UnitFrames.SV.RaidBarHeight - 2)
             unitFrame.name:SetAnchor(LEFT, rhb, LEFT, 22, 0)
@@ -6029,9 +6017,11 @@ function UnitFrames.CustomFramesApplyLayoutRaid(unhide)
             unitFrame.leader:SetTexture(leaderIcons[0])
         end
 
+        -- Set dimensions for death and health labels
         unitFrame.dead:SetDimensions(UnitFrames.SV.RaidBarWidth - 50, UnitFrames.SV.RaidBarHeight - 2)
         unitFrame[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetDimensions(UnitFrames.SV.RaidBarWidth - 50, UnitFrames.SV.RaidBarHeight - 2)
 
+        -- Special settings for offline players
         if not IsUnitOnline(unitTag) then
             unitFrame.name:SetDimensions(UnitFrames.SV.RaidBarWidth - UnitFrames.SV.RaidNameClip, UnitFrames.SV.RaidBarHeight - 2)
             unitFrame.name:SetAnchor(LEFT, rhb, LEFT, 5, 0)
@@ -6039,6 +6029,7 @@ function UnitFrames.CustomFramesApplyLayoutRaid(unhide)
         end
     end
 
+    -- Show raid frames if requested
     if unhide then
         raid:SetHidden(false)
     end
