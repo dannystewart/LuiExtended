@@ -1991,16 +1991,18 @@ function UnitFrames.OnPowerUpdate(eventCode, unitTag, powerIndex, powerType, pow
         g_savedHealth[unitTag] = { powerValue, powerMax, powerEffectiveMax, g_savedHealth[unitTag][4] or 0, g_savedHealth[unitTag][5] or 0 }
     end
 
-    --[[ DEBUG code. Normally should be commented out because it is redundant
-    if g_DefaultFrames[unitTag] and g_DefaultFrames[unitTag].unitTag ~= unitTag then
-        d("LUIE_DBG DF: " .. tostring(g_DefaultFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag) )
+    -- DEBUG code. Normally should be commented out because it is redundant
+    if LUIE.IsDevDebugEnabled() then
+        if g_DefaultFrames[unitTag] and g_DefaultFrames[unitTag].unitTag ~= unitTag then
+            LUIE.Debug("LUIE_DBG DF: " .. tostring(g_DefaultFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
+        end
+        if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag].unitTag ~= unitTag then
+            LUIE.Debug("LUIE_DBG CF: " .. tostring(UnitFrames.CustomFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
+        end
+        if g_AvaCustFrames[unitTag] and g_AvaCustFrames[unitTag].unitTag ~= unitTag then
+            LUIE.Debug("LUIE_DBG AF: " .. tostring(g_AvaCustFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
+        end
     end
-    if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag].unitTag ~= unitTag then
-        d("LUIE_DBG CF: " .. tostring(UnitFrames.CustomFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag) )
-    end
-    if g_AvaCustFrames[unitTag] and g_AvaCustFrames[unitTag].unitTag ~= unitTag then
-        d("LUIE_DBG AF: " .. tostring(g_AvaCustFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag) )
-    end --]]
 
     -- Update frames ( if we manually not forbade it )
     if g_DefaultFrames[unitTag] then
@@ -2139,7 +2141,7 @@ end
 -- Runs on the EVENT_UNIT_CREATED listener.
 -- Used to create DefaultFrames UI controls and request delayed CustomFrames group frame update
 function UnitFrames.OnUnitCreated(eventCode, unitTag)
-    -- d( string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)) )
+    LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
     -- Create on-fly UI controls for default UI group member and reread his values
     if g_DefaultFrames.SmallGroup then
         UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
@@ -2171,7 +2173,7 @@ end
 -- Runs on the EVENT_UNIT_DESTROYED listener.
 -- Used to request delayed CustomFrames group frame update
 function UnitFrames.OnUnitDestroyed(eventCode, unitTag)
-    -- d( string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)) )
+    LUIE.Debug(string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
     -- Make sure we do not try to update bars on this unitTag before full group update is complete
     if "group" == zo_strsub(unitTag, 0, 5) then
         UnitFrames.CustomFrames[unitTag] = nil
@@ -2994,7 +2996,9 @@ end
 -- Called from EVENT_UNIT_ATTRIBUTE_VISUAL_* listeners.
 function UnitFrames.UpdateInvulnerable(unitTag)
     if g_savedHealth[unitTag] == nil then
-        -- d( "LUIE DEBUG: Stored health is nil: ", unitTag )
+        if LUIE.IsDevDebugEnabled() then
+            LUIE.Debug("LUIE DEBUG: Stored health is nil: ", unitTag)
+        end
         return
     end
 
@@ -3015,7 +3019,9 @@ end
 -- Called from EVENT_UNIT_ATTRIBUTE_VISUAL_* listeners.
 function UnitFrames.UpdateShield(unitTag, value, maxValue)
     if g_savedHealth[unitTag] == nil then
-        -- d( "LUIE DEBUG: Stored health is nil: ", unitTag )
+        if LUIE.IsDevDebugEnabled() then
+            LUIE.Debug("LUIE DEBUG: Stored health is nil: ", unitTag)
+        end
         return
     end
 
@@ -3878,7 +3884,9 @@ end
 
 -- Repopulate group members, but try to update only those, that require it
 function UnitFrames.CustomFramesGroupUpdate()
-    -- d( string_format("[%s] GroupUpdate", GetTimeString()) )
+    if LUIE.IsDevDebugEnabled() then
+        LUIE.Debug(string_format("[%s] GroupUpdate", GetTimeString()))
+    end
     -- Unregister update function and clear local flag
     eventManager:UnregisterForUpdate(g_PendingUpdate.Group.name)
     g_PendingUpdate.Group.flag = false
