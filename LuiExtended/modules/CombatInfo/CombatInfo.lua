@@ -1561,7 +1561,7 @@ function CombatInfo.HideSlot(slotNum, abilityId)
     end
 end
 
---- Hides slot.
+--- Shows slot.
 --- @param slotNum number
 --- @param abilityId number
 --- @param currentTime number
