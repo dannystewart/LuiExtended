@@ -275,6 +275,33 @@ local BarHighlightOverride =
     [118379] = { newId = 124999, showFakeAura = true }, -- Animate Blastbones
 
     ---------------------------
+    -- Arcanist ---------------
+    ---------------------------
+    [185817] = { newId = 185818 }, -- Abyssal Impact (abyssal ink)
+    [183006] = { newId = 183008 }, -- Cephaliarch's Flail (abyssal ink)
+    [185823] = { newId = 185825 }, -- Tentacular Dread (abyssal ink)
+    [185836] = { newId = 185838 }, -- The Imperfect Ring (the imperfect ring)
+    [201286] = { newId = 185838 }, -- The Imperfect Ring (cost mag)
+    [185839] = { newId = 185840 }, -- Rune of Displacement (rune of displacement)
+    [201293] = { newId = 185840 }, -- Rune of Displacement (cost stam)
+    [182988] = { newId = 182989 }, -- Fulminating Rune (cost mag)
+    [201296] = { newId = 182989 }, -- Fulminating Rune (cost stam)
+    [183165] = { newId = 38254 },  -- Runic Jolt (taunt)
+    [183430] = { newId = 187742 }, -- Runic Sunder (armor steal)
+    [186531] = { newId = 38254 },  -- Runic Embrace (taunt)
+    [185894] = { newId = 888101 }, -- Runespite Ward
+    [185901] = { newId = 888101 }, -- Spiteward of the Lucid Mind
+    [183241] = { newId = 888101 }, -- Impervious Runeward
+    [185912] = { newId = 194637 }, -- Runic Defense (TODO: see if can make the timer go away)
+    [183401] = { newId = 194646 }, -- Runeguard of Still Waters (TODO: see if can make the timer go away)
+    [186489] = { newId = 186492 }, -- Runeguard of Freedom (TODO: see if can make the timer go away)
+    [185918] = { newId = 79717 },  -- Rune of Eldritch Horror (minor vuln)
+    [185921] = { newId = 79717 },  -- Rune of Uncanny Adoration (minor vuln)
+    [183267] = { newId = 145975 }, -- Rune of the Colorless Pool (minor brittle)
+    [198567] = { newId = 888101 }, -- Tidal Chakram (cost stam)
+    [186209] = { newId = 888101 }, -- Tidal Chakram (cost mag)
+
+    ---------------------------
     -- Two Handed -------------
     ---------------------------
 

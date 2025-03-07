@@ -16979,6 +16979,9 @@ local DebugAuras =
     [209292] = true, -- Rift Projectile B
     [209293] = true, -- Rift Projectile C
     [209294] = true, -- Rift Projectile D
+    [209409] = true, -- Rift Projectile B
+    [209410] = true, -- Rift Projectile C
+    [209411] = true, -- Rift Projectile D
 }
 
 --- @type DebugAuras
