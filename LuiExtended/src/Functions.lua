@@ -166,9 +166,9 @@ do
             formattedMessage = messageOrFormatter
         end
 
-        if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug(formattedMessage)
-        end
+        -- if LUIE.IsDevDebugEnabled() then
+        --     LUIE.Debug(formattedMessage)
+        -- end
 
         -- Use LibChatMessage if available, otherwise use default CHAT_ROUTER
         if LibChatMessage then
