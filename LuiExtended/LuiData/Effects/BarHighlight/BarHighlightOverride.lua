@@ -137,13 +137,13 @@ local BarHighlightOverride =
     [24834] = { newId = 25158 },  -- Daedric Minefield --> Daedric Mines
 
     -- Daedric Summoning
-    [108840] = { newId = 108843 }, -- Summon Unstable Familiar --> Volatile Familiar
-    [77182] = { newId = 88933 },   -- Summon Volatile Familiar --> Volatile Familiar
-    [77140] = { newId = 88937 },   -- Summon Twilight Tormentor --> Twilight Tormentor
-    [23634] = { newId = 80459 },   -- Summon Storm Atronach
     [23492] = { newId = 80463 },   -- Greater Storm Atronach
     [23495] = { newId = 80468 },   -- Summon Charged Atronach
+    [23634] = { newId = 80459 },   -- Summon Storm Atronach
     [24165] = { newId = 203447 },  -- Bound Armaments
+    [77140] = { newId = 88937 },   -- Summon Twilight Tormentor --> Twilight Tormentor
+    [77182] = { newId = 88933 },   -- Summon Volatile Familiar --> Volatile Familiar
+    [108840] = { newId = 108843 }, -- Summon Unstable Familiar --> Volatile Familiar
 
     -- Storm Calling
     [18718] = { newId = 18746 },  -- Mages' Fury
