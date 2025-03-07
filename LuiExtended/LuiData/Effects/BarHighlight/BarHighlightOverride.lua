@@ -137,7 +137,6 @@ local BarHighlightOverride =
     [24834] = { newId = 25158 },  -- Daedric Minefield --> Daedric Mines
 
     -- Daedric Summoning
-    [23316] = { newId = 77187, showFakeAura = true, noRemove = true },   -- Birth Unstable Familiar
     [108840] = { newId = 108843 }, -- Summon Unstable Familiar --> Volatile Familiar
     [77182] = { newId = 88933 },   -- Summon Volatile Familiar --> Volatile Familiar
     [77140] = { newId = 88937 },   -- Summon Twilight Tormentor --> Twilight Tormentor
