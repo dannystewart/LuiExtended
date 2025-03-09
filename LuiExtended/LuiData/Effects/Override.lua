@@ -116,7 +116,7 @@ local EffectOverride =
     [61716] = { tooltip = Tooltips.Skill_Major_Evasion },    -- Major Evasion
     [61735] = { tooltip = Tooltips.Skill_Minor_Expedition }, -- Minor Expedition
     [61736] = { tooltip = Tooltips.Skill_Major_Expedition }, -- Major Expedition
-    [63569] = { tooltip = Tooltips.Skill_Major_Gallop },     -- Major Gallop
+    [63569] = { tooltip = Tooltips.Skill_Gallop },     -- Major Gallop
     [61708] = { tooltip = Tooltips.Skill_Minor_Heroism },    -- Minor Heroism
     [61709] = { tooltip = Tooltips.Skill_Major_Heroism },    -- Major Heroism
     [88490] = { tooltip = Tooltips.Skill_Minor_Toughness },  -- Minor Toughness
