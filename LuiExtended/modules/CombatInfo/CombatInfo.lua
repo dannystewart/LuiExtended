@@ -2212,6 +2212,158 @@ end
 ]]
 --
 
+-- Constants for special ability IDs
+local CRYSTALLIZED_SHIELD_IDS =
+{
+    [86135] = true, -- Base version
+    [86139] = true, -- Morph 1
+    [86143] = true  -- Morph 2
+}
+
+local TRAP_BEAST_IDS =
+{
+    [35750] = true, -- Base version
+    [40382] = true, -- Morph 1
+    [40372] = true  -- Morph 2
+}
+
+-- Helper function to update stack text on UI element
+local function UpdateStackText(slotNum, stackCount)
+    if g_uiCustomToggle[slotNum] then
+        if stackCount and stackCount > 0 then
+            g_uiCustomToggle[slotNum].stack:SetText(stackCount)
+        else
+            g_uiCustomToggle[slotNum].stack:SetText("")
+        end
+    end
+end
+
+-- Helper function to update stack display for an ability
+local function UpdateAbilityStackDisplay(abilityId)
+    if g_toggledSlotsFront[abilityId] then
+        local slotNum = g_toggledSlotsFront[abilityId]
+        UpdateStackText(slotNum, g_toggledSlotsStack[abilityId])
+    end
+
+    if g_toggledSlotsBack[abilityId] then
+        local slotNum = g_toggledSlotsBack[abilityId]
+        UpdateStackText(slotNum, g_toggledSlotsStack[abilityId])
+    end
+end
+
+-- Helper function to handle shield damage (reduce stack count)
+local function HandleShieldDamage(abilityId)
+    if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then
+        -- Reduce stack by one
+        if g_toggledSlotsStack[abilityId] then
+            g_toggledSlotsStack[abilityId] = g_toggledSlotsStack[abilityId] - 1
+        end
+        UpdateAbilityStackDisplay(abilityId)
+    end
+end
+
+-- Helper function to show ability slots
+local function ShowAbilitySlots(abilityId, currentTime)
+    if g_toggledSlotsFront[abilityId] then
+        local slotNum = g_toggledSlotsFront[abilityId]
+        CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
+    end
+
+    if g_toggledSlotsBack[abilityId] then
+        local slotNum = g_toggledSlotsBack[abilityId]
+        CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
+    end
+end
+
+-- Helper function to hide ability slots
+local function HideAbilitySlots(abilityId)
+    if g_toggledSlotsFront[abilityId] and g_uiCustomToggle[g_toggledSlotsFront[abilityId]] then
+        local slotNum = g_toggledSlotsFront[abilityId]
+        CombatInfo.HideSlot(slotNum, abilityId)
+    end
+
+    if g_toggledSlotsBack[abilityId] and g_uiCustomToggle[g_toggledSlotsBack[abilityId]] then
+        local slotNum = g_toggledSlotsBack[abilityId]
+        CombatInfo.HideSlot(slotNum, abilityId)
+    end
+
+    g_toggledSlotsRemain[abilityId] = nil
+    g_toggledSlotsStack[abilityId] = nil
+end
+
+-- Helper function to handle effect begin/gained
+local function HandleEffectBegin(abilityId)
+    local currentTime = GetGameTimeMilliseconds()
+
+    if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then
+        if CombatInfo.SV.ShowToggled then
+            -- Find the action slot this ability is in (if any)
+            local actionSlotIndex, hotbarCategory
+            if g_toggledSlotsFront[abilityId] then
+                actionSlotIndex = g_toggledSlotsFront[abilityId]
+                hotbarCategory = HOTBAR_CATEGORY_PRIMARY
+            elseif g_toggledSlotsBack[abilityId] then
+                actionSlotIndex = g_toggledSlotsBack[abilityId]
+                hotbarCategory = HOTBAR_CATEGORY_BACKUP
+            end
+
+            -- Try multiple methods to get ability duration with fallbacks
+            local duration = 0
+
+            -- First try the GetUpdatedAbilityDuration function which might have hardcoded values
+            duration = GetUpdatedAbilityDuration(abilityId)
+
+            -- If no duration found and we have slot information, try action slot duration
+            if duration == 0 and actionSlotIndex and hotbarCategory then
+                duration = (GetActionSlotEffectDuration(actionSlotIndex, hotbarCategory) or 0)
+            end
+
+            -- If still no duration, try the generic ability duration as final fallback
+            if duration == 0 then
+                duration = (GetAbilityDuration(abilityId) or 0)
+            end
+
+            -- Calculate end time if we found a duration
+            if duration > 0 then
+                local endTime = currentTime + duration
+                g_toggledSlotsRemain[abilityId] = endTime
+            end
+
+            -- Set initial stack counts for special abilities
+            if CRYSTALLIZED_SHIELD_IDS[abilityId] then
+                g_toggledSlotsStack[abilityId] = 3
+            elseif TRAP_BEAST_IDS[abilityId] then
+                g_toggledSlotsStack[abilityId] = 1
+            end
+
+            -- Toggle highlight on
+            ShowAbilitySlots(abilityId, currentTime)
+        end
+    end
+end
+
+-- Helper function to handle effect faded
+local function HandleEffectFaded(abilityId, targetType)
+    -- Ignore fading event if override is true
+    if g_barNoRemove[abilityId] then
+        if Effects.BarHighlightCheckOnFade[abilityId] then
+            CombatInfo.BarHighlightSwap(abilityId)
+        end
+        return false
+    end
+
+    if g_toggledSlotsRemain[abilityId] then
+        HideAbilitySlots(abilityId)
+    end
+
+    if Effects.BarHighlightCheckOnFade[abilityId] and targetType == COMBAT_UNIT_TYPE_PLAYER then
+        CombatInfo.BarHighlightSwap(abilityId)
+    end
+
+    return true
+end
+
+--- Handles combat event for ability bar UI updates.
 --- @param eventCode integer
 --- @param result ActionResult
 --- @param isError bool
@@ -2241,88 +2393,14 @@ function CombatInfo.OnCombatEventBar(eventCode, result, isError, abilityName, ab
     end
 
     -- Special handling for Crystallized Shield + Morphs
-    if abilityId == 86135 or abilityId == 86139 or abilityId == 86143 then
-        -- Make sure this event occured on the player only. If we hit another Warden's shield we don't want to change stack count.
-        if result == ACTION_RESULT_DAMAGE_SHIELDED and targetType == COMBAT_UNIT_TYPE_PLAYER then
-            if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then
-                -- Reduce stack by one
-                if g_toggledSlotsStack[abilityId] then
-                    g_toggledSlotsStack[abilityId] = g_toggledSlotsStack[abilityId] - 1
-                end
-                if g_toggledSlotsFront[abilityId] then
-                    local slotNum = g_toggledSlotsFront[abilityId]
-                    if g_uiCustomToggle[slotNum] then
-                        if g_toggledSlotsStack[abilityId] and g_toggledSlotsStack[abilityId] > 0 then
-                            g_uiCustomToggle[slotNum].stack:SetText(g_toggledSlotsStack[abilityId])
-                        else
-                            g_uiCustomToggle[slotNum].stack:SetText("")
-                        end
-                    end
-                end
-                if g_toggledSlotsBack[abilityId] then
-                    local slotNum = g_toggledSlotsBack[abilityId]
-                    if g_uiCustomToggle[slotNum] then
-                        if g_toggledSlotsStack[abilityId] and g_toggledSlotsStack[abilityId] > 0 then
-                            g_uiCustomToggle[slotNum].stack:SetText(g_toggledSlotsStack[abilityId])
-                        else
-                            g_uiCustomToggle[slotNum].stack:SetText("")
-                        end
-                    end
-                end
-            end
-        end
+    if CRYSTALLIZED_SHIELD_IDS[abilityId] and result == ACTION_RESULT_DAMAGE_SHIELDED and targetType == COMBAT_UNIT_TYPE_PLAYER then
+        HandleShieldDamage(abilityId)
     end
 
     if result == ACTION_RESULT_BEGIN or result == ACTION_RESULT_EFFECT_GAINED or result == ACTION_RESULT_EFFECT_GAINED_DURATION then
-        local currentTime = GetGameTimeMilliseconds()
-        if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then
-            if CombatInfo.SV.ShowToggled then
-                local duration = GetUpdatedAbilityDuration(abilityId)
-                local endTime = currentTime + duration
-                g_toggledSlotsRemain[abilityId] = endTime
-                -- Handling for Crystallized Shield + Morphs
-                if abilityId == 86135 or abilityId == 86139 or abilityId == 86143 then
-                    g_toggledSlotsStack[abilityId] = 3
-                end
-                -- Handling for Trap Beast
-                if abilityId == 35750 or abilityId == 40382 or abilityId == 40372 then
-                    g_toggledSlotsStack[abilityId] = 1
-                end
-                -- Toggle highlight on
-                if g_toggledSlotsFront[abilityId] then
-                    local slotNum = g_toggledSlotsFront[abilityId]
-                    CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
-                end
-                if g_toggledSlotsBack[abilityId] then
-                    local slotNum = g_toggledSlotsBack[abilityId]
-                    CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
-                end
-            end
-        end
+        HandleEffectBegin(abilityId)
     elseif result == ACTION_RESULT_EFFECT_FADED then
-        -- Ignore fading event if override is true
-        if g_barNoRemove[abilityId] then
-            if Effects.BarHighlightCheckOnFade[abilityId] then
-                CombatInfo.BarHighlightSwap(abilityId)
-            end
-            return
-        end
-
-        if g_toggledSlotsRemain[abilityId] then
-            if g_toggledSlotsFront[abilityId] and g_uiCustomToggle[g_toggledSlotsFront[abilityId]] then
-                local slotNum = g_toggledSlotsFront[abilityId]
-                CombatInfo.HideSlot(slotNum, abilityId)
-            end
-            if g_toggledSlotsBack[abilityId] and g_uiCustomToggle[g_toggledSlotsBack[abilityId]] then
-                local slotNum = g_toggledSlotsBack[abilityId]
-                CombatInfo.HideSlot(slotNum, abilityId)
-            end
-            g_toggledSlotsRemain[abilityId] = nil
-            g_toggledSlotsStack[abilityId] = nil
-        end
-        if Effects.BarHighlightCheckOnFade[abilityId] and targetType == COMBAT_UNIT_TYPE_PLAYER then
-            CombatInfo.BarHighlightSwap(abilityId)
-        end
+        HandleEffectFaded(abilityId, targetType)
     end
 end
 
