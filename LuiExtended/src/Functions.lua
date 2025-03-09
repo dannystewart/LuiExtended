@@ -170,16 +170,7 @@ do
         --     LUIE.Debug(formattedMessage)
         -- end
 
-        -- Use LibChatMessage if available, otherwise use default CHAT_ROUTER
-        if LibChatMessage then
-            -- Use cached chat instance for better performance
-            if not LUIE.chatInstance then
-                LUIE.chatInstance = LibChatMessage("LuiExtended", "LUIE")
-            end
-            LUIE.chatInstance:Print(formattedMessage)
-        else
-            CHAT_ROUTER:AddSystemMessage(formattedMessage)
-        end
+        CHAT_ROUTER:AddSystemMessage(formattedMessage)
     end
 
     LUIE.AddSystemMessage = AddSystemMessage
@@ -237,8 +228,9 @@ do
 
         -- Determine if we should format the message with a timestamp
         local shouldFormat = not LUIE.ChatAnnouncements.SV.ChatBypassFormat
+        local doTimestamp = LUIE.ChatAnnouncements.SV.TimeStamp
         local formattedMsg = shouldFormat
-            and FormatMessage(msg, LUIE.ChatAnnouncements.SV.TimeStamp)
+            and FormatMessage(msg, doTimestamp)
             or msg
 
         -- Method 1: Print to all tabs (uses SystemMessage)
