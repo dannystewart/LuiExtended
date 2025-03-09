@@ -81,8 +81,8 @@ end
 --- @param message string The message to add a timestamp to
 --- @return string Formatted message with timestamp
 local function MillisecondTimestampDebug(message)
-    -- Skip adding timestamp if pChat is active to avoid duplicate timestamps
-    if IsPChatActive() then
+    -- Skip adding timestamp if pChat is active or if LUIE timestamps are enabled to avoid duplicate timestamps
+    if IsPChatActive() or LUIE.ChatAnnouncements.SV.TimeStamp then
         return message
     end
 
