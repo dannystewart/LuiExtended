@@ -2148,7 +2148,9 @@ end
 -- Runs on the EVENT_UNIT_CREATED listener.
 -- Used to create DefaultFrames UI controls and request delayed CustomFrames group frame update
 function UnitFrames.OnUnitCreated(eventCode, unitTag)
-    LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    if LUIE.IsDevDebugEnabled() then
+        LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    end
     -- Create on-fly UI controls for default UI group member and reread his values
     if g_DefaultFrames.SmallGroup then
         UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
@@ -2180,7 +2182,9 @@ end
 -- Runs on the EVENT_UNIT_DESTROYED listener.
 -- Used to request delayed CustomFrames group frame update
 function UnitFrames.OnUnitDestroyed(eventCode, unitTag)
-    LUIE.Debug(string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    if LUIE.IsDevDebugEnabled() then
+        LUIE.Debug(string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    end
     -- Make sure we do not try to update bars on this unitTag before full group update is complete
     if "group" == zo_strsub(unitTag, 0, 5) then
         UnitFrames.CustomFrames[unitTag] = nil
@@ -2314,156 +2318,146 @@ function UnitFrames.UpdateDefaultLevelTarget()
     end
 end
 
----
---- @param reactionType UnitReactionType
---- @param attackable boolean
---- @return table color
---- @return table reticle_color
---- @return boolean interactableCheck
-local function GetTargetColors(reactionType, attackable)
-    local color, reticle_color = UnitFrames.SV.Target_FontColour, UnitFrames.SV.Target_FontColour
-    local interactableCheck = false
-
-    if reactionType == UNIT_REACTION_HOSTILE then
-        color = UnitFrames.SV.Target_FontColour_Hostile
-        reticle_color = attackable and UnitFrames.SV.Target_FontColour_Hostile or UnitFrames.SV.Target_FontColour
-        interactableCheck = true
-    elseif reactionType == UNIT_REACTION_PLAYER_ALLY then
-        color = UnitFrames.SV.Target_FontColour_FriendlyPlayer
-        reticle_color = UnitFrames.SV.Target_FontColour_FriendlyPlayer
-    elseif attackable and reactionType ~= UNIT_REACTION_HOSTILE then
-        color = UnitFrames.SV.Target_FontColour
-        reticle_color = color
-    else
-        color = (reactionType == UNIT_REACTION_FRIENDLY or reactionType == UNIT_REACTION_NPC_ALLY) and UnitFrames.SV.Target_FontColour_FriendlyNPC or UnitFrames.SV.Target_FontColour
-        reticle_color = color
-        interactableCheck = true
-    end
-
-    return color, reticle_color, interactableCheck
-end
-
----
---- @param customFrame table
---- @param color table
---- @param isCritter boolean
---- @param isGuard boolean
---- @param reactionType UnitReactionType
---- @param healthData { powerValue:number, powerMax:number, powerEffectiveMax:number, shield:number, trauma:number }
-local function UpdateCustomFrame(customFrame, color, isCritter, isGuard, reactionType, healthData)
-    if not customFrame or not customFrame[COMBAT_MECHANIC_FLAGS_HEALTH] then return end
-
-    -- Ensure healthData has required fields
-    -- { powerValue, powerMax, powerEffectiveMax, shield, trauma }
-    healthData = healthData or { 1, 1, 1, 0, 0 }
-
-    -- Update hostile state and skull visibility
-    if customFrame.hostile ~= nil and customFrame.skull ~= nil then
-        customFrame.hostile = (reactionType == UNIT_REACTION_HOSTILE) and UnitFrames.SV.TargetEnableSkull
-        customFrame.skull:SetHidden(not customFrame.hostile or (healthData[1] == 0) or (100 * healthData[1] / healthData[3] > customFrame[COMBAT_MECHANIC_FLAGS_HEALTH].threshold))
-    end
-
-    -- Update name colors
-    if customFrame.name then
-        customFrame.name:SetColor(color[1], color[2], color[3], 1)
-    end
-    if customFrame.className then
-        customFrame.className:SetColor(color[1], color[2], color[3], 1)
-    end
-
-    -- Handle critter and guard labels
-    local labelOne = customFrame[COMBAT_MECHANIC_FLAGS_HEALTH].labelOne
-    if labelOne and (isCritter or isGuard) then
-        labelOne:SetText(isCritter and " - Critter - " or " - Invulnerable - ")
-    end
-
-    -- Update label two visibility
-    local labelTwo = customFrame[COMBAT_MECHANIC_FLAGS_HEALTH].labelTwo
-    if labelTwo then
-        labelTwo:SetHidden(isCritter or isGuard or (customFrame.dead and not customFrame.dead:IsHidden()))
-    end
-
-    -- Show frame if control exists
-    if customFrame.control then
-        customFrame.control:SetHidden(false)
-    end
-end
-
 -- Runs on the EVENT_RETICLE_TARGET_CHANGED listener.
 -- This handler fires every time the player's reticle target changes.
 -- Used to read initial values of target's health and shield.
 function UnitFrames.OnReticleTargetChanged(eventCode)
-    -- Early return if no target
-    if not DoesUnitExist("reticleover") then
+    if DoesUnitExist("reticleover") then
         UnitFrames.ReloadValues("reticleover")
-        return
-    end
 
-    -- Initialize state
-    local defaultFrame = g_DefaultFrames.reticleover or {}
-    local customFrame = UnitFrames.CustomFrames["reticleover"]
-    local avaPlayerFrame = UnitFrames.CustomFrames["AvaPlayerTarget"]
-    local healthData = g_savedHealth.reticleover or { 1, 1, 1, 0, 0 }
+        local isWithinRange = IsUnitInGroupSupportRange("reticleover")
 
-    -- Load basic values
-    UnitFrames.ReloadValues("reticleover")
-    local isWithinRange = IsUnitInGroupSupportRange("reticleover")
-    local reactionType = GetUnitReaction("reticleover")
-    local attackable = IsUnitAttackable("reticleover")
-    local isCritter = (healthData[3] <= 9)
-    local isGuard = IsUnitInvulnerableGuard("reticleover")
-
-    -- Handle colors
-    local color, reticle_color, interactableCheck = GetTargetColors(reactionType, attackable)
-    if interactableCheck and GetGameCameraInteractableActionInfo() then
-        reticle_color = UnitFrames.SV.ReticleColour_Interact
-    end
-
-    -- Update default frame
-    if defaultFrame[COMBAT_MECHANIC_FLAGS_HEALTH] then
-        defaultFrame[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(isCritter or isGuard)
-    end
-
-    if defaultFrame.isPlayer then
-        UnitFrames.UpdateDefaultLevelTarget()
-    end
-
-    -- Update colors
-    if UnitFrames.SV.TargetColourByReaction then
-        g_defaultTargetNameLabel:SetColor(color[1], color[2], color[3], isWithinRange and 1 or 0.5)
-    end
-    if UnitFrames.SV.ReticleColourByReaction then
-        ZO_ReticleContainerReticle:SetColor(reticle_color[1], reticle_color[2], reticle_color[3], 1)
-    end
-
-    -- Update custom frames
-    if customFrame then
-        UpdateCustomFrame(customFrame, color, isCritter, isGuard, reactionType, healthData)
-    end
-
-    if avaPlayerFrame then
-        avaPlayerFrame.control:SetHidden(not (avaPlayerFrame.isPlayer and reactionType == UNIT_REACTION_HOSTILE and not IsUnitDead("reticleover")))
-    end
-
-    -- Update class and friend icons
-    if defaultFrame.isPlayer then
-        if UnitFrames.SV.TargetShowClass then
-            defaultFrame.classIcon:ClearAnchors()
-            defaultFrame.classIcon:SetAnchor(TOPRIGHT, ZO_TargetUnitFramereticleoverTextArea, TOPLEFT, defaultFrame.isChampion and -32 or -2, -4)
+        -- Now select appropriate custom color to target name and (possibly) reticle
+        local color, reticle_color
+        local interactableCheck = false
+        local reactionType = GetUnitReaction("reticleover")
+        local attackable = IsUnitAttackable("reticleover")
+        -- Select color accordingly to reactionType, attackable and interactable
+        if reactionType == UNIT_REACTION_HOSTILE then
+            color = UnitFrames.SV.Target_FontColour_Hostile
+            reticle_color = attackable and UnitFrames.SV.Target_FontColour_Hostile or UnitFrames.SV.Target_FontColour
+            interactableCheck = true
+        elseif reactionType == UNIT_REACTION_PLAYER_ALLY then
+            color = UnitFrames.SV.Target_FontColour_FriendlyPlayer
+            reticle_color = UnitFrames.SV.Target_FontColour_FriendlyPlayer
+        elseif attackable and reactionType ~= UNIT_REACTION_HOSTILE then -- those are neutral targets that can become hostile on attack
+            color = UnitFrames.SV.Target_FontColour
+            reticle_color = color
         else
-            defaultFrame.classIcon:SetHidden(true)
+            -- Rest cases are ally/friendly/npc, and with possibly interactable
+            color = (reactionType == UNIT_REACTION_FRIENDLY or reactionType == UNIT_REACTION_NPC_ALLY) and UnitFrames.SV.Target_FontColour_FriendlyNPC or UnitFrames.SV.Target_FontColour
+            reticle_color = color
+            interactableCheck = true
         end
 
-        if not UnitFrames.SV.TargetShowFriend then
-            defaultFrame.friendIcon:SetHidden(true)
+        -- Here we need to check if interaction is possible, and then rewrite reticle_color variable
+        if interactableCheck then
+            local interactableAction = GetGameCameraInteractableActionInfo()
+            -- Action, interactableName, interactionBlocked, isOwned, additionalInfo, context
+            if interactableAction ~= nil then
+                reticle_color = UnitFrames.SV.ReticleColour_Interact
+            end
+        end
+
+        -- Is current target Critter? In Update 6 they all have 9 health
+        local isCritter = (g_savedHealth.reticleover[3] <= 9)
+        local isGuard = IsUnitInvulnerableGuard("reticleover")
+
+        -- Hide custom label on Default Frames for critters.
+        if g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
+            g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(isCritter)
+            g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(isGuard)
+        end
+
+        -- Update level display based off our setting for Champion Points
+        if g_DefaultFrames.reticleover.isPlayer then
+            UnitFrames.UpdateDefaultLevelTarget()
+        end
+
+        -- Update color of default target if requested
+        if UnitFrames.SV.TargetColourByReaction then
+            g_defaultTargetNameLabel:SetColor(color[1], color[2], color[3], isWithinRange and 1 or 0.5)
+        end
+        if UnitFrames.SV.ReticleColourByReaction then
+            ZO_ReticleContainerReticle:SetColor(reticle_color[1], reticle_color[2], reticle_color[3], 1)
+        end
+
+        -- And color of custom target name always. Also change 'labelOne' for critters
+        if UnitFrames.CustomFrames["reticleover"] then
+            UnitFrames.CustomFrames["reticleover"].hostile = (reactionType == UNIT_REACTION_HOSTILE) and UnitFrames.SV.TargetEnableSkull
+            UnitFrames.CustomFrames["reticleover"].skull:SetHidden(not UnitFrames.CustomFrames["reticleover"].hostile or (g_savedHealth.reticleover[1] == 0) or (100 * g_savedHealth.reticleover[1] / g_savedHealth.reticleover[3] > UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold))
+            UnitFrames.CustomFrames["reticleover"].name:SetColor(color[1], color[2], color[3], 1)
+            UnitFrames.CustomFrames["reticleover"].className:SetColor(color[1], color[2], color[3], 1)
+            if isCritter then
+                UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].labelOne:SetText(" - Critter - ")
+            end
+            if isGuard then
+                UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].labelOne:SetText(" - Invulnerable - ")
+            end
+            UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].labelTwo:SetHidden(isCritter or isGuard or not UnitFrames.CustomFrames["reticleover"].dead:IsHidden())
+
+            if IsUnitReincarnating("reticleover") then
+                UnitFrames.CustomFramesSetDeadLabel(UnitFrames.CustomFrames["reticleover"], strResSelf)
+                eventManager:RegisterForUpdate(moduleName .. "Res" .. "reticleover", 100, function ()
+                    UnitFrames.ResurrectionMonitor("reticleover")
+                end)
+            end
+
+            -- Finally show custom target frame
+            UnitFrames.CustomFrames["reticleover"].control:SetHidden(false)
+        end
+
+        -- Unhide second target frame only for player enemies
+        if UnitFrames.CustomFrames["AvaPlayerTarget"] then
+            UnitFrames.CustomFrames["AvaPlayerTarget"].control:SetHidden(not (UnitFrames.CustomFrames["AvaPlayerTarget"].isPlayer and (reactionType == UNIT_REACTION_HOSTILE) and not IsUnitDead("reticleover")))
+        end
+
+        -- Update position of default target class icon
+        if UnitFrames.SV.TargetShowClass and g_DefaultFrames.reticleover.isPlayer then
+            g_DefaultFrames.reticleover.classIcon:ClearAnchors()
+            g_DefaultFrames.reticleover.classIcon:SetAnchor(TOPRIGHT, ZO_TargetUnitFramereticleoverTextArea, TOPLEFT, g_DefaultFrames.reticleover.isChampion and -32 or -2, -4)
+        else
+            g_DefaultFrames.reticleover.classIcon:SetHidden(true)
+        end
+        -- Instead just make sure it is hidden
+        if not UnitFrames.SV.TargetShowFriend or not g_DefaultFrames.reticleover.isPlayer then
+            g_DefaultFrames.reticleover.friendIcon:SetHidden(true)
+        end
+
+        UnitFrames.CustomFramesApplyReactionColor(g_DefaultFrames.reticleover.isPlayer)
+
+        -- Target is invalid: reset stored values to defaults
+    else
+        g_savedHealth.reticleover = { 1, 1, 1, 0, 0 }
+
+        --[[ Removed due to causing custom UI elements to abruptly fade out. Left here in case there is any reason to re-enable.
+        if g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
+            g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(true)
+        end
+        g_DefaultFrames.reticleover.classIcon:SetHidden(true)
+        g_DefaultFrames.reticleover.friendIcon:SetHidden(true)
+        ]]
+        --
+
+        -- Hide target frame bars control, LTE will clear buffs and remove then itself, SpellCastBuffs should continue to display ground buffs
+        if UnitFrames.CustomFrames["reticleover"] then
+            UnitFrames.CustomFrames["reticleover"].hostile = false
+            UnitFrames.CustomFrames["reticleover"].skull:SetHidden(true)
+            UnitFrames.CustomFrames["reticleover"].control:SetHidden(true) -- UnitFrames.CustomFrames["reticleover"].canHide )
+        end
+        -- Hide second target frame
+        if UnitFrames.CustomFrames["AvaPlayerTarget"] then
+            UnitFrames.CustomFrames["AvaPlayerTarget"].control:SetHidden(true) -- UnitFrames.CustomFrames["AvaPlayerTarget"].canHide )
+        end
+
+        -- Revert back the color of reticle to white
+        if UnitFrames.SV.ReticleColourByReaction then
+            ZO_ReticleContainerReticle:SetColor(1, 1, 1, 1)
         end
     end
 
-    -- Apply reaction colors
-    UnitFrames.CustomFramesApplyReactionColor(defaultFrame.isPlayer)
-
-    -- Handle default frame visibility
-    if not defaultFrame[COMBAT_MECHANIC_FLAGS_HEALTH] and UnitFrames.SV.DefaultFramesNewTarget == 1 then
+    -- Finally if user does not want to have default target frame we have to hide it here all the time
+    if not g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] and UnitFrames.SV.DefaultFramesNewTarget == 1 then
         ZO_TargetUnitFramereticleover:SetHidden(true)
     end
 end
@@ -3040,7 +3034,7 @@ end
 function UnitFrames.UpdateShield(unitTag, value, maxValue)
     if g_savedHealth[unitTag] == nil then
         if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug("LUIE DEBUG: Stored health is nil: ", unitTag)
+            LUIE.Debug("LUIE DEBUG: Stored health is nil: ", unitTag, " | Shield Value: ", value, " | Shield Max: ", maxValue)
         end
         return
     end
@@ -5230,7 +5224,9 @@ local __applyFont = function (unitTag)
     -- First try selecting font face
     local fontName = LUIE.Fonts[UnitFrames.SV.DefaultFontFace]
     if not fontName or fontName == "" then
-        LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
+        if LUIE.IsDevDebugEnabled() then
+            LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
+        end
         fontName = "$(BOLD_FONT)|16|soft-shadow-thick"
     end
 
@@ -5297,7 +5293,9 @@ function UnitFrames.CustomFramesApplyFont()
     -- First try selecting font face
     local fontName = LUIE.Fonts[UnitFrames.SV.CustomFontFace]
     if not fontName or fontName == "" then
-        LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
+        if LUIE.IsDevDebugEnabled() then
+            LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
+        end
         fontName = "Univers 67"
     end
 
