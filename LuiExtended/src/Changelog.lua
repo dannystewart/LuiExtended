@@ -12,6 +12,14 @@ local table_concat = table.concat
 local changelogMessages =
 {
     -- Version Header
+    "|cFFA500LuiExtended Version 6.8.8.1|r",
+    "",
+    -- General Changes
+    "|cFFFF00General:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fix for errors in UnitFrames.lua.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t There is a new toggle in the unitframes module to format names with the eso target markers.",
+    "",
+    -- Version Header
     "|cFFA500LuiExtended Version 6.8.8|r",
     "",
     -- General Changes
