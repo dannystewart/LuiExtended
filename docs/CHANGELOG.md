@@ -1,45 +1,250 @@
-# Version 6.7.0
+# Version 6.8.8
 
 General
+
+- Due to frequency of updates, I have disabled showing the changelog when there is a version increase.\nIf you still would like to see a popup there is a setting under Miscellaneous Settings to enable that.
+- Added some timer data for Arcanist.
+- Fixed an error if LibChatMessasge's history feature was enabled.
+- Fixed timestamps to properly disable if "Allow Addons to Modify LUIE Messages" was toggled in the settings.
+- Updated tooltip for Gallop to show as 15%. Custom Tooltips need to be enabled to see this...
+- Updated stealth tooltip text for update 101045. Custom Tooltips need to be enabled to see this...
+- Misc small changes.
+
+Full Changelog: [https://github.com/DakJaniels/LuiExtended/compare/6.8.7.2...6.8.8](https://github.com/DakJaniels/LuiExtended/compare/6.8.7.2...6.8.8)
+
+---
+
+## Version 6.8.7.2
+
+General
+
+- Fixed frame snapping calculations for edge cases
+- Optimized grid snapping performance
+- Adjusted UI elements for better visual alignment
+
+Full Changelog: [https://github.com/DakJaniels/LuiExtended/compare/6.8.7.1...6.8.7.2](https://github.com/DakJaniels/LuiExtended/compare/6.8.7.1...6.8.7.2)
+
+---
+
+## Version 6.8.7.1
+
+General
+
+- Minor bug fix, default frames we not snapping. They are now.
+
+Full Changelog: [https://github.com/DakJaniels/LuiExtended/compare/6.8.7...6.8.7.1](https://github.com/DakJaniels/LuiExtended/compare/6.8.7...6.8.7.1)
+
+---
+
+## Version 6.8.7
+
+General
+
+- Added a new grid snapping system. Currently only for default game frames, custom unit frames, and the buffs & debuffs module.
+- Code cleanup and optimizations.
+
+Full Changelog: [https://github.com/DakJaniels/LuiExtended/compare/6.8.6...6.8.7](https://github.com/DakJaniels/LuiExtended/compare/6.8.6...6.8.7)
+
+---
+
+## Version 6.8.6
+
+General
+
+- Added chat announcements for Grimoires and Scripts, off by Default. Can be toggled on under the Miscellaneous Announcements section of the Chat Announce settings menu.
+- Added a new font. Montserrat.
+
+Full Changelog: [https://github.com/DakJaniels/LuiExtended/compare/6.8.5...6.8.6](https://github.com/DakJaniels/LuiExtended/compare/6.8.5...6.8.6)
+
+---
+
+## Version 6.8.5
+
+General
+
+- Added chat announcements for Golden Pursuits and Weekly Endeavors, off by Default. Thanks cyberox.
+- More illegal string formatting fixes.
+
+Full Changelog: [https://github.com/DakJaniels/LuiExtended/compare/6.8.4...6.8.5](https://github.com/DakJaniels/LuiExtended/compare/6.8.4...6.8.5)
+
+---
+
+## Version 6.8.4
+
+General
+
+- Blood Craze id update so it will now be tracked on the actionbar. Thanks @ExVault.
+- Fix for chat alerts. If you know, you know...
+- Code cleanup and improvements
+
+Full Changelog: [https://github.com/DakJaniels/LuiExtended/compare/6.8.3...6.8.4](https://github.com/DakJaniels/LuiExtended/compare/6.8.3...6.8.4)
+
+---
+
+## Version 6.8.2, 6.8.3
+
+General
+
+- LuiData tweaks
+- Font fixes
+- Code cleanup and improvements
+
+Full Changelog: [https://github.com/DakJaniels/LuiExtended/compare/6.8.2...6.8.3](https://github.com/DakJaniels/LuiExtended/compare/6.8.2...6.8.3)
+
+---
+
+## Version 6.8.1
+
+General
+
+- LUIE's data has been moved into the LuiData library, this is included with LuiExtended.
+This lowered loading times by up to 8 seconds in my testing. *results may vary.
+- Added more bar textures to use on our custom frames.
+- Improved font registration for our custom fonts.
+- Using cached strings for the combat text module. This should improve performance.
+- Code cleanup and improvements.
+
+---
+
+## Version 6.8.0
+
+General
+
+- Changelog in progress...
+
+---
+
+## Version 6.7.9.2-3
+
+General
+
+- Fix for operator + is not supported for number + nil error in chat announcements.
+- Added UI mover for Interact Text (affects default 'E' keybind position).
+- Fixed active guard ability toggle icon not displaying.
+- Fixed chat announcements for crafting items and materials to properly display all entries.
+
+---
+
+## Version 6.7.9.1
+
+General
+
+- Fix for some unitframe errors.
+
+---
+
+## Version 6.7.9
+
+General
+
+- Fix for missing buffs in Cyrodiil.
+
+---
+
+## Version 6.7.8
+
+General
+
+- Added Fatecarver Immune message to the Combat Text ignore list. No more spam from that now.
+- Restructured the data folders code.
+- And many more small tweak. There shouldn't be any errors but as always let me know in the comments.
+
+---
+
+## Version 6.7.7
+
+General
+
+- Updated to API version 101044
+- Fixed bug with the ESO Plus Member icon always being visible on the long buff display.
+- Hopefully fixed the illegal string format call...
+- Added new companions so you can keybind them now.
+
+---
+
+## Version 6.7.5
+
+General
+
+- Oakensoul menu setting added to Buffs & Debuffs Module -> Display Options. Reload required.
+
+---
+
+## Version 6.7.4
+
+General
+
+- Added preliminary support for OakenSoul, still needs some tweaks.
+- Fixed invite bug. Hopefully.
+
+---
+
+## Version 6.7.3
+
+General
+
+- Added missing assistants for keybinds.
+- Added Warden AOE pre-Charm AoE to AoE alerts.
+
+---
+
+## Version 6.7.1
+
+General
+
+- Update for Gold Road.
+
+---
+
+## Version 6.7.0
+
+General
+
 - Updated fonts to .slug format for Update 41 API changes.
 - Fixed an issue where the Player to Player interaction menu could throw UI errors.
 
 Combat Info
+
 - Fixed issues with Negate tracking in the Crowd Control Tracker (thanks to ACastanza).
 - Fixed issues with CC Tracker occasionally throwing errors with snares & roots.
 
 ---
 
-# Version 6.6.9
+## Version 6.6.9
 
 Combat Text
+
 - Fixed an issue where the Combat Text settings reset with this update. This was due to an issue where the specific Saved Variables for Combat Text were accidentally renamed. Your old settings will be restored as long as you haven't manually cleared your saved variables since the update. The renamed variables will also be cleaned up and removed so as not to inflate the size of your LUIE Saved Variables file.
 
 ---
 
-# Version 6.6.8
+## Version 6.6.8
 
 General
+
 - Added the ArchivoNarrow font as a selectable option.
 - Added the ability to move the Endless Archive progress tracker (when you Unlock Default UI Elements).
 
 Buffs & Debuffs
+
 - Updated tooltips for several effects for Cryodiil Siege weapons that were out of date.
 
 Chat Announcements
+
 - Fixed an error that could occur with currency announcements when purchasing items on the Crown Store.
 - Added an option to show an item loss message when you fillet a fish (manually).
 - Updated the context messages for filleting fish at the provisioning station to "You fillet..."
 - KNOWN ISSUE: When filleting a certain amount of fish (seems to be under ~50) the messages for filleting at the crafting station won't display the proper amount of fish used. You can read more details about this on the pinned post in the LUIE comments on ESOUI.
 
 Combat Info
+
 - Crowd Control Tracker will now no longer show a CC warning for the cosmetic stun effects when entering various portals in Endless Archive (Thanks ACastanza for finding all these abilityIds).
 - Floating Markers now use a different more detailed texture.
 - Fixed an issue where the Floating Marker was removed when changing zones.
 
 ---
 
-# Version 6.6.7
+## Version 6.6.7
 
 Unit Frames
 
@@ -47,7 +252,7 @@ Unit Frames
 
 ---
 
-# Version 6.6.6
+## Version 6.6.6
 
 Chat Announcements
 
@@ -55,7 +260,7 @@ Chat Announcements
 
 ---
 
-# Version 6.6.5
+## Version 6.6.5
 
 General
 
@@ -89,7 +294,7 @@ Unit Frames
 
 ---
 
-# Version 6.6.4
+## Version 6.6.4
 
 Buffs & Debuffs
 
@@ -255,7 +460,7 @@ General
 
 Slash Commands
 
-- Rewrote Collectible handling to make adding new banker, merchants & companions easier in the future
+- Rewritten Collectible handling to make adding new banker, merchants & companions easier in the future
 - Added Aderene
 
 Unit Frames

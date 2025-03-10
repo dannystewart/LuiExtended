@@ -17,6 +17,12 @@ local changelogMessages =
     -- General Changes
     "|cFFFF00General:|r",
     "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Due to frequency of updates, I have disabled showing the changelog when there is a version increase.\nIf you still would like to see a popup there is a setting under Miscellaneous Settings to enable that.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added some timer data for Arcanist.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fixed an error if LibChatMessasge's history feature was enabled.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fixed timestamps to properly disable if \"Allow Addons to Modify LUIE Messages\" was toggled in the settings.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Updated tooltip for Gallop to show as 15%. Custom Tooltips need to be enabled to see this...",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Updated stealth tooltip text for update 101045. Custom Tooltips need to be enabled to see this...",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Misc small changes.",
     "",
 }
 -- -----------------------------------------------------------------------------

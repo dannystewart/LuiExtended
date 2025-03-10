@@ -6,11 +6,6 @@
 --- @class (partial) LuiData
 local LuiData = LuiData
 
-local Innate_Sneak = 20299
-if GetAPIVersion() >= 101045 then
-    Innate_Sneak = 55080     -- Sneak
-end
-
 -- AbilityTables namespace
 --- @class (partial) AbilityTables
 local AbilityTables =
@@ -64,7 +59,7 @@ local AbilityTables =
     Innate_Stun = 14756,      -- Stun
     Innate_Disguise = 31287,  -- Disguise
     Innate_Disguised = 23553, -- Disguised
-    Innate_Sneak = Innate_Sneak,     -- Sneak
+    Innate_Sneak = 20299,     -- Sneak
     Innate_Hidden = 20309,    -- Hidden
     Innate_Mounted = GetString(LUIE_STRING_SKILL_MOUNTED),
     Innate_Mounted_Passenger = GetString(LUIE_STRING_SKILL_MOUNTED_PASSENGER),
