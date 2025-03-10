@@ -2298,13 +2298,24 @@ local function HandleEffectBegin(abilityId)
     if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then
         if CombatInfo.SV.ShowToggled then
             -- Find the action slot this ability is in (if any)
-            local actionSlotIndex, hotbarCategory
+            local slotNum
+            local actionSlotIndex
+
             if g_toggledSlotsFront[abilityId] then
-                actionSlotIndex = g_toggledSlotsFront[abilityId]
-                hotbarCategory = HOTBAR_CATEGORY_PRIMARY
+                slotNum = g_toggledSlotsFront[abilityId]
+                g_hotbarCategory = HOTBAR_CATEGORY_PRIMARY
             elseif g_toggledSlotsBack[abilityId] then
-                actionSlotIndex = g_toggledSlotsBack[abilityId]
-                hotbarCategory = HOTBAR_CATEGORY_BACKUP
+                slotNum = g_toggledSlotsBack[abilityId]
+                g_hotbarCategory = HOTBAR_CATEGORY_BACKUP
+            end
+
+            -- Get the button and actionSlotIndex
+            local button = ZO_ActionBar_GetButton(slotNum, g_hotbarCategory)
+            if button then
+                actionSlotIndex = button:GetSlot()
+            else
+                -- Fallback to the original method if button not found
+                actionSlotIndex = slotNum
             end
 
             -- Try multiple methods to get ability duration with fallbacks
@@ -2314,8 +2325,8 @@ local function HandleEffectBegin(abilityId)
             duration = GetUpdatedAbilityDuration(abilityId)
 
             -- If no duration found and we have slot information, try action slot duration
-            if duration == 0 and actionSlotIndex and hotbarCategory then
-                duration = (GetActionSlotEffectDuration(actionSlotIndex, hotbarCategory) or 0)
+            if duration == 0 and actionSlotIndex and g_hotbarCategory then
+                duration = (GetActionSlotEffectDuration(actionSlotIndex, g_hotbarCategory) or 0)
             end
 
             -- If still no duration, try the generic ability duration as final fallback
@@ -2589,6 +2600,7 @@ function CombatInfo.OnActiveHotbarUpdate(eventCode, didActiveHotbarChange, shoul
             if physicalSlot.hotbarSwapAnimation then
                 physicalSlot.noUpdates = true
                 physicalSlot.hotbarSwapAnimation:PlayFromStart()
+                physicalSlot:HandleSlotChanged()
             end
         end
     else
@@ -2715,8 +2727,8 @@ function CombatInfo.ShowCustomToggle(slotNum)
         else
             actionButton = g_backbarButtons[slotNum]
         end
-        local name = "ActionButton" .. slotNum .. "Toggle_LUIE"
-        local window = windowManager:GetControlByName(name, "") -- Check to see if this frame already exists, don't create it if it does.
+        local name = "ActionButton" .. slotNum
+        local window = windowManager:GetControlByName(name, "Toggle_LUIE") -- Check to see if this frame already exists, don't create it if it does.
         if window == nil then
             local toggleFrame = windowManager:CreateControl("$(parent)Toggle_LUIE", actionButton.slot, CT_TEXTURE)
             -- toggleFrame.back = UI:Texture(toggleFrame, nil, nil, "/esoui/art/actionbar/actionslot_toggledon.dds")
