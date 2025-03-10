@@ -40,39 +40,40 @@ end
 function CombatTextEventViewer:ShouldUseDefaultIcon(abilityId)
     if Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].cc then
         if CombatText.SV.common.defaultIconOptions == 1 then
+            -- All Crowd Control
             return true
         elseif CombatText.SV.common.defaultIconOptions == 2 then
-            return Effects.EffectOverride[abilityId].isPlayerAbility and true or false
+            -- NPC CC Only - return true if NOT a player ability
+            return not Effects.EffectOverride[abilityId].isPlayerAbility
         elseif CombatText.SV.common.defaultIconOptions == 3 then
-            return Effects.EffectOverride[abilityId].isPlayerAbility and true or false
+            -- Player CC Only
+            return Effects.EffectOverride[abilityId].isPlayerAbility
         end
     end
+    return false
 end
 
+-- Icon lookup table for crowd control types
+CombatTextEventViewer.ccIconTable =
+{
+    [LUIE_CC_TYPE_STUN] = LUIE_CC_ICON_STUN,
+    [LUIE_CC_TYPE_KNOCKDOWN] = LUIE_CC_ICON_STUN,
+    [LUIE_CC_TYPE_KNOCKBACK] = LUIE_CC_ICON_KNOCKBACK,
+    [LUIE_CC_TYPE_PULL] = LUIE_CC_ICON_PULL,
+    [LUIE_CC_TYPE_DISORIENT] = LUIE_CC_ICON_DISORIENT,
+    [LUIE_CC_TYPE_FEAR] = LUIE_CC_ICON_FEAR,
+    [LUIE_CC_TYPE_CHARM] = LUIE_CC_ICON_CHARM,
+    [LUIE_CC_TYPE_STAGGER] = LUIE_CC_ICON_SILENCE,
+    [LUIE_CC_TYPE_SILENCE] = LUIE_CC_ICON_SILENCE,
+    [LUIE_CC_TYPE_SNARE] = LUIE_CC_ICON_SNARE,
+    [LUIE_CC_TYPE_ROOT] = LUIE_CC_ICON_ROOT,
+}
+
+--- Gets the default icon for a specific crowd control type
+--- @param ccType number The crowd control type constant
+--- @return string|nil @The icon path for the CC type or nil if not found
 function CombatTextEventViewer:GetDefaultIcon(ccType)
-    if ccType == LUIE_CC_TYPE_STUN then
-        return LUIE_CC_ICON_STUN
-    elseif ccType == LUIE_CC_TYPE_KNOCKDOWN then
-        return LUIE_CC_ICON_STUN
-    elseif ccType == LUIE_CC_TYPE_KNOCKBACK then
-        return LUIE_CC_ICON_KNOCKBACK
-    elseif ccType == LUIE_CC_TYPE_PULL then
-        return LUIE_CC_ICON_PULL
-    elseif ccType == LUIE_CC_TYPE_DISORIENT then
-        return LUIE_CC_ICON_DISORIENT
-    elseif ccType == LUIE_CC_TYPE_FEAR then
-        return LUIE_CC_ICON_FEAR
-    elseif ccType == LUIE_CC_TYPE_CHARM then
-        return LUIE_CC_ICON_CHARM
-    elseif ccType == LUIE_CC_TYPE_STAGGER then
-        return LUIE_CC_ICON_SILENCE
-    elseif ccType == LUIE_CC_TYPE_SILENCE then
-        return LUIE_CC_ICON_SILENCE
-    elseif ccType == LUIE_CC_TYPE_SNARE then
-        return LUIE_CC_ICON_SNARE
-    elseif ccType == LUIE_CC_TYPE_ROOT then
-        return LUIE_CC_ICON_ROOT
-    end
+    return self.ccIconTable[ccType]
 end
 
 function CombatTextEventViewer:FormatString(inputFormat, params)
