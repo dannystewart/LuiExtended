@@ -1048,7 +1048,7 @@ local function CreateCustomFrames()
         }) do
         -- set mouse handlers for all created tlws and create anchor coords preview labels
         local unitFrame = UnitFrames.CustomFrames[baseName] or UnitFrames.CustomFrames[baseName .. "1"] or nil
-        if unitFrame ~= nil then
+        if unitFrame ~= nil and unitFrame.tlw ~= nil then
             -- Movement handlers
             unitFrame.tlw:SetHandler("OnMoveStart", tlwOnMoveStart)
             unitFrame.tlw:SetHandler("OnMoveStop", tlwOnMoveStop)
@@ -2061,6 +2061,12 @@ function UnitFrames.CompanionUpdate()
     if UnitFrames.CustomFrames.companion == nil then
         return
     end
+
+    -- If companion exists but doesn't have a tlw property, return to avoid nil errors
+    if not UnitFrames.CustomFrames.companion.tlw then
+        return
+    end
+
     local unitTag = "companion"
     if DoesUnitExist(unitTag) then
         if UnitFrames.CustomFrames[unitTag] then
@@ -2076,6 +2082,12 @@ function UnitFrames.CustomPetUpdate()
     if UnitFrames.CustomFrames.PetGroup1 == nil then
         return
     end
+
+    -- If PetGroup1 exists but doesn't have a tlw property, return to avoid nil errors
+    if not UnitFrames.CustomFrames.PetGroup1.tlw then
+        return
+    end
+
 
     local petList = {}
 
@@ -2129,6 +2141,11 @@ function UnitFrames.ActiveCompanionStateChanged(eventCode, newState, oldState)
         return
     end
 
+    -- If companion exists but doesn't have a tlw property, return to avoid nil errors
+    if not UnitFrames.CustomFrames.companion.tlw then
+        return
+    end
+
     local unitTag = "companion"
     UnitFrames.CustomFrames[unitTag].control:SetHidden(true)
     if DoesUnitExist(unitTag) then
@@ -2141,7 +2158,9 @@ end
 -- Runs on the EVENT_UNIT_CREATED listener.
 -- Used to create DefaultFrames UI controls and request delayed CustomFrames group frame update
 function UnitFrames.OnUnitCreated(eventCode, unitTag)
-    LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    if LUIE.IsDevDebugEnabled() then
+        LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    end
     -- Create on-fly UI controls for default UI group member and reread his values
     if g_DefaultFrames.SmallGroup then
         UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
@@ -2173,7 +2192,9 @@ end
 -- Runs on the EVENT_UNIT_DESTROYED listener.
 -- Used to request delayed CustomFrames group frame update
 function UnitFrames.OnUnitDestroyed(eventCode, unitTag)
-    LUIE.Debug(string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    if LUIE.IsDevDebugEnabled() then
+        LUIE.Debug(string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    end
     -- Make sure we do not try to update bars on this unitTag before full group update is complete
     if "group" == zo_strsub(unitTag, 0, 5) then
         UnitFrames.CustomFrames[unitTag] = nil
@@ -5784,6 +5805,11 @@ function UnitFrames.CustomFramesApplyLayoutGroup(unhide)
         return
     end
 
+    -- If SmallGroup1 exists but doesn't have a tlw property, return to avoid nil errors
+    if not UnitFrames.CustomFrames.SmallGroup1.tlw then
+        return
+    end
+
     local groupBarHeight = UnitFrames.SV.GroupBarHeight
     if UnitFrames.SV.CustomShieldBarSeparate then
         groupBarHeight = groupBarHeight + UnitFrames.SV.CustomShieldBarHeight
@@ -5952,6 +5978,11 @@ function UnitFrames.CustomFramesApplyLayoutRaid(unhide)
         return
     end
 
+    -- If RaidGroup1 exists but doesn't have a tlw property, return to avoid nil errors
+    if not UnitFrames.CustomFrames.RaidGroup1.tlw then
+        return
+    end
+
     -- Configuration constants
     local spacerHeight = 3
 
@@ -6049,6 +6080,11 @@ function UnitFrames.CustomFramesApplyLayoutCompanion(unhide)
         return
     end
 
+    -- If companion exists but doesn't have a tlw property, return to avoid nil errors
+    if not UnitFrames.CustomFrames.companion.tlw then
+        return
+    end
+
     local companion = UnitFrames.CustomFrames.companion.tlw
     companion:SetDimensions(UnitFrames.SV.CompanionWidth, UnitFrames.SV.CompanionHeight)
 
@@ -6067,6 +6103,11 @@ end
 -- Set dimensions of custom pet frame and anchors
 function UnitFrames.CustomFramesApplyLayoutPet(unhide)
     if not UnitFrames.CustomFrames.PetGroup1 then
+        return
+    end
+
+    -- If PetGroup1 exists but doesn't have a tlw property, return to avoid nil errors
+    if not UnitFrames.CustomFrames.PetGroup1.tlw then
         return
     end
 
@@ -6091,6 +6132,11 @@ end
 -- Set dimensions of custom raid frame and anchors or raid group members
 function UnitFrames.CustomFramesApplyLayoutBosses()
     if not UnitFrames.CustomFrames.boss1 then
+        return
+    end
+
+    -- If boss1 exists but doesn't have a tlw property, return to avoid nil errors
+    if not UnitFrames.CustomFrames.boss1.tlw then
         return
     end
 
