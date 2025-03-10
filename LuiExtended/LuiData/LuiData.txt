@@ -1,7 +1,7 @@
 ## Title: LuiData
 ## Author: ArtOfShred, DakJaniels, psypanda, Saenic & SpellBuilder
 ## Version: 6.8.8
-## APIVersion: 101044 101045
+## APIVersion: 101045 101046
 ## AddOnVersion: 6808
 ## Description: Provides data for LuiExtended.
 ## IsLibrary: true
