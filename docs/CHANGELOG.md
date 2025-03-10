@@ -2,7 +2,7 @@
 
 General
 
-- Due to frequency of updates, I have disabled showing the changelog when there is a version increase.\nIf you still would like to see a popup there is a setting under Miscellaneous Settings to enable that.
+- Due to frequency of updates, I have disabled showing the changelog when there is a version increase.\nIf you still would like to see a popup there is a setting under Miscellaneous Settings to enable that, requires reload.
 - Added some timer data for Arcanist.
 - Fixed an error if LibChatMessasge's history feature was enabled.
 - Fixed timestamps to properly disable if "Allow Addons to Modify LUIE Messages" was toggled in the settings.

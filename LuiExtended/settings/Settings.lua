@@ -129,6 +129,9 @@ function LUIE.CreateSettings()
             SCENE_MANAGER:ShowBaseScene()
         end,
         width = "half",
+        disabled = function()
+            return not Settings.ShowChangeLog
+        end,
     }
 
     -- ReloadUI Button
@@ -492,6 +495,7 @@ function LUIE.CreateSettings()
         end,
         width = "full",
         default = Defaults.ShowChangeLog,
+        requiresReload = true,
     }
 
     -- Hide Alerts
