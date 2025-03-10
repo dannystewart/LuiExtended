@@ -534,7 +534,6 @@ local function CreateCustomFrames()
         sceneManager:GetScene("siegeBarUI"):AddFragment(fragment)
 
         -- Collect all together
-        --- @type LuiPlayerFrame
         UnitFrames.CustomFrames["player"] =
         {
             ["unitTag"] = "player",

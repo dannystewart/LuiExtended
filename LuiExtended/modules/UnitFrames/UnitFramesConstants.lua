@@ -200,6 +200,12 @@ UnitFrames.Defaults =
 --- @class (partial) LUIE_UnitFrames_SV
 UnitFrames.SV = {}
 
+--- @class LUIE_ChampionXP
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field enlightenment StatusBarControl
+--- @field icon TextureControl
+
 --- @class LUIE_Boss_Group
 --- @field [32] LUIE_Boss_Group_Health
 --- @field control Control
@@ -232,6 +238,79 @@ UnitFrames.SV = {}
 --- @field control Control
 --- @field [32] LUIE_PetGroup_Health
 
+--- @class LUIE_RaidGroup_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field invulnerable StatusBarControl
+--- @field invulnerableInlay StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+--- @field trauma StatusBarControl
+
+--- @class LUIE_RaidGroup
+--- @field [32] LUIE_RaidGroup_Health
+--- @field tlw TopLevelWindow
+--- @field control Control
+--- @field name LabelControl
+--- @field dead LabelControl
+--- @field leader LabelControl
+--- @field roleIcon Control
+--- @field unitTag string
+
+--- @class LUIE_SmallGroup
+--- @field [32] LUIE_SmallGroup_Health
+--- @field tlw TopLevelWindow
+--- @field name LabelControl
+--- @field dead LabelControl
+--- @field control Control
+
+--- @class LUIE_SmallGroup_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field invulnerable StatusBarControl
+--- @field invulnerableInlay StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+
+--- @class LUIE_Player_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field invulnerable StatusBarControl
+--- @field invulnerableInlay StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+--- @field stat table<integer,{dec:Control,inc:TextureControl}>
+--- @field trauma StatusBarControl
+--- @field threshold integer
+
+--- @class LUIE_Player_Resource
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field labelOne LabelControl
+--- @field labelTwo LabelControl
+--- @field threshold integer
+
+--- @class LUIE_Player
+--- @field [32] LUIE_Player_Health
+--- @field [1] LUIE_Player_Resource
+--- @field [4] LUIE_Player_Resource
+--- @field control Control
+--- @field tlw TopLevelWindow
+--- @field name LabelControl
+--- @field level LabelControl
+--- @field levelIcon Control
+--- @field ChampionXP LUIE_ChampionXP
+--- @field isChampion boolean
+--- @field isLevelCap boolean
+--- @field isPlayer boolean
+--- @field buffs Control
+--- @field debuffs Control
+--- @field buffAnchor Control
+--- @field avaRankValue integer
+--- @field alternative Control
+--- @field unitTag string
+--- @field topInfo Control
+--- @field botInfo Control
 
 UnitFrames.CustomFrames =
 {
@@ -245,30 +324,30 @@ UnitFrames.CustomFrames =
     ["boss7"] = nil, --- @type LUIE_Boss_Group
     ["companion"] = nil,
     ["controlledsiege"] = nil,
-    ["PetGroup1"] = nil, --- @type LUIE_PetGroup
-    ["PetGroup2"] = nil, --- @type LUIE_PetGroup
-    ["PetGroup3"] = nil, --- @type LUIE_PetGroup
-    ["PetGroup4"] = nil, --- @type LUIE_PetGroup
-    ["PetGroup5"] = nil, --- @type LUIE_PetGroup
-    ["PetGroup6"] = nil, --- @type LUIE_PetGroup
-    ["PetGroup7"] = nil, --- @type LUIE_PetGroup
-    ["player"] = nil,
-    ["RaidGroup1"] = nil,
-    ["RaidGroup2"] = nil,
-    ["RaidGroup3"] = nil,
-    ["RaidGroup4"] = nil,
-    ["RaidGroup5"] = nil,
-    ["RaidGroup6"] = nil,
-    ["RaidGroup7"] = nil,
-    ["RaidGroup8"] = nil,
-    ["RaidGroup9"] = nil,
-    ["RaidGroup10"] = nil,
-    ["RaidGroup11"] = nil,
-    ["RaidGroup12"] = nil,
+    ["PetGroup1"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup2"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup3"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup4"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup5"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup6"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup7"] = nil,   --- @type LUIE_PetGroup
+    ["player"] = nil,      --- @type LUIE_Player
+    ["RaidGroup1"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup2"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup3"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup4"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup5"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup6"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup7"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup8"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup9"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup10"] = nil, --- @type LUIE_RaidGroup
+    ["RaidGroup11"] = nil, --- @type LUIE_RaidGroup
+    ["RaidGroup12"] = nil, --- @type LUIE_RaidGroup
     ["reticleover"] = nil,
-    ["SmallGroup1"] = nil,
-    ["SmallGroup2"] = nil,
-    ["SmallGroup3"] = nil,
-    ["SmallGroup4"] = nil,
+    ["SmallGroup1"] = nil, --- @type LUIE_SmallGroup
+    ["SmallGroup2"] = nil, --- @type LUIE_SmallGroup
+    ["SmallGroup3"] = nil, --- @type LUIE_SmallGroup
+    ["SmallGroup4"] = nil, --- @type LUIE_SmallGroup
 }
 UnitFrames.CustomFramesMovingState = false
