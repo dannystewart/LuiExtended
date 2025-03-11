@@ -9076,7 +9076,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Play sound if CSA is not enabled
         if not ChatAnnouncements.SV.Group.GroupRaidCSA then
-            PlaySound(SOUNDS.RAID_TRIAL_COMPLETE)
+            PlaySound(SOUNDS.RAID_TRIAL_COMPLETED)
         end
         return true
     end
