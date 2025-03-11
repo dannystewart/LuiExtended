@@ -9540,7 +9540,7 @@ function ChatAnnouncements.HookFunction()
         -- If the CSA is disabled, play a sound if Chat Announcement or Alert are enabled
         if (settings.CA or settings.Alert) and not settings.CSA then
             if soundId then
-                PlaySound(SOUNDS.soundId)
+                PlaySound(SOUNDS.NONE)
                 -- Fallback sound if no soundId
             else
                 PlaySound(SOUNDS.DISPLAY_ANNOUNCEMENT)
