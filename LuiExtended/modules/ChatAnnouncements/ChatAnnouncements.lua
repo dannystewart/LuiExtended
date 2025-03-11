@@ -7494,7 +7494,7 @@ function ChatAnnouncements.HookFunction()
         elseif numSkillPointsGained > 0 then
             if not SUPPRESS_SKILL_POINT_CSA_REASONS[changeReason] then
                 flagDisplay = true
-                sound = SOUNDS.SKILL_GAINED
+                sound = SOUNDS.SKILL_POINT_GAINED
                 messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_SKILL_POINTS_GAINED)
                 local skillPointGained = zo_strformat(SI_SKILL_POINT_GAINED, numSkillPointsGained)
                 messageParams:SetText(skillPointGained)
