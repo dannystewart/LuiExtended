@@ -6,6 +6,54 @@
 --- @class (partial) LuiData
 local LuiData = LuiData
 
+--- @param summonShade integer
+--- @return integer
+local function GetSummonShade(summonShade)
+    summonShade = 38517
+    local raceId = GetUnitRaceId("player")
+    if raceId == 9 then
+        summonShade = 88662 -- khajiit
+    elseif raceId == 6 then
+        summonShade = 88663 -- argonian
+    end
+    return summonShade
+end
+
+--- @type integer
+local summonShade
+
+--- @param shadowImage integer
+--- @return integer
+local function GetShadowImage(shadowImage)
+    shadowImage = 38528
+    local raceId = GetUnitRaceId("player")
+    if raceId == 9 then
+        shadowImage = 88696 -- khajiit
+    elseif raceId == 6 then
+        shadowImage = 88697 -- argonian
+    end
+    return shadowImage
+end
+
+--- @type integer
+local shadowImage
+
+--- @param darkShade integer
+--- @return integer
+local function GetDarkShade(darkShade)
+    darkShade = 35438
+    local raceId = GetUnitRaceId("player")
+    if raceId == 9 then
+        darkShade = 88677 -- khajiit
+    elseif raceId == 6 then
+        darkShade = 88678 -- argonian
+    end
+    return darkShade
+end
+
+--- @type integer
+local darkShade
+
 -- AbilityTables namespace
 --- @class (partial) AbilityTables
 local AbilityTables =
@@ -437,10 +485,10 @@ local AbilityTables =
     Skill_Soul_Harvest = 36514,
     Skill_Corrosive_Strike = 33219,
     Skill_Corrosive_Spin = GetString(LUIE_STRING_SKILL_CORROSIVE_SPIN_TP),
-    Skill_Summon_Shade = 33211,
-    Skill_Shade = 38508,
-    Skill_Dark_Shade = 35434,
-    Skill_Shadow_Image = 35441,
+    Skill_Summon_Shade = GetSummonShade(summonShade),
+    Skill_Shade = "Shade",
+    Skill_Dark_Shade = GetDarkShade(darkShade),
+    Skill_Shadow_Image = GetShadowImage(shadowImage),
     Skill_Crippling_Grasp = 36957,
     Skill_Sap_Essence = 36891,
 
@@ -861,7 +909,7 @@ local AbilityTables =
     Skill_Flame_Shield = 37173,
     Skill_Royal_Strike = 38729,
     Skill_Consecrate_Shrine = GetString(LUIE_STRING_SKILL_CONSECRATE_SHRINE),
-    Skill_Remove_Ward = 18606,
+    Skill_Remove_Ward = "Remove Ward",
     Skill_Shock = 27598,
     Skill_Drink_Mead = 13941,
     Skill_Unstable_Portal = GetString(LUIE_STRING_SKILL_UNSTABLE_PORTAL),
@@ -1189,13 +1237,16 @@ local AbilityTables =
     Keep_Upgrade_Food_Guard_Abilities = GetString(LUIE_STRING_KEEP_UPGRADE_FOOD_GUARD_ABILITIES),
 }
 
+local AbilityTablesStrings = {}
 -- Replace ability IDs with names
 for k, v in pairs(AbilityTables) do
     if type(v) == "number" then
-        AbilityTables[k] = zo_strformat("<<C:1>>", GetAbilityName(v))
+        AbilityTablesStrings[k] = zo_strformat("<<C:1>>", GetAbilityName(v))
+    elseif type(v) == "string" then
+        AbilityTablesStrings[k] = v
     end
 end
 
 -- Export string data to global namespace
 --- @class (partial) AbilityTables
-LuiData.Data.Abilities = AbilityTables
+LuiData.Data.Abilities = AbilityTablesStrings
