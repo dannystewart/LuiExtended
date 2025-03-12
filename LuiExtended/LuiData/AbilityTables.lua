@@ -1237,15 +1237,22 @@ local AbilityTables =
     Keep_Upgrade_Food_Guard_Abilities = GetString(LUIE_STRING_KEEP_UPGRADE_FOOD_GUARD_ABILITIES),
 }
 
-local AbilityTablesStrings = {}
--- Replace ability IDs with names
-for k, v in pairs(AbilityTables) do
-    if type(v) == "number" then
-        AbilityTablesStrings[k] = zo_strformat("<<C:1>>", GetAbilityName(v))
-    elseif type(v) == "string" then
-        AbilityTablesStrings[k] = v
-    end
-end
+--- @type AbilityTables[]
+local AbilityTablesStrings = setmetatable({},
+    {
+        __index = function (t, k)
+            local v = AbilityTables[k]
+            if type(v) == "number" then
+                local name = zo_strformat("<<C:1>>", GetAbilityName(v))
+                t[k] = name
+                return name
+            elseif type(v) == "string" then
+                t[k] = v
+                return v
+            end
+            return v
+        end
+    })
 
 -- Export string data to global namespace
 --- @class (partial) AbilityTables
