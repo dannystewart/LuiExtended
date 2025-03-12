@@ -651,6 +651,8 @@ function CombatInfo.RegisterCombatInfo()
     -- Have to register EVENT_EFFECT_CHANGED for werewolf as well - Stop devour cast bar when devour fades / also handles updating Vampire Ultimate cost on stage change
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled or CombatInfo.SV.CastBarEnable or CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled then
         eventManager:RegisterForEvent(moduleName, EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
+        eventManager:RegisterForEvent(moduleName .. 'Pet', EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
+		eventManager:AddFilterForEvent(moduleName .. 'Pet', EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET)
     end
 
     -- Display default UI ultimate text if the LUIE option is enabled.
