@@ -9,6 +9,27 @@ local LUIE = LUIE
 local string_format = string.format
 local eventManager = GetEventManager()
 
+do
+    --- @param addonName string
+    --- @return boolean
+    local function is_it_enabled(addonName)
+        local addonManager = GetAddOnManager()
+        local numAddOns = addonManager:GetNumAddOns()
+
+        for i = 1, numAddOns do
+            local name, _, _, _, _, state, _, _ = addonManager:GetAddOnInfo(i)
+
+            if name == addonName and state == ADDON_STATE_ENABLED then
+                return true
+            end
+        end
+
+        return false
+    end
+
+    LUIE.IsItEnabled = is_it_enabled
+end
+
 -- -----------------------------------------------------------------------------
 -- This is needed due to LibDebugLogger hooking zo_callLater.
 -- -----------------------------------------------------------------------------
