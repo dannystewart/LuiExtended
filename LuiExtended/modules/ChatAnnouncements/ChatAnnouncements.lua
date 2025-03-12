@@ -6898,7 +6898,7 @@ function ChatAnnouncements.HookFunction()
     -- EVENT_GUILD_SELF_LEFT_GUILD (Alert Handler)
     local function GuildSelfLeftAlert(guildId, guildName)
         local GuildIndexData = LUIE.GuildIndexData
-        for i = 1, 5 do
+        for i = 1, #GuildIndexData do
             local guild = GuildIndexData[i]
             if guild.name == guildName then
                 local guildColor = ChatAnnouncements.SV.Social.GuildAllianceColor and GetAllianceColor(guild.guildAlliance) or ColorizeColors.GuildColorize
@@ -7212,7 +7212,6 @@ function ChatAnnouncements.HookFunction()
     eventManager:RegisterForEvent(moduleName, EVENT_GROUPING_TOOLS_LFG_JOINED, ChatAnnouncements.GroupingToolsLFGJoined)
     eventManager:RegisterForEvent(moduleName, EVENT_ACTIVITY_FINDER_STATUS_UPDATE, ChatAnnouncements.ActivityStatusUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_GROUPING_TOOLS_READY_CHECK_UPDATED, ChatAnnouncements.ReadyCheckUpdate)
-    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_SELF_JOINED_GUILD, LUIE.UpdateGuildData)
 
     ZO_PreHook(alertHandlers, EVENT_GUILD_SELF_LEFT_GUILD, GuildSelfLeftAlert)
     ZO_PreHook(alertHandlers, EVENT_SAVE_GUILD_RANKS_RESPONSE, GuildRanksResponseAlert)
