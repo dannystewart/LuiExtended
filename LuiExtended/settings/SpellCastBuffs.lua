@@ -233,10 +233,10 @@ function SpellCastBuffs.CreateSettings()
         name = "Enable Grid Snap (Buffs)",
         tooltip = "Enable snapping buff frames to a grid when moving them",
         getFunc = function ()
-            return LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_buffs
+            return LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_buffs
         end,
         setFunc = function (value)
-            LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_buffs = value
+            LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_buffs = value
         end,
         width = "half",
         default = false,
@@ -251,15 +251,15 @@ function SpellCastBuffs.CreateSettings()
         max = 100,
         step = 5,
         getFunc = function ()
-            return LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGridSize_buffs or 15
+            return LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGridSize_buffs or 15
         end,
         setFunc = function (value)
-            LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGridSize_buffs = value
+            LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGridSize_buffs = value
         end,
         width = "half",
         default = 15,
         disabled = function ()
-            return not LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_buffs
+            return not LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_buffs
         end,
     }
 

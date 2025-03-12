@@ -64,7 +64,7 @@ LUIE.SlashCollectibleOverride = false -- Set by the SlashCollectible function, f
 
 function SlashCommands.Initialize(enabled)
     -- Load Settings
-    local isCharacterSpecific = LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+    local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
     if isCharacterSpecific then
         SlashCommands.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "SlashCommands", SlashCommands.Defaults)
     else

@@ -314,7 +314,7 @@ end
 
 function ChatAnnouncements.Initialize(enabled)
     -- Load settings
-    local isCharacterSpecific = LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+    local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
     if isCharacterSpecific then
         --- @type ChatAnnouncementsSV
         ChatAnnouncements.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "ChatAnnouncements", ChatAnnouncements.Defaults)

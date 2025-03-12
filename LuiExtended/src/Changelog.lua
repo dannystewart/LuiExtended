@@ -63,12 +63,12 @@ function LUIE.ChangelogScreen()
     LUIE_Changelog_Text:SetText(changelog)
 
     -- Display the changelog if version number < current version
-    if LUIESV.Default[GetDisplayName()]["$AccountWide"].WelcomeVersion ~= LUIE.version then
+    if LUIESV["Default"][GetDisplayName()]["$AccountWide"].WelcomeVersion ~= LUIE.version then
         LUIE_Changelog:SetHidden(false)
     end
 
     -- Set version to current version
-    LUIESV.Default[GetDisplayName()]["$AccountWide"].WelcomeVersion = LUIE.version
+    LUIESV["Default"][GetDisplayName()]["$AccountWide"].WelcomeVersion = LUIE.version
 end
 
 -- -----------------------------------------------------------------------------

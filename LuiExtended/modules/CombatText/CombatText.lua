@@ -489,7 +489,7 @@ end
 -- Module initialization
 function CombatText.Initialize(enabled)
     -- Load settings
-    local isCharacterSpecific = LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+    local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
     if isCharacterSpecific then
         CombatText.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "CombatText", CombatText.Defaults)
     else
@@ -552,33 +552,33 @@ function CombatText.Initialize(enabled)
     LUIE.CombatTextDeathViewer:New(poolManager, LMP)
 
     -- Variable adjustment if needed
-    if not LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCT then
-        LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCT = 0
+    if not LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCT then
+        LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCT = 0
     end
-    if LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCT < 2 then
+    if LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCT < 2 then
         -- Set color for bleed damage to red
         CombatText.SV.colors.damage[DAMAGE_TYPE_BLEED] = CombatText.Defaults.colors.damage[DAMAGE_TYPE_BLEED]
     end
-    if LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCT < 3 then
+    if LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCT < 3 then
         -- Remove sneak drain from CT blacklist since it is no longer in the game
         if CombatText.SV.blacklist[20301] then
             CombatText.SV.blacklist[20301] = nil
         end
     end
-    if LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCT < 4 then
-        for k, v in pairs(LUIESV.Default[GetDisplayName()]) do
+    if LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCT < 4 then
+        for k, v in pairs(LUIESV["Default"][GetDisplayName()]) do
             for j, _ in pairs(v) do
                 if j == "LuiExtendedCombatText" then
                     -- Don't want to throw any errors here so make sure these values exist before trying to remove them
-                    if LUIESV.Default[GetDisplayName()][k] and LUIESV.Default[GetDisplayName()][k][j] then
-                        LUIESV.Default[GetDisplayName()][k][j] = nil
+                    if LUIESV["Default"][GetDisplayName()][k] and LUIESV["Default"][GetDisplayName()][k][j] then
+                        LUIESV["Default"][GetDisplayName()][k][j] = nil
                     end
                 end
             end
         end
     end
     -- Increment so this doesn't occur again.
-    LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCT = 4
+    LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCT = 4
 end
 
 -- -- Set position of panels
@@ -590,7 +590,7 @@ end
 --             panel:ClearAnchors()
 --             if v.x ~= nil and v.y ~= nil then
 --                 local x, y = v.x, v.y
---                 if LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_combatText then
+--                 if LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_combatText then
 --                     x, y = LUIE.ApplyGridSnap(x, y, "combatText")
 --                 end
 --                 panel:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, x, y)
@@ -616,7 +616,7 @@ end
 --                 -- Add grid snapping handler
 --                 panel:SetHandler("OnMoveStop", function (self)
 --                     local left, top = self:GetLeft(), self:GetTop()
---                     if LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_combatText then
+--                     if LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_combatText then
 --                         left, top = LUIE.ApplyGridSnap(left, top, "combatText")
 --                         self:ClearAnchors()
 --                         self:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, left, top)

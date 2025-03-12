@@ -28,10 +28,10 @@ function LUIE.CreateSettings()
 
     -- Generate list of character profiles for Menu function
     local function GenerateCharacterProfiles()
-        local isCharacterSpecific = LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV -- Pull info from SV for account wide
+        local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV -- Pull info from SV for account wide
         local playerName = GetUnitName("player")
 
-        for accountName, data in pairs(LUIESV.Default) do
+        for accountName, data in pairs(LUIESV["Default"]) do
             for profile, vars in pairs(data) do
                 if profile == "$AccountWide" then
                     profile = "$AccountWide (" .. accountName .. ")" -- Add display name onto Account Wide for differentiation
@@ -59,7 +59,7 @@ function LUIE.CreateSettings()
         else
             deleteProfile = GetUnitName("player")
         end
-        for accountName, data in pairs(LUIESV.Default) do
+        for accountName, data in pairs(LUIESV["Default"]) do
             if data[deleteProfile] then
                 data[deleteProfile] = nil
                 break
@@ -70,14 +70,14 @@ function LUIE.CreateSettings()
     -- Copy a character profile & replace another.
     local function CopyCharacterProfile()
         local displayName = GetDisplayName()
-        if not LUIESV.Default[displayName] or not LUIESV.Default[displayName]["$AccountWide"] then
+        if not LUIESV["Default"][displayName] or not LUIESV["Default"][displayName]["$AccountWide"] then
             return
         end
-        local isCharacterSpecific = LUIESV.Default[displayName]["$AccountWide"].CharacterSpecificSV -- Pull info from SV for account wide
+        local isCharacterSpecific = LUIESV["Default"][displayName]["$AccountWide"].CharacterSpecificSV -- Pull info from SV for account wide
         local copyTarget = isCharacterSpecific and GetUnitName("player") or "$AccountWide"
         local sourceCharacter, targetCharacter
         local accountWideString = "$AccountWide ("
-        for accountName, data in pairs(LUIESV.Default) do
+        for accountName, data in pairs(LUIESV["Default"]) do
             local accountWideName = accountWideString .. accountName .. ")"
             if profileQueuedCopy == accountWideName then
                 profileQueuedCopy = "$AccountWide"
@@ -171,10 +171,10 @@ function LUIE.CreateSettings()
         name = "Enable Grid Snap",
         tooltip = "Enable snapping UI elements to a grid when moving them",
         getFunc = function ()
-            return LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_default
+            return LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_default
         end,
         setFunc = function (value)
-            LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_default = value
+            LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_default = value
         end,
         width = "half",
         default = false,
@@ -189,15 +189,15 @@ function LUIE.CreateSettings()
         max = 100,
         step = 5,
         getFunc = function ()
-            return LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGridSize_default or 15
+            return LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGridSize_default or 15
         end,
         setFunc = function (value)
-            LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGridSize_default = value
+            LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGridSize_default = value
         end,
         width = "half",
         default = 15,
         disabled = function ()
-            return not LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_default
+            return not LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_default
         end,
     }
 
@@ -232,10 +232,10 @@ function LUIE.CreateSettings()
                 tooltip = GetString(LUIE_STRING_LAM_SVPROFILE_SETTINGSTOGGLE_TP),
                 warning = GetString(LUIE_STRING_LAM_RELOADUI_BUTTON),
                 getFunc = function ()
-                    return LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+                    return LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
                 end,
                 setFunc = function (value)
-                    LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV = value
+                    LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV = value
                     ReloadUI("ingame")
                 end,
                 width = "full",
@@ -279,7 +279,7 @@ function LUIE.CreateSettings()
                 end,
                 width = "half",
                 disabled = function ()
-                    return not LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+                    return not LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
                 end,
             },
             {

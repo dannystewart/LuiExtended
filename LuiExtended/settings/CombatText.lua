@@ -198,10 +198,10 @@ function CombatText.CreateSettings()
     --     name = "Enable Grid Snap (Combat Text)",
     --     tooltip = "Enable snapping combat text panels to a grid when moving them",
     --     getFunc = function ()
-    --         return LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_combatText
+    --         return LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_combatText
     --     end,
     --     setFunc = function (value)
-    --         LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_combatText = value
+    --         LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_combatText = value
     --     end,
     --     width = "half",
     --     default = false,
@@ -216,15 +216,15 @@ function CombatText.CreateSettings()
     --     max = 100,
     --     step = 5,
     --     getFunc = function ()
-    --         return LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGridSize_combatText or 15
+    --         return LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGridSize_combatText or 15
     --     end,
     --     setFunc = function (value)
-    --         LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGridSize_combatText = value
+    --         LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGridSize_combatText = value
     --     end,
     --     width = "half",
     --     default = 15,
     --     disabled = function ()
-    --         return not LUIESV.Default[GetDisplayName()]["$AccountWide"].snapToGrid_combatText
+    --         return not LUIESV["Default"][GetDisplayName()]["$AccountWide"].snapToGrid_combatText
     --     end,
     -- }
 

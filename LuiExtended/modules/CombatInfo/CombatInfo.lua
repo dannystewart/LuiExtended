@@ -190,7 +190,7 @@ do
     -- Module initialization
     function CombatInfo.Initialize(enabled)
         -- Load settings
-        local isCharacterSpecific = LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+        local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
         if isCharacterSpecific then
             CombatInfo.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
         else
@@ -274,10 +274,10 @@ do
         CombatInfo.CrowdControlTracker.Initialize()
 
         -- Variable adjustment if needed
-        if not LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI then
-            LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI = 0
+        if not LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI then
+            LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI = 0
         end
-        if LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI < 2 then
+        if LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI < 2 then
             -- Set ability alert default colors
             CombatInfo.SV.alerts.colors.stunColor = CombatInfo.Defaults.alerts.colors.stunColor
             CombatInfo.SV.alerts.colors.knockbackColor = CombatInfo.Defaults.alerts.colors.knockbackColor
@@ -307,7 +307,7 @@ do
             CombatInfo.SV.cct.colors.unbreakable = CombatInfo.Defaults.cct.colors.unbreakable
         end
         -- Increment so this doesn't occur again.
-        LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsCI = 2
+        LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI = 2
     end
 end
 

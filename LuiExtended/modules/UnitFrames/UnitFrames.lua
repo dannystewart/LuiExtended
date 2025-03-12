@@ -1579,7 +1579,7 @@ end
 -- Main entry point to this module
 function UnitFrames.Initialize(enabled)
     -- Load settings
-    local isCharacterSpecific = LUIESV.Default[GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+    local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
     if isCharacterSpecific then
         UnitFrames.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "UnitFrames", UnitFrames.Defaults)
     else
@@ -1624,14 +1624,14 @@ function UnitFrames.Initialize(enabled)
     g_staminaThreshold = UnitFrames.SV.LowResourceStamina
 
     -- Variable adjustment if needed
-    if not LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsUF then
-        LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsUF = 0
+    if not LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsUF then
+        LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsUF = 0
     end
-    if LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsUF < 2 then
+    if LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsUF < 2 then
         UnitFrames.SV["CustomFramesPetFramePos"] = nil
     end
     -- Increment so this doesn't occur again.
-    LUIESV.Default[GetDisplayName()]["$AccountWide"].AdjustVarsUF = 2
+    LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsUF = 2
 
     CreateDefaultFrames()
     CreateCustomFrames()
