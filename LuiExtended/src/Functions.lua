@@ -331,16 +331,30 @@ function LUIE.RegisterDialogueButton(identifier, title, text, callback)
 end
 
 -- -----------------------------------------------------------------------------
+-- Initialize empty table if it doesn't exist
+if not LUIE.GuildIndexData then
+    --- @class LUIE_GuildIndexData
+    --- @field [integer] {
+    --- id : integer,
+    --- name : string,
+    --- guildAlliance : integer|Alliance,
+    --- }
+    LUIE.GuildIndexData = {}
+end
 --- Function to update guild data.
 --- Retrieves information about each guild the player is a member of and stores it in LUIE.GuildIndexData table.
 function LUIE.UpdateGuildData()
     local GuildsIndex = GetNumGuilds()
-    LUIE.GuildIndexData = {}
     for i = 1, GuildsIndex do
         local id = GetGuildId(i)
         local name = GetGuildName(id)
         local guildAlliance = GetGuildAlliance(id)
-        LUIE.GuildIndexData[i] = { id = id, name = name, guildAlliance = guildAlliance }
+        LUIE.GuildIndexData[i] =
+        {
+            id = id,
+            name = name,
+            guildAlliance = guildAlliance
+        }
     end
 end
 
