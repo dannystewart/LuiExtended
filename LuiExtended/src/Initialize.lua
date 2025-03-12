@@ -109,7 +109,6 @@ local function RegisterEvents()
 
     -- Existing event registrations
     if LUIE.SV.SlashCommands_Enable or LUIE.SV.ChatAnnouncements_Enable then
-        LUIE.UpdateGuildData()
         eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_JOINED_GUILD, LUIE.UpdateGuildData)
         eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_LEFT_GUILD, LUIE.UpdateGuildData)
     end
@@ -129,6 +128,7 @@ local function OnAddonOnLoaded(eventCode, addonName)
     -- -----------------------------------------------------------------------------
     -- Load saved variables
     LoadSavedVars()
+    LUIE.UpdateGuildData()
     -- -----------------------------------------------------------------------------
     -- Initialize Hooks
     LUIE.InitializeHooks()
