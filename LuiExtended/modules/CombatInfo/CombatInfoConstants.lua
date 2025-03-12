@@ -280,6 +280,7 @@ CombatInfo.Defaults =
             [ACTION_RESULT_STUNNED] = { 1, 0, 0, 1 },
             unbreakable = { 224 / 255, 224 / 255, 1, 1 },
         },
+        RemainingTextColoured = { 1, 1, 1, 1 }
     },
 }
 
