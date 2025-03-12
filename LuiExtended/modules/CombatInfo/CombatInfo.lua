@@ -120,20 +120,6 @@ local KEYBOARD_CONSTANTS =
 }
 
 local isFancyActionBarEnabled = false
-local function is_it_enabled()
-    local addonManager = GetAddOnManager()
-    local numAddOns = addonManager:GetNumAddOns()
-
-    for i = 1, numAddOns do
-        local name, _, _, _, _, state, _, _ = addonManager:GetAddOnInfo(i)
-
-        if name == "FancyActionBar" and state == ADDON_STATE_ENABLED then
-            return true
-        end
-    end
-
-    return false
-end
 
 -- Set Marker - Called by the menu & EVENT_PLAYER_ACTIVATED (needs to be reset on the player changing zones)
 --- @param removeMarker boolean? Remove the marker by making an empty dummy marker (only called from the menu toggle)
@@ -202,7 +188,7 @@ do
             return
         end
         CombatInfo.Enabled = true
-        isFancyActionBarEnabled = is_it_enabled()
+        isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar")
         CombatInfo.ApplyFont()
         CombatInfo.ApplyProcSound()
         local QSB = _G["QuickslotButton"]
