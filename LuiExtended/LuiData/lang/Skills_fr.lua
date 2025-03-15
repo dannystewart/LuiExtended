@@ -1468,6 +1468,50 @@ local strings =
     LUIE_STRING_KEEP_UPGRADE_FOOD_MAGE_ABILITIES_TP = "Mage Guards gain more powerful versions of some of their abilities.",
     LUIE_STRING_KEEP_UPGRADE_FOOD_GUARD_ABILITIES = "Upgrade Guard Abilities",
     LUIE_STRING_KEEP_UPGRADE_FOOD_GUARD_ABILITIES_TP = "Guards gain more powerful versions of some of their abilities.",
+
+    -- Pet Names (Sorcerer)
+    LUIE_STRING_PET_NAME_UNSTABLE_FAMILIAR = "Familier Instable",
+    LUIE_STRING_PET_NAME_CLANNFEAR = "Faucheclan Instable",
+    LUIE_STRING_PET_NAME_VOLATILE_FAMILIAR = "Familier Explosif",
+    LUIE_STRING_PET_NAME_WINGED_TWILIGHT = "Crépuscule Ailé",
+    LUIE_STRING_PET_NAME_TWILIGHT_TORMENTOR = "Crépuscule Ailé",
+    LUIE_STRING_PET_NAME_TWILIGT_MATRIARCH = "Crépuscule Ailé",
+    LUIE_STRING_PET_NAME_SUMMON_STORM_ATRONACH = "Atronach de Foudre",
+    LUIE_STRING_PET_NAME_GREATER_STORM_ATRONACH = "Atronach de Foudre Supérieur",
+    LUIE_STRING_PET_NAME_CHARGED_ATRONACH = "Atronach Chargé",
+
+    -- Pet Names (Warden)
+    LUIE_STRING_PET_NAME_FERAL_GUARDIAN = "Gardien Féroce",
+    LUIE_STRING_PET_NAME_ETERNAL_GUARDIAN = "Gardien Eternel",
+    LUIE_STRING_PET_NAME_WILD_GUARDIAN = "Gardien Sauvage",
+
+    -- Pet Names (Necromancer)
+    LUIE_STRING_PET_NAME_SKELETAL_MAGE = "Mage Squelette",
+    LUIE_STRING_PET_NAME_SKELETAL_ARCHER = "Archer Squelette",
+    LUIE_STRING_PET_NAME_SKELETAL_ARCANIST = "Arcaniste Squelette",
+    LUIE_STRING_PET_NAME_SPIRIT_MENDER = "Soigneur Spirituel",
+    LUIE_STRING_PET_NAME_SPIRIT_GUARDIAN = "Gardien Spirituel",
+    LUIE_STRING_PET_NAME_INTENSIVE = "Soigneur Intensif",
+
+    -- Pet Names (Sets)
+    LUIE_STRING_PET_NAME_ENGINE_GUARDIAN = "Dwarven Sphere",
+    LUIE_STRING_PET_NAME_MAW_OF_THE_INFERNAL = "Daedroth",
+    LUIE_STRING_PET_NAME_SHADOWREND = "Shadowrend",
+    LUIE_STRING_PET_NAME_SENTINEL_OF_RKUGAMZ = "Dwemer Spider",
+    LUIE_STRING_PET_NAME_MORKULDIN_SWORD = "Morkuldin Sword",
+
+    -- Pet Names (Assistants)
+    LUIE_STRING_PET_NAME_ASSISTANT_EZABI = "Ezabi la Banquière",
+    LUIE_STRING_PET_NAME_ASSISTANT_FEZEZ = "Fezez le Marchand",
+    LUIE_STRING_PET_NAME_ASSISTANT_PIRHARRI = "Pirharri la Contrebandière",
+    LUIE_STRING_PET_NAME_ASSISTANT_GHRASHAROG = "Ghrasharog, Armory Assistant",
+    LUIE_STRING_PET_NAME_ASSISTANT_GILADIL = "Giladil the Ragpicker",
+    LUIE_STRING_PET_NAME_ASSISTANT_NUZHIMEH = "Nuzhimeh la Marchande",
+    LUIE_STRING_PET_NAME_ASSISTANT_TYTHIS = "Tythis Andromo le Banquier",
+    LUIE_STRING_PET_NAME_ASSISTANT_BARON = "Baron Jangleplume",
+    LUIE_STRING_PET_NAME_ASSISTANT_PEDDLER = "Peddler of Prizes",
+    LUIE_STRING_PET_NAME_ASSISTANT_FACTOTUMB = "Factotum Property Steward",
+    LUIE_STRING_PET_NAME_ASSISTANT_FACTOTUMM = "Factotum Commerce Delegate",
 }
 
 for stringId, stringValue in pairs(strings) do

@@ -47,50 +47,6 @@ local strings =
     LUIE_STRING_DEFAULT_FRAME_CSA = "Center Screen Announcements",
     LUIE_STRING_DISMISS_PET = "|cBFBFBFВы отозвали |r<<1>>|cBFBFBF.|r",
 
-    -- Pet Names (Sorcerer)
-    LUIE_STRING_PET_NAME_UNSTABLE_FAMILIAR = "Слуга",
-    LUIE_STRING_PET_NAME_CLANNFEAR = "Кланфир",
-    LUIE_STRING_PET_NAME_VOLATILE_FAMILIAR = "Взрывной призванный слуга",
-    LUIE_STRING_PET_NAME_WINGED_TWILIGHT = "Крылатый сумрак",
-    LUIE_STRING_PET_NAME_TWILIGHT_TORMENTOR = "Сумрак-мучитель",
-    LUIE_STRING_PET_NAME_TWILIGT_MATRIARCH = "Сумрак-матриарх",
-    LUIE_STRING_PET_NAME_SUMMON_STORM_ATRONACH = "Призванный грозовой атронах",
-    LUIE_STRING_PET_NAME_GREATER_STORM_ATRONACH = "Усиленный грозовой атронах",
-    LUIE_STRING_PET_NAME_CHARGED_ATRONACH = "Заряженный атронах",
-
-    -- Pet Names (Warden)
-    LUIE_STRING_PET_NAME_FERAL_GUARDIAN = "Хищный страж",
-    LUIE_STRING_PET_NAME_ETERNAL_GUARDIAN = "Вечный защитник",
-    LUIE_STRING_PET_NAME_WILD_GUARDIAN = "Дикий страж",
-
-    -- Pet Names (Necromancer)
-    LUIE_STRING_PET_NAME_SKELETAL_MAGE = "Скелет-маг",
-    LUIE_STRING_PET_NAME_SKELETAL_ARCHER = "Скелет-лучник",
-    LUIE_STRING_PET_NAME_SKELETAL_ARCANIST = "Скелет-колдун",
-    LUIE_STRING_PET_NAME_SPIRIT_MENDER = "Призрачный лекарь",
-    LUIE_STRING_PET_NAME_SPIRIT_GUARDIAN = "Призрачный страж",
-    LUIE_STRING_PET_NAME_INTENSIVE = "Усиленный лекарь",
-
-    -- Pet Names (Sets)
-    LUIE_STRING_PET_NAME_ENGINE_GUARDIAN = "Двемерская сфера",
-    LUIE_STRING_PET_NAME_MAW_OF_THE_INFERNAL = "Даэдрот",
-    LUIE_STRING_PET_NAME_SHADOWREND = "Теневик",
-    LUIE_STRING_PET_NAME_SENTINEL_OF_RKUGAMZ = "Двемерский паук",
-    LUIE_STRING_PET_NAME_MORKULDIN_SWORD = "Меч моркулдин",
-
-    -- Pet Names (Assistants)
-    LUIE_STRING_PET_NAME_ASSISTANT_EZABI = "Эзаби",
-    LUIE_STRING_PET_NAME_ASSISTANT_FEZEZ = "Фезез",
-    LUIE_STRING_PET_NAME_ASSISTANT_PIRHARRI = "Контрабандистка Пирарри",
-    LUIE_STRING_PET_NAME_ASSISTANT_GHRASHAROG = "Грашарог, Oружейная Помощник",
-    LUIE_STRING_PET_NAME_ASSISTANT_GILADIL = "Деконструкция Гиладила",
-    LUIE_STRING_PET_NAME_ASSISTANT_NUZHIMEH = "Нузима",
-    LUIE_STRING_PET_NAME_ASSISTANT_TYTHIS = "Тифис Андромо",
-    LUIE_STRING_PET_NAME_ASSISTANT_BARON = "Барон Звонкие Перья",
-    LUIE_STRING_PET_NAME_ASSISTANT_PEDDLER = "Скупщица трофеев",
-    LUIE_STRING_PET_NAME_ASSISTANT_FACTOTUMB = "Фактотум Управляющий недвижимостью",
-    LUIE_STRING_PET_NAME_ASSISTANT_FACTOTUMM = "Фактотум Торговый представитель",
-
     -- Bindings
     SI_BINDING_NAME_LUIE_COMMAND_BANKER = "Призвать Банкира",
     SI_BINDING_NAME_LUIE_COMMAND_MERCHANT = "Призвать Торговца",

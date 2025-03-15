@@ -46,50 +46,6 @@ local strings =
     LUIE_STRING_DEFAULT_FRAME_CSA = "Bildschirm-Benachrichtigungen",
     LUIE_STRING_DISMISS_PET = "|cBFBFBFDu verabschiedest |r<<1>>|cBFBFBF.|r",
 
-    -- Pet Names (Sorcerer)
-    LUIE_STRING_PET_NAME_UNSTABLE_FAMILIAR = "Begleiter",
-    LUIE_STRING_PET_NAME_CLANNFEAR = "Clannbann",
-    LUIE_STRING_PET_NAME_VOLATILE_FAMILIAR = "Explosiver Begleiter",
-    LUIE_STRING_PET_NAME_WINGED_TWILIGHT = "Zwielichtschwinge",
-    LUIE_STRING_PET_NAME_TWILIGHT_TORMENTOR = "Zwielichtpeinigerin",
-    LUIE_STRING_PET_NAME_TWILIGT_MATRIARCH = "Zwielichtmatriarchin",
-    LUIE_STRING_PET_NAME_SUMMON_STORM_ATRONACH = "Beschworener Sturmatronach",
-    LUIE_STRING_PET_NAME_GREATER_STORM_ATRONACH = "Größerer Sturmatronach",
-    LUIE_STRING_PET_NAME_CHARGED_ATRONACH = "Geladener Atronach",
-
-    -- Pet Names (Warden)
-    LUIE_STRING_PET_NAME_FERAL_GUARDIAN = "Ungezähmter Wächter",
-    LUIE_STRING_PET_NAME_ETERNAL_GUARDIAN = "Ewiger Wächter",
-    LUIE_STRING_PET_NAME_WILD_GUARDIAN = "Wilder Wächter",
-
-    -- Pet Names (Necromancer)
-    LUIE_STRING_PET_NAME_SKELETAL_MAGE = "Skelett-Magier",
-    LUIE_STRING_PET_NAME_SKELETAL_ARCHER = "Skelett-Schütze",
-    LUIE_STRING_PET_NAME_SKELETAL_ARCANIST = "Skelett-Arkanist",
-    LUIE_STRING_PET_NAME_SPIRIT_MENDER = "Geistpfleger",
-    LUIE_STRING_PET_NAME_SPIRIT_GUARDIAN = "Geisterbeschützer",
-    LUIE_STRING_PET_NAME_INTENSIVE = "Intensivpfleger",
-
-    -- Pet Names (Sets)
-    LUIE_STRING_PET_NAME_ENGINE_GUARDIAN = "Dwarven Sphere",
-    LUIE_STRING_PET_NAME_MAW_OF_THE_INFERNAL = "Daedroth",
-    LUIE_STRING_PET_NAME_SHADOWREND = "Shadowrend",
-    LUIE_STRING_PET_NAME_SENTINEL_OF_RKUGAMZ = "Dwemer Spider",
-    LUIE_STRING_PET_NAME_MORKULDIN_SWORD = "Morkuldin Sword",
-
-    -- Pet Names (Assistants)
-    LUIE_STRING_PET_NAME_ASSISTANT_EZABI = "Ezabi",
-    LUIE_STRING_PET_NAME_ASSISTANT_FEZEZ = "Fezez",
-    LUIE_STRING_PET_NAME_ASSISTANT_PIRHARRI = "Pirharri die Schmugglerin",
-    LUIE_STRING_PET_NAME_ASSISTANT_GHRASHAROG = "Ghrasharog",
-    LUIE_STRING_PET_NAME_ASSISTANT_GILADIL = "Giladil die Lumpensammlerin",
-    LUIE_STRING_PET_NAME_ASSISTANT_NUZHIMEH = "Nuzhimeh",
-    LUIE_STRING_PET_NAME_ASSISTANT_TYTHIS = "Tythis Andromo",
-    LUIE_STRING_PET_NAME_ASSISTANT_BARON = "Baron Klimperfeder",
-    LUIE_STRING_PET_NAME_ASSISTANT_PEDDLER = "Krimskramskrämerin",
-    LUIE_STRING_PET_NAME_ASSISTANT_FACTOTUMB = "Faktoten-Eigentumsverwalter",
-    LUIE_STRING_PET_NAME_ASSISTANT_FACTOTUMM = "Faktoten-Kommerzdelegat",
-
     -- Bindings
     SI_BINDING_NAME_LUIE_COMMAND_BANKER = "Bankier rufen",
     SI_BINDING_NAME_LUIE_COMMAND_MERCHANT = "Händler rufen",
