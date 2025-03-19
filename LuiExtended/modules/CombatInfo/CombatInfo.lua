@@ -140,161 +140,159 @@ function CombatInfo.SetMarker(removeMarker)
     eventManager:RegisterForEvent(moduleName .. "Marker", EVENT_PLAYER_ACTIVATED, CombatInfo.OnPlayerActivatedMarker)
 end
 
-do
-    local slotsUpdated = {}
+local slotsUpdated = {}
 
-    local function OnSwapAnimationHalfDone(animation, button, isBackBarSlot)
-        for i = BAR_INDEX_START, BAR_INDEX_END do
-            if not slotsUpdated[i] then
-                local targetButton = g_backbarButtons[i + BACKBAR_INDEX_OFFSET]
-                CombatInfo.BarSlotUpdate(i, false, false)
-                CombatInfo.BarSlotUpdate(i + BACKBAR_INDEX_OFFSET, false, false)
-                -- Don't try to setup back bar ultimate
-                if i < 8 then
-                    CombatInfo.SetupBackBarIcons(targetButton, true)
-                end
-                if i == 8 then
-                    CombatInfo.UpdateUltimateLabel()
-                end
-                slotsUpdated[i] = true
+local function OnSwapAnimationHalfDone(animation, button, isBackBarSlot)
+    for i = BAR_INDEX_START, BAR_INDEX_END do
+        if not slotsUpdated[i] then
+            local targetButton = g_backbarButtons[i + BACKBAR_INDEX_OFFSET]
+            CombatInfo.BarSlotUpdate(i, false, false)
+            CombatInfo.BarSlotUpdate(i + BACKBAR_INDEX_OFFSET, false, false)
+            -- Don't try to setup back bar ultimate
+            if i < 8 then
+                CombatInfo.SetupBackBarIcons(targetButton, true)
             end
+            if i == 8 then
+                CombatInfo.UpdateUltimateLabel()
+            end
+            slotsUpdated[i] = true
         end
     end
+end
 
-    local function OnSwapAnimationDone(animation, button)
-        button.noUpdates = false
-        if button:GetSlot() == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
-            g_activeWeaponSwapInProgress = false
-        end
-        slotsUpdated = {}
+local function OnSwapAnimationDone(animation, button)
+    button.noUpdates = false
+    if button:GetSlot() == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
+        g_activeWeaponSwapInProgress = false
+    end
+    slotsUpdated = {}
+end
+
+local function SetupSwapAnimation(button)
+    button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
+end
+
+-- Module initialization
+function CombatInfo.Initialize(enabled)
+    -- Load settings
+    local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
+    if isCharacterSpecific then
+        CombatInfo.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
+    else
+        CombatInfo.SV = ZO_SavedVars:NewAccountWide(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
     end
 
-    local function SetupSwapAnimation(button)
-        button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
+    -- Disable module if setting not toggled on
+    if not enabled then
+        return
+    end
+    CombatInfo.Enabled = true
+    isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar")
+    CombatInfo.ApplyFont()
+    CombatInfo.ApplyProcSound()
+    local QSB = _G["QuickslotButton"]
+    uiQuickSlot.label = UI:Label(QSB, { CENTER, CENTER }, nil, nil, g_potionFont, nil, true)
+    uiQuickSlot.label:SetFont(g_potionFont)
+    if CombatInfo.SV.PotionTimerColor then
+        uiQuickSlot.label:SetColor(unpack(uiQuickSlot.color))
+    else
+        uiQuickSlot.label:SetColor(1, 1, 1, 1)
+    end
+    uiQuickSlot.label:SetDrawLayer(DL_OVERLAY)
+    uiQuickSlot.label:SetDrawTier(DT_HIGH)
+    CombatInfo.ResetPotionTimerLabel() -- Set the label position
+
+    -- Create Ultimate overlay labels
+    local AB8 = _G["ActionButton8"]
+    uiUltimate.LabelVal = UI:Label(AB8, { BOTTOM, TOP, 0, -3 }, nil, { 1, 2 }, "$(BOLD_FONT)|16|soft-shadow-thick", nil, true)
+    uiUltimate.LabelPct = UI:Label(AB8, nil, nil, nil, g_ultimateFont, nil, true)
+    local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot, g_hotbarCategory)
+    uiUltimate.LabelPct:SetAnchor(TOPLEFT, actionButton.slot, nil, 0, 0)
+    uiUltimate.LabelPct:SetAnchor(BOTTOMRIGHT, actionButton.slot, nil, 0, -CombatInfo.SV.UltimateLabelPosition)
+
+    uiUltimate.LabelPct:SetColor(unpack(uiUltimate.color))
+    -- And buff texture
+    uiUltimate.Texture = UI:Texture(AB8, { CENTER, CENTER }, { 160, 160 }, "/esoui/art/crafting/white_burst.dds", DL_BACKGROUND, true)
+
+    -- Create a top level window for backbar buttons using UI:Control
+    local tlw = UI:Control(
+        ACTION_BAR,    -- parent
+        "fill",        -- anchors
+        "inherit",     -- dims
+        false,         -- hidden
+        "LUIE_Backbar" -- name
+    )
+
+
+    for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
+        local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, tlw, "ZO_ActionButton")
+        SetupSwapAnimation(button)
+        button:SetupBounceAnimation()
+        g_backbarButtons[i] = button
     end
 
-    -- Module initialization
-    function CombatInfo.Initialize(enabled)
-        -- Load settings
-        local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
-        if isCharacterSpecific then
-            CombatInfo.SV = ZO_SavedVars:New(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
-        else
-            CombatInfo.SV = ZO_SavedVars:NewAccountWide(LUIE.SVName, LUIE.SVVer, "CombatInfo", CombatInfo.Defaults)
-        end
+    CombatInfo.BackbarSetupTemplate()
+    CombatInfo.BackbarToggleSettings()
+    -------------------------------------------------------------------------------------
 
-        -- Disable module if setting not toggled on
-        if not enabled then
-            return
-        end
-        CombatInfo.Enabled = true
-        isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar")
-        CombatInfo.ApplyFont()
-        CombatInfo.ApplyProcSound()
-        local QSB = _G["QuickslotButton"]
-        uiQuickSlot.label = UI:Label(QSB, { CENTER, CENTER }, nil, nil, g_potionFont, nil, true)
-        uiQuickSlot.label:SetFont(g_potionFont)
-        if CombatInfo.SV.PotionTimerColor then
-            uiQuickSlot.label:SetColor(unpack(uiQuickSlot.color))
-        else
-            uiQuickSlot.label:SetColor(1, 1, 1, 1)
-        end
-        uiQuickSlot.label:SetDrawLayer(DL_OVERLAY)
-        uiQuickSlot.label:SetDrawTier(DT_HIGH)
-        CombatInfo.ResetPotionTimerLabel() -- Set the label position
+    CombatInfo.RegisterCombatInfo()
 
-        -- Create Ultimate overlay labels
-        local AB8 = _G["ActionButton8"]
-        uiUltimate.LabelVal = UI:Label(AB8, { BOTTOM, TOP, 0, -3 }, nil, { 1, 2 }, "$(BOLD_FONT)|16|soft-shadow-thick", nil, true)
-        uiUltimate.LabelPct = UI:Label(AB8, nil, nil, nil, g_ultimateFont, nil, true)
-        local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot, g_hotbarCategory)
-        uiUltimate.LabelPct:SetAnchor(TOPLEFT, actionButton.slot, nil, 0, 0)
-        uiUltimate.LabelPct:SetAnchor(BOTTOMRIGHT, actionButton.slot, nil, 0, -CombatInfo.SV.UltimateLabelPosition)
-
-        uiUltimate.LabelPct:SetColor(unpack(uiUltimate.color))
-        -- And buff texture
-        uiUltimate.Texture = UI:Texture(AB8, { CENTER, CENTER }, { 160, 160 }, "/esoui/art/crafting/white_burst.dds", DL_BACKGROUND, true)
-
-        -- Create a top level window for backbar buttons using UI:Control
-        local tlw = UI:Control(
-            ACTION_BAR,    -- parent
-            "fill",        -- anchors
-            "inherit",     -- dims
-            false,         -- hidden
-            "LUIE_Backbar" -- name
-        )
-
-
-        for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-            local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, tlw, "ZO_ActionButton")
-            SetupSwapAnimation(button)
-            button:SetupBounceAnimation()
-            g_backbarButtons[i] = button
-        end
-
-        CombatInfo.BackbarSetupTemplate()
-        CombatInfo.BackbarToggleSettings()
-        -------------------------------------------------------------------------------------
-
-        CombatInfo.RegisterCombatInfo()
-
-        if CombatInfo.SV.GlobalShowGCD then
-            CombatInfo.HookGCD()
-        end
-
-        -- Setup Floating Marker
-        CombatInfo.SetMarker()
-
-        -- Create and update Cast Bar
-        CombatInfo.CreateCastBar()
-        CombatInfo.UpdateCastBar()
-        CombatInfo.SetCastBarPosition()
-
-        -- Setup Alerts
-        CombatInfo.AbilityAlerts.CreateAlertFrame()
-        CombatInfo.AbilityAlerts.SetAlertFramePosition()
-        CombatInfo.AbilityAlerts.SetAlertColors()
-
-        -- Setup CCT
-        CombatInfo.CrowdControlTracker.UpdateAOEList()
-        CombatInfo.CrowdControlTracker.Initialize()
-
-        -- Variable adjustment if needed
-        if not LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI then
-            LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI = 0
-        end
-        if LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI < 2 then
-            -- Set ability alert default colors
-            CombatInfo.SV.alerts.colors.stunColor = CombatInfo.Defaults.alerts.colors.stunColor
-            CombatInfo.SV.alerts.colors.knockbackColor = CombatInfo.Defaults.alerts.colors.knockbackColor
-            CombatInfo.SV.alerts.colors.levitateColor = CombatInfo.Defaults.alerts.colors.levitateColor
-            CombatInfo.SV.alerts.colors.disorientColor = CombatInfo.Defaults.alerts.colors.disorientColor
-            CombatInfo.SV.alerts.colors.fearColor = CombatInfo.Defaults.alerts.colors.fearColor
-            CombatInfo.SV.alerts.colors.charmColor = CombatInfo.Defaults.alerts.colors.charmColor
-            CombatInfo.SV.alerts.colors.silenceColor = CombatInfo.Defaults.alerts.colors.silenceColor
-            CombatInfo.SV.alerts.colors.staggerColor = CombatInfo.Defaults.alerts.colors.staggerColor
-            CombatInfo.SV.alerts.colors.unbreakableColor = CombatInfo.Defaults.alerts.colors.unbreakableColor
-            CombatInfo.SV.alerts.colors.snareColor = CombatInfo.Defaults.alerts.colors.snareColor
-            CombatInfo.SV.alerts.colors.rootColor = CombatInfo.Defaults.alerts.colors.rootColor
-            -- Set CCT default colors
-            CombatInfo.SV.cct.colors[ACTION_RESULT_STUNNED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_STUNNED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_KNOCKBACK] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_KNOCKBACK]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_LEVITATED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_LEVITATED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_DISORIENTED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_DISORIENTED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_FEARED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_FEARED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_CHARMED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_CHARMED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_SILENCED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_SILENCED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_STAGGERED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_STAGGERED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_IMMUNE] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_IMMUNE]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_DODGED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_DODGED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_BLOCKED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_BLOCKED]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_BLOCKED_DAMAGE] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_BLOCKED_DAMAGE]
-            CombatInfo.SV.cct.colors[ACTION_RESULT_AREA_EFFECT] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_AREA_EFFECT]
-            CombatInfo.SV.cct.colors.unbreakable = CombatInfo.Defaults.cct.colors.unbreakable
-        end
-        -- Increment so this doesn't occur again.
-        LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI = 2
+    if CombatInfo.SV.GlobalShowGCD then
+        CombatInfo.HookGCD()
     end
+
+    -- Setup Floating Marker
+    CombatInfo.SetMarker()
+
+    -- Create and update Cast Bar
+    CombatInfo.CreateCastBar()
+    CombatInfo.UpdateCastBar()
+    CombatInfo.SetCastBarPosition()
+
+    -- Setup Alerts
+    CombatInfo.AbilityAlerts.CreateAlertFrame()
+    CombatInfo.AbilityAlerts.SetAlertFramePosition()
+    CombatInfo.AbilityAlerts.SetAlertColors()
+
+    -- Setup CCT
+    CombatInfo.CrowdControlTracker.UpdateAOEList()
+    CombatInfo.CrowdControlTracker.Initialize()
+
+    -- Variable adjustment if needed
+    if not LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI then
+        LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI = 0
+    end
+    if LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI < 2 then
+        -- Set ability alert default colors
+        CombatInfo.SV.alerts.colors.stunColor = CombatInfo.Defaults.alerts.colors.stunColor
+        CombatInfo.SV.alerts.colors.knockbackColor = CombatInfo.Defaults.alerts.colors.knockbackColor
+        CombatInfo.SV.alerts.colors.levitateColor = CombatInfo.Defaults.alerts.colors.levitateColor
+        CombatInfo.SV.alerts.colors.disorientColor = CombatInfo.Defaults.alerts.colors.disorientColor
+        CombatInfo.SV.alerts.colors.fearColor = CombatInfo.Defaults.alerts.colors.fearColor
+        CombatInfo.SV.alerts.colors.charmColor = CombatInfo.Defaults.alerts.colors.charmColor
+        CombatInfo.SV.alerts.colors.silenceColor = CombatInfo.Defaults.alerts.colors.silenceColor
+        CombatInfo.SV.alerts.colors.staggerColor = CombatInfo.Defaults.alerts.colors.staggerColor
+        CombatInfo.SV.alerts.colors.unbreakableColor = CombatInfo.Defaults.alerts.colors.unbreakableColor
+        CombatInfo.SV.alerts.colors.snareColor = CombatInfo.Defaults.alerts.colors.snareColor
+        CombatInfo.SV.alerts.colors.rootColor = CombatInfo.Defaults.alerts.colors.rootColor
+        -- Set CCT default colors
+        CombatInfo.SV.cct.colors[ACTION_RESULT_STUNNED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_STUNNED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_KNOCKBACK] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_KNOCKBACK]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_LEVITATED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_LEVITATED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_DISORIENTED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_DISORIENTED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_FEARED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_FEARED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_CHARMED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_CHARMED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_SILENCED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_SILENCED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_STAGGERED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_STAGGERED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_IMMUNE] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_IMMUNE]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_DODGED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_DODGED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_BLOCKED] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_BLOCKED]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_BLOCKED_DAMAGE] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_BLOCKED_DAMAGE]
+        CombatInfo.SV.cct.colors[ACTION_RESULT_AREA_EFFECT] = CombatInfo.Defaults.cct.colors[ACTION_RESULT_AREA_EFFECT]
+        CombatInfo.SV.cct.colors.unbreakable = CombatInfo.Defaults.cct.colors.unbreakable
+    end
+    -- Increment so this doesn't occur again.
+    LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI = 2
 end
 
 -- Called on initialization and on full update to swap icons on backbar
@@ -637,8 +635,8 @@ function CombatInfo.RegisterCombatInfo()
     -- Have to register EVENT_EFFECT_CHANGED for werewolf as well - Stop devour cast bar when devour fades / also handles updating Vampire Ultimate cost on stage change
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled or CombatInfo.SV.CastBarEnable or CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled then
         eventManager:RegisterForEvent(moduleName, EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
-        eventManager:RegisterForEvent(moduleName .. 'Pet', EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
-		eventManager:AddFilterForEvent(moduleName .. 'Pet', EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET)
+        eventManager:RegisterForEvent(moduleName .. "Pet", EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
+        eventManager:AddFilterForEvent(moduleName .. "Pet", EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET)
     end
 
     -- Display default UI ultimate text if the LUIE option is enabled.
