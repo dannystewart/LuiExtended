@@ -10882,16 +10882,16 @@ function ChatAnnouncements.AnnounceMemento()
         return
     end
 
-    local link = GetCollectibleLink(LUIE.LastMementoUsed, linkBrackets[ChatAnnouncements.SV.BracketOptionCollectibleUse])
-    local name = GetCollectibleName(LUIE.LastMementoUsed)
-    local icon = GetCollectibleIcon(LUIE.LastMementoUsed)
+    local collectibleId = LUIE.LastMementoUsed
+    local name, _, icon = GetCollectibleInfo(collectibleId)
+    local link = GetCollectibleLink(collectibleId, linkBrackets[ChatAnnouncements.SV.BracketOptionCollectibleUse])
 
     local formattedIcon = ChatAnnouncements.SV.Collectibles.CollectibleUseIcon and ("|t16:16:" .. icon .. "|t ") or ""
 
     local message = zo_strformat(string, link, formattedIcon)
     local alert = zo_strformat(string, name, "")
 
-    if message and ChatAnnouncements.SV.Collectibles.CollectibleUseCA or LUIE.LastMementoUsed > 0 then
+    if message and ChatAnnouncements.SV.Collectibles.CollectibleUseCA or collectibleId > 0 then
         message = ColorizeColors.CollectibleUseColorize:Colorize(message)
         printToChat(message)
     end
