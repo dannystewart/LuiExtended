@@ -410,7 +410,7 @@ function AbilityAlerts.AlertUpdate(currentTime)
     end
 end
 
-function AbilityAlerts.AlertInterrupt(eventCode, resultType, isError, abilityName, abilityGraphic, abilityAction_slotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId)
+function AbilityAlerts.AlertInterrupt(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     if targetType == COMBAT_UNIT_TYPE_PLAYER or targetType == COMBAT_UNIT_TYPE_PLAYER_PET or targetType == COMBAT_UNIT_TYPE_GROUP then
         return
     end
@@ -438,7 +438,7 @@ function AbilityAlerts.AlertInterrupt(eventCode, resultType, isError, abilityNam
                 return
             end
 
-            if (alert.data.sourceUnitId == targetUnitId or alert.data.sourceUnitId == targetName) and (not alert.data.showDuration == false or alert.data.alwaysShowInterrupt) and remain > 0 and (not alert.data.neverShowInterrupt or deathResults[resultType]) and not alert.data.effectOnlyInterrupt then
+            if (alert.data.sourceUnitId == targetUnitId or alert.data.sourceUnitId == targetName) and (not alert.data.showDuration == false or alert.data.alwaysShowInterrupt) and remain > 0 and (not alert.data.neverShowInterrupt or deathResults[result]) and not alert.data.effectOnlyInterrupt then
                 alert.data = {}
                 alert.data.available = true
                 alert.data.id = ""
@@ -1078,7 +1078,7 @@ function AbilityAlerts.AlertEffectChanged(eventCode, changeType, effectSlot, eff
     end
 end
 
-function AbilityAlerts.OnCombatIn(eventCode, resultType, isError, abilityName, abilityGraphic, abilityAction_slotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId)
+function AbilityAlerts.OnCombatIn(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     if not Alerts[abilityId] then
         return
     end
@@ -1132,7 +1132,7 @@ function AbilityAlerts.OnCombatIn(eventCode, resultType, isError, abilityName, a
     if Settings.toggles.alertEnable then
         if sourceName ~= nil and sourceName ~= "" then
             -- Filter when only a certain event type should fire this
-            if Alerts[abilityId].result and resultType ~= Alerts[abilityId].result then
+            if Alerts[abilityId].result and result ~= Alerts[abilityId].result then
                 return
             end
             if Alerts[abilityId].eventdetect or Alerts[abilityId].auradetect then
@@ -1143,7 +1143,7 @@ function AbilityAlerts.OnCombatIn(eventCode, resultType, isError, abilityName, a
             end -- Don't create alert for self in cases where this is true.
 
             -- Return if any results occur which we absolutely don't want to display alerts for & stop spam when enemy is out of line of sight, etc and trying to cast
-            if resultType == ACTION_RESULT_EFFECT_FADED or resultType == ACTION_RESULT_ABILITY_ON_COOLDOWN or resultType == ACTION_RESULT_BAD_TARGET or resultType == ACTION_RESULT_BUSY or resultType == ACTION_RESULT_FAILED or resultType == ACTION_RESULT_INVALID or resultType == ACTION_RESULT_CANT_SEE_TARGET or resultType == ACTION_RESULT_TARGET_DEAD or resultType == ACTION_RESULT_TARGET_OUT_OF_RANGE or resultType == ACTION_RESULT_TARGET_TOO_CLOSE or resultType == ACTION_RESULT_TARGET_NOT_IN_VIEW then
+            if result == ACTION_RESULT_EFFECT_FADED or result == ACTION_RESULT_ABILITY_ON_COOLDOWN or result == ACTION_RESULT_BAD_TARGET or result == ACTION_RESULT_BUSY or result == ACTION_RESULT_FAILED or result == ACTION_RESULT_INVALID or result == ACTION_RESULT_CANT_SEE_TARGET or result == ACTION_RESULT_TARGET_DEAD or result == ACTION_RESULT_TARGET_OUT_OF_RANGE or result == ACTION_RESULT_TARGET_TOO_CLOSE or result == ACTION_RESULT_TARGET_NOT_IN_VIEW then
                 refireDelay[abilityId] = true
                 LUIE_CallLater(function ()
                     refireDelay[abilityId] = nil
