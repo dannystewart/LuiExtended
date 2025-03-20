@@ -10471,15 +10471,23 @@ function ChatAnnouncements.HookFunction()
     end
 
     -- Called when changing guilds in the Guild tab
-    GUILD_SHARED_INFO.SetGuildId = function (self, guildId)
+    do
+        local mt = getmetatable(GUILD_SHARED_INFO)
+        if mt and mt.__index then
+            mt.__index.SetGuildId = function (self, guildId)
         self.guildId = guildId
         self:Refresh(guildId)
         -- Set selected guild for use when resolving Rank/Heraldry updates
         g_selectedGuild = guildId
     end
+        end
+    end
 
     -- Called when changing guilds in the Guild tab or leaving/joining a guild
-    GUILD_SHARED_INFO.Refresh = function (self, guildId)
+    do
+        local mt = getmetatable(GUILD_SHARED_INFO)
+        if mt and mt.__index then
+            mt.__index.Refresh = function (self, guildId)
         if self.guildId and self.guildId == guildId then
             local count = GetControl(self.control, "Count")
             local numGuildMembers, numOnline = GetGuildInfo(guildId)
@@ -10509,6 +10517,8 @@ function ChatAnnouncements.HookFunction()
         end
         -- Set selected guild for use when resolving Rank/Heraldry updates
         g_selectedGuild = guildId
+    end
+        end
     end
 
     -- Replace the default DeclineLFGReadyCheckNotification function to display the message that we are not in queue any longer + LFG activity join event.
