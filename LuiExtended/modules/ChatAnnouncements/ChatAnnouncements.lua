@@ -10475,11 +10475,11 @@ function ChatAnnouncements.HookFunction()
         local mt = getmetatable(GUILD_SHARED_INFO)
         if mt and mt.__index then
             mt.__index.SetGuildId = function (self, guildId)
-        self.guildId = guildId
-        self:Refresh(guildId)
-        -- Set selected guild for use when resolving Rank/Heraldry updates
-        g_selectedGuild = guildId
-    end
+                self.guildId = guildId
+                self:Refresh(guildId)
+                -- Set selected guild for use when resolving Rank/Heraldry updates
+                g_selectedGuild = guildId
+            end
         end
     end
 
@@ -10488,36 +10488,36 @@ function ChatAnnouncements.HookFunction()
         local mt = getmetatable(GUILD_SHARED_INFO)
         if mt and mt.__index then
             mt.__index.Refresh = function (self, guildId)
-        if self.guildId and self.guildId == guildId then
-            local count = GetControl(self.control, "Count")
-            local numGuildMembers, numOnline = GetGuildInfo(guildId)
+                if self.guildId and self.guildId == guildId then
+                    local count = GetControl(self.control, "Count")
+                    local numGuildMembers, numOnline = GetGuildInfo(guildId)
 
-            count:SetText(zo_strformat(SI_GUILD_NUM_MEMBERS_ONLINE_FORMAT, numOnline, numGuildMembers))
+                    count:SetText(zo_strformat(SI_GUILD_NUM_MEMBERS_ONLINE_FORMAT, numOnline, numGuildMembers))
 
-            self.canDepositToBank = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_BANK_DEPOSIT)
-            if self.canDepositToBank then
-                self.bankIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-            else
-                self.bankIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+                    self.canDepositToBank = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_BANK_DEPOSIT)
+                    if self.canDepositToBank then
+                        self.bankIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+                    else
+                        self.bankIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+                    end
+
+                    self.canUseTradingHouse = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_TRADING_HOUSE)
+                    if self.canUseTradingHouse then
+                        self.tradingHouseIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+                    else
+                        self.tradingHouseIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+                    end
+
+                    self.canUseHeraldry = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_HERALDRY)
+                    if self.canUseHeraldry then
+                        self.heraldryIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+                    else
+                        self.heraldryIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+                    end
+                end
+                -- Set selected guild for use when resolving Rank/Heraldry updates
+                g_selectedGuild = guildId
             end
-
-            self.canUseTradingHouse = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_TRADING_HOUSE)
-            if self.canUseTradingHouse then
-                self.tradingHouseIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-            else
-                self.tradingHouseIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-            end
-
-            self.canUseHeraldry = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_HERALDRY)
-            if self.canUseHeraldry then
-                self.heraldryIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-            else
-                self.heraldryIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-            end
-        end
-        -- Set selected guild for use when resolving Rank/Heraldry updates
-        g_selectedGuild = guildId
-    end
         end
     end
 
