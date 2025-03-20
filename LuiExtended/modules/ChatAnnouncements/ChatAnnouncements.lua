@@ -10420,13 +10420,11 @@ function ChatAnnouncements.HookFunction()
 
     -- Hook for Guild Invite function used from Guild Menu
     ZO_TryGuildInvite = function (guildId, displayName)
-        -- TODO: Update when more alerts are added to CA
         if not DoesPlayerHaveGuildPermission(guildId, GUILD_PERMISSION_INVITE) then
             ZO_AlertEvent(EVENT_SOCIAL_ERROR, SOCIAL_RESULT_NO_INVITE_PERMISSION)
             return
         end
 
-        -- TODO: Update when more alerts are added to CA
         if GetNumGuildMembers(guildId) == MAX_GUILD_MEMBERS then
             ZO_AlertEvent(EVENT_SOCIAL_ERROR, SOCIAL_RESULT_NO_ROOM)
             return
@@ -10451,15 +10449,12 @@ function ChatAnnouncements.HookFunction()
                 end
             end
 
-            ZO_ConsoleAttemptInteractOrError(GuildInviteCallback, displayName, ZO_PLAYER_CONSOLE_INFO_REQUEST_DONT_BLOCK, ZO_CONSOLE_CAN_COMMUNICATE_ERROR_ALERT, ZO_ID_REQUEST_TYPE_DISPLAY_NAME, displayName)
+            ZO_ConsoleAttemptCommunicateOrError(GuildInviteCallback, displayName, ZO_PLAYER_CONSOLE_INFO_REQUEST_DONT_BLOCK, ZO_CONSOLE_CAN_COMMUNICATE_ERROR_ALERT, ZO_ID_REQUEST_TYPE_DISPLAY_NAME, displayName)
         else
-            -- TODO: This needs fixed in the API so that character names are also factored in here. This check here is just about pointless as it stands.
             if IsIgnored(displayName) then
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, SI_GROUP_ALERT_INVITE_PLAYER_BLOCKED)
                 if ChatAnnouncements.SV.Social.GuildCA then
                     printToChat(GetString(LUIE_STRING_IGNORE_ERROR_GUILD), true)
-                end
-                if ChatAnnouncements.SV.Social.GuildAlert then
-                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, GetString(LUIE_STRING_IGNORE_ERROR_GUILD))
                 end
                 PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
                 return
