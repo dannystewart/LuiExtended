@@ -10835,38 +10835,68 @@ end
 
 --- Prints queued messages
 function ChatAnnouncements.PrintQueuedMessages()
-    local messageTypes =
+    -- Message type processing order
+    local messageTypeOrder =
     {
-        "NOTIFICATION", "QUEST_POI", "QUEST", "EXPERIENCE", "EXPERIENCE LEVEL", "SKILL GAIN", "SKILL MORPH",
-        "SKILL LINE", "SKILL", "CURRENCY POSTAGE", "QUEST LOOT REMOVE", "CONTAINER", "CURRENCY", "QUEST LOOT ADD",
-        "LOOT", "ANTIQUITY", "COLLECTIBLE", "ACHIEVEMENT", "MESSAGE"
+        "NOTIFICATION",
+        "QUEST_POI",
+        "QUEST",
+        "EXPERIENCE",
+        "EXPERIENCE LEVEL",
+        "SKILL GAIN",
+        "SKILL MORPH",
+        "SKILL LINE",
+        "SKILL",
+        "CURRENCY POSTAGE",
+        "QUEST LOOT REMOVE",
+        "CONTAINER",
+        "CURRENCY",
+        "QUEST LOOT ADD",
+        "LOOT",
+        "ANTIQUITY",
+        "COLLECTIBLE",
+        "ACHIEVEMENT",
+        "MESSAGE"
     }
 
-    for _, messageType in ipairs(messageTypes) do
+    -- Helper function to process a single message
+    local function processMessage(message, messageType)
+        if not message or message == "" then return end
+
+        -- Special handling for different message types
+        if messageType == "CONTAINER" or messageType == "LOOT" then
+            ChatAnnouncements.ResolveItemMessage(
+                message.message,
+                message.formattedRecipient,
+                message.color,
+                message.logPrefix,
+                message.totalString,
+                message.groupLoot
+            )
+            return
+        end
+
+        -- Quest item handling
+        if messageType == "QUEST LOOT REMOVE" and g_questItemAdded[message.itemId] then return end
+        if messageType == "QUEST LOOT ADD" and g_questItemRemoved[message.itemId] then return end
+
+        -- Default message handling
+        local isSystem = message.isSystem or false
+        printToChat(message.message, isSystem)
+    end
+
+    -- Process messages in defined order
+    for _, messageType in ipairs(messageTypeOrder) do
         for i = 1, #ChatAnnouncements.QueuedMessages do
             local message = ChatAnnouncements.QueuedMessages[i]
-            if message and message.message ~= "" and message.type == messageType then
-                if messageType == "QUEST LOOT REMOVE" then
-                    local itemId = message.itemId
-                    if not g_questItemAdded[itemId] then
-                        printToChat(message.message)
-                    end
-                elseif messageType == "CONTAINER" or messageType == "LOOT" then
-                    ChatAnnouncements.ResolveItemMessage(message.message, message.formattedRecipient, message.color, message.logPrefix, message.totalString, message.groupLoot)
-                elseif messageType == "QUEST LOOT ADD" then
-                    local itemId = message.itemId
-                    if not g_questItemRemoved[itemId] then
-                        printToChat(message.message)
-                    end
-                else
-                    local isSystem = message.isSystem or false
-                    printToChat(message.message, isSystem)
-                end
+            if message and message.type == messageType then
+                processMessage(message, messageType)
             end
         end
     end
 
-    ZO_ClearTable(ChatAnnouncements.QueuedMessages)
+    -- Reset queue state
+    ChatAnnouncements.QueuedMessages = {}
     ChatAnnouncements.QueuedMessagesCounter = 1
     eventManager:UnregisterForUpdate(moduleName .. "Printer")
 end
