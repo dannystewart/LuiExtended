@@ -3541,7 +3541,7 @@ function ChatAnnouncements.OnLootReceived(eventCode, receivedBy, itemLink, quant
     if LUIE.IsDevDebugEnabled() then
         local Debug = LUIE.Debug
         local traceback = "Loot Received:\n" ..
-            "--> eventCode: " .. tostring(eventCode) .. "\n" ..
+            "--> eventCode: " .. LUIE.GetEventName(eventCode) .. "\n" ..
             "--> receivedBy: " .. zo_strformat("<<C:1>>", receivedBy) .. "\n" ..
             "--> itemLink: " .. tostring(itemLink) .. "\n" ..
             "--> quantity: " .. tostring(quantity) .. "\n" ..
@@ -3757,7 +3757,7 @@ function ChatAnnouncements.ItemPrinter(icon, stack, itemType, itemId, itemLink, 
         end
 
         g_itemCounterGainTracker = g_itemCounterGainTracker + 1
-        if g_itemCounterGainTracker > 50 then
+        if g_itemCounterGainTracker > 99 then
             g_itemStringGain = string_format("|c%stoo many items to display|r", color)
         end
 
@@ -3789,7 +3789,7 @@ function ChatAnnouncements.ItemPrinter(icon, stack, itemType, itemId, itemLink, 
         end
 
         g_itemCounterLossTracker = g_itemCounterLossTracker + 1
-        if g_itemCounterLossTracker > 50 then
+        if g_itemCounterLossTracker > 99 then
             g_itemStringLoss = string_format("|c%stoo many items to display|r", color)
         end
 
@@ -4502,7 +4502,7 @@ function ChatAnnouncements.InventoryUpdateCraft(eventCode, bagId, slotId, isNewI
     if LUIE.IsDevDebugEnabled() then
         local Debug = LUIE.Debug
         local traceback = "Inventory Update:\n" ..
-            "--> eventCode: " .. tostring(eventCode) .. "\n" ..
+            "--> eventCode: " .. LUIE.GetEventName(eventCode) .. "\n" ..
             "--> bagId: " .. LUIE.GetBagName(bagId) .. "\n" ..
             "--> slotId: " .. tostring(slotId) .. "\n" ..
             "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
@@ -4901,7 +4901,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventCode, bagId, slotId, isNewIt
     if LUIE.IsDevDebugEnabled() then
         local Debug = LUIE.Debug
         local traceback = "Inventory Update:\n" ..
-            "--> eventCode: " .. tostring(eventCode) .. "\n" ..
+            "--> eventCode: " .. LUIE.GetEventName(eventCode) .. "\n" ..
             "--> bagId: " .. LUIE.GetBagName(bagId) .. "\n" ..
             "--> slotId: " .. tostring(slotId) .. "\n" ..
             "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
@@ -5276,7 +5276,7 @@ function ChatAnnouncements.InventoryUpdateGuildBank(eventCode, bagId, slotId, is
     if LUIE.IsDevDebugEnabled() then
         local Debug = LUIE.Debug
         local traceback = "Inventory Update:\n" ..
-            "--> eventCode: " .. tostring(eventCode) .. "\n" ..
+            "--> eventCode: " .. LUIE.GetEventName(eventCode) .. "\n" ..
             "--> bagId: " .. LUIE.GetBagName(bagId) .. "\n" ..
             "--> slotId: " .. tostring(slotId) .. "\n" ..
             "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
@@ -5417,7 +5417,7 @@ function ChatAnnouncements.InventoryUpdateFence(eventCode, bagId, slotId, isNewI
     if LUIE.IsDevDebugEnabled() then
         local Debug = LUIE.Debug
         local traceback = "Inventory Update:\n" ..
-            "--> eventCode: " .. tostring(eventCode) .. "\n" ..
+            "--> eventCode: " .. LUIE.GetEventName(eventCode) .. "\n" ..
             "--> bagId: " .. LUIE.GetBagName(bagId) .. "\n" ..
             "--> slotId: " .. tostring(slotId) .. "\n" ..
             "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
@@ -5772,7 +5772,7 @@ function ChatAnnouncements.DisguiseState(eventCode, unitTag, disguiseState)
     if LUIE.IsDevDebugEnabled() then
         local Debug = LUIE.Debug
         local traceback = "Disguise State:\n" ..
-            "--> eventCode: " .. tostring(eventCode) .. "\n" ..
+            "--> eventCode: " .. LUIE.GetEventName(eventCode) .. "\n" ..
             "--> unitTag: " .. tostring(unitTag) .. "\n" ..
             "--> disguiseState: " .. tostring(disguiseState)
         Debug(traceback)
