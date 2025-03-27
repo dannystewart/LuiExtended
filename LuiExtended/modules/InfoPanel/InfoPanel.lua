@@ -490,7 +490,7 @@ function InfoPanel.OnUpdate10()
     uiLatency.label:SetText(string_format("%d ms", lat))
     uiLatency.label:SetColor(color.r, color.g, color.b, 1)
 
-    -- Update gold
+    -- Update gold.
     InfoPanel.UpdateGold()
 end
 
