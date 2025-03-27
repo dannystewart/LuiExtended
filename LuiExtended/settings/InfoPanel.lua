@@ -269,6 +269,22 @@ function InfoPanel.CreateSettings()
                 end,
             },
             {
+                type = "checkbox",
+                name = GetString(LUIE_STRING_PNL_SHOWGOLD),
+                getFunc = function ()
+                    return not Settings.HideGold
+                end,
+                setFunc = function (value)
+                    Settings.HideGold = not value
+                    InfoPanel.RearrangePanel()
+                end,
+                width = "full",
+                default = true,
+                disabled = function ()
+                    return not LUIE.SV.InfoPanel_Enabled
+                end,
+            },
+            {
                 type = "header",
                 name = GetString(SI_PLAYER_MENU_MISC),
                 width = "full",

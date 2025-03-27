@@ -157,6 +157,7 @@ local strings =
     -- InfoPanel
     LUIE_STRING_PNL_TRAINNOW = "Train Now",
     LUIE_STRING_PNL_MAXED = "Maxed",
+    LUIE_STRING_PNL_SHOWGOLD = "Show Gold Amount",
 
     -- SpellCastBuffs
     LUIE_STRING_SCB_WINDOWTITLE_PLAYERBUFFS = "Player Buffs",

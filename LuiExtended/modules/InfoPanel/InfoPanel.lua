@@ -31,6 +31,7 @@ local colors =
     WHITE = { r = 1, g = 1, b = 1 },
     BLACK = { r = 0, g = 0, b = 0 },
     GRAY = { r = 0.5, g = 0.5, b = 0.5 },
+    GOLD = { r = 0.85, g = 0.7, b = 0.1 },
 }
 
 -- local fakeControl   = {}
@@ -39,7 +40,8 @@ InfoPanel.Enabled = false
 InfoPanel.Defaults =
 {
     ClockFormat = "HH:m:s",
-	panelScale = 100,
+    panelScale = 100,
+    HideGold = true,
 }
 InfoPanel.SV = {}
 InfoPanel.panelUnlocked = false
@@ -58,6 +60,7 @@ local uiTopRow = nil
 local uiBotRow = nil
 local uiClock = {}
 local uiGems = {}
+local uiGold = {}
 
 -- Add info panel into LUIE namespace
 InfoPanel.Panel = uiPanel
@@ -132,7 +135,6 @@ local function CreateUIControls()
     uiPanel:SetDrawLayer(DL_BACKGROUND)
     uiPanel:SetDrawTier(DT_LOW)
     uiPanel:SetDrawLevel(DL_CONTROLS)
-    -- uiPanel.bg = UI:Backdrop( uiPanel, "fill", nil, nil, nil, false )
 
     panelFragment = ZO_HUDFadeSceneFragment:New(uiPanel, 0, 0)
 
@@ -149,50 +151,45 @@ local function CreateUIControls()
     uiPanel.div:SetHeight(4)
 
     uiTopRow = UI:Control(uiPanel, { TOP, TOP, 0, 2 }, { 300, 20 }, false)
-    -- uiTopRow.bg = UI:Backdrop( uiTopRow, "fill", nil, nil, nil, false )
 
     uiBotRow = UI:Control(uiPanel, { BOTTOM, BOTTOM, 0, -2 }, { 300, 20 }, false)
-    -- uiBotRow.bg = UI:Backdrop( uiBotRow, "fill", nil, nil, nil, false )
 
     uiLatency.control = UI:Control(uiTopRow, nil, { 75, 20 }, false)
     uiLatency.icon = UI:Texture(uiLatency.control, { LEFT, LEFT }, { 24, 24 }, "/esoui/art/campaign/campaignbrowser_hipop.dds", nil, false)
     uiLatency.label = UI:Label(uiLatency.control, { LEFT, RIGHT, 0, 0, uiLatency.icon }, { 56, 20 }, { 0, 1 }, g_infoPanelFont, "11999 ms", false)
-    -- uiLatency.bg = UI:Backdrop( uiLatency.control, "fill", nil, nil, nil, false )
 
     uiFps.label = UI:Label(uiTopRow, nil, { 50, 20 }, { 1, 1 }, g_infoPanelFont, "999 fps", false)
     uiFps.control = uiFps.label
-    -- uiFps.bg = UI:Backdrop( uiFps.control, "fill", nil, nil, nil, false )
 
     uiClock.label = UI:Label(uiTopRow, nil, { 60, 20 }, { 1, 1 }, g_infoPanelFont, "88:88:88", false)
     uiClock.control = uiClock.label
-    -- uiClock.bg = UI:Backdrop( uiClock.control, "fill", nil, nil, nil, false )
 
     uiGems.control = UI:Control(uiTopRow, nil, { 48, 20 }, false)
     uiGems.icon = UI:Texture(uiGems.control, { LEFT, LEFT }, { 16, 16 }, nil, nil, false)
     uiGems.label = UI:Label(uiGems.control, { LEFT, RIGHT, 2, 0, uiGems.icon }, { 32, 20 }, { 0, 1 }, g_infoPanelFont, "8/88", false)
-    -- uiGems.bg = UI:Backdrop( uiGems.control, "fill", nil, nil, nil, false )
+
+    -- Gold display
+    uiGold.control = UI:Control(uiBotRow, nil, { 85, 20 }, false)
+    uiGold.icon = UI:Texture(uiGold.control, { LEFT, LEFT }, { 16, 16 }, "/esoui/art/currency/currency_gold.dds", nil, false)
+    uiGold.label = UI:Label(uiGold.control, { LEFT, RIGHT, 2, 0, uiGold.icon }, { 65, 20 }, { 0, 1 }, g_infoPanelFont, "999,999", false)
 
     uiFeedTimer.control = UI:Control(uiBotRow, nil, { 96, 20 }, false)
     uiFeedTimer.icon = UI:Texture(uiFeedTimer.control, { LEFT, LEFT }, { 28, 28 }, "/esoui/art/mounts/tabicon_mounts_up.dds", nil, false)
     uiFeedTimer.label = UI:Label(uiFeedTimer.control, { LEFT, RIGHT, 0, 0, uiFeedTimer.icon }, { 68, 20 }, { 0, 1 }, g_infoPanelFont, GetString(LUIE_STRING_PNL_TRAINNOW), false)
-    -- uiFeedTimer.bg = UI:Backdrop( uiFeedTimer.control, "fill", nil, nil, nil, false )
 
     uiArmour.control = UI:Control(uiBotRow, nil, { 55, 20 }, false)
     uiArmour.icon = UI:Texture(uiArmour.control, { LEFT, LEFT }, { 24, 24 }, "/esoui/art/progression/progression_indexicon_armor_up.dds", nil, false)
     uiArmour.label = UI:Label(uiArmour.control, { LEFT, RIGHT, 0, 0, uiArmour.icon }, { 41, 20 }, { 0, 1 }, g_infoPanelFont, "100%", false)
-    -- uiArmour.bg = UI:Backdrop( uiArmour.control, "fill", nil, nil, nil, false )
 
     uiWeapons.control = UI:Control(uiBotRow, nil, { 46, 20 }, false)
     uiWeapons.main = UI:Texture(uiWeapons.control, { LEFT, LEFT }, { 30, 30 }, "/esoui/art/progression/icon_1handplusrune.dds", nil, false)
     uiWeapons.swap = UI:Texture(uiWeapons.control, { RIGHT, RIGHT, 5 }, { 30, 30 }, "/esoui/art/progression/icon_1handplusrune.dds", nil, false)
     uiWeapons.main.slotIndex = EQUIP_SLOT_MAIN_HAND
     uiWeapons.swap.slotIndex = EQUIP_SLOT_BACKUP_MAIN
-    -- uiWeapons.bg = UI:Backdrop( uiWeapons.control, "fill", nil, nil, nil, false )
 
     uiBags.control = UI:Control(uiBotRow, nil, { 78, 20 }, false)
     uiBags.icon = UI:Texture(uiBags.control, { LEFT, LEFT }, { 28, 28 }, "/esoui/art/inventory/inventory_tabicon_misc_up.dds", nil, false)
     uiBags.label = UI:Label(uiBags.control, { LEFT, RIGHT, 0, 0, uiBags.icon }, { 50, 20 }, { 0, 1 }, g_infoPanelFont, "888/888", false)
-    -- uiBags.bg = UI:Backdrop( uiBags.control, "fill", nil, nil, nil, false )
 end
 
 -- Rearranges panel elements. Called from Initialize and settings menu.
@@ -212,8 +209,8 @@ function InfoPanel.RearrangePanel()
         uiLatency.control:ClearAnchors()
         uiLatency.control:SetAnchor(LEFT, anchorTop or uiTopRow, (anchorTop == nil) and LEFT or RIGHT, 0, 0)
         uiLatency.control:SetHidden(false)
-        sizeTop = sizeTop + uiLatency.control:GetWidth() -- Update the variable name
-        anchorTop = uiLatency.control                    -- Update the variable name
+        sizeTop = sizeTop + uiLatency.control:GetWidth()
+        anchorTop = uiLatency.control
     end
     -- FPS
     if InfoPanel.SV.HideFPS then
@@ -222,8 +219,8 @@ function InfoPanel.RearrangePanel()
         uiFps.control:ClearAnchors()
         uiFps.control:SetAnchor(LEFT, anchorTop or uiTopRow, (anchorTop == nil) and LEFT or RIGHT, 0, 0)
         uiFps.control:SetHidden(false)
-        sizeTop = sizeTop + uiFps.control:GetWidth() -- Update the variable name
-        anchorTop = uiFps.control                    -- Update the variable name
+        sizeTop = sizeTop + uiFps.control:GetWidth()
+        anchorTop = uiFps.control
     end
     -- Time
     if InfoPanel.SV.HideClock then
@@ -232,34 +229,34 @@ function InfoPanel.RearrangePanel()
         uiClock.control:ClearAnchors()
         uiClock.control:SetAnchor(LEFT, anchorTop or uiTopRow, (anchorTop == nil) and LEFT or RIGHT, 0, 0)
         uiClock.control:SetHidden(false)
-        sizeTop = sizeTop + uiClock.control:GetWidth() -- Update the variable name
-        anchorTop = uiClock.control                    -- Update the variable name
+        sizeTop = sizeTop + uiClock.control:GetWidth()
+        anchorTop = uiClock.control
     end
     -- Soulgems
     if InfoPanel.SV.HideGems then
         uiGems.control:SetHidden(true)
     else
         uiGems.control:ClearAnchors()
-        uiGems.control:SetAnchor(LEFT, anchorTop or uiBotRow, (anchorTop == nil) and LEFT or RIGHT, 0, 0)
+        uiGems.control:SetAnchor(LEFT, anchorTop or uiTopRow, (anchorTop == nil) and LEFT or RIGHT, 0, 0)
         uiGems.control:SetHidden(false)
-        sizeTop = sizeTop + uiGems.control:GetWidth() -- Update the variable name
-        anchorTop = uiGems.control                    -- Update the variable name
+        sizeTop = sizeTop + uiGems.control:GetWidth()
+        anchorTop = uiGems.control
     end
     -- Set row size
-    uiTopRow:SetWidth((sizeTop > 0) and sizeTop or 10) -- Update the variable name
+    uiTopRow:SetWidth((sizeTop > 0) and sizeTop or 10)
     -- Bottom row
-    local anchorBot = nil                              -- Rename the variable to anchorBot
-    local sizeBot = 0                                  -- Rename the variable to sizeBot
+    local anchorBot = nil
+    local sizeBot = 0
     -- Feed timer
     if InfoPanel.SV.HideMountFeed or uiFeedTimer.hideLocally then
         uiFeedTimer.control:SetHidden(true)
-        sizeBot = sizeBot - (uiFeedTimer.control:GetWidth() * 0.15) -- Update the variable name
+        sizeBot = sizeBot - (uiFeedTimer.control:GetWidth() * 0.15)
     else
         uiFeedTimer.control:ClearAnchors()
         uiFeedTimer.control:SetAnchor(LEFT, anchorBot or uiBotRow, (anchorBot == nil) and LEFT or RIGHT, 0, 0)
         uiFeedTimer.control:SetHidden(false)
-        sizeBot = sizeBot + uiFeedTimer.control:GetWidth() -- Update the variable name
-        anchorBot = uiFeedTimer.control                    -- Update the variable name
+        sizeBot = sizeBot + uiFeedTimer.control:GetWidth()
+        anchorBot = uiFeedTimer.control
     end
     -- Durability
     if InfoPanel.SV.HideArmour then
@@ -268,8 +265,8 @@ function InfoPanel.RearrangePanel()
         uiArmour.control:ClearAnchors()
         uiArmour.control:SetAnchor(LEFT, anchorBot or uiBotRow, (anchorBot == nil) and LEFT or RIGHT, 0, 0)
         uiArmour.control:SetHidden(false)
-        sizeBot = sizeBot + uiArmour.control:GetWidth() -- Update the variable name
-        anchorBot = uiArmour.control                    -- Update the variable name
+        sizeBot = sizeBot + uiArmour.control:GetWidth()
+        anchorBot = uiArmour.control
     end
     -- Charges
     if InfoPanel.SV.HideWeapons then
@@ -278,8 +275,8 @@ function InfoPanel.RearrangePanel()
         uiWeapons.control:ClearAnchors()
         uiWeapons.control:SetAnchor(LEFT, anchorBot or uiBotRow, (anchorBot == nil) and LEFT or RIGHT, 0, 0)
         uiWeapons.control:SetHidden(false)
-        sizeBot = sizeBot + uiWeapons.control:GetWidth() -- Update the variable name
-        anchorBot = uiWeapons.control                    -- Update the variable name
+        sizeBot = sizeBot + uiWeapons.control:GetWidth()
+        anchorBot = uiWeapons.control
     end
     -- Bags
     if InfoPanel.SV.HideBags then
@@ -288,11 +285,21 @@ function InfoPanel.RearrangePanel()
         uiBags.control:ClearAnchors()
         uiBags.control:SetAnchor(LEFT, anchorBot or uiBotRow, (anchorBot == nil) and LEFT or RIGHT, 0, 0)
         uiBags.control:SetHidden(false)
-        sizeBot = sizeBot + uiBags.control:GetWidth() -- Update the variable name
-        anchorBot = uiBags.control                    -- Update the variable name
+        sizeBot = sizeBot + uiBags.control:GetWidth()
+        anchorBot = uiBags.control
+    end
+    -- Gold (moved to end for right positioning)
+    if InfoPanel.SV.HideGold then
+        uiGold.control:SetHidden(true)
+    else
+        uiGold.control:ClearAnchors()
+        uiGold.control:SetAnchor(LEFT, anchorBot or uiBotRow, (anchorBot == nil) and LEFT or RIGHT, 0, 0)
+        uiGold.control:SetHidden(false)
+        sizeBot = sizeBot + uiGold.control:GetWidth()
+        anchorBot = uiGold.control
     end
     -- Set row size
-    uiBotRow:SetWidth((sizeBot > 0) and sizeBot or 10) -- Update the variable name
+    uiBotRow:SetWidth((sizeBot > 0) and sizeBot or 10)
     -- Set size of panel
     uiPanel:SetWidth(zo_max(uiTopRow:GetWidth(), uiBotRow:GetWidth(), 39 * 6))
     -- Set scale of panel again
@@ -335,7 +342,6 @@ function InfoPanel.Initialize(enabled)
     uiPanel:SetHandler("OnMoveStop", uiPanel.OnMoveStop)
 
     -- Set init values
-    -- uiWorld.label:SetText( GetWorldName() )
     InfoPanel.OnUpdate01()
     InfoPanel.OnUpdate10()
     InfoPanel.OnUpdate60()
@@ -343,6 +349,7 @@ function InfoPanel.Initialize(enabled)
     -- Set event handlers
     eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, InfoPanel.OnBagUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, InfoPanel.OnBagUpdate)
+    eventManager:RegisterForEvent(moduleName, EVENT_MONEY_UPDATE, InfoPanel.UpdateGold)
     eventManager:RegisterForUpdate(moduleName .. "01", ZO_ONE_SECOND_IN_MILLISECONDS, InfoPanel.OnUpdate01)
     eventManager:RegisterForUpdate(moduleName .. "10", ZO_ONE_SECOND_IN_MILLISECONDS * 10, InfoPanel.OnUpdate10)
     eventManager:RegisterForUpdate(moduleName .. "60", ZO_ONE_MINUTE_IN_MILLISECONDS, InfoPanel.OnUpdate60)
@@ -377,14 +384,22 @@ function InfoPanel.SetScale()
     uiPanel:SetHidden(false)
 end
 
--- Fake Component callback function used by main module
---[[function fakeControl.SetHidden(self, hidden)
-    -- update not more then once every 5 second
-    if not hidden and DelayBuffer( "InfoPanelFakeControl", 5000 ) then
-        InfoPanel.OnUpdate60()
+-- Format number with commas
+local function FormatGold(gold)
+    return ZO_CommaDelimitNumber(gold)
+end
+
+-- Update player's gold display
+-- Listens on the `EVENT_MONEY_UPDATE`
+function InfoPanel.UpdateGold()
+    if not InfoPanel.Enabled or InfoPanel.SV.HideGold then
+        return
     end
-end]]
---
+
+    local gold = GetCurrencyAmount(CURT_MONEY, CURRENCY_LOCATION_CHARACTER)
+    uiGold.label:SetText(FormatGold(gold))
+    uiGold.label:SetColor(colors.GOLD.r, colors.GOLD.g, colors.GOLD.b, 1)
+end
 
 -- Listens to EVENT_INVENTORY_SINGLE_SLOT_UPDATE and EVENT_LOOT_RECEIVED
 function InfoPanel.OnBagUpdate()
@@ -474,6 +489,9 @@ function InfoPanel.OnUpdate10()
     end
     uiLatency.label:SetText(string_format("%d ms", lat))
     uiLatency.label:SetColor(color.r, color.g, color.b, 1)
+
+    -- Update gold
+    InfoPanel.UpdateGold()
 end
 
 function InfoPanel.OnUpdate60()
