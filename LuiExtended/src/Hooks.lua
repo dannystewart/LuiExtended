@@ -503,14 +503,14 @@ function LUIE.InitializeHooks()
                             effectsRow.time.endTime = endTime
                             effectsRow.isArtificial = false -- Sort with normal buffs
                         end
-                        table_insert(effectsRows, effectsRow)
+                        table.insert(effectsRows, effectsRow)
                     end
                 end
 
                 -- Track buffs for duplicate handling
                 local trackBuffs = {}
                 for i = 1, GetNumBuffs("player") do
-                    local buffName, startTime, endTime, buffSlot, stackCount, iconFile, buffType, effectType, abilityType, statusEffectType, abilityId = GetUnitBuffInfo("player", i)
+                    local buffName, startTime, endTime, buffSlot, stackCount, iconFile, deprecatedBuffType, effectType, abilityType, statusEffectType, abilityId = GetUnitBuffInfo("player", i)
                     trackBuffs[i] =
                     {
                         buffName = buffName,
@@ -519,7 +519,7 @@ function LUIE.InitializeHooks()
                         buffSlot = buffSlot,
                         stackCount = stackCount,
                         iconFile = iconFile,
-                        buffType = buffType,
+                        deprecatedBuffType = deprecatedBuffType,
                         effectType = effectType,
                         abilityType = abilityType,
                         statusEffectType = statusEffectType,
@@ -579,6 +579,12 @@ function LUIE.InitializeHooks()
                             local effectsRow = effectsRowPool:AcquireObject()
                             effectsRow.name:SetText(zo_strformat(SI_ABILITY_TOOLTIP_NAME, buff.buffName))
                             effectsRow.icon:SetTexture(buff.iconFile)
+
+                            -- Add stack count display
+                            if buff.stackCount > 1 then
+                                effectsRow.stackCount:SetText(buff.stackCount)
+                            end
+
                             effectsRow.tooltipTitle = zo_strformat(SI_ABILITY_TOOLTIP_NAME, buff.buffName)
                             effectsRow.tooltipText = tooltipText
                             effectsRow.thirdLine = GetThirdLine(buff.abilityId, buff.endTime - buff.startTime)
@@ -614,6 +620,13 @@ function LUIE.InitializeHooks()
         -- Register events
         local function OnEffectChanged(eventCode, changeType, buffSlot, buffName, unitTag)
             UpdateEffects()
+            self:RefreshAllAttributes()
+        end
+
+        local function HideMundusTooltips()
+            for _, control in ipairs(self.mundusIconControls) do
+                ZO_StatsMundusEntry_OnMouseExit(control)
+            end
         end
 
         container:RegisterForEvent(EVENT_EFFECT_CHANGED, OnEffectChanged)
@@ -622,6 +635,7 @@ function LUIE.InitializeHooks()
         container:RegisterForEvent(EVENT_ARTIFICIAL_EFFECT_ADDED, UpdateEffects)
         container:RegisterForEvent(EVENT_ARTIFICIAL_EFFECT_REMOVED, UpdateEffects)
         container:SetHandler("OnEffectivelyShown", UpdateEffects)
+        container:SetHandler("OnEffectivelyHidden", HideMundusTooltips)
     end
 
     local GAMEPAD_STATS_DISPLAY_MODE =
@@ -634,6 +648,7 @@ function LUIE.InitializeHooks()
         LEVEL_UP_REWARDS = 6,
         UPCOMING_LEVEL_UP_REWARDS = 7,
         ADVANCED_ATTRIBUTES = 8,
+        MUNDUS = 9,
     }
 
     local function ArtificialEffectsRowComparator(left, right)
@@ -668,12 +683,106 @@ function LUIE.InitializeHooks()
             end
         end
 
+        -- Mundus Entries
+        for key, attribute in pairs(self.attributeItems) do
+            local NO_MUNDUS_EFFECT = false
+            attribute:SetMundusEffect(NO_MUNDUS_EFFECT)
+        end
+        self.mundusEntries = {}
+        self.mundusAdvancedStats = {}
+        local activeMundusStoneBuffIndices = { GetUnitActiveMundusStoneBuffIndices("player") }
+        local numActiveMundusStoneBuffs = #activeMundusStoneBuffIndices
+        local numMundusSlots = GetNumAvailableMundusStoneSlots()
+        local isPlayerAtMundusWarningLevel = GetUnitLevel("player") >= GetMundusWarningLevel()
+        for slotIndex = 1, numMundusSlots do
+            local mundusEntry = nil
+            if numActiveMundusStoneBuffs >= slotIndex then
+                local buffName, _, _, buffSlot, _, _, _, _, _, _, abilityId = GetUnitBuffInfo("player", activeMundusStoneBuffIndices[slotIndex])
+                local mundusStoneIndex = GetAbilityMundusStoneType(abilityId)
+                mundusEntry = ZO_GamepadEntryData:New(zo_strformat(SI_STATS_MUNDUS_FORMATTER, buffName), ZO_STAT_MUNDUS_ICONS[mundusStoneIndex])
+                mundusEntry.data =
+                {
+                    name = buffName,
+                    description = GetAbilityEffectDescription(buffSlot),
+                    buffIndex = activeMundusStoneBuffIndices[slotIndex],
+                    slotIndex = slotIndex,
+                    statEffects = {},
+                }
+                local numStatsForAbility = GetAbilityNumDerivedStats(abilityId)
+                for statIndex = 1, numStatsForAbility do
+                    local statType, effectValue = GetAbilityDerivedStatAndEffectByIndex(abilityId, statIndex)
+                    local attributeItem = self:GetAttributeItem(statType)
+                    if attributeItem then
+                        local HAS_MUNDUS_EFFECT = true
+                        attributeItem:SetMundusEffect(HAS_MUNDUS_EFFECT, buffName, effectValue, mundusEntry.data.buffIndex)
+                    end
+                    local statEffect =
+                    {
+                        statType = statType,
+                        effect = effectValue,
+                    }
+                    table_insert(mundusEntry.data.statEffects, statEffect)
+                end
+                self.mundusAdvancedStats[slotIndex] = {}
+                local numAdvancedStatsForAbility = GetAbilityNumAdvancedStats(abilityId)
+                for advancedStatIndex = 1, numAdvancedStatsForAbility do
+                    local statType, statFormat, effectValue = GetAbilityAdvancedStatAndEffectByIndex(abilityId, advancedStatIndex)
+                    local statEffect =
+                    {
+                        statType = statType,
+                        format = statFormat,
+                        value = effectValue,
+                    }
+                    table_insert(self.mundusAdvancedStats[slotIndex], statEffect)
+                end
+            elseif numMundusSlots >= slotIndex then
+                mundusEntry = ZO_GamepadEntryData:New(GetString("SI_MUNDUSSTONE", MUNDUS_STONE_INVALID), ZO_STAT_MUNDUS_ICONS[MUNDUS_STONE_INVALID])
+                mundusEntry.data =
+                {
+                    name = GetString(SI_STATS_MUNDUS_NONE_TOOLTIP_TITLE),
+                    description = GetString(SI_STATS_MUNDUS_NONE_TOOLTIP_DESCRIPTION),
+                }
+                if isPlayerAtMundusWarningLevel then
+                    mundusEntry:SetNameColors(ZO_ERROR_COLOR, ZO_ERROR_COLOR)
+                    mundusEntry:SetIconTint(ZO_ERROR_COLOR, ZO_ERROR_COLOR)
+                else
+                    local USE_DEFAULT_COLORS = nil
+                    mundusEntry:SetNameColors(USE_DEFAULT_COLORS, USE_DEFAULT_COLORS)
+                    mundusEntry:SetIconTint(USE_DEFAULT_COLORS, USE_DEFAULT_COLORS)
+                end
+            end
+            if mundusEntry then
+                mundusEntry.displayMode = GAMEPAD_STATS_DISPLAY_MODE.MUNDUS
+                if slotIndex == 1 then
+                    mundusEntry:SetHeader(GetString(SI_STATS_MUNDUS_TITLE))
+                    self.mainList:AddEntryWithHeader("ZO_GamepadMenuEntryTemplate", mundusEntry)
+                else
+                    self.mainList:AddEntry("ZO_GamepadMenuEntryTemplate", mundusEntry)
+                end
+            end
+        end
+
         -- Character Info
         self.mainList:AddEntryWithHeader("ZO_GamepadMenuEntryTemplate", self.advancedStatsEntry)
         self.mainList:AddEntry("ZO_GamepadMenuEntryTemplate", self.characterEntry)
 
         -- Active Effects--
         self.numActiveEffects = 0
+
+        local function GetActiveEffectNarration(entryData, entryControl)
+            local narrations = {}
+
+            -- Generate the standard parametric list entry narration
+            ZO_AppendNarration(narrations, ZO_GetSharedGamepadEntryDefaultNarrationText(entryData, entryControl))
+
+            -- Right panel header
+            ZO_AppendNarration(narrations, ZO_GamepadGenericHeader_GetNarrationText(self.contentHeader, self.contentHeaderData))
+
+            -- Right panel description
+            ZO_AppendNarration(narrations, SCREEN_NARRATION_MANAGER:CreateNarratableObject(self.effectDescNarrationText))
+
+            return narrations
+        end
 
         -- Artificial effects
         local sortedArtificialEffectsTable = {}
@@ -696,6 +805,8 @@ function LUIE.InitializeHooks()
                     data:SetCooldown(timeLeft, duration * 1000.0)
                 end
 
+                data.narrationText = GetActiveEffectNarration
+
                 table_insert(sortedArtificialEffectsTable, data)
             end
         end
@@ -711,7 +822,7 @@ function LUIE.InitializeHooks()
         local hasActiveEffects = numBuffs > 0
         if hasActiveEffects then
             for i = 1, numBuffs do
-                local buffName, startTime, endTime, buffSlot, stackCount, iconFile, buffType, effectType, abilityType, statusEffectType, abilityId, canClickOff = GetUnitBuffInfo("player", i)
+                local buffName, startTime, endTime, buffSlot, stackCount, iconFile, deprecatedBuffType, effectType, abilityType, statusEffectType, abilityId, canClickOff = GetUnitBuffInfo("player", i)
 
                 if buffSlot > 0 and buffName ~= "" then
                     local data = ZO_GamepadEntryData:New(zo_strformat(SI_ABILITY_TOOLTIP_NAME, buffName), iconFile)
@@ -721,11 +832,17 @@ function LUIE.InitializeHooks()
                     data.canClickOff = canClickOff
                     data.isArtificial = false
 
+                    if stackCount > 1 then
+                        data.stackCount = stackCount
+                    end
+
                     local duration = endTime - startTime
                     if duration > 0 then
                         local timeLeft = (endTime * 1000.0) - GetFrameTimeMilliseconds()
                         data:SetCooldown(timeLeft, duration * 1000.0)
                     end
+
+                    data.narrationText = GetActiveEffectNarration
 
                     -- Hide effects if they are set to hide on the override.
                     if not LUIE.Data.Effects.EffectOverride[abilityId] or (LUIE.Data.Effects.EffectOverride[abilityId] and not LUIE.Data.Effects.EffectOverride[abilityId].hide) then
@@ -916,6 +1033,7 @@ function LUIE.InitializeHooks()
         end
 
         self.effectDesc:SetText(contentDescription)
+        self.effectDescNarrationText = contentDescription
         self:RefreshContentHeader(contentTitle)
     end
 
