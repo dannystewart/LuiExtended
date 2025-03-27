@@ -10210,7 +10210,9 @@ function ChatAnnouncements.HookFunction()
         if mt and mt.__index then
             local originalSend = mt.__index.Send
             mt.__index.Send = function (self, ...)
-                LUIE.Debug("MAIL_SEND:Send has been hooked!")
+                if LUIE.IsDevDebugEnabled() then
+                    LUIE.Debug("MAIL_SEND:Send has been hooked!")
+                end
                 windowManager:SetFocusByName("")
 
                 if not self.sendMoneyMode and GetQueuedCOD() == 0 then
