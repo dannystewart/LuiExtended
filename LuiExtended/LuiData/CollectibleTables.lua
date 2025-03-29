@@ -7,6 +7,7 @@
 local LuiData = LuiData
 
 -- Define ID lists for collectibles by category
+--- @class (partial) CollectibleTables
 local CollectibleIds =
 {
     -- Banker
