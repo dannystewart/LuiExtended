@@ -3898,9 +3898,9 @@ end
 
 -- Repopulate group members, but try to update only those, that require it
 function UnitFrames.CustomFramesGroupUpdate()
-    if LUIE.IsDevDebugEnabled() then
-        LUIE.Debug(string_format("[%s] GroupUpdate", GetTimeString()))
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     LUIE.Debug(string_format("[%s] GroupUpdate", GetTimeString()))
+    -- end
     -- Unregister update function and clear local flag
     eventManager:UnregisterForUpdate(g_PendingUpdate.Group.name)
     g_PendingUpdate.Group.flag = false
