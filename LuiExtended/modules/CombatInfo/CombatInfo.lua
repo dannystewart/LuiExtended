@@ -528,7 +528,7 @@ end
 -- Called on initialization and menu changes
 -- Pull data from Effects.BarHighlightOverride Tables to filter the display of Bar Highlight abilities based off menu settings.
 function CombatInfo.UpdateBarHighlightTables()
-    -- Reset all tables using ZO_ClearTable
+    -- Reset all tables using ZO_ClearNumericallyIndexedTable
     for _, table in ipairs(
         {
             g_uiProcAnimation, g_uiCustomToggle, g_triggeredSlotsFront, g_triggeredSlotsBack,
@@ -536,7 +536,7 @@ function CombatInfo.UpdateBarHighlightTables()
             g_toggledSlotsStack, g_toggledSlotsPlayer, g_barOverrideCI, g_barFakeAura,
             g_barDurationOverride, g_barNoRemove
         }) do
-        ZO_ClearTable(table)
+        ZO_ClearNumericallyIndexedTable(table)
     end
 
     if not (CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled) then
