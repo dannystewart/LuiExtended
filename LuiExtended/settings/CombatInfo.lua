@@ -66,8 +66,8 @@ local string_format = string.format
 local castBarMovingEnabled = false    -- Helper local flag
 local alertFrameMovingEnabled = false -- Helper local flag
 
-local globalMethodOptions = { "Ascending", "Descending", "Radial" }
-local globalMethodOptionsKeys = { ["Ascending"] = 1, ["Descending"] = 2, ["Radial"] = 3 }
+local globalMethodOptions = { "Vertical", "Radial", "Vertical Reveal" }
+local globalMethodOptionsKeys = { ["Vertical"] = 1, ["Radial"] = 2, ["Vertical Reveal"] = 3 }
 local globalAlertOptions = { "Show All Incoming Abilities", "Only Show Hard CC Effects", "Only Show Unbreakable CC Effects" }
 local globalAlertOptionsKeys = { ["Show All Incoming Abilities"] = 1, ["Only Show Hard CC Effects"] = 2, ["Only Show Unbreakable CC Effects"] = 3 }
 local globalIconOptions = { "All Crowd Control", "NPC CC Only", "Player CC Only" }

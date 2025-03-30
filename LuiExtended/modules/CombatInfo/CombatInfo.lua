@@ -102,9 +102,9 @@ local uiUltimate =
 -- Cooldown Animation Types for GCD Tracking
 local CooldownMethod =
 {
-    [1] = CD_TYPE_VERTICAL_REVEAL,
-    [2] = CD_TYPE_VERTICAL,
-    [3] = CD_TYPE_RADIAL,
+    [1] = CD_TYPE_VERTICAL,
+    [2] = CD_TYPE_RADIAL,
+    [3] = CD_TYPE_VERTICAL_REVEAL,
 }
 
 -- Constants from actionbar.lua with only the information we need
@@ -362,7 +362,7 @@ function CombatInfo.OnActiveWeaponPairChanged(eventCode, activeWeaponPair)
     end
 end
 
-function CombatInfo.HookGCD()
+do
     -- Helper functions for UpdateCooldown
     local function ShouldShowCooldownAnimation(slotNum, hotbarCategory, duration)
         return not IsSlotItemConsumable(slotNum, hotbarCategory) or duration > 1000 or CombatInfo.SV.GlobalPotion
@@ -418,8 +418,6 @@ function CombatInfo.HookGCD()
         self.cooldown:ResetCooldown()
     end
 
-    -- Main UpdateCooldown hook
-    local ActionButton_UpdateCooldown = ActionButton["UpdateCooldown"]
     local UpdateCooldown = function (self, options)
         local slotNum = self:GetSlot()
         local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or g_hotbarCategory
@@ -461,7 +459,6 @@ function CombatInfo.HookGCD()
         self.isGlobalCooldown = global
         self:UpdateUsable()
     end
-    ActionButton["UpdateCooldown"] = UpdateCooldown
 
     -- Helper function for UpdateUsable
     local function IsSlotUsable(self, slotNum, hotbarCategory, isShowingCooldown, isKeyboardUltimateSlot)
@@ -476,8 +473,6 @@ function CombatInfo.HookGCD()
         return false
     end
 
-    -- Main UpdateUsable hook
-    local ActionButton_UpdateUsable = ActionButton["UpdateUsable"]
     local UpdateUsable = function (self)
         local slotNum = self:GetSlot()
         local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or g_hotbarCategory
@@ -503,7 +498,18 @@ function CombatInfo.HookGCD()
         -- Apply desaturation
         ZO_ActionSlot_SetUnusable(self.icon, not usable, (isShowingCooldown and CombatInfo.SV.GlobalDesat) or stackEmpty)
     end
-    ActionButton["UpdateUsable"] = UpdateUsable
+
+    function CombatInfo.HookGCD()
+        -- Main UpdateCooldown hook
+        local ActionButton_UpdateCooldown = ActionButton["UpdateCooldown"]
+
+        ActionButton["UpdateCooldown"] = UpdateCooldown
+
+        -- Main UpdateUsable hook
+        local ActionButton_UpdateUsable = ActionButton["UpdateUsable"]
+
+        ActionButton["UpdateUsable"] = UpdateUsable
+    end
 end
 
 -- Helper function to get override ability duration.
