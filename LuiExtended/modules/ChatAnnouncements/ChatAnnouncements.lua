@@ -4016,12 +4016,13 @@ function ChatAnnouncements.ItemCounterDelay(icon, stack, itemType, itemId, itemL
 end
 
 function ChatAnnouncements.SendDelayedItems()
-    for id, data in pairs(delayedItemPool) do
+    for id, data in next, delayedItemPool do
         if id then
             ChatAnnouncements.ItemPrinter(data.icon, data.stack, data.itemType, id, data.itemLink, data.receivedBy, data.logPrefix, data.gainOrLoss, data.filter, data.groupLoot, data.alwaysFirst, data.delay)
         end
     end
-    delayedItemPool = {}
+    -- Clear pool
+    ZO_ClearTable(delayedItemPool)
 end
 
 function ChatAnnouncements.ItemCounterDelayOut(icon, stack, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, filter, groupLoot, alwaysFirst, delay)
@@ -4049,12 +4050,13 @@ function ChatAnnouncements.ItemCounterDelayOut(icon, stack, itemType, itemId, it
 end
 
 function ChatAnnouncements.SendDelayedItemsOut()
-    for id, data in pairs(delayedItemPoolOut) do
+    for id, data in next, delayedItemPoolOut do
         if id then
             ChatAnnouncements.ItemPrinter(data.icon, data.stack, data.itemType, id, data.itemLink, data.receivedBy, data.logPrefix, data.gainOrLoss, data.filter, data.groupLoot, data.alwaysFirst, data.delay)
         end
     end
-    delayedItemPoolOut = {}
+    -- Clear pool
+    ZO_ClearTable(delayedItemPoolOut)
 end
 
 local crownRidingIds =
