@@ -1992,17 +1992,17 @@ function UnitFrames.OnPowerUpdate(eventCode, unitTag, powerIndex, powerType, pow
     end
 
     -- DEBUG code. Normally should be commented out because it is redundant
-    if LUIE.IsDevDebugEnabled() then
-        if g_DefaultFrames[unitTag] and g_DefaultFrames[unitTag].unitTag ~= unitTag then
-            LUIE.Debug("LUIE_DBG DF: " .. tostring(g_DefaultFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
-        end
-        if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag].unitTag ~= unitTag then
-            LUIE.Debug("LUIE_DBG CF: " .. tostring(UnitFrames.CustomFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
-        end
-        if g_AvaCustFrames[unitTag] and g_AvaCustFrames[unitTag].unitTag ~= unitTag then
-            LUIE.Debug("LUIE_DBG AF: " .. tostring(g_AvaCustFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
-        end
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     if g_DefaultFrames[unitTag] and g_DefaultFrames[unitTag].unitTag ~= unitTag then
+    --         LUIE.Debug("LUIE_DBG DF: " .. tostring(g_DefaultFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
+    --     end
+    --     if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag].unitTag ~= unitTag then
+    --         LUIE.Debug("LUIE_DBG CF: " .. tostring(UnitFrames.CustomFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
+    --     end
+    --     if g_AvaCustFrames[unitTag] and g_AvaCustFrames[unitTag].unitTag ~= unitTag then
+    --         LUIE.Debug("LUIE_DBG AF: " .. tostring(g_AvaCustFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
+    --     end
+    -- end
 
     -- Update frames ( if we manually not forbade it )
     if g_DefaultFrames[unitTag] then
@@ -2148,9 +2148,9 @@ end
 -- Runs on the EVENT_UNIT_CREATED listener.
 -- Used to create DefaultFrames UI controls and request delayed CustomFrames group frame update
 function UnitFrames.OnUnitCreated(eventCode, unitTag)
-    if LUIE.IsDevDebugEnabled() then
-        LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    -- end
     -- Create on-fly UI controls for default UI group member and reread his values
     if g_DefaultFrames.SmallGroup then
         UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
@@ -2182,9 +2182,9 @@ end
 -- Runs on the EVENT_UNIT_DESTROYED listener.
 -- Used to request delayed CustomFrames group frame update
 function UnitFrames.OnUnitDestroyed(eventCode, unitTag)
-    if LUIE.IsDevDebugEnabled() then
-        LUIE.Debug(string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     LUIE.Debug(string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    -- end
     -- Make sure we do not try to update bars on this unitTag before full group update is complete
     if "group" == zo_strsub(unitTag, 0, 5) then
         UnitFrames.CustomFrames[unitTag] = nil
@@ -3010,9 +3010,9 @@ end
 -- Called from EVENT_UNIT_ATTRIBUTE_VISUAL_* listeners.
 function UnitFrames.UpdateInvulnerable(unitTag)
     if g_savedHealth[unitTag] == nil then
-        if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug("LUIE DEBUG: Stored health is nil: ", unitTag)
-        end
+        -- if LUIE.IsDevDebugEnabled() then
+        --     LUIE.Debug("LUIE DEBUG: Stored health is nil: ", unitTag)
+        -- end
         return
     end
 
@@ -3033,9 +3033,9 @@ end
 -- Called from EVENT_UNIT_ATTRIBUTE_VISUAL_* listeners.
 function UnitFrames.UpdateShield(unitTag, value, maxValue)
     if g_savedHealth[unitTag] == nil then
-        if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug("LUIE DEBUG: Stored health is nil: ", unitTag, " | Shield Value: ", value, " | Shield Max: ", maxValue)
-        end
+        -- if LUIE.IsDevDebugEnabled() then
+        --     LUIE.Debug("LUIE DEBUG: Stored health is nil: ", unitTag, " | Shield Value: ", value, " | Shield Max: ", maxValue)
+        -- end
         return
     end
 
