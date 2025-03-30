@@ -300,6 +300,8 @@ local BarHighlightOverride =
     [183267] = { newId = 145975 }, -- Rune of the Colorless Pool (minor brittle)
     [198567] = { newId = 888101 }, -- Tidal Chakram (cost stam)
     [186209] = { newId = 888101 }, -- Tidal Chakram (cost mag)
+    [186189] = { newId = 189565 }, -- Evolving Runemend
+    [183447] = { newId = 183449 }, -- Chakram Shields
 
     ---------------------------
     -- Two Handed -------------
