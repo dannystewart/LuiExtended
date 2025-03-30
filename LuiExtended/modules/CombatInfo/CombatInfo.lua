@@ -405,7 +405,9 @@ do
             self.cooldown:SetHidden(false)
 
             anim:SetImageData(16, 1)
-            anim:SetFramerate(30)
+            local minFrameTime = tonumber(GetCVar("MinFrameTime.2"))
+            local fps = zo_floor(1 / minFrameTime + 0.5)
+            anim:SetFramerate(fps)
             anim:GetTimeline():PlayFromStart()
 
             if updateChromaQuickslot then
@@ -418,7 +420,7 @@ do
         self.cooldown:ResetCooldown()
     end
 
-    local UpdateCooldown = function (self, options)
+    local function UpdateCooldown(self, options)
         local slotNum = self:GetSlot()
         local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or g_hotbarCategory
         local remain, duration, global, globalSlotType = GetSlotCooldownInfo(slotNum, hotbarCategory)
@@ -473,7 +475,7 @@ do
         return false
     end
 
-    local UpdateUsable = function (self)
+    local function UpdateUsable(self)
         local slotNum = self:GetSlot()
         local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or g_hotbarCategory
         local isGamepad = IsInGamepadPreferredMode()
