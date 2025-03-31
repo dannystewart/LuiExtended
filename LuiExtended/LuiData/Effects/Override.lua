@@ -239,7 +239,7 @@ local EffectOverride =
     [45982] = { icon = "LuiExtended/media/icons/abilities/ability_innate_block_stun.dds", tooltip = Tooltips.Generic_Stun, cc = LUIE_CC_TYPE_STUN },                                          -- Bash Stun (Stun from bashing cast when NPC is pinned against an obstacle)
 
     -- Off-Balance Exploit
-    [16825] = { icon = "LuiExtended/media/icons/abilities/ability_innate_off-balance_exploit.dds", tooltip = Tooltips.Generic_Knockdown, cc = LUIE_CC_TYPE_KNOCKDOWN }, -- Off-Balance Exploit
+    [16825] = { icon = "LuiExtended/media/icons/abilities/ability_innate_off_balance_exploit.dds", tooltip = Tooltips.Generic_Knockdown, cc = LUIE_CC_TYPE_KNOCKDOWN }, -- Off-Balance Exploit
 
     -- Death/Resurrection
     [14644] = { icon = "LuiExtended/media/icons/abilities/ability_innate_resurrection_immunity.dds", name = Abilities.Innate_Revive },                                                                  -- Revive (Death Dialogue)
