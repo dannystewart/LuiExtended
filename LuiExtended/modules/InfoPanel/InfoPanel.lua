@@ -350,6 +350,7 @@ function InfoPanel.Initialize(enabled)
     eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, InfoPanel.OnBagUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, InfoPanel.OnBagUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_MONEY_UPDATE, InfoPanel.UpdateGold)
+    eventManager:RegisterForEvent(moduleName, EVENT_RIDING_SKILL_IMPROVEMENT, InfoPanel.TrainMountTimer)
     eventManager:RegisterForUpdate(moduleName .. "01", ZO_ONE_SECOND_IN_MILLISECONDS, InfoPanel.OnUpdate01)
     eventManager:RegisterForUpdate(moduleName .. "10", ZO_ONE_SECOND_IN_MILLISECONDS * 10, InfoPanel.OnUpdate10)
     eventManager:RegisterForUpdate(moduleName .. "60", ZO_ONE_MINUTE_IN_MILLISECONDS, InfoPanel.OnUpdate60)
@@ -494,7 +495,14 @@ function InfoPanel.OnUpdate10()
     InfoPanel.UpdateGold()
 end
 
-function InfoPanel.OnUpdate60()
+-- EVENT_RIDING_SKILL_IMPROVEMENT
+--
+--- @param eventId integer
+--- @param ridingSkillType RidingTrainType
+--- @param previous integer
+--- @param current integer
+--- @param source RidingTrainSource
+function InfoPanel.TrainMountTimer(eventId, ridingSkillType, previous, current, source)
     -- Update mountfeedtimer
     if not InfoPanel.SV.HideMountFeed and not uiFeedTimer.hideLocally then
         local mountFeedTimer, mountFeedTotalTime = GetTimeUntilCanBeTrained()
@@ -516,7 +524,9 @@ function InfoPanel.OnUpdate60()
         end
         uiFeedTimer.label:SetText(mountFeedMessage)
     end
+end
 
+function InfoPanel.OnUpdate60()
     -- Update item durability
     if not InfoPanel.SV.HideArmour then
         local slotCount = 0
