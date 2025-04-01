@@ -2178,7 +2178,7 @@ local strings =
 
     LUIE_STRING_LAM_CT_BLACKLIST_HEADER = "能力黑名单",
 }
+
 for stringId, stringValue in pairs(strings) do
-    ZO_CreateStringId(stringId, stringValue)
-    SafeAddVersion(stringId, 2)
+    SafeAddString(_G[stringId], stringValue, 2)
 end
