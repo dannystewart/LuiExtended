@@ -345,6 +345,7 @@ function InfoPanel.Initialize(enabled)
     InfoPanel.OnUpdate01()
     InfoPanel.OnUpdate10()
     InfoPanel.OnUpdate60()
+    InfoPanel.UpdateMountFeedTimer()
 
     -- Set event handlers
     eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, InfoPanel.OnBagUpdate)
@@ -495,6 +496,35 @@ function InfoPanel.OnUpdate10()
     InfoPanel.UpdateGold()
 end
 
+-- Update mount feed timer information
+function InfoPanel.UpdateMountFeedTimer()
+    if InfoPanel.SV.HideMountFeed or not InfoPanel.Enabled then
+        return
+    end
+
+    local mountFeedTimer, mountFeedTotalTime = GetTimeUntilCanBeTrained()
+    local mountFeedMessage = GetString(LUIE_STRING_PNL_MAXED)
+
+    if mountFeedTimer ~= nil then
+        if mountFeedTimer == 0 then
+            local inventoryBonus, maxInventoryBonus, staminaBonus, maxStaminaBonus, speedBonus, maxSpeedBonus = GetRidingStats()
+            if inventoryBonus ~= maxInventoryBonus or staminaBonus ~= maxStaminaBonus or speedBonus ~= maxSpeedBonus then
+                mountFeedMessage = GetString(LUIE_STRING_PNL_TRAINNOW)
+            else
+                uiFeedTimer.hideLocally = true
+                InfoPanel.RearrangePanel()
+                return
+            end
+        elseif mountFeedTimer > 0 then
+            local hours = zo_floor(mountFeedTimer / ZO_ONE_HOUR_IN_MILLISECONDS)
+            local minutes = zo_floor((mountFeedTimer - (hours * ZO_ONE_HOUR_IN_MILLISECONDS)) / ZO_ONE_MINUTE_IN_MILLISECONDS)
+            mountFeedMessage = string_format("%dh %dm", hours, minutes)
+        end
+    end
+
+    uiFeedTimer.label:SetText(mountFeedMessage)
+end
+
 -- EVENT_RIDING_SKILL_IMPROVEMENT
 --
 --- @param eventId integer
@@ -503,27 +533,7 @@ end
 --- @param current integer
 --- @param source RidingTrainSource
 function InfoPanel.TrainMountTimer(eventId, ridingSkillType, previous, current, source)
-    -- Update mountfeedtimer
-    if not InfoPanel.SV.HideMountFeed and not uiFeedTimer.hideLocally then
-        local mountFeedTimer, mountFeedTotalTime = GetTimeUntilCanBeTrained()
-        local mountFeedMessage = GetString(LUIE_STRING_PNL_MAXED)
-        if mountFeedTimer ~= nil then
-            if mountFeedTimer == 0 then
-                local inventoryBonus, maxInventoryBonus, staminaBonus, maxStaminaBonus, speedBonus, maxSpeedBonus = GetRidingStats()
-                if inventoryBonus ~= maxInventoryBonus or staminaBonus ~= maxStaminaBonus or speedBonus ~= maxSpeedBonus then
-                    mountFeedMessage = GetString(LUIE_STRING_PNL_TRAINNOW)
-                else
-                    uiFeedTimer.hideLocally = true
-                    InfoPanel.RearrangePanel()
-                end
-            elseif mountFeedTimer > 0 then
-                local hours = zo_floor(mountFeedTimer / ZO_ONE_HOUR_IN_MILLISECONDS)
-                local minutes = zo_floor((mountFeedTimer - (hours * ZO_ONE_HOUR_IN_MILLISECONDS)) / ZO_ONE_MINUTE_IN_MILLISECONDS)
-                mountFeedMessage = string_format("%dh %dm", hours, minutes)
-            end
-        end
-        uiFeedTimer.label:SetText(mountFeedMessage)
-    end
+    InfoPanel.UpdateMountFeedTimer()
 end
 
 function InfoPanel.OnUpdate60()
@@ -574,4 +584,8 @@ function InfoPanel.OnUpdate60()
 
     -- Update bag slot count
     InfoPanel.DoBagUpdate()
+
+    -- Update mount feed timer periodically in case it needs to be hidden
+    -- This ensures the display updates even if no training events occur
+    InfoPanel.UpdateMountFeedTimer()
 end
