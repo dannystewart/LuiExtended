@@ -296,7 +296,7 @@ LUIE.DEVS = DEVS
 -- -----------------------------------------------------------------------------
 -- Helper function to check if debug is enabled for current user
 function LUIE.IsDevDebugEnabled()
-    local currentUser = zo_strformat(SI_UNIT_NAME, GetUnitDisplayName("player"))
+    local currentUser = zo_strformat("<<1>>", GetUnitDisplayName("player"))
     return DEVS[currentUser] and DEVS[currentUser].enabled and DEVS[currentUser].debug
 end
 
