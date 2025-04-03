@@ -214,10 +214,10 @@ function SlashCommands.RegisterSlashCommands()
     end
     if SlashCommands.SV.SlashCake then
         SLASH_COMMANDS["/cake"] = function (...)
-            SlashCommands.SlashCollectible(10287)
+            SlashCommands.SlashCollectible(13520)
         end
         SLASH_COMMANDS["/jubilee"] = function (...)
-            SlashCommands.SlashCollectible(10287)
+            SlashCommands.SlashCollectible(13520)
         end
     end
     if SlashCommands.SV.SlashPie then
