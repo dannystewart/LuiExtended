@@ -10376,6 +10376,30 @@ function ChatAnnouncements.HookFunction()
         end
     end
 
+    ChatAnnouncements.GuildHooks()
+
+    -- Replace the default DeclineLFGReadyCheckNotification function to display the message that we are not in queue any longer + LFG activity join event.
+    local zos_DeclineLFGReadyCheckNotification = DeclineLFGReadyCheckNotification
+    DeclineLFGReadyCheckNotification = function (self)
+        zos_DeclineLFGReadyCheckNotification()
+
+        local message = (GetString(SI_LFGREADYCHECKCANCELREASON3))
+        g_showRCUpdates = true
+        g_weDeclinedTheQueue = true
+        LUIE_CallLater(function ()
+            g_weDeclinedTheQueue = false
+        end, 1000)
+
+        if ChatAnnouncements.SV.Group.GroupLFGQueueCA then
+            printToChat(message, true)
+        end
+        if ChatAnnouncements.SV.Group.GroupLFGQueueAlert then
+            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
+        end
+    end
+end
+
+function ChatAnnouncements.GuildHooks()
     -- Hook for EVENT_GUILD_MEMBER_ADDED
     ZO_GuildRosterManager.OnGuildMemberAdded = function (self, guildId, displayName)
         self:RefreshData()
@@ -10486,64 +10510,50 @@ function ChatAnnouncements.HookFunction()
         end
     end
 
-    -- Called when changing guilds in the Guild tab
-    GUILD_SHARED_INFO.SetGuildId = function (self, guildId)
-        self.guildId = guildId
-        self:Refresh(guildId)
-        -- Set selected guild for use when resolving Rank/Heraldry updates
-        g_selectedGuild = guildId
-    end
 
-    -- Called when changing guilds in the Guild tab or leaving/joining a guild
-    GUILD_SHARED_INFO.Refresh = function (self, guildId)
-        if self.guildId and self.guildId == guildId then
-            local count = GetControl(self.control, "Count")
-            local numGuildMembers, numOnline = GetGuildInfo(guildId)
-
-            count:SetText(zo_strformat(SI_GUILD_NUM_MEMBERS_ONLINE_FORMAT, numOnline, numGuildMembers))
-
-            self.canDepositToBank = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_BANK_DEPOSIT)
-            if self.canDepositToBank then
-                self.bankIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-            else
-                self.bankIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-            end
-
-            self.canUseTradingHouse = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_TRADING_HOUSE)
-            if self.canUseTradingHouse then
-                self.tradingHouseIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-            else
-                self.tradingHouseIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-            end
-
-            self.canUseHeraldry = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_HERALDRY)
-            if self.canUseHeraldry then
-                self.heraldryIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-            else
-                self.heraldryIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-            end
+    local mt = getmetatable(GUILD_SHARED_INFO)
+    if mt and mt.__index then
+        -- Called when changing guilds in the Guild tab
+        local originalSetGuildId = mt.__index.SetGuildId
+        mt.__index.SetGuildId = function (self, guildId)
+            self.guildId = guildId
+            self:Refresh(guildId)
+            -- Set selected guild for use when resolving Rank/Heraldry updates
+            g_selectedGuild = guildId
         end
-        -- Set selected guild for use when resolving Rank/Heraldry updates
-        g_selectedGuild = guildId
-    end
 
-    -- Replace the default DeclineLFGReadyCheckNotification function to display the message that we are not in queue any longer + LFG activity join event.
-    local zos_DeclineLFGReadyCheckNotification = DeclineLFGReadyCheckNotification
-    DeclineLFGReadyCheckNotification = function (self)
-        zos_DeclineLFGReadyCheckNotification()
+        -- Called when changing guilds in the Guild tab or leaving/joining a guild
+        local originalRefresh = mt.__index.Refresh
+        mt.__index.Refresh = function (self, guildId)
+            if self.guildId and self.guildId == guildId then
+                local count = GetControl(self.control, "Count")
+                local numGuildMembers, numOnline = GetGuildInfo(guildId)
 
-        local message = (GetString(SI_LFGREADYCHECKCANCELREASON3))
-        g_showRCUpdates = true
-        g_weDeclinedTheQueue = true
-        LUIE_CallLater(function ()
-            g_weDeclinedTheQueue = false
-        end, 1000)
+                count:SetText(zo_strformat(SI_GUILD_NUM_MEMBERS_ONLINE_FORMAT, numOnline, numGuildMembers))
 
-        if ChatAnnouncements.SV.Group.GroupLFGQueueCA then
-            printToChat(message, true)
-        end
-        if ChatAnnouncements.SV.Group.GroupLFGQueueAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
+                self.canDepositToBank = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_BANK_DEPOSIT)
+                if self.canDepositToBank then
+                    self.bankIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+                else
+                    self.bankIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+                end
+
+                self.canUseTradingHouse = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_TRADING_HOUSE)
+                if self.canUseTradingHouse then
+                    self.tradingHouseIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+                else
+                    self.tradingHouseIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+                end
+
+                self.canUseHeraldry = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_HERALDRY)
+                if self.canUseHeraldry then
+                    self.heraldryIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+                else
+                    self.heraldryIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+                end
+            end
+            -- Set selected guild for use when resolving Rank/Heraldry updates
+            g_selectedGuild = guildId
         end
     end
 end
