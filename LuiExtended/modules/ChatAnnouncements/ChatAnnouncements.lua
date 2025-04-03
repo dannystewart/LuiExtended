@@ -6691,7 +6691,7 @@ function ChatAnnouncements.HookFunction()
         local leaderRawName = GetRawUnitName(leaderTag)
         local showAlert = leaderRawName ~= "" and (g_currentGroupLeaderRawName ~= "" and g_currentGroupLeaderRawName ~= nil)
         g_currentGroupLeaderRawName = leaderRawName
-        g_currentGroupLeaderDisplayName = zo_strformat("<<1>>", GetUnitDisplayName(leaderTag))
+        g_currentGroupLeaderDisplayName = GetUnitDisplayName(leaderTag)
 
         -- If for some reason we don't have a valid leader name, bail out now.
         if g_currentGroupLeaderRawName == "" or g_currentGroupLeaderRawName == nil or g_currentGroupLeaderDisplayName == "" or g_currentGroupLeaderDisplayName == nil then
