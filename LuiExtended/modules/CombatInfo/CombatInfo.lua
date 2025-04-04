@@ -530,48 +530,62 @@ end
 -- Called on initialization and menu changes
 -- Pull data from Effects.BarHighlightOverride Tables to filter the display of Bar Highlight abilities based off menu settings.
 function CombatInfo.UpdateBarHighlightTables()
-    -- Reset all tables using ZO_ClearNumericallyIndexedTable
-    for _, table in ipairs(
-        {
-            g_uiProcAnimation, g_uiCustomToggle, g_triggeredSlotsFront, g_triggeredSlotsBack,
-            g_triggeredSlotsRemain, g_toggledSlotsFront, g_toggledSlotsBack, g_toggledSlotsRemain,
-            g_toggledSlotsStack, g_toggledSlotsPlayer, g_barOverrideCI, g_barFakeAura,
-            g_barDurationOverride, g_barNoRemove
-        }) do
-        ZO_ClearNumericallyIndexedTable(table)
-    end
+    g_uiProcAnimation = {}
+    g_uiCustomToggle = {}
+    g_triggeredSlotsFront = {}
+    g_triggeredSlotsBack = {}
+    g_triggeredSlotsRemain = {}
+    g_toggledSlotsFront = {}
+    g_toggledSlotsBack = {}
+    g_toggledSlotsRemain = {}
+    g_toggledSlotsStack = {}
+    g_toggledSlotsPlayer = {}
+    g_barOverrideCI = {}
+    g_barFakeAura = {}
+    g_barDurationOverride = {}
+    g_barNoRemove = {}
 
-    if not (CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled) then
-        return
-    end
-
-    -- Process BarHighlightOverride entries
-    for abilityId, value in pairs(Effects.BarHighlightOverride) do
-        local targetId = value.newId or abilityId
-
-        -- Handle fake aura entries
-        if value.showFakeAura then
-            g_barOverrideCI[targetId] = true
-            g_barFakeAura[targetId] = true
-
-            if value.duration then
-                g_barDurationOverride[targetId] = value.duration
+    if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled then
+        -- Grab any aura's from the list that have on EVENT_COMBAT_EVENT AURA support
+        for abilityId, value in pairs(Effects.BarHighlightOverride) do
+            if value.showFakeAura == true then
+                if value.newId then
+                    g_barOverrideCI[value.newId] = true
+                    if value.duration then
+                        g_barDurationOverride[value.newId] = value.duration
+                    end
+                    if value.noRemove then
+                        g_barNoRemove[value.newId] = true
+                    end
+                    g_barFakeAura[value.newId] = true
+                else
+                    g_barOverrideCI[abilityId] = true
+                    if value.duration then
+                        g_barDurationOverride[abilityId] = value.duration
+                    end
+                    if value.noRemove then
+                        g_barNoRemove[abilityId] = true
+                    end
+                    g_barFakeAura[abilityId] = true
+                end
+            else
+                if value.noRemove then
+                    if value.newId then
+                        g_barNoRemove[value.newId] = true
+                    else
+                        g_barNoRemove[abilityId] = true
+                    end
+                end
             end
         end
-
-        -- Handle noRemove flag
-        if value.noRemove then
-            g_barNoRemove[targetId] = true
+        local counter = 0
+        for abilityId, _ in pairs(g_barOverrideCI) do
+            counter = counter + 1
+            local eventName = (moduleName .. "CombatEventBar" .. counter)
+            eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, CombatInfo.OnCombatEventBar)
+            -- Register filter for specific abilityId's in table only, and filter for source = player, no errors
+            eventManager:AddFilterForEvent(eventName, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, abilityId, REGISTER_FILTER_IS_ERROR, false)
         end
-    end
-
-    -- Register combat events for each ability
-    local counter = 0
-    for abilityId in pairs(g_barOverrideCI) do
-        counter = counter + 1
-        local eventName = moduleName .. "CombatEventBar" .. counter
-        eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, CombatInfo.OnCombatEventBar)
-        eventManager:AddFilterForEvent(eventName, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, abilityId, REGISTER_FILTER_IS_ERROR, false)
     end
 end
 
@@ -628,6 +642,7 @@ function CombatInfo.RegisterCombatInfo()
         eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, CombatInfo.OnSlotsFullUpdate)
         eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_UPDATED, CombatInfo.OnSlotUpdated)
         eventManager:RegisterForEvent(moduleName, EVENT_ACTIVE_WEAPON_PAIR_CHANGED, CombatInfo.OnActiveWeaponPairChanged)
+        eventManager:RegisterForEvent(moduleName, EVENT_WEAPON_PAIR_LOCK_CHANGED, CombatInfo.OnActiveWeaponPairChanged)
     end
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled then
         eventManager:RegisterForEvent(moduleName, EVENT_UNIT_DEATH_STATE_CHANGED, CombatInfo.OnDeath)
@@ -2763,7 +2778,6 @@ function CombatInfo.OnActiveHotbarUpdate(eventCode, didActiveHotbarChange, shoul
             if physicalSlot.hotbarSwapAnimation then
                 physicalSlot.noUpdates = true
                 physicalSlot.hotbarSwapAnimation:PlayFromStart()
-                physicalSlot:HandleSlotChanged()
             end
         end
     else
