@@ -12,6 +12,13 @@ local table_concat = table.concat
 local changelogMessages =
 {
     -- Version Header
+    "|cFFA500LuiExtended Version 6.8.9|r",
+    "",
+    -- General Changes
+    "|cFFFF00General:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Bug fixes and stability improvements.",
+    "",
+    -- Version Header
     "|cFFA500LuiExtended Version 6.8.8.2|r",
     "",
     -- General Changes
