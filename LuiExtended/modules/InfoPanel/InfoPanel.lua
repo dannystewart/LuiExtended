@@ -170,7 +170,7 @@ local function CreateUIControls()
 
     -- Gold display
     uiGold.control = UI:Control(uiBotRow, nil, { 85, 20 }, false)
-    uiGold.icon = UI:Texture(uiGold.control, { LEFT, LEFT }, { 16, 16 }, "/esoui/art/currency/currency_gold.dds", nil, false)
+    uiGold.icon = UI:Texture(uiGold.control, { LEFT, LEFT }, { 12, 12 }, "/esoui/art/currency/currency_gold.dds", nil, false)
     uiGold.label = UI:Label(uiGold.control, { LEFT, RIGHT, 2, 0, uiGold.icon }, { 65, 20 }, { 0, 1 }, g_infoPanelFont, "999,999", false)
 
     uiFeedTimer.control = UI:Control(uiBotRow, nil, { 96, 20 }, false)
