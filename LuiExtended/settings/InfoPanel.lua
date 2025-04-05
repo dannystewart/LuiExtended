@@ -10,6 +10,23 @@ local InfoPanel = LUIE.InfoPanel
 
 local zo_strformat = zo_strformat
 
+-- Setup font list
+local FontsList = {}
+local LMP = LibMediaProvider
+if LMP then
+    -- Add LUIE fonts first
+    for f, _ in pairs(LUIE.Fonts) do
+        table.insert(FontsList, f)
+    end
+    -- Add LMP fonts
+    for _, font in ipairs(LMP:List(LMP.MediaType.FONT)) do
+        -- Only add if not already in list
+        if not LUIE.Fonts[font] then
+            table.insert(FontsList, font)
+        end
+    end
+end
+
 -- Create Settings Menu
 function InfoPanel.CreateSettings()
     -- Load LibAddonMenu
@@ -107,6 +124,92 @@ function InfoPanel.CreateSettings()
         tooltip = GetString(LUIE_STRING_LAM_PNL_RESETPOSITION_TP),
         func = InfoPanel.ResetPosition,
         width = "half",
+    }
+
+    -- Font Options Submenu
+    optionsDataInfoPanel[#optionsDataInfoPanel + 1] =
+    {
+        type = "submenu",
+        name = GetString(LUIE_STRING_LAM_FONT),
+        controls =
+        {
+            {
+                type = "dropdown",
+                scrollable = true,
+                name = GetString(LUIE_STRING_LAM_FONT),
+                tooltip = GetString(LUIE_STRING_LAM_FONT),
+                choices = FontsList,
+                sort = "name-up",
+                getFunc = function ()
+                    return Settings.FontFace
+                end,
+                setFunc = function (var)
+                    Settings.FontFace = var
+                    InfoPanel.ApplyFont()
+                end,
+                width = "full",
+                default = Defaults.FontFace,
+                disabled = function ()
+                    return not LUIE.SV.InfoPanel_Enabled
+                end,
+            },
+            {
+                type = "slider",
+                name = GetString(LUIE_STRING_LAM_FONT_SIZE),
+                tooltip = GetString(LUIE_STRING_LAM_FONT_SIZE),
+                min = 10,
+                max = 30,
+                step = 1,
+                getFunc = function ()
+                    return Settings.FontSize
+                end,
+                setFunc = function (value)
+                    Settings.FontSize = value
+                    InfoPanel.ApplyFont()
+                end,
+                width = "full",
+                default = Defaults.FontSize,
+                disabled = function ()
+                    return not LUIE.SV.InfoPanel_Enabled
+                end,
+            },
+            {
+                type = "dropdown",
+                name = GetString(LUIE_STRING_LAM_FONT_STYLE),
+                tooltip = GetString(LUIE_STRING_LAM_CT_FONT_STYLE_TP),
+                choices =
+                {
+                    "|cFFFFFF" .. GetString(LUIE_FONT_STYLE_NORMAL) .. "|r",
+                    "|c888888" .. GetString(LUIE_FONT_STYLE_SHADOW) .. "|r",
+                    "|cEEEEEE" .. GetString(LUIE_FONT_STYLE_OUTLINE) .. "|r",
+                    "|cFFFFFF" .. GetString(LUIE_FONT_STYLE_THICK_OUTLINE) .. "|r",
+                    "|c777777" .. GetString(LUIE_FONT_STYLE_SOFT_SHADOW_THIN) .. "|r",
+                    "|c666666" .. GetString(LUIE_FONT_STYLE_SOFT_SHADOW_THICK) .. "|r",
+                },
+                choicesValues =
+                {
+                    GetString(LUIE_FONT_STYLE_VALUE_NORMAL),
+                    GetString(LUIE_FONT_STYLE_VALUE_SHADOW),
+                    GetString(LUIE_FONT_STYLE_VALUE_OUTLINE),
+                    GetString(LUIE_FONT_STYLE_VALUE_THICK_OUTLINE),
+                    GetString(LUIE_FONT_STYLE_VALUE_SOFT_SHADOW_THIN),
+                    GetString(LUIE_FONT_STYLE_VALUE_SOFT_SHADOW_THICK),
+                },
+                sort = "name-up",
+                getFunc = function ()
+                    return Settings.FontStyle
+                end,
+                setFunc = function (var)
+                    Settings.FontStyle = var
+                    InfoPanel.ApplyFont()
+                end,
+                width = "full",
+                default = Defaults.FontStyle,
+                disabled = function ()
+                    return not LUIE.SV.InfoPanel_Enabled
+                end,
+            },
+        },
     }
 
     -- Info Panel Options Submenu

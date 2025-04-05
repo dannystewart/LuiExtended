@@ -42,15 +42,15 @@ InfoPanel.Defaults =
     ClockFormat = "HH:m:s",
     panelScale = 100,
     HideGold = true,
+    FontFace = "$(BOLD_FONT)",
+    FontSize = 16,
+    FontStyle = "soft-shadow-thin",
 }
 InfoPanel.SV = {}
 InfoPanel.panelUnlocked = false
 
 -- UI elements
-local infoPanelFontFace = "$(BOLD_FONT)"
-local infoPanelFontSize = 16
-local infoPanelFontStyle = "soft-shadow-thin"
-local g_infoPanelFont = string_format("%s|%d|%s", infoPanelFontFace, infoPanelFontSize, infoPanelFontStyle)
+local g_infoPanelFont = nil -- This will be initialized when settings are loaded
 
 --- @type TopLevelWindow
 local uiPanel = nil
@@ -122,6 +122,38 @@ local uiBags =
 
 local panelFragment
 
+-- Apply font changes to the info panel elements
+function InfoPanel.ApplyFont()
+    if not InfoPanel.Enabled then
+        return
+    end
+
+    -- Get font settings
+    local fontName = LUIE.Fonts[InfoPanel.SV.FontFace]
+    if not fontName or fontName == "" then
+        if LUIE.IsDevDebugEnabled() then
+            LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
+        end
+        fontName = "$(BOLD_FONT)"
+    end
+
+    local fontStyle = (InfoPanel.SV.FontStyle and InfoPanel.SV.FontStyle ~= "") and InfoPanel.SV.FontStyle or "soft-shadow-thin"
+    local fontSize = (InfoPanel.SV.FontSize and InfoPanel.SV.FontSize > 0) and InfoPanel.SV.FontSize or 16
+
+    -- Create font string
+    g_infoPanelFont = string_format("%s|%d|%s", fontName, fontSize, fontStyle)
+
+    -- Apply font to all elements
+    if uiLatency.label then uiLatency.label:SetFont(g_infoPanelFont) end
+    if uiFps.label then uiFps.label:SetFont(g_infoPanelFont) end
+    if uiClock.label then uiClock.label:SetFont(g_infoPanelFont) end
+    if uiGems.label then uiGems.label:SetFont(g_infoPanelFont) end
+    if uiGold.label then uiGold.label:SetFont(g_infoPanelFont) end
+    if uiFeedTimer.label then uiFeedTimer.label:SetFont(g_infoPanelFont) end
+    if uiArmour.label then uiArmour.label:SetFont(g_infoPanelFont) end
+    if uiBags.label then uiBags.label:SetFont(g_infoPanelFont) end
+end
+
 function InfoPanel.SetDisplayOnMap()
     if InfoPanel.SV.DisplayOnWorldMap then
         sceneManager:GetScene("worldMap"):AddFragment(panelFragment)
@@ -153,6 +185,15 @@ local function CreateUIControls()
     uiTopRow = UI:Control(uiPanel, { TOP, TOP, 0, 2 }, { 300, 20 }, false)
 
     uiBotRow = UI:Control(uiPanel, { BOTTOM, BOTTOM, 0, -2 }, { 300, 20 }, false)
+
+    -- Create font string from settings
+    local fontName = LUIE.Fonts[InfoPanel.SV.FontFace]
+    if not fontName or fontName == "" then
+        fontName = "$(BOLD_FONT)"
+    end
+    local fontStyle = (InfoPanel.SV.FontStyle and InfoPanel.SV.FontStyle ~= "") and InfoPanel.SV.FontStyle or "soft-shadow-thin"
+    local fontSize = (InfoPanel.SV.FontSize and InfoPanel.SV.FontSize > 0) and InfoPanel.SV.FontSize or 16
+    g_infoPanelFont = string_format("%s|%d|%s", fontName, fontSize, fontStyle)
 
     uiLatency.control = UI:Control(uiTopRow, nil, { 75, 20 }, false)
     uiLatency.icon = UI:Texture(uiLatency.control, { LEFT, LEFT }, { 24, 24 }, "/esoui/art/campaign/campaignbrowser_hipop.dds", nil, false)
@@ -346,6 +387,9 @@ function InfoPanel.Initialize(enabled)
     InfoPanel.OnUpdate60()
     InfoPanel.UpdateMountFeedTimer()
 
+    -- Apply font settings
+    InfoPanel.ApplyFont()
+
     -- Set event handlers
     eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, InfoPanel.OnBagUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, InfoPanel.OnBagUpdate)
@@ -426,7 +470,7 @@ local function UpdateBagDisplay()
             end
         end
     end
-    uiBags.label:SetText(string_format("%d/%d", bagUsed, bagSize))
+    uiBags.label:SetText(ZO_FormatFraction(bagUsed, bagSize))
     uiBags.label:SetColor(color.r, color.g, color.b, 1)
 end
 
@@ -447,7 +491,7 @@ local function UpdateSoulgemDisplay()
         icon = "/esoui/art/icons/soulgem_001_empty.dds"
     end
     uiGems.icon:SetTexture(icon)
-    uiGems.label:SetText((fullCount > 9) and fullText or (fullText .. "/" .. emptyCount))
+    uiGems.label:SetText((fullCount > 9) and fullText or ZO_FormatFraction(fullCount, emptyCount))
 end
 
 -- Performs calculation of empty space in bags
