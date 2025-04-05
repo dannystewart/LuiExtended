@@ -304,7 +304,6 @@ function InfoPanel.RearrangePanel()
     uiPanel:SetWidth(zo_max(uiTopRow:GetWidth(), uiBotRow:GetWidth(), 39 * 6))
     -- Set scale of panel again
     InfoPanel.SetScale()
-    uiPanel:SetHidden(false)
 end
 
 function InfoPanel.Initialize(enabled)
@@ -383,7 +382,6 @@ function InfoPanel.SetScale()
         return
     end
     uiPanel:SetScale(InfoPanel.SV.panelScale and InfoPanel.SV.panelScale / 100 or 1)
-    uiPanel:SetHidden(false)
 end
 
 -- Format number with commas
@@ -411,13 +409,10 @@ function InfoPanel.OnBagUpdate()
     eventManager:RegisterForUpdate(moduleName .. "PendingBagsUpdate", ZO_ONE_SECOND_IN_MILLISECONDS / 4, InfoPanel.DoBagUpdate)
 end
 
--- Performs calculation of empty space in bags
--- Called with delay by corresponding event listener
-function InfoPanel.DoBagUpdate()
-    -- Clear pending event
-    eventManager:UnregisterForUpdate(moduleName .. "PendingBagsUpdate")
+-- Helper function to update bag display
+local function UpdateBagDisplay()
+    if InfoPanel.SV.HideBags then return end
 
-    -- Update bags
     local bagSize = GetBagSize(BAG_BACKPACK)
     local bagUsed = GetNumBagUsedSlots(BAG_BACKPACK)
 
@@ -433,8 +428,12 @@ function InfoPanel.DoBagUpdate()
     end
     uiBags.label:SetText(string_format("%d/%d", bagUsed, bagSize))
     uiBags.label:SetColor(color.r, color.g, color.b, 1)
+end
 
-    -- Update soulgems
+-- Helper function to update soulgem display
+local function UpdateSoulgemDisplay()
+    if InfoPanel.SV.HideGems then return end
+
     local myLevel = GetUnitEffectiveLevel("player")
     local _, icon, emptyCount = GetSoulGemInfo(SOUL_GEM_TYPE_EMPTY, myLevel, true)
     local _, iconF, fullCount = GetSoulGemInfo(SOUL_GEM_TYPE_FILLED, myLevel, true)
@@ -451,16 +450,31 @@ function InfoPanel.DoBagUpdate()
     uiGems.label:SetText((fullCount > 9) and fullText or (fullText .. "/" .. emptyCount))
 end
 
+-- Performs calculation of empty space in bags
+-- Called with delay by corresponding event listener
+function InfoPanel.DoBagUpdate()
+    -- Clear pending event
+    eventManager:UnregisterForUpdate(moduleName .. "PendingBagsUpdate")
+
+    -- Update bags and soulgems
+    UpdateBagDisplay()
+    UpdateSoulgemDisplay()
+end
+
 local function FormatClock(clockFormat)
     local timestring = GetTimeString()
     return LUIE.CreateTimestamp(timestring, clockFormat)
 end
 
-function InfoPanel.OnUpdate01()
-    -- Update time
+-- Helper function to update and color the clock display
+local function UpdateClock()
+    if InfoPanel.SV.HideClock then return end
     uiClock.label:SetText(FormatClock(InfoPanel.SV.ClockFormat))
+end
 
-    -- Update fps
+-- Helper function to update and color the FPS display
+local function UpdateFPS()
+    if InfoPanel.SV.HideFPS then return end
     local fps = GetFramerate()
     local color = colors.WHITE
     if not InfoPanel.SV.DisableInfoColours then
@@ -476,8 +490,9 @@ function InfoPanel.OnUpdate01()
     uiFps.label:SetColor(color.r, color.g, color.b, 1)
 end
 
-function InfoPanel.OnUpdate10()
-    -- Update latency
+-- Helper function to update and color the latency display
+local function UpdateLatency()
+    if InfoPanel.SV.HideLatency then return end
     local lat = GetLatency()
     local color = colors.WHITE
     if not InfoPanel.SV.DisableInfoColours then
@@ -491,6 +506,68 @@ function InfoPanel.OnUpdate10()
     end
     uiLatency.label:SetText(string_format("%d ms", lat))
     uiLatency.label:SetColor(color.r, color.g, color.b, 1)
+end
+
+-- Helper function to update and color armor durability display
+local function UpdateArmourDurability()
+    if InfoPanel.SV.HideArmour then return end
+
+    local slotCount = 0
+    local duraSum = 0
+    local totalSlots = GetBagSize(BAG_WORN)
+    for slotNum = 0, totalSlots - 1 do
+        if DoesItemHaveDurability(BAG_WORN, slotNum) == true then
+            duraSum = duraSum + GetItemCondition(BAG_WORN, slotNum)
+            slotCount = slotCount + 1
+        end
+    end
+    local duraPercentage = (slotCount == 0) and 0 or duraSum / slotCount
+    local color = uiArmour.color[#uiArmour.color].color
+    local iconcolor = uiArmour.color[#uiArmour.color].iconcolor
+    for i = 1, #uiArmour.color - 1 do
+        if duraPercentage < uiArmour.color[i].dura then
+            color = uiArmour.color[i].color
+            iconcolor = uiArmour.color[i].iconcolor
+            break
+        end
+    end
+    uiArmour.label:SetText(string_format("%d%%", duraPercentage))
+    uiArmour.label:SetColor(color.r, color.g, color.b, 1)
+    uiArmour.icon:SetColor(iconcolor.r, iconcolor.g, iconcolor.b, 1)
+end
+
+-- Helper function to update and color weapon charges display
+local function UpdateWeaponCharges()
+    if InfoPanel.SV.HideWeapons then return end
+
+    for _, icon in pairs({ uiWeapons.main, uiWeapons.swap }) do
+        local charges, maxCharges = GetChargeInfoForItem(BAG_WORN, icon.slotIndex)
+        local color = colors.GRAY
+        if maxCharges > 0 then
+            color = uiWeapons.color[#uiWeapons.color].color
+            local chargesPercentage = 100 * charges / maxCharges
+            for i = 1, #uiWeapons.color - 1 do
+                if chargesPercentage < uiWeapons.color[i].charges then
+                    color = uiWeapons.color[i].color
+                    break
+                end
+            end
+        end
+        icon:SetColor(color.r, color.g, color.b, 1)
+    end
+end
+
+function InfoPanel.OnUpdate01()
+    -- Update time
+    UpdateClock()
+
+    -- Update fps
+    UpdateFPS()
+end
+
+function InfoPanel.OnUpdate10()
+    -- Update latency
+    UpdateLatency()
 
     -- Update gold.
     InfoPanel.UpdateGold()
@@ -538,49 +615,10 @@ end
 
 function InfoPanel.OnUpdate60()
     -- Update item durability
-    if not InfoPanel.SV.HideArmour then
-        local slotCount = 0
-        local duraSum = 0
-        local totalSlots = GetBagSize(BAG_WORN)
-        for slotNum = 0, totalSlots - 1 do
-            if DoesItemHaveDurability(BAG_WORN, slotNum) == true then
-                duraSum = duraSum + GetItemCondition(BAG_WORN, slotNum)
-                slotCount = slotCount + 1
-            end
-        end
-        local duraPercentage = (slotCount == 0) and 0 or duraSum / slotCount
-        local color = uiArmour.color[#uiArmour.color].color
-        local iconcolor = uiArmour.color[#uiArmour.color].iconcolor
-        for i = 1, #uiArmour.color - 1 do
-            if duraPercentage < uiArmour.color[i].dura then
-                color = uiArmour.color[i].color
-                iconcolor = uiArmour.color[i].iconcolor
-                break
-            end
-        end
-        uiArmour.label:SetText(string_format("%d%%", duraPercentage))
-        uiArmour.label:SetColor(color.r, color.g, color.b, 1)
-        uiArmour.icon:SetColor(iconcolor.r, iconcolor.g, iconcolor.b, 1)
-    end
+    UpdateArmourDurability()
 
     -- Get charges information
-    if not InfoPanel.SV.HideWeapons then
-        for _, icon in pairs({ uiWeapons.main, uiWeapons.swap }) do
-            local charges, maxCharges = GetChargeInfoForItem(BAG_WORN, icon.slotIndex)
-            local color = colors.GRAY
-            if maxCharges > 0 then
-                color = uiWeapons.color[#uiWeapons.color].color
-                local chargesPercentage = 100 * charges / maxCharges
-                for i = 1, #uiWeapons.color - 1 do
-                    if chargesPercentage < uiWeapons.color[i].charges then
-                        color = uiWeapons.color[i].color
-                        break
-                    end
-                end
-            end
-            icon:SetColor(color.r, color.g, color.b, 1)
-        end
-    end
+    UpdateWeaponCharges()
 
     -- Update bag slot count
     InfoPanel.DoBagUpdate()
