@@ -18,9 +18,10 @@ local function GetFormattedCollectibleName(id)
     return zo_strformat("<<1>>", GetCollectibleName(id)) -- Remove ^M and ^F
 end
 
---- @param collectibleTable CollectibleTables
---- @return table options
---- @return table optionKeys
+--- @generic T
+--- @param collectibleTable T | CollectibleTables
+--- @return T options
+--- @return T optionKeys
 local function CreateOptions(collectibleTable)
     local options = {}
     local optionKeys = {}

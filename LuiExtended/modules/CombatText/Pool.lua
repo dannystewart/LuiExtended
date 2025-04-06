@@ -6,10 +6,10 @@
 --- @class (partial) LuiExtended
 local LUIE = LUIE
 
---- @class CombatTextPool : ZO_ObjectPool
+--- @class (partial) CombatTextPool : ZO_ObjectPool
 --- @field private poolType string The type of pool (control or animation)
 LUIE.CombatTextPool = ZO_ObjectPool:Subclass()
---- @class CombatTextPool : ZO_ObjectPool
+--- @class (partial) CombatTextPool : ZO_ObjectPool
 local CombatTextPool = LUIE.CombatTextPool
 
 -- Import constants and utilities
@@ -113,13 +113,13 @@ function CombatTextPool:New(poolType)
         error("poolType is required for CombatTextPool:New()")
     end
 
-    ---@class CombatTextPool:ZO_ObjectPool
+    ---@class (partial) CombatTextPool:ZO_ObjectPool
     local obj
     if poolType == poolTypes.CONTROL then
-        ---@class CombatTextPool:ZO_ObjectPool
+        ---@class (partial) CombatTextPool:ZO_ObjectPool
         obj = ZO_ObjectPool:New(self.CreateNewControl, self.ResetControl)
     else
-        ---@class CombatTextPool:ZO_ObjectPool
+        ---@class (partial) CombatTextPool:ZO_ObjectPool
         obj = ZO_ObjectPool:New(self.CreateNewAnimation, function () end)
     end
 

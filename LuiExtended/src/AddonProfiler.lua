@@ -1,4 +1,4 @@
---- @class AddonProfiler
+--- @class (partial) AddonProfiler
 --- @field isRunning boolean Whether the profiler is currently running
 --- @field results table<string, any> Results storage
 --- @field addonName string Name of the addon being profiled
@@ -17,7 +17,7 @@ local collectgarbage = collectgarbage
 local os_rawclock = os.rawclock
 -- -----------------------------------------------------------------------------
 
---- @class AddonProfiler
+--- @class (partial) AddonProfiler
 local AddonProfiler =
 {
     isRunning = false,
