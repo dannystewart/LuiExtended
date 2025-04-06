@@ -376,10 +376,10 @@ function InfoPanel.Initialize(enabled)
     end
 
     -- Dragging
-    uiPanel.OnMoveStop = function (self)
+    local OnMoveStop = function (self)
         InfoPanel.SV.position = { self:GetCenter() }
     end
-    uiPanel:SetHandler("OnMoveStop", uiPanel.OnMoveStop)
+    uiPanel:SetHandler("OnMoveStop", OnMoveStop)
 
     -- Set init values
     InfoPanel.OnUpdate01()
@@ -491,7 +491,7 @@ local function UpdateSoulgemDisplay()
         icon = "/esoui/art/icons/soulgem_001_empty.dds"
     end
     uiGems.icon:SetTexture(icon)
-    uiGems.label:SetText((fullCount > 9) and fullText or ZO_FormatFraction(fullCount, emptyCount))
+    uiGems.label:SetText((fullCount > 9) and fullText or (fullText .. "/" .. emptyCount))
 end
 
 -- Performs calculation of empty space in bags
