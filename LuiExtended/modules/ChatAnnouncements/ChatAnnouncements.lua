@@ -2671,35 +2671,8 @@ local function AchievementPctToColor(pct)
     return pct == 1 and "71DE73" or pct < 0.33 and "F27C7C" or pct < 0.66 and "EDE858" or "CCF048"
 end
 
---- @param achievementId any
---- @return number|nil
-local function GetCategoryInfoFromAchievementIdDetailed(achievementId)
-    -- If the user is selecting from the recent achievements list, there
-    --  will not be an open category id, so attempt to get the category
-    --  from the achievement.
-    local categoryId = GetCategoryInfoFromAchievementId(achievementId)
-    if categoryId then
-        return categoryId
-    end
-
-    -- Some achievements cannot find their category id properly, so try
-    --  walking the achievement chain and look for one that has a category
-    --  id.
-    local tryAchievementId = GetFirstAchievementInLine(achievementId)
-    while tryAchievementId ~= 0 do
-        categoryId = GetCategoryInfoFromAchievementId(tryAchievementId)
-        if categoryId then
-            return categoryId
-        end
-        tryAchievementId = GetNextAchievementInLine(tryAchievementId)
-    end
-
-    -- We were unable to determine the correct category id.
-    return nil
-end
-
 function ChatAnnouncements.OnAchievementUpdated(eventCode, id)
-    local topLevelIndex, categoryIndex, achievementIndex = GetCategoryInfoFromAchievementIdDetailed(id)
+    local topLevelIndex, categoryIndex, achievementIndex = GetCategoryInfoFromAchievementId(id)
     -- Bail out if this achievement comes from unwanted category
     if ChatAnnouncements.SV.Achievement.AchievementCategoryIgnore[topLevelIndex] then
         return
@@ -10221,7 +10194,9 @@ function ChatAnnouncements.HookFunction()
         if mt and mt.__index then
             local originalSend = mt.__index.Send
             mt.__index.Send = function (self, ...)
-                LUIE.Debug("MAIL_SEND:Send has been hooked!")
+                if LUIE.IsDevDebugEnabled() then
+                    LUIE.Debug("MAIL_SEND:Send has been hooked!")
+                end
                 windowManager:SetFocusByName("")
 
                 if not self.sendMoneyMode and GetQueuedCOD() == 0 then
@@ -10334,7 +10309,7 @@ function ChatAnnouncements.HookFunction()
     end
 
     -- HOOK Group Invite function so we can modify CA/Alert here
-    TryGroupInviteByName = function (characterOrDisplayName, sentFromChat, displayInvitedMessage, isMenu)
+    ZO_PreHook("TryGroupInviteByName", function (characterOrDisplayName, sentFromChat, displayInvitedMessage, isMenu)
         if IsPlayerInGroup(characterOrDisplayName) then
             printToChat(GetString(SI_GROUP_ALERT_INVITE_PLAYER_ALREADY_MEMBER), true)
             if ChatAnnouncements.SV.Group.GroupAlert then
@@ -10374,13 +10349,13 @@ function ChatAnnouncements.HookFunction()
 
             CompleteGroupInvite(characterOrDisplayName, sentFromChat, displayInvitedMessage, isMenu)
         end
-    end
+    end)
 
     ChatAnnouncements.GuildHooks()
 
     -- Replace the default DeclineLFGReadyCheckNotification function to display the message that we are not in queue any longer + LFG activity join event.
     local zos_DeclineLFGReadyCheckNotification = DeclineLFGReadyCheckNotification
-    DeclineLFGReadyCheckNotification = function (self)
+    ZO_PostHook("DeclineLFGReadyCheckNotification", function (self)
         zos_DeclineLFGReadyCheckNotification()
 
         local message = (GetString(SI_LFGREADYCHECKCANCELREASON3))
@@ -10396,7 +10371,7 @@ function ChatAnnouncements.HookFunction()
         if ChatAnnouncements.SV.Group.GroupLFGQueueAlert then
             ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
         end
-    end
+    end)
 end
 
 function ChatAnnouncements.GuildHooks()

@@ -1519,7 +1519,8 @@ function UnitFrames.CustomFramesApplyBarAlignment()
     end
 end
 
--- Define a function to extract the anchor information
+-- A function to extract the anchor information
+---@param frame Control
 local function GetAnchorInfo(frame)
     local anchorIndex = 1
     local isValidAnchor, point, relativeTo, relativePoint, offsetX, offsetY = frame:GetAnchor(anchorIndex)
@@ -2212,6 +2213,7 @@ function UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
             local i = zo_strsub(unitTag, 6)
             if _G["ZO_GroupUnitFramegroup" .. i] then
                 local parentBar = _G["ZO_GroupUnitFramegroup" .. i .. "Hp"]
+                ---@cast parentBar Control
                 local parentName = _G["ZO_GroupUnitFramegroup" .. i .. "Name"]
                 -- Prepare dimension of regen bar
                 local width, height = parentBar:GetDimensions()
@@ -2843,14 +2845,21 @@ end
 --- @param params table Parameters containing values for text formatting
 --- @return string formatted The formatted text string
 local function FormatAttributeText(format, params)
-    local str = zo_strgsub(format, "Percentage", tostring(params.percentValue))
-    str = zo_strgsub(str, "Max", AbbreviateNumber(params.powerEffectiveMax, UnitFrames.SV.ShortenNumbers, true))
-    str = zo_strgsub(str, "Current", AbbreviateNumber(params.powerValue, UnitFrames.SV.ShortenNumbers, true))
-    str = zo_strgsub(str, "+ Shield", params.shield and ("+ " .. AbbreviateNumber(params.shield, UnitFrames.SV.ShortenNumbers, true)) or "")
-    str = zo_strgsub(str, "- Trauma", params.trauma and ("- (" .. AbbreviateNumber(params.trauma, UnitFrames.SV.ShortenNumbers, true) .. ")") or "")
-    str = zo_strgsub(str, "Nothing", "")
-    local txt = zo_strgsub(str, "  ", " ")
-    return txt
+    local substitutions = {
+        ["Percentage"] = tostring(params.percentValue);
+        ["Max"] = AbbreviateNumber(params.powerEffectiveMax, UnitFrames.SV.ShortenNumbers, true);
+        ["Current"] = AbbreviateNumber(params.powerValue, UnitFrames.SV.ShortenNumbers, true);
+        ["+ Shield"] = params.shield and ("+ " .. AbbreviateNumber(params.shield, UnitFrames.SV.ShortenNumbers, true)) or "";
+        ["- Trauma"] = params.trauma and ("- (" .. AbbreviateNumber(params.trauma, UnitFrames.SV.ShortenNumbers, true) .. ")") or "";
+        ["Nothing"] = "";
+    }
+
+    local str = format
+    for k, v in pairs(substitutions) do
+        str = zo_strgsub(str, k, v)
+    end
+    str = zo_strgsub(str, "  ", " ") -- Handle double spaces
+    return str
 end
 
 --- Gets the appropriate color for a label based on unit status and health percentage
@@ -3828,6 +3837,7 @@ function UnitFrames.OnCombatEvent(eventCode, result, isError, abilityName, abili
         g_powerError[powerType] = true
         -- Save original center color and color to red
         local backdrop = UnitFrames.CustomFrames["player"][powerType].backdrop
+        ---@cast backdrop BackdropControl
         local r, g, b = backdrop:GetCenterColor()
         if powerType == COMBAT_MECHANIC_FLAGS_STAMINA then
             backdrop:SetCenterColor(0, 0.2, 0, 0.9)
@@ -5888,6 +5898,11 @@ local function insertRole(list, currentRole)
     end
 end
 
+---@param index number
+---@param itemsPerColumn number
+---@param spacerHeight number
+---@return number xOffset
+---@return number yOffset
 local function calculateFramePosition(index, itemsPerColumn, spacerHeight)
     local column = zo_floor((index - 1) / itemsPerColumn)
     local row = (index - 1) % itemsPerColumn + 1

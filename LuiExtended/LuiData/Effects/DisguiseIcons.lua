@@ -16,7 +16,14 @@ local zo_strformat = zo_strformat
 --------------------------------------------------------------------------------------------------------------------------------
 -- Data for icon & description to show for the fake Disguise buff applied to the player.
 --------------------------------------------------------------------------------------------------------------------------------
+
+--- @class DisguiseIconsAttributes
+--- @field icon string Icon to use
+--- @field description string String to use for description when equipped (used by Chat Announcements)
+--- @field id number Ability id to pull a tooltip description from
+
 --- @class (partial) DisguiseIcons
+--- @field [number] DisguiseIconsAttributes Table of disguise icon definitions
 local DisguiseIcons =
 {
     -- Required:

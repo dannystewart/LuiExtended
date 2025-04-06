@@ -7,7 +7,7 @@
 local LUIE = LUIE
 
 -- CombatInfo namespace
---- @class LUIE.CombatInfo
+--- @class (partial) LUIE.CombatInfo
 LUIE.CombatInfo = {}
 LUIE.CombatInfo.__index = LUIE.CombatInfo
 
@@ -24,7 +24,7 @@ LUIE.CombatInfo.CrowdControlTracker =
 }
 
 
---- @class LUIE.CombatInfo
+--- @class (partial) LUIE.CombatInfo
 local CombatInfo = LUIE.CombatInfo
 local ACTION_RESULT_AREA_EFFECT = 669966
 CombatInfo.Enabled = false

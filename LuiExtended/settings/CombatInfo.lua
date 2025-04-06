@@ -54,7 +54,7 @@ if LMP then
     end
 end
 
---- @class LUIE.CombatInfo
+--- @class (partial) LUIE.CombatInfo
 local CombatInfo = LUIE.CombatInfo
 local CrowdControlTracker = CombatInfo.CrowdControlTracker
 local AbilityAlerts = CombatInfo.AbilityAlerts

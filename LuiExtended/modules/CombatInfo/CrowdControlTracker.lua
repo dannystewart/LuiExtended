@@ -1334,6 +1334,7 @@ function CrowdControlTracker:BreakFreeAnimation()
     return timeline
 end
 
+---@param control Control
 function CrowdControlTracker:StartAnimation(control, animType, test)
     if self.currentlyPlaying then
         self.currentlyPlaying:Stop()
