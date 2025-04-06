@@ -16,7 +16,7 @@ local zo_strformat = zo_strformat
 --------------------------------------------------------------------------------------------------------------------------------
 -- Icon to display for Assistant Collectibles
 --------------------------------------------------------------------------------------------------------------------------------
---- @class AssistantIcons
+--- @class (partial) AssistantIcons
 --- @field [string] string Table mapping collectible names to their icon paths
 local AssistantIcons =
 {

@@ -16,7 +16,7 @@
 --- @field ReversedLogic table
 --- @field SpecialCC table
 
---- @class Effects
+--- @class (partial) Effects
 --- @field AddGroundDamageAura AddGroundDamageAura Table of fake ground damage aura definitions
 --- @field AddNameAura AddNameAura Table of effects that need name auras added
 --- @field AddNameOnBossEngaged AddNameOnBossEngaged Table of effects that add names when boss is engaged
