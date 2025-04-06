@@ -731,6 +731,7 @@ function LUIE.SetupFont(fontNameKey, fontStyleKey, fontSizeKey, settings, defaul
     if not fontName or fontName == "" then
         LUIE.PrintToChat(GetString(LUIE_STRING_ERROR_FONT), true)
         fontName = defaultFont
+        return fontName
     end
 
     -- Handle font size and style - if keys aren't provided, don't try to access them in settings
