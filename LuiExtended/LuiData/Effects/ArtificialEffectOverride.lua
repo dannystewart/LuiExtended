@@ -13,8 +13,8 @@ local Abilities = LuiData.Data.Abilities
 
 local zo_strformat = zo_strformat
 
-local ESO_Plus_Member = function ()
-    local displayName, _, _, _, _, _, _ = GetArtificialEffectInfo(0)
+local ESO_Plus_Member = function()
+    local displayName, _, _, _, _, _ = GetArtificialEffectInfo(0)
     return displayName
 end
 --------------------------------------------------------------------------------------------------------------------------------
