@@ -32,6 +32,8 @@ local moduleName = LUIE.name .. "ChatAnnouncements"
 -- LOCAL (GLOBAL) VARIABLE SETUP ---------------
 ------------------------------------------------
 
+local isWritCreaterEnabled = false
+
 -- Basic
 local g_activatedFirstLoad = true
 
@@ -332,6 +334,8 @@ function ChatAnnouncements.Initialize(enabled)
         return
     end
     ChatAnnouncements.Enabled = true
+
+    isWritCreaterEnabled = LUIE.IsItEnabled("DolgubonsLazyWritCreator")
 
     -- Get current group leader
     g_currentGroupLeaderRawName = GetRawUnitName(GetGroupLeaderUnitTag())
@@ -8000,7 +8004,7 @@ function ChatAnnouncements.HookFunction()
         end
 
         -- Check WritCreater settings first
-        if WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
+        if isWritCreaterEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
             if LUIE.IsDevDebugEnabled() then
                 LUIE.Debug([[Writ Quest Condition Suppressed:
 --> Quest: %s
@@ -8236,7 +8240,7 @@ function ChatAnnouncements.HookFunction()
     -- Note: Quest Advancement displays all the "appropriate" conditions that the player needs to do to advance the current step
     local function OnQuestAdvanced(eventId, questIndex, questName, isPushed, isComplete, mainStepChanged, soundOverride)
         -- Check if WritCreater is enabled & then call a copy of a local function from WritCreater to check if this is a Writ Quest
-        if WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(questIndex) then
+        if isWritCreaterEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(questIndex) then
             if LUIE.IsDevDebugEnabled() then
                 LUIE.Debug([[Writ Quest Condition Suppressed:
 --> Quest: %s
@@ -8329,7 +8333,7 @@ function ChatAnnouncements.HookFunction()
     -- EVENT_QUEST_ADDED (Registered through CSA_MiscellaneousHandlers)
     local function OnQuestAdded(eventId, questIndex)
         -- Handle WritCrafter integration
-        if WritCreater then
+        if isWritCreaterEnabled and WritCreater then
             -- Auto-abandon quests with disallowed materials
             local rejectedMat = rejectQuest(questIndex)
             if rejectedMat then
