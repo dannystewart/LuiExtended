@@ -51,7 +51,9 @@ end
 
 local string_format = string.format
 
+-- Default log settings
 LUIE.log_to_chat = false
+LUIE.log_stack_traces = true
 
 --- Retrieves the logger object
 --- @return table|NOP logger The logger object
@@ -60,6 +62,7 @@ function LUIE.Logger()
     if not self.logger then
         if LibDebugLogger then
             self.logger = LibDebugLogger.Create(self.name)
+            self.logger:SetLogTracesOverride(LUIE.log_stack_traces)
         end
         if not self.logger then
             self.logger = NOP
@@ -68,13 +71,15 @@ function LUIE.Logger()
     return self.logger
 end
 
+local LUIE_LOGGER = LUIE.Logger()
+
 --- Logs a message with a specified color
 --- @param color string The color code for the log message
 --- @param ... any Variable number of arguments to be formatted and logged
 function LUIE.Log(color, ...)
     if LUIE.log_to_chat then
         local message = LUIE.name .. ": "
-        if select('#', ...) > 0 then
+        if select("#", ...) > 0 then
             message = message .. string_format(...)
         end
         -- ESO only supports 6 digit hex colors
@@ -87,7 +92,7 @@ end
 --- @param ... any Additional values to format into message
 function LUIE.Debug(message, ...)
     LUIE.Log("FF666666", ...)
-    LUIE.Logger():Debug(message, ...)
+    LUIE_LOGGER:Debug(message, ...)
 end
 
 --- Logs an info message
@@ -95,7 +100,7 @@ end
 --- @param ... any Additional values to format into message
 function LUIE.Info(message, ...)
     LUIE.Log("FF999999", ...)
-    LUIE.Logger():Info(message, ...)
+    LUIE_LOGGER:Info(message, ...)
 end
 
 --- Logs a warning message
@@ -103,7 +108,7 @@ end
 --- @param ... any Additional values to format into message
 function LUIE.Warn(message, ...)
     LUIE.Log("FFFF8800", ...)
-    LUIE.Logger():Warn(message, ...)
+    LUIE_LOGGER:Warn(message, ...)
 end
 
 --- Logs an error message
@@ -111,7 +116,7 @@ end
 --- @param ... any Additional values to format into message
 function LUIE.Error(message, ...)
     LUIE.Log("FFFF6666", ...)
-    LUIE.Logger():Error(message, ...)
+    LUIE_LOGGER:Error(message, ...)
 end
 
 --- Logs a verbose message
@@ -119,5 +124,5 @@ end
 --- @param ... any Additional values to format into message
 function LUIE.Verbose(message, ...)
     LUIE.Log("FF777575", ...)
-    LUIE.Logger():Verbose(message, ...)
+    LUIE_LOGGER:Verbose(message, ...)
 end
