@@ -770,7 +770,7 @@ local function SetBarRemainLabel(remain, abilityId)
 end
 
 -- Procs
-local doProcs = function (currentTime)
+local function doProcs(currentTime)
     for k, v in pairs(g_triggeredSlotsRemain) do
         local remain = v - currentTime
         local front = g_triggeredSlotsFront[k]
@@ -800,7 +800,7 @@ local doProcs = function (currentTime)
 end
 
 -- Ability Highlight
-local doHighlights = function (currentTime)
+local function doHighlights(currentTime)
     for k, v in pairs(g_toggledSlotsRemain) do
         local remain = v - currentTime
         local front = g_toggledSlotsFront[k]
@@ -831,7 +831,7 @@ local doHighlights = function (currentTime)
 end
 
 -- Quickslot cooldown
-local doQuickslot = function ()
+local function doQuickslot()
     if CombatInfo.SV.PotionTimerShow then
         local slotIndex = GetCurrentQuickslot()
         local remain, duration, _ = GetSlotCooldownInfo(slotIndex, HOTBAR_CATEGORY_QUICKSLOT_WHEEL)
@@ -873,7 +873,7 @@ local doQuickslot = function ()
 end
 
 -- Break castbar when movement interrupt is detected for certain effects.
-local doBreakCast = function ()
+local function doBreakCast()
     savedPlayerX = playerX
     savedPlayerZ = playerZ
     playerX, playerZ = GetMapPlayerPosition("player")
@@ -1128,7 +1128,6 @@ end
 -- This handler fires every time the player's reticle target changes.
 --- @param eventCode integer
 function CombatInfo.OnReticleTargetChanged(eventCode)
-    if not eventCode then return end
     -- Clear existing toggles that should be removed on target change
     for k, _ in pairs(g_toggledSlotsRemain) do
         local frontSlot = g_toggledSlotsFront[k]
