@@ -187,11 +187,11 @@ do
             formattedMessage = messageOrFormatter
         end
 
-        if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug(formattedMessage)
-        end
-
         CHAT_ROUTER:AddSystemMessage(formattedMessage)
+
+        if LibDebugLogger and LUIE.IsDevDebugEnabled() then
+            LUIE.Debug(messageOrFormatter, ...)
+        end
     end
 
     LUIE.AddSystemMessage = AddSystemMessage
