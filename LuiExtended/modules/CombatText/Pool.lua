@@ -15,13 +15,15 @@ local CombatTextPool = LUIE.CombatTextPool
 -- Import constants and utilities
 local poolTypes = LUIE.Data.CombatTextConstants.poolType
 
+--- @see easeInOutCirc(https://easings.net/#easeInOutCirc)
+---
+--- @param x number
+--- @return number
 local function easeInOutCirc(x)
     if x < 0.5 then
-        local t = 2 * x
-        return (1 - zo_sqrt(1 - t * t)) / 2
+        return (1 - zo_sqrt(1 - (2 * x) * (2 * x))) / 2
     else
-        local t = 2 * (1 - x)
-        return (zo_sqrt(1 - t * t) + 1) / 2
+        return (zo_sqrt(1 - (-2 * x + 2) * (-2 * x + 2)) + 1) / 2
     end
 end
 
@@ -29,7 +31,6 @@ end
 local fastSlow = ZO_GenerateCubicBezierEase(0.3, 0.9, 0.7, 1)
 local slowFast = ZO_GenerateCubicBezierEase(0.63, 0.1, 0.83, 0.69)
 local even = ZO_GenerateCubicBezierEase(0.63, 1.2, 0.83, 1)
-local easeOutIn = easeInOutCirc
 
 -- Animation configuration table
 local AnimationConfigs =
@@ -86,7 +87,7 @@ local AnimationConfigs =
         anim:Alpha(nil, 1, 0, speed * 500, speed * 3000, slowFast)
     end,
     [poolTypes.ANIMATION_ELLIPSE_X] = function (anim, speed)
-        anim:Move("scrollX", 0, 0, speed * 2500, 0, easeOutIn)
+        anim:Move("scrollX", 0, 0, speed * 2500, 0, easeInOutCirc)
     end,
     [poolTypes.ANIMATION_ELLIPSE_Y] = function (anim, speed)
         anim:Alpha(nil, 0, 1, speed * 50)
@@ -95,7 +96,7 @@ local AnimationConfigs =
     end,
     [poolTypes.ANIMATION_ELLIPSE_X_CRIT] = function (anim, speed)
         anim:Scale(nil, 1.5, 1, speed * 150, 0, slowFast)
-        anim:Move("scrollX", 0, 0, speed * 2500, 0, easeOutIn)
+        anim:Move("scrollX", 0, 0, speed * 2500, 0, easeInOutCirc)
     end,
     [poolTypes.ANIMATION_ELLIPSE_Y_CRIT] = function (anim, speed)
         anim:Alpha(nil, 0, 1, speed * 50)
@@ -113,13 +114,13 @@ function CombatTextPool:New(poolType)
         error("poolType is required for CombatTextPool:New()")
     end
 
-    ---@class (partial) CombatTextPool:ZO_ObjectPool
+    --- @class (partial) CombatTextPool:ZO_ObjectPool
     local obj
     if poolType == poolTypes.CONTROL then
-        ---@class (partial) CombatTextPool:ZO_ObjectPool
+        --- @class (partial) CombatTextPool:ZO_ObjectPool
         obj = ZO_ObjectPool:New(self.CreateNewControl, self.ResetControl)
     else
-        ---@class (partial) CombatTextPool:ZO_ObjectPool
+        --- @class (partial) CombatTextPool:ZO_ObjectPool
         obj = ZO_ObjectPool:New(self.CreateNewAnimation, function () end)
     end
 
@@ -136,7 +137,7 @@ end
 --- Creates a new control for the pool
 --- @return Control
 function CombatTextPool:CreateNewControl()
-    ---@type LUIE_CombatText_Virtual
+    --- @type LUIE_CombatText_Virtual
     local control = CreateControlFromVirtual("LUIE_CombatText_Virtual_Instance", LUIE_CombatText, "LUIE_CombatText_Virtual", self:GetNextControlId())
     control.label = control:GetNamedChild("_Amount")
     control.icon = control:GetNamedChild("_Icon")
