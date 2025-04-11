@@ -451,19 +451,21 @@ function LUIE.UpdateMundusTooltipSyntax(abilityId, tooltipText)
 end
 
 -- -----------------------------------------------------------------------------
---- @param index number
---- @param bar? HotBarCategory
---- @return number actionId
-function LUIE.GetSlotTrueBoundId(index, bar)
-    bar = bar or GetActiveHotbarCategory()
-    local id = GetSlotBoundId(index, bar)
-    local actionType = GetSlotType(index, bar)
-    if actionType == ACTION_TYPE_CRAFTED_ABILITY then
-        id = GetAbilityIdForCraftedAbilityId(id)
+do
+    --- @param actionSlotIndex integer
+    --- @param hotbarCategory HotBarCategory?
+    --- @return integer actionId
+    local function GetSlotTrueBoundId(actionSlotIndex, hotbarCategory)
+        hotbarCategory = hotbarCategory or GetActiveHotbarCategory()
+        local actionId = GetSlotBoundId(actionSlotIndex, hotbarCategory)
+        local actionType = GetSlotType(actionSlotIndex, hotbarCategory)
+        if actionType == ACTION_TYPE_CRAFTED_ABILITY then
+            actionId = GetAbilityIdForCraftedAbilityId(actionId)
+        end
+        return actionId
     end
-    return id
+    LUIE.GetSlotTrueBoundId = GetSlotTrueBoundId
 end
-
 -- -----------------------------------------------------------------------------
 
 -- Add this if not already.
