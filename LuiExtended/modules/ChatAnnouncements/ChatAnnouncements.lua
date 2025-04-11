@@ -3634,10 +3634,10 @@ function ChatAnnouncements.ItemFilter(itemType, itemId, itemLink, groupLoot)
 
     if ChatAnnouncements.SV.Inventory.LootOnlyNotable or groupLoot then
         -- Notable items are: any set items, any purple+ items, blue+ special items (e.g., treasure maps)
-        if hasSet or (itemQuality >= ITEM_QUALITY_ARCANE and itemIsSpecial) or (itemQuality >= ITEM_QUALITY_ARTIFACT and not itemIsKeyFragment) or (itemType == ITEMTYPE_COSTUME) or (itemType == ITEMTYPE_DISGUISE) or g_notableIDs[itemId] then
+        if hasSet or (itemQuality >= ITEM_FUNCTIONAL_QUALITY_ARCANE and itemIsSpecial) or (itemQuality >= ITEM_FUNCTIONAL_QUALITY_ARTIFACT and not itemIsKeyFragment) or (itemType == ITEMTYPE_COSTUME) or (itemType == ITEMTYPE_DISGUISE) or g_notableIDs[itemId] then
             return true
         end
-    elseif ChatAnnouncements.SV.Inventory.LootNotTrash and (itemQuality == ITEM_QUALITY_TRASH) and not ((itemType == ITEMTYPE_ARMOR) or (itemType == ITEMTYPE_COSTUME) or (itemType == ITEMTYPE_DISGUISE)) then
+    elseif ChatAnnouncements.SV.Inventory.LootNotTrash and (itemQuality == ITEM_FUNCTIONAL_QUALITY_TRASH) and not ((itemType == ITEMTYPE_ARMOR) or (itemType == ITEMTYPE_COSTUME) or (itemType == ITEMTYPE_DISGUISE)) then
         return false
     else
         return true
