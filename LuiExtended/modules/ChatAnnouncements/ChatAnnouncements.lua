@@ -10895,7 +10895,7 @@ function ChatAnnouncements.PrintQueuedMessages()
     end
 
     -- Process messages in defined order
-    for _, messageType in ipairs(messageTypeOrder) do
+    for _, messageType in pairs(messageTypeOrder) do
         for i = 1, #ChatAnnouncements.QueuedMessages do
             local message = ChatAnnouncements.QueuedMessages[i]
             if message and message.type == messageType then
