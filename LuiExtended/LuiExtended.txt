@@ -23,7 +23,7 @@ lang/settings/Settings_$(language).lua
 src/LuiExtended.lua
 src/LuiExtended_Log.lua
 src/Functions.lua
-src/Hooks_SkillsAdvisor.lua
+src/HooksSkillsAdvisor.lua
 src/Hooks.lua
 src/Initialize.lua
 src/UI.lua
