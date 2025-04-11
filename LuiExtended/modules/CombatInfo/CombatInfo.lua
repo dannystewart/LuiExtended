@@ -2204,7 +2204,6 @@ end
 --- @return boolean channeled
 --- @return integer durationValue
 local function getAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
-    overrideActiveRank = overrideActiveRank or nil
     overrideCasterUnitTag = overrideCasterUnitTag or "player"
     local channeled, durationValue = GetAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
     return channeled, durationValue
