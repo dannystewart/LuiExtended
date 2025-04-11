@@ -5643,14 +5643,15 @@ function ChatAnnouncements.JusticeStealRemove(eventCode)
 end
 
 function ChatAnnouncements.JusticeDisplayConfiscate()
-    if ChatAnnouncements.SV.Notify.NotificationConfiscateCA or ChatAnnouncements.SV.Notify.NotificationConfiscateAlert then
-        local ConfiscateMessage
+    local function getConfiscateMessage()
         if g_itemsConfiscated then
-            ConfiscateMessage = GetString(LUIE_STRING_CA_JUSTICE_CONFISCATED_BOUNTY_ITEMS_MSG)
+            return GetString(LUIE_STRING_CA_JUSTICE_CONFISCATED_BOUNTY_ITEMS_MSG)
         else
-            ConfiscateMessage = GetString(LUIE_STRING_CA_JUSTICE_CONFISCATED_MSG)
+            return GetString(LUIE_STRING_CA_JUSTICE_CONFISCATED_MSG)
         end
-
+    end
+    if ChatAnnouncements.SV.Notify.NotificationConfiscateCA or ChatAnnouncements.SV.Notify.NotificationConfiscateAlert then
+        local ConfiscateMessage = getConfiscateMessage()
         if ChatAnnouncements.SV.Notify.NotificationConfiscateCA then
             ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = ConfiscateMessage, type = "NOTIFICATION", isSystem = true }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
@@ -5669,6 +5670,7 @@ function ChatAnnouncements.JusticeRemovePrint()
     if ChatAnnouncements.SV.Inventory.LootConfiscate then
         local bagsize = GetBagSize(BAG_BACKPACK)
 
+        -- First pass: Build current inventory state
         for i = 0, bagsize do
             local icon, stack = GetItemInfo(BAG_BACKPACK, i)
             local itemType = GetItemType(BAG_BACKPACK, i)
@@ -5680,18 +5682,15 @@ function ChatAnnouncements.JusticeRemovePrint()
             end
         end
 
+        -- Second pass: Compare with previous inventory state
         for i = 0, bagsize do
             local inventoryitem = g_inventoryStacks[i]
             local justiceitem = g_JusticeStacks[i]
-            if inventoryitem ~= nil then
-                if justiceitem == nil then
-                    local receivedBy = ""
-                    local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
-                    local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
-                    if ChatAnnouncements.SV.Inventory.LootConfiscate then
-                        ChatAnnouncements.ItemPrinter(inventoryitem.icon, inventoryitem.stack, inventoryitem.itemType, inventoryitem.itemId, inventoryitem.itemLink, receivedBy, logPrefix, gainOrLoss, false)
-                    end
-                end
+            if inventoryitem ~= nil and justiceitem == nil then
+                local receivedBy = ""
+                local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
+                local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
+                ChatAnnouncements.ItemPrinter(inventoryitem.icon, inventoryitem.stack, inventoryitem.itemType, inventoryitem.itemId, inventoryitem.itemLink, receivedBy, logPrefix, gainOrLoss, false)
             end
         end
 
@@ -5700,28 +5699,17 @@ function ChatAnnouncements.JusticeRemovePrint()
 
         -- PART 2 -- EQUIPPED
         bagsize = GetBagSize(BAG_WORN)
+        -- Store weapon slot indices
+        local MAIN_HAND_SLOT = 4
+        local OFF_HAND_SLOT = 5
+        local BACKUP_MAIN_SLOT = 20
+        local BACKUP_OFF_SLOT = 21
 
-        -- We have to determine the currently active weapon, and swap the slots because of some wierd interaction when your equipped weapon is confiscated.
-        -- This works even if the other weapon slot is empty or both slots have a stolen weapon.
-        local weaponInfo = GetActiveWeaponPairInfo()
+        -- Get current weapon pair
+        local activeWeaponPair = GetActiveWeaponPairInfo()
 
-        -- Save weapons
-        local W1 = g_equippedStacks[4]
-        local W2 = g_equippedStacks[5]
-        local W3 = g_equippedStacks[20]
-        local W4 = g_equippedStacks[21]
-
-        -- Swap weapons depending on currently equipped pair
-        if weaponInfo == 1 then
-            g_equippedStacks[4] = W3
-            g_equippedStacks[5] = W4
-        end
-
-        if weaponInfo == 2 then
-            g_equippedStacks[20] = W1
-            g_equippedStacks[21] = W2
-        end
-
+        -- Build equipped items snapshot (after confiscation)
+        local currentEquippedItems = {}
         for i = 0, bagsize do
             local icon, stack = GetItemInfo(BAG_WORN, i)
             local itemType = GetItemType(BAG_WORN, i)
@@ -5729,23 +5717,49 @@ function ChatAnnouncements.JusticeRemovePrint()
             local itemLink = GetItemLink(BAG_WORN, i, linkBrackets[ChatAnnouncements.SV.BracketOptionItem])
 
             if itemLink ~= "" then
-                g_JusticeStacks[i] = { icon = icon, stack = stack, itemId = itemId, itemType = itemType, itemLink = itemLink }
+                currentEquippedItems[i] = { icon = icon, stack = stack, itemId = itemId, itemType = itemType, itemLink = itemLink }
             end
         end
 
+        -- Compare equipped items
         for i = 0, bagsize do
-            local inventoryitem = g_equippedStacks[i]
-            local justiceitem = g_JusticeStacks[i]
-            if inventoryitem ~= nil then
-                if justiceitem == nil then
+            -- Skip weapon slots - we'll handle those separately
+            if i ~= MAIN_HAND_SLOT and i ~= OFF_HAND_SLOT and
+            i ~= BACKUP_MAIN_SLOT and i ~= BACKUP_OFF_SLOT then
+                local previousItem = g_equippedStacks[i]
+                local currentItem = currentEquippedItems[i]
+
+                if previousItem ~= nil and currentItem == nil then
                     local receivedBy = ""
                     local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
-                    if ChatAnnouncements.SV.Inventory.LootConfiscate then
-                        ChatAnnouncements.ItemPrinter(inventoryitem.icon, inventoryitem.stack, inventoryitem.itemType, inventoryitem.itemId, inventoryitem.itemLink, receivedBy, logPrefix, gainOrLoss, false)
-                    end
+                    ChatAnnouncements.ItemPrinter(previousItem.icon, previousItem.stack, previousItem.itemType, previousItem.itemId, previousItem.itemLink, receivedBy, logPrefix, gainOrLoss, false)
                 end
             end
+        end
+
+        -- Handle weapon slots
+        local activeMain = (activeWeaponPair == 1) and MAIN_HAND_SLOT or BACKUP_MAIN_SLOT
+        local activeOff = (activeWeaponPair == 1) and OFF_HAND_SLOT or BACKUP_OFF_SLOT
+
+        -- Check if active main hand was confiscated
+        local previousActiveMain = g_equippedStacks[activeMain]
+        local currentActiveMain = currentEquippedItems[activeMain]
+        if previousActiveMain ~= nil and currentActiveMain == nil then
+            local receivedBy = ""
+            local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
+            local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
+            ChatAnnouncements.ItemPrinter(previousActiveMain.icon, previousActiveMain.stack, previousActiveMain.itemType, previousActiveMain.itemId, previousActiveMain.itemLink, receivedBy, logPrefix, gainOrLoss, false)
+        end
+
+        -- Check if active off hand was confiscated
+        local previousActiveOff = g_equippedStacks[activeOff]
+        local currentActiveOff = currentEquippedItems[activeOff]
+        if previousActiveOff ~= nil and currentActiveOff == nil then
+            local receivedBy = ""
+            local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
+            local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
+            ChatAnnouncements.ItemPrinter(previousActiveOff.icon, previousActiveOff.stack, previousActiveOff.itemType, previousActiveOff.itemId, previousActiveOff.itemLink, receivedBy, logPrefix, gainOrLoss, false)
         end
     end
 

@@ -291,8 +291,9 @@ local DEVS = readonlytable
         },
     }
 
---- @type table<string, DevEntry>
-LUIE.DEVS = DEVS
+-- @type table<string, DevEntry>
+-- LUIE.DEVS = DEVS
+
 -- -----------------------------------------------------------------------------
 -- Helper function to check if debug is enabled for current user
 function LUIE.IsDevDebugEnabled()
