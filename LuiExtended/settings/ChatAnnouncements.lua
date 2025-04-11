@@ -25,6 +25,22 @@ local guildRankDisplayOptionsKeys = { ["Self Only"] = 1, ["All w/ Permissions"] 
 local duelStartOptions = { "Message + Icon", "Message Only", "Icon Only" }
 local duelStartOptionsKeys = { ["Message + Icon"] = 1, ["Message Only"] = 2, ["Icon Only"] = 3 }
 
+---
+--- @param topLevelIndex integer
+--- @return string name
+local function GetCollectibleCategoryInfoName(topLevelIndex)
+    local name, numSubCatgories, numCollectibles, unlockedCollectibles, totalCollectibles, hidesLocked = GetCollectibleCategoryInfo(topLevelIndex)
+    return name
+end
+
+---
+--- @param topLevelIndex integer
+--- @return string name
+local function GetAchievementCategoryInfoName(topLevelIndex)
+    local name, numSubCatgories, numAchievements, earnedPoints, totalPoints, hidesPoints = GetAchievementCategoryInfo(topLevelIndex)
+    return name
+end
+
 function ChatAnnouncements.CreateSettings()
     -- Load LibAddonMenu
     local LAM = LibAddonMenu2
@@ -5407,8 +5423,8 @@ function ChatAnnouncements.CreateSettings()
             {
                 -- Enables collectible tracking in %s category
                 type = "checkbox",
-                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfo(3)),
-                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfo(3)),
+                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfoName(3)),
+                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfoName(3)),
                 getFunc = function ()
                     return Settings.Collectibles.CollectibleUseCategory3
                 end,
@@ -5424,8 +5440,8 @@ function ChatAnnouncements.CreateSettings()
             {
                 -- Enables collectible tracking in %s category
                 type = "checkbox",
-                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfo(7)),
-                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfo(7)),
+                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfoName(7)),
+                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfoName(7)),
                 getFunc = function ()
                     return Settings.Collectibles.CollectibleUseCategory7
                 end,
@@ -5442,8 +5458,8 @@ function ChatAnnouncements.CreateSettings()
             {
                 -- Enables collectible tracking in %s category
                 type = "checkbox",
-                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfo(8)),
-                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfo(8)),
+                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfoName(8)),
+                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfoName(8)),
                 getFunc = function() return Settings.Collectibles.CollectibleUseCategory8 end,
                 setFunc = function(value) Settings.Collectibles.CollectibleUseCategory8 = value end,
                 width = "full",
@@ -5455,8 +5471,8 @@ function ChatAnnouncements.CreateSettings()
             {
                 -- Enables collectible tracking in %s category
                 type = "checkbox",
-                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfo(10)),
-                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfo(10)),
+                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfoName(10)),
+                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfoName(10)),
                 getFunc = function ()
                     return Settings.Collectibles.CollectibleUseCategory10
                 end,
@@ -5472,8 +5488,8 @@ function ChatAnnouncements.CreateSettings()
             {
                 -- Enables collectible tracking in %s category
                 type = "checkbox",
-                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfo(12)),
-                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfo(12)),
+                name = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY), GetCollectibleCategoryInfoName(12)),
+                tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_COLLECTIBLE_USE_CATEGORY_TP), GetCollectibleCategoryInfoName(12)),
                 getFunc = function ()
                     return Settings.Collectibles.CollectibleUseCategory12
                 end,
@@ -6351,8 +6367,8 @@ function ChatAnnouncements.CreateSettings()
     }
 
     for i = 1, GetNumAchievementCategories() do
-        local name = zo_strformat(GetString(LUIE_STRING_LAM_CA_ACHIEVE_CATEGORY), GetAchievementCategoryInfo(i))
-        local tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_ACHIEVE_CATEGORY_TP), GetAchievementCategoryInfo(i))
+        local name = zo_strformat(GetString(LUIE_STRING_LAM_CA_ACHIEVE_CATEGORY), GetAchievementCategoryInfoName(i))
+        local tooltip = zo_strformat(GetString(LUIE_STRING_LAM_CA_ACHIEVE_CATEGORY_TP), GetAchievementCategoryInfoName(i))
         local checkbox =
         {
             type = "checkbox",
