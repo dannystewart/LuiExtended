@@ -3487,15 +3487,15 @@ end
 --- @param icon string
 --- @param reset boolean
 local function DisplayQuestItem(itemId, stackCount, icon, reset)
-    -- if LUIE.IsDevDebugEnabled() then
-    --     local Debug = LUIE.Debug
-    --     local traceback = "Quest Item Details:\n" ..
-    --         "--> itemId: " .. tostring(itemId) .. "\n" ..
-    --         "--> stackCount: " .. tostring(stackCount) .. "\n" ..
-    --         "--> questItemIcon: " .. tostring(icon) .. "\n" ..
-    --         "--> reset: " .. tostring(reset)
-    --     Debug(traceback)
-    -- end
+    if LUIE.IsDevDebugEnabled() then
+        local Debug = LUIE.Debug
+        local traceback = "Quest Item Details:\n" ..
+            "--> itemId: " .. tostring(itemId) .. "\n" ..
+            "--> stackCount: " .. tostring(stackCount) .. "\n" ..
+            "--> questItemIcon: " .. tostring(icon) .. "\n" ..
+            "--> reset: " .. tostring(reset)
+        Debug(traceback)
+    end
     if not questItemIndex[itemId] then
         questItemIndex[itemId] = { stack = 0, counter = 0, icon = icon }
         -- d("New item created with 0 stack")
