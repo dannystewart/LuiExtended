@@ -35,9 +35,41 @@ local buffTypes =
 
 function LUIE.InitializeHooks()
     -- Hook Gamepad Skill Advisor for custom icon support
-    -- Check if custom icons are enabled in settings
-    -- if LUIE.SV.CustomIcons_Enabled then
     LUIE.InitializeHooksSkillAdvisor()
+
+
+    local zos_RequestFriend = RequestFriend
+    -- Hook for request friend so menu option also displays invite message
+    -- Menu is true if this request is sent from the Player to Player interaction menu
+    --- @param charOrDisplayName string
+    --- @param message string
+    --- @param menu boolean?
+    RequestFriend = function (charOrDisplayName, message, menu)
+        zos_RequestFriend(charOrDisplayName, message)
+        if not menu then
+            message = zo_strformat(GetString(LUIE_STRING_SLASHCMDS_FRIEND_INVITE_MSG), charOrDisplayName)
+            printToChat(message, true)
+            if LUIE.ChatAnnouncements.SV.Social.FriendIgnoreAlert then
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, message)
+            end
+        end
+    end
+
+    local zos_AddIgnore = AddIgnore
+    -- Hook for request ignore to handle error message if account name is already ignored
+    --- @param charOrDisplayName string
+    AddIgnore = function (charOrDisplayName)
+        zos_AddIgnore(charOrDisplayName)
+
+        if IsIgnored(charOrDisplayName) then -- Only lists account names, unfortunately
+            printToChat(GetString(LUIE_STRING_SLASHCMDS_IGNORE_FAILED_ALREADYIGNORE), true)
+            if LUIE.ChatAnnouncements.SV.Social.FriendIgnoreAlert then
+                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_IGNORE_FAILED_ALREADYIGNORE)))
+            end
+            PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
+            return
+        end
+    end
 
     local zos_GetSkillAbilityInfo = GetSkillAbilityInfo
     --- Hook for Icon/Name changes.
@@ -341,7 +373,6 @@ function LUIE.InitializeHooks()
     end
 
     -- Hook synergy popup Icon/Name (to fix inconsistencies and add custom icons for some Quest/Encounter based Synergies)
-    --- @diagnostic disable-next-line: duplicate-set-field
     ZO_Synergy.OnSynergyAbilityChanged = function (self)
         local hasSynergy, synergyName, iconFilename, prompt = GetCurrentSynergyInfo()
 
@@ -1037,35 +1068,6 @@ function LUIE.InitializeHooks()
         self:RefreshContentHeader(contentTitle)
     end
 
-    -- Hook for request friend so menu option also displays invite message
-    -- Menu is true if this request is sent from the Player to Player interaction menu
-    local zos_RequestFriend = RequestFriend
-    RequestFriend = function (option1, option2, menu)
-        zos_RequestFriend(option1, option2)
-        if not menu then
-            local message = zo_strformat(GetString(LUIE_STRING_SLASHCMDS_FRIEND_INVITE_MSG), option1)
-            printToChat(message, true)
-            if LUIE.ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, message)
-            end
-        end
-    end
-
-    -- Hook for request ignore to handle error message if account name is already ignored
-    local zos_AddIgnore = AddIgnore
-    AddIgnore = function (option)
-        zos_AddIgnore(option)
-
-        if IsIgnored(option) then -- Only lists account names, unfortunately
-            printToChat(GetString(LUIE_STRING_SLASHCMDS_IGNORE_FAILED_ALREADYIGNORE), true)
-            if LUIE.ChatAnnouncements.SV.Social.FriendIgnoreAlert then
-                ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, (GetString(LUIE_STRING_SLASHCMDS_IGNORE_FAILED_ALREADYIGNORE)))
-            end
-            PlaySound(SOUNDS.GENERAL_ALERT_ERROR)
-            return
-        end
-    end
-
     -- Used to update Tooltips for Active Effects Window
     local function TooltipBottomLine(control, detailsLine)
         -- Add bottom divider and info if present:
@@ -1181,7 +1183,6 @@ function LUIE.InitializeHooks()
     end
 
     -- Hook Skills Advisor (Keyboard) and use this variable to refresh the abilityData one time on initialization. We don't want to reload any more after that.
-    --- @diagnostic disable-next-line: duplicate-set-field
     ZO_SkillsAdvisor_Suggestions_Keyboard.SetupAbilityEntry = function (self, control, skillProgressionData)
         local skillData = skillProgressionData:GetSkillData()
         local isPassive = skillData:IsPassive()
@@ -1291,7 +1292,6 @@ function LUIE.InitializeHooks()
     }
 
     -- Hook to make Activation Highlight Effect play indefinitely instead of animation only once
-    --- @diagnostic disable-next-line: duplicate-set-field
     ActionButton.UpdateActivationHighlight = function (self)
         local slotnum = self:GetSlot()
         local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or self.slot.hotbarCategory
@@ -1331,7 +1331,6 @@ function LUIE.InitializeHooks()
     end
 
     -- Hook to add AVA Guard Ability + Morphs into Toggle Highlights
-    --- @diagnostic disable-next-line: duplicate-set-field
     ActionButton.UpdateState = function (self)
         local slotnum = self:GetSlot()
         local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or self.slot.hotbarCategory
@@ -1587,7 +1586,6 @@ function LUIE.InitializeHooks()
     }
 
     -- Hook Campaign Bonuses Data Table
-    --- @diagnostic disable-next-line: duplicate-set-field
     ZO_CampaignBonuses_Shared.CreateDataTable = function (self)
         self:BuildMasterList()
 
@@ -1621,7 +1619,6 @@ function LUIE.InitializeHooks()
     end
 
     -- Hook Campaign Bonuses Build Master List
-    --- @diagnostic disable-next-line: duplicate-set-field
     ZO_CampaignBonuses_Shared.BuildMasterList = function (self)
         self.masterList = {}
 
@@ -1720,7 +1717,6 @@ function LUIE.InitializeHooks()
     end
 
     -- Hook Campaign Bonuses Manager (we add abilityId, name, and the description to the control to carry over to the OnMouseEnter tooltip function)
-    --- @diagnostic disable-next-line: duplicate-set-field
     function ZO_CampaignBonusesManager:SetupBonusesEntry(control, data)
         ZO_SortFilterList.SetupRow(self, control, data)
 
@@ -1835,7 +1831,6 @@ function LUIE.InitializeHooks()
     end
 
     -- Hook AVA Keep Upgrade
-    --- @diagnostic disable-next-line: duplicate-set-field
     ZO_MapKeepUpgrade_Shared.RefreshLevels = function (self)
         self.levelsGridList:ClearGridList()
 
@@ -2485,6 +2480,4 @@ function LUIE.InitializeHooks()
         -- Size the label to allow space for the keybind and decrease icon
         control.label:SetWidth(labelWidth)
     end
-
-    -- end
 end
