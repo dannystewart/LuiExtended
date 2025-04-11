@@ -8,10 +8,6 @@ local LuiData = LuiData
 
 local zo_strformat = zo_strformat
 
--- Params for GetAbilityDescription
-local override = nil
-local csunittag = "player"
-
 -- From /esoui/lang/en_client.lua
 -- SI_DAMAGETYPE0 = "None"
 -- SI_DAMAGETYPE1 = "Generic"
@@ -461,7 +457,7 @@ local Tooltips =
     Experience_White_Gold_War_Torte = zo_strformat(GetString(LUIE_STRING_SKILL_EXPERIENCE_ALLIANCE_HALF_HOUR_TP), "150"), -- White-Gold War Torte
 
     -- Mementos
-    Memento_Witchmothers_Brew = GetAbilityDescription(84369, override, csunittag),
+    Memento_Witchmothers_Brew = GetAbilityDescription(84369),
     Memento_Almalexias_Lantern = GetCollectibleDescription(341),
     Memento_Bonesnap_Binding_Talisman = GetCollectibleDescription(348),
     Memento_Discourse_Amaranthine = GetCollectibleDescription(345),
@@ -1051,7 +1047,7 @@ local Tooltips =
     Skill_Structured_Entropy = GetString(LUIE_STRING_SKILL_STRUCTURED_ENTROPY_TP),
     Skill_Fire_Rune = GetString(LUIE_STRING_SKILL_FIRE_RUNE_TP),
     Skill_Volcanic_Rune = GetString(LUIE_STRING_SKILL_VOLCANIC_RUNE_TP),
-    Skill_Scalding_Rune = zo_strformat(GetString(LUIE_STRING_SKILL_SCALDING_RUNE_TP), ((GetAbilityDuration(40468, override, csunittag) or 0) / 1000) + GetNumPassiveSkillRanks(GetSkillLineIndicesFromSkillLineId(44), select(2, GetSkillLineIndicesFromSkillLineId(44)), 8)),
+    Skill_Scalding_Rune = zo_strformat(GetString(LUIE_STRING_SKILL_SCALDING_RUNE_TP), ((GetAbilityDuration(40468) or 0) / 1000) + GetNumPassiveSkillRanks(GetSkillLineIndicesFromSkillLineId(44), select(2, GetSkillLineIndicesFromSkillLineId(44)), 8)),
     Skill_Equilibrium = GetString(LUIE_STRING_SKILL_EQUILIBRIUM_TP),
     Skill_Spell_Symmetry = GetString(LUIE_STRING_SKILL_SPELL_SYMMETRY_TP),
     Skill_Meteor = GetString(LUIE_STRING_SKILL_METEOR_TP),
@@ -1166,12 +1162,12 @@ local Tooltips =
     Skill_Power_Bash_Cyrodiil = GetString(LUIE_STRING_SKILL_POWER_BASH_CYRODIIL_TP),
     Skill_Rune_Focus_Cyrodiil = GetString(LUIE_STRING_SKILL_RUNE_FOCUS_CYRODIIL_TP),
 
-    Skill_Elder_Scroll_Altadoon = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(15177, csunittag)),
-    Skill_Elder_Scroll_Mnem = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(15178, csunittag)),
-    Skill_Elder_Scroll_Ghartok = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(22282, csunittag)),
-    Skill_Elder_Scroll_Chim = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(22295, csunittag)),
-    Skill_Elder_Scroll_Ni_Mohk = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(22297, csunittag)),
-    Skill_Elder_Scroll_Alma_Ruma = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(22299, csunittag)),
+    Skill_Elder_Scroll_Altadoon = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(15177)),
+    Skill_Elder_Scroll_Mnem = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(15178)),
+    Skill_Elder_Scroll_Ghartok = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(22282)),
+    Skill_Elder_Scroll_Chim = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(22295)),
+    Skill_Elder_Scroll_Ni_Mohk = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(22297)),
+    Skill_Elder_Scroll_Alma_Ruma = zo_strformat(GetString(LUIE_STRING_SKILL_ELDER_SCROLL_TP), GetAbilityName(22299)),
 
     Skill_Ruinous_Cyclone = GetString(LUIE_STRING_SKILL_RUINOUS_CYCLONE),
 

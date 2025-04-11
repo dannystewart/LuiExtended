@@ -465,19 +465,6 @@ function LUIE.GetSlotTrueBoundId(index, bar)
 end
 
 -- -----------------------------------------------------------------------------
----
---- @param abilityId integer
---- @param overrideActiveRank boolean? -- Defaults to nil
---- @param overrideCasterUnitTag string? -- Defaults to "player"
---- @return integer durationMs
-function LUIE.GetAbilityDuration(abilityId, overrideActiveRank, overrideCasterUnitTag)
-    abilityId = abilityId or error("An abilityId must be provided to this function!")
-    overrideActiveRank = overrideActiveRank or nil
-    overrideCasterUnitTag = overrideCasterUnitTag or "player"
-    return GetAbilityDuration(abilityId, overrideActiveRank, overrideCasterUnitTag)
-end
-
--- -----------------------------------------------------------------------------
 
 -- Add this if not already.
 if not SLASH_COMMANDS["/rl"] then
@@ -847,7 +834,7 @@ local TooltipHandlers =
 
     -- Unchained
     [98316] = function ()
-        local duration = (LUIE.GetAbilityDuration(98316) or 0) / 1000
+        local duration = (GetAbilityDuration(98316) or 0) / 1000
         local pointsSpent = GetNumPointsSpentOnChampionSkill(64) * 1.1
         local adjustPoints = pointsSpent == 0 and 55 or zo_floor(pointsSpent * 100 + 0.5) / 100
         return zo_strformat(GetString(LUIE_STRING_SKILL_UNCHAINED_TP), duration, adjustPoints)
@@ -862,14 +849,14 @@ local TooltipHandlers =
     -- Unstoppable Brute
     [126582] = function ()
         local counter = GetEquippedArmorPieces(ARMORTYPE_HEAVY) * 5
-        local duration = (LUIE.GetAbilityDuration(126582) or 0) / 1000
+        local duration = (GetAbilityDuration(126582) or 0) / 1000
         return zo_strformat(GetString(LUIE_STRING_SKILL_UNSTOPPABLE_BRUTE), duration, counter)
     end,
 
     -- Immovable
     [126583] = function ()
         local counter = GetEquippedArmorPieces(ARMORTYPE_HEAVY) * 5
-        local duration = (LUIE.GetAbilityDuration(126583) or 0) / 1000
+        local duration = (GetAbilityDuration(126583) or 0) / 1000
         return zo_strformat(GetString(LUIE_STRING_SKILL_IMMOVABLE), duration, counter, 65 + counter)
     end,
 }

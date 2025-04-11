@@ -13,7 +13,7 @@ local Abilities = LuiData.Data.Abilities
 
 local zo_strformat = zo_strformat
 
-local ESO_Plus_Member = function()
+local ESO_Plus_Member = function ()
     local displayName, _, _, _, _, _ = GetArtificialEffectInfo(0)
     return displayName
 end
@@ -75,4 +75,5 @@ local ArtificialEffectOverride =
 
 
 --- @class (partial) ArtificialEffectOverride
+--- @field [integer] {overide:boolean,name:string,tooltip:string}
 LuiData.Data.Effects.ArtificialEffectOverride = ArtificialEffectOverride

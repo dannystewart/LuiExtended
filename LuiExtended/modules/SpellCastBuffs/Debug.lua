@@ -24,7 +24,7 @@ local tostring = tostring
 -- API function localizations
 local GetAbilityIcon = GetAbilityIcon
 local GetAbilityName = GetAbilityName
-local GetAbilityDuration = LUIE.GetAbilityDuration
+local GetAbilityDuration = GetAbilityDuration
 local GetAbilityCastInfo = GetAbilityCastInfo
 local DoesAbilityExist = DoesAbilityExist
 local GetDisplayName = GetDisplayName
