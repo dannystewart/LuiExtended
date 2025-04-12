@@ -17,6 +17,7 @@ AbilityTables.lua
 Tooltips.lua
 UnitNamesTable.lua
 ZoneNamesTable.lua
+CrownStoreCollectibles.lua
 
 # Effects - Core
 Effects/KeepUpgradeOverride.lua

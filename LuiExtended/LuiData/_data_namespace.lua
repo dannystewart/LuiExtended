@@ -203,6 +203,9 @@ LuiData =
             ZoneBuffs = {},
             ZoneDataOverride = {},
         },
+        --- @class (partial) CrownStoreCollectiables
+        --- @field [string] integer
+        CrownStoreCollectiables = {},
         PetNames =
         {
             Assistants = {},

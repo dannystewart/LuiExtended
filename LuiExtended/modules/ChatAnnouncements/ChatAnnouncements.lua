@@ -13,6 +13,8 @@ local ColorizeColors = ChatAnnouncements.Colors
 
 --- @type Data
 local Data = LUIE.Data
+---@type CrownStoreCollectiables
+local isShopCollectible = Data.CrownStoreCollectiables
 --- @type Effects
 local Effects = Data.Effects
 --- @type Quests
@@ -2253,83 +2255,6 @@ function ChatAnnouncements.OnBuybackItem(eventCode, itemName, quantity, money, i
     end
     g_savedPurchase = {}
 end
-
--- TODO: Move to a data table outside of CA (maybe?)
-local isShopCollectible =
-{
-    [GetCollectibleName(3)] = 3, -- Brown Paint Horse
-    [GetCollectibleName(4)] = 4, -- Bay Dun Horse
-    [GetCollectibleName(5)] = 5, -- Midnight Steed
-
-    -- [GetCollectibleName(4673)] = 4673, -- Storage Coffer, Fortified (from level up rewards)
-    [GetCollectibleName(4674)] = 4674, -- Storage Chest, Fortified (Tel Var / Writ Vouchers)
-    [GetCollectibleName(4675)] = 4675, -- Storage Coffer, Oaken (Tel Var / Writ Vouchers)
-    [GetCollectibleName(4676)] = 4676, -- Storage Coffer, Secure (Tel Var / Writ Vouchers)
-    [GetCollectibleName(4677)] = 4677, -- Storage Coffer, Sturdy (Tel Var / Writ Vouchers)
-    [GetCollectibleName(4678)] = 4678, -- Storage Chest, Oaken (Tel Var / Writ Vouchers)
-    [GetCollectibleName(4679)] = 4679, -- Storage Chest, Secure (Tel Var / Writ Vouchers)
-    [GetCollectibleName(4680)] = 4680, -- Storage Chest, Sturdy (Tel Var / Writ Vouchers)
-
-    [GetCollectibleName(6706)] = 6706, -- Emerald Indrik Feather
-    [GetCollectibleName(6707)] = 6707, -- Gilded Indrik Feather
-    [GetCollectibleName(6708)] = 6708, -- Onyx Indrik Feather
-    [GetCollectibleName(6709)] = 6709, -- Opaline Indrik Feather
-
-    [GetCollectibleName(6659)] = 6659, -- Dawnwood Berries of Bloom
-    [GetCollectibleName(6660)] = 6660, -- Dawnwood Berries of Budding
-    [GetCollectibleName(6661)] = 6661, -- Dawnwood Berries of Growth
-    [GetCollectibleName(6662)] = 6662, -- Dawnwood Berries of Ripeness
-
-    [GetCollectibleName(6694)] = 6694, -- Luminous Berries of Bloom
-    [GetCollectibleName(6695)] = 6695, -- Luminous Berries of Budding
-    [GetCollectibleName(6696)] = 6696, -- Luminous Berries of Growth
-    [GetCollectibleName(6697)] = 6697, -- Luminous Berries of Ripeness
-
-    [GetCollectibleName(6698)] = 6698, -- Onyx Berries of Bloom
-    [GetCollectibleName(6699)] = 6699, -- Onyx Berries of Budding
-    [GetCollectibleName(6700)] = 6700, -- Onyx Berries of Growth
-    [GetCollectibleName(6701)] = 6701, -- Onyx Berries of Ripeness
-
-    [GetCollectibleName(6702)] = 6702, -- Pure-Snow Berries of Bloom
-    [GetCollectibleName(6703)] = 6703, -- Pure-Snow Berries of Budding
-    [GetCollectibleName(6704)] = 6704, -- Pure-Snow Berries of Growth
-    [GetCollectibleName(6705)] = 6705, -- Pure-Snow Berries of Ripeness
-
-    [GetCollectibleName(7021)] = 7021, -- Spectral Berries of Bloom
-    [GetCollectibleName(7022)] = 7022, -- Spectral Berries of Budding
-    [GetCollectibleName(7023)] = 7023, -- Spectral Berries of Growth
-    [GetCollectibleName(7024)] = 7024, -- Spectral Berries of Ripeness
-
-    [GetCollectibleName(7791)] = 7791, -- Icebreath Berries of Bloom
-    [GetCollectibleName(7792)] = 7792, -- Icebreath Berries of Budding
-    [GetCollectibleName(7793)] = 7793, -- Icebreath Berries of Growth
-    [GetCollectibleName(7794)] = 7794, -- Icebreath Berries of Ripeness
-
-    [GetCollectibleName(8126)] = 8126, -- Mossheart Berries of Bloom
-    [GetCollectibleName(8127)] = 8127, -- Mossheart Berries of Budding
-    [GetCollectibleName(8128)] = 8128, -- Mossheart Berries of Growth
-    [GetCollectibleName(8129)] = 8129, -- Mossheart Berries of Ripeness
-
-    [GetCollectibleName(8196)] = 8196, -- Pact Breton Terrier
-    [GetCollectibleName(8197)] = 8197, -- Dominion Breton Terrier
-    [GetCollectibleName(8198)] = 8198, -- Covenant Breton Terrier
-
-    [GetCollectibleName(8866)] = 8866, -- Deadlands Flint (Unstable Morpholith)
-    [GetCollectibleName(8867)] = 8867, -- Rune-Etched Striker (Unstable Morpholith)
-    [GetCollectibleName(8868)] = 8868, -- Smoldering Bloodgrass Tinder (Unstable Morpholith)
-
-    [GetCollectibleName(8869)] = 8869, -- Rune-Scribed Daedra Hide (Deadlands Scorcher)
-    [GetCollectibleName(8870)] = 8870, -- Rune-Scribed Daedra Sleeve (Deadlands Scorcher)
-    [GetCollectibleName(8871)] = 8871, -- Rune-Scribed Daedra Veil (Deadlands Scorcher)
-
-    [GetCollectibleName(9085)] = 9085, -- Vial of Simmering Daedric Brew (Deadlands Firewalker)
-    [GetCollectibleName(9086)] = 9086, -- Vial of Bubbling Daedric Brew (Deadlands Firewalker)
-    [GetCollectibleName(9087)] = 9087, -- Vial of Scalding Daedric Brew (Deadlands Firewalker)
-
-    [GetCollectibleName(9163)] = 9163, -- Black Iron Bit and Bridle (Dagonic Quasigriff)
-    [GetCollectibleName(9164)] = 9164, -- Black Iron Stirrups (Dagonic Quasigriff)
-    [GetCollectibleName(9162)] = 9162, -- Smoke-Wreathed Griffon Feather (Dagonic Quasigriff)
-}
 
 function ChatAnnouncements.OnBuyItem(eventCode, itemName, entryType, quantity, money, specialCurrencyType1, specialCurrencyInfo1, specialCurrencyQuantity1, specialCurrencyType2, specialCurrencyInfo2, specialCurrencyQuantity2, itemSoundCategory)
     local itemIcon
@@ -6440,29 +6365,28 @@ function ChatAnnouncements.HookFunction()
 
     -- EVENT_GROUP_INVITE_RESPONSE (Alert Handler)
     local function GroupInviteResponseAlert(characterName, response, displayName)
-        local finalName
-        local finalAlertName
-
-        local nameCheck1 = ZO_GetPrimaryPlayerName(displayName, characterName, false)
-        local nameCheck2 = ZO_GetSecondaryPlayerName(displayName, characterName, false)
-
-        if nameCheck1 == "" then
-            finalName = displayName
-            finalAlertName = displayName
-        elseif nameCheck2 == "" then
-            finalName = characterName
-            finalAlertName = characterName
-        elseif nameCheck1 ~= "" and nameCheck2 ~= "" then
-            finalName = ChatAnnouncements.ResolveNameLink(characterName, displayName)
-            finalAlertName = ChatAnnouncements.ResolveNameNoLink(characterName, displayName)
-        else
-            finalName = ""
-            finalAlertName = ""
-        end
-
         if response ~= GROUP_INVITE_RESPONSE_ACCEPTED and response ~= GROUP_INVITE_RESPONSE_CONSIDERING_OTHER then
             local message
             local alertMessage
+            local finalName
+            local finalAlertName
+
+            local nameCheck1 = ZO_GetPrimaryPlayerName(displayName, characterName, false)
+            local nameCheck2 = ZO_GetSecondaryPlayerName(displayName, characterName, false)
+
+            if nameCheck1 == "" then
+                finalName = displayName
+                finalAlertName = displayName
+            elseif nameCheck2 == "" then
+                finalName = characterName
+                finalAlertName = characterName
+            elseif nameCheck1 ~= "" and nameCheck2 ~= "" then
+                finalName = ChatAnnouncements.ResolveNameLink(characterName, displayName)
+                finalAlertName = ChatAnnouncements.ResolveNameNoLink(characterName, displayName)
+            else
+                finalName = ""
+                finalAlertName = ""
+            end
 
             if response == GROUP_INVITE_RESPONSE_ALREADY_GROUPED and (LUIE.PlayerNameFormatted == characterName or LUIE.PlayerDisplayName == displayName) then
                 message = zo_strformat(GetString("LUIE_STRING_CA_GROUPINVITERESPONSE", GROUP_INVITE_RESPONSE_SELF_INVITE))
@@ -10396,7 +10320,7 @@ end
 
 function ChatAnnouncements.GuildHooks()
     -- Hook for EVENT_GUILD_MEMBER_ADDED
-    ZO_GuildRosterManager.OnGuildMemberAdded = function (self, guildId, displayName)
+    function ZO_GuildRosterManager:OnGuildMemberAdded(guildId, displayName)
         self:RefreshData()
 
         local data = self:FindDataByDisplayName(displayName)
@@ -10420,7 +10344,7 @@ function ChatAnnouncements.GuildHooks()
     end
 
     -- Hook for EVENT_GUILD_MEMBER_REMOVED
-    ZO_GuildRosterManager.OnGuildMemberRemoved = function (self, guildId, rawCharacterName, displayName)
+    function ZO_GuildRosterManager:OnGuildMemberRemoved(guildId, rawCharacterName, displayName)
         local displayNameLink = ChatAnnouncements.ResolveNameLink(rawCharacterName, displayName)
         local guildName = self.guildName
         local guildAlliance = GetGuildAlliance(guildId)
@@ -10449,7 +10373,7 @@ function ChatAnnouncements.GuildHooks()
     eventManager:RegisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_MEMBER_DEMOTE_SUCCESSFUL, ChatAnnouncements.GuildMemberDemoteSuccessful)
 
     -- Hook for Guild Invite function used from Guild Menu
-    ZO_TryGuildInvite = function (guildId, displayName)
+    function ZO_TryGuildInvite(guildId, displayName)
         -- TODO: Update when more alerts are added to CA
         if not DoesPlayerHaveGuildPermission(guildId, GUILD_PERMISSION_INVITE) then
             ZO_AlertEvent(EVENT_SOCIAL_ERROR, SOCIAL_RESULT_NO_INVITE_PERMISSION)
@@ -10505,51 +10429,47 @@ function ChatAnnouncements.GuildHooks()
         end
     end
 
+    -- Called when changing guilds in the Guild tab
+    local originalSetGuildId = GUILD_SHARED_INFO.SetGuildId
+    function GUILD_SHARED_INFO:SetGuildId(guildId)
+        self.guildId = guildId
+        self:Refresh(guildId)
+        -- Set selected guild for use when resolving Rank/Heraldry updates
+        g_selectedGuild = guildId
+    end
 
-    local mt = getmetatable(GUILD_SHARED_INFO)
-    if mt and mt.__index then
-        -- Called when changing guilds in the Guild tab
-        local originalSetGuildId = mt.__index.SetGuildId
-        mt.__index.SetGuildId = function (self, guildId)
-            self.guildId = guildId
-            self:Refresh(guildId)
-            -- Set selected guild for use when resolving Rank/Heraldry updates
-            g_selectedGuild = guildId
-        end
+    -- Called when changing guilds in the Guild tab or leaving/joining a guild
+    local originalRefresh = GUILD_SHARED_INFO.Refresh
+    function GUILD_SHARED_INFO:Refresh(guildId)
+        if self.guildId and self.guildId == guildId then
+            local count = GetControl(self.control, "Count")
+            local numGuildMembers, numOnline = GetGuildInfo(guildId)
 
-        -- Called when changing guilds in the Guild tab or leaving/joining a guild
-        local originalRefresh = mt.__index.Refresh
-        mt.__index.Refresh = function (self, guildId)
-            if self.guildId and self.guildId == guildId then
-                local count = GetControl(self.control, "Count")
-                local numGuildMembers, numOnline = GetGuildInfo(guildId)
+            count:SetText(zo_strformat(SI_GUILD_NUM_MEMBERS_ONLINE_FORMAT, numOnline, numGuildMembers))
 
-                count:SetText(zo_strformat(SI_GUILD_NUM_MEMBERS_ONLINE_FORMAT, numOnline, numGuildMembers))
-
-                self.canDepositToBank = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_BANK_DEPOSIT)
-                if self.canDepositToBank then
-                    self.bankIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-                else
-                    self.bankIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-                end
-
-                self.canUseTradingHouse = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_TRADING_HOUSE)
-                if self.canUseTradingHouse then
-                    self.tradingHouseIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-                else
-                    self.tradingHouseIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-                end
-
-                self.canUseHeraldry = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_HERALDRY)
-                if self.canUseHeraldry then
-                    self.heraldryIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
-                else
-                    self.heraldryIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
-                end
+            self.canDepositToBank = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_BANK_DEPOSIT)
+            if self.canDepositToBank then
+                self.bankIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+            else
+                self.bankIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
             end
-            -- Set selected guild for use when resolving Rank/Heraldry updates
-            g_selectedGuild = guildId
+
+            self.canUseTradingHouse = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_TRADING_HOUSE)
+            if self.canUseTradingHouse then
+                self.tradingHouseIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+            else
+                self.tradingHouseIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+            end
+
+            self.canUseHeraldry = DoesGuildHavePrivilege(guildId, GUILD_PRIVILEGE_HERALDRY)
+            if self.canUseHeraldry then
+                self.heraldryIcon:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
+            else
+                self.heraldryIcon:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
+            end
         end
+        -- Set selected guild for use when resolving Rank/Heraldry updates
+        g_selectedGuild = guildId
     end
 end
 
