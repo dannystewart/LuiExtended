@@ -360,18 +360,21 @@ function LUIE.InitializeHooks()
     --- @param artificialEffectId integer
     --- @return string tooltipText
     GetArtificialEffectTooltipText = function (artificialEffectId)
-        local tooltip
-        if LUIE.Data.Effects.ArtificialEffectOverride[artificialEffectId] and LUIE.Data.Effects.ArtificialEffectOverride[artificialEffectId].tooltip then
-            tooltip = LUIE.Data.Effects.ArtificialEffectOverride[artificialEffectId].tooltip
-            return tooltip
-        else
-            tooltip = zos_GetArtificialEffectTooltipText(artificialEffectId)
-            return tooltip
+        local function GenArtificialEffectTooltipText(tooltip)
+            if LUIE.Data.Effects.ArtificialEffectOverride[artificialEffectId] and LUIE.Data.Effects.ArtificialEffectOverride[artificialEffectId].tooltip then
+                tooltip = LUIE.Data.Effects.ArtificialEffectOverride[artificialEffectId].tooltip
+                return tooltip
+            else
+                tooltip = zos_GetArtificialEffectTooltipText(artificialEffectId)
+                return tooltip
+            end
         end
+        local tooltip = GenArtificialEffectTooltipText("")
+        return tooltip
     end
 
     -- Hook synergy popup Icon/Name (to fix inconsistencies and add custom icons for some Quest/Encounter based Synergies)
-    ZO_Synergy.OnSynergyAbilityChanged = function (self)
+    function ZO_Synergy:OnSynergyAbilityChanged()
         local hasSynergy, synergyName, iconFilename, prompt = GetCurrentSynergyInfo()
 
         if hasSynergy then
@@ -444,50 +447,52 @@ function LUIE.InitializeHooks()
     --- @param value3 integer
     --- @return string tooltipText
     local function GetTooltipText(abilityId, buffSlot, timer, value2, value3)
-        local tooltipText = ""
-        local override = LUIE.Data.Effects.EffectOverride[abilityId]
+        local function GenTooltipText(tooltipText)
+            local override = LUIE.Data.Effects.EffectOverride[abilityId]
 
-        -- Handle veteran difficulty tooltip
-        if LUIE.ResolveVeteranDifficulty() and override and override.tooltipVeteran then
-            tooltipText = zo_strformat(override.tooltipVeteran, timer, value2, value3)
-        else
-            tooltipText = (override and override.tooltip) and
-                zo_strformat(override.tooltip, timer, value2, value3) or
-                GetAbilityDescription(abilityId)
-        end
-
-        -- Handle empty tooltip
-        if tooltipText == "" or tooltipText == nil then
-            local effectDesc = GetAbilityEffectDescription(buffSlot)
-            if effectDesc ~= "" then
-                tooltipText = effectDesc
+            -- Handle veteran difficulty tooltip
+            if LUIE.ResolveVeteranDifficulty() and override and override.tooltipVeteran then
+                tooltipText = zo_strformat(override.tooltipVeteran, timer, value2, value3)
+            else
+                tooltipText = (override and override.tooltip) and
+                    zo_strformat(override.tooltip, timer, value2, value3) or
+                    GetAbilityDescription(abilityId)
             end
-        end
 
-        -- Handle default tooltip override
-        if LUIE.Data.Effects.TooltipUseDefault[abilityId] then
-            local effectDesc = GetAbilityEffectDescription(buffSlot)
-            if effectDesc ~= "" then
-                tooltipText = LUIE.UpdateMundusTooltipSyntax(abilityId, effectDesc)
+            -- Handle empty tooltip
+            if tooltipText == "" or tooltipText == nil then
+                local effectDesc = GetAbilityEffectDescription(buffSlot)
+                if effectDesc ~= "" then
+                    tooltipText = effectDesc
+                end
             end
-        end
 
-        -- Handle dynamic tooltip
-        if override and override.dynamicTooltip then
-            tooltipText = LUIE.DynamicTooltip(abilityId) or tooltipText -- Fallback to original tooltipText if nil
-        end
+            -- Handle default tooltip override
+            if LUIE.Data.Effects.TooltipUseDefault[abilityId] then
+                local effectDesc = GetAbilityEffectDescription(buffSlot)
+                if effectDesc ~= "" then
+                    tooltipText = LUIE.UpdateMundusTooltipSyntax(abilityId, effectDesc)
+                end
+            end
 
-        -- Clean up tooltip text
-        if tooltipText ~= "" then
-            tooltipText = zo_strmatch(tooltipText, ".*%S")
-        end
+            -- Handle dynamic tooltip
+            if override and override.dynamicTooltip then
+                tooltipText = LUIE.DynamicTooltip(abilityId) or tooltipText -- Fallback to original tooltipText if nil
+            end
 
-        -- Use default tooltip if custom tooltips are disabled
-        if not LUIE.SpellCastBuffs.SV.TooltipCustom then
-            tooltipText = GetAbilityEffectDescription(buffSlot)
-            tooltipText = zo_strgsub(tooltipText, "\n$", "")
-        end
+            -- Clean up tooltip text
+            if tooltipText ~= "" then
+                tooltipText = zo_strmatch(tooltipText, ".*%S")
+            end
 
+            -- Use default tooltip if custom tooltips are disabled
+            if not LUIE.SpellCastBuffs.SV.TooltipCustom then
+                tooltipText = GetAbilityEffectDescription(buffSlot)
+                tooltipText = zo_strgsub(tooltipText, "\n$", "")
+            end
+            return tooltipText
+        end
+        local tooltipText = GenTooltipText("")
         return tooltipText
     end
 
@@ -1207,22 +1212,14 @@ function LUIE.InitializeHooks()
     do
         -- Hook Action Slots
         local ACTION_BUTTON_BGS = { ability = "EsoUI/Art/ActionBar/abilityInset.dds", item = "EsoUI/Art/ActionBar/quickslotBG.dds" }
-        local ACTION_BUTTON_BORDERS =
-        {
-            normal = "EsoUI/Art/ActionBar/abilityFrame64_up.dds",
-            mouseDown = "EsoUI/Art/ActionBar/abilityFrame64_down.dds",
-        }
+        local ACTION_BUTTON_BORDERS = { normal = "EsoUI/Art/ActionBar/abilityFrame64_up.dds", mouseDown = "EsoUI/Art/ActionBar/abilityFrame64_down.dds" }
 
         local function SetupActionSlot(slotObject, slotId)
-            -- pass slotObject.slot.hotbarCategory which will be nil or companion
             local slotIcon = GetSlotTexture(slotId, slotObject:GetHotbarCategory())
-
-            -- Added function - Replace icons if needed
             local abilityId = LUIE.GetSlotTrueBoundId(slotId, slotObject:GetHotbarCategory())
             if LUIE.Data.Effects.BarIdOverride[abilityId] then
                 slotIcon = LUIE.Data.Effects.BarIdOverride[abilityId]
             end
-
             slotObject:SetEnabled(true)
             local isGamepad = IsInGamepadPreferredMode()
             ZO_ActionSlot_SetupSlot(slotObject.icon, slotObject.button, slotIcon, isGamepad and "" or ACTION_BUTTON_BORDERS.normal, isGamepad and "" or ACTION_BUTTON_BORDERS.mouseDown, slotObject.cooldownIcon)
@@ -1237,7 +1234,7 @@ function LUIE.InitializeHooks()
         local function SetupAbilitySlot(slotObject, slotId)
             SetupActionSlotWithBg(slotObject, slotId)
 
-            if slotId == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
+            if ZO_ActionBar_IsUltimateSlot(slotId, slotObject:GetHotbarCategory()) then
                 slotObject:RefreshUltimateNumberVisibility()
             else
                 slotObject:ClearCount()
@@ -1275,18 +1272,18 @@ function LUIE.InitializeHooks()
 
         SetupSlotHandlers =
         {
-            [ACTION_TYPE_ABILITY] = SetupAbilitySlot,
-            [ACTION_TYPE_ITEM] = SetupItemSlot,
+            [ACTION_TYPE_ABILITY]         = SetupAbilitySlot,
+            [ACTION_TYPE_ITEM]            = SetupItemSlot,
             [ACTION_TYPE_CRAFTED_ABILITY] = SetupAbilitySlot,
-            [ACTION_TYPE_COLLECTIBLE] = SetupCollectibleActionSlot,
-            [ACTION_TYPE_QUEST_ITEM] = SetupQuestItemActionSlot,
-            [ACTION_TYPE_EMOTE] = SetupEmoteActionSlot,
-            [ACTION_TYPE_QUICK_CHAT] = SetupQuickChatActionSlot,
-            [ACTION_TYPE_NOTHING] = SetupEmptyActionSlot,
+            [ACTION_TYPE_COLLECTIBLE]     = SetupCollectibleActionSlot,
+            [ACTION_TYPE_QUEST_ITEM]      = SetupQuestItemActionSlot,
+            [ACTION_TYPE_EMOTE]           = SetupEmoteActionSlot,
+            [ACTION_TYPE_QUICK_CHAT]      = SetupQuickChatActionSlot,
+            [ACTION_TYPE_NOTHING]         = SetupEmptyActionSlot,
         }
 
         -- Hook to make Activation Highlight Effect play indefinitely instead of animation only once
-        ActionButton.UpdateActivationHighlight = function (self)
+        function ActionButton:UpdateActivationHighlight()
             local slotnum = self:GetSlot()
             local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or self.slot.hotbarCategory
             local slotType = GetSlotType(slotnum, hotbarCategory)
@@ -1325,7 +1322,7 @@ function LUIE.InitializeHooks()
         end
 
         -- Hook to add AVA Guard Ability + Morphs into Toggle Highlights
-        ActionButton.UpdateState = function (self)
+        function ActionButton:UpdateState()
             local slotnum = self:GetSlot()
             local hotbarCategory = self.slot.slotNum == 1 and HOTBAR_CATEGORY_QUICKSLOT_WHEEL or self.slot.hotbarCategory
             local slotType = GetSlotType(slotnum, hotbarCategory)
@@ -1354,7 +1351,7 @@ function LUIE.InitializeHooks()
             self:UpdateCooldown(FORCE_SUPPRESS_COOLDOWN_SOUND)
         end
 
-        ActionButton.HandleSlotChanged = function (self, hotbarCategory)
+        function ActionButton:HandleSlotChanged(hotbarCategory)
             -- We no longer use self.button.hotbarCategory, but are keeping it around for addon compatibility
             self.slot.hotbarCategory = hotbarCategory
             self.button.hotbarCategory = hotbarCategory
