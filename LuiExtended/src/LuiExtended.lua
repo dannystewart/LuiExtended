@@ -267,17 +267,17 @@ local DEVS = readonlytable
         ["@ArtOfShred"] =
         {
             enabled = true,
-            debug = false,
+            debug = true,
         },
         ["@ArtOfShredPTS"] =
         {
             enabled = true,
-            debug = false,
+            debug = true,
         },
         ["@ArtOfShredLegacy"] =
         {
             enabled = true,
-            debug = false,
+            debug = true,
         },
         ["@HammerOfGlory"] =
         {
