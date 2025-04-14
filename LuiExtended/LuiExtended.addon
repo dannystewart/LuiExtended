@@ -39,9 +39,7 @@ frontend/CrowdControlTracker.xml
 src/Unlock.lua
 
 # Modules - Chat Announcements
-modules/ChatAnnouncements/ChatAnnouncementsConstants.lua
 modules/ChatAnnouncements/ChatAnnouncements.lua
-modules/ChatAnnouncements/ChatAnnouncementsExperience.lua
 
 # Modules - Combat Text
 modules/CombatText/CombatText.lua
