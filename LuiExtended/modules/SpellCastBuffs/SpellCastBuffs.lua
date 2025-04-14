@@ -1737,7 +1737,7 @@ function SpellCastBuffs.CreateSingleIcon(container, AnchorItem, effectType)
     -- Create visual layers
     local function createVisualElements()
         -- Border layer - hidden by default, shown only for non-collectible buffs
-        buff.back = UI:Texture(buff, "fill", nil, "LuiExtended/media/icons/icon_border/icon-border.dds", DL_BACKGROUND, true)
+        buff.back = UI:Texture(buff, "fill", nil, "LuiExtended/media/icons/icon_border/icon_border.dds", DL_BACKGROUND, true)
 
         -- Glow border layer
         buff.frame = UI:Texture(buff, { CENTER, CENTER }, nil, nil, DL_OVERLAY, false)
