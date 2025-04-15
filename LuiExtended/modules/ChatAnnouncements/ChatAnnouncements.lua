@@ -437,6 +437,7 @@ ChatAnnouncements.Defaults =
     {
         Loot = true,
         LootLogOverride = false,
+        LootIgnoreFiltering = false,
         LootBank = true,
         LootBlacklist = false,
         LootTotal = false,
@@ -4175,6 +4176,11 @@ end
 
 -- If filter is true, we run the item through this function to determine if we should display it. Filter only gets set to true for group loot and relevant loot functions. Mail, trade, stores, etc don't apply the filter.
 function ChatAnnouncements.ItemFilter(itemType, itemId, itemLink, groupLoot)
+    -- If LootIgnoreFiltering is enabled and this is group loot, bypass filtering
+    if groupLoot and ChatAnnouncements.SV.Inventory.LootIgnoreFiltering then
+        return true
+    end
+
     if ChatAnnouncements.SV.Inventory.LootBlacklist and g_blacklistIDs[itemId] or (ChatAnnouncements.SV.Inventory.LootLogOverride and LootLog) then
         return false
     end
