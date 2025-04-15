@@ -1913,7 +1913,7 @@ function CombatInfo.CreateCastBar()
 
     castbar:SetDimensions(CombatInfo.SV.CastBarIconSize, CombatInfo.SV.CastBarIconSize)
 
-    castbar.back = UI:Texture(castbar, nil, nil, "LuiExtended/media/icons/icon_border/icon_border.dds", nil, false)
+    castbar.back = UI:Texture(castbar, nil, nil, "LuiExtended/media/icons/icon_border/icon_border.dds", DL_BACKGROUND, false)
     castbar.back:SetAnchor(TOPLEFT, castbar, TOPLEFT, 0, 0)
     castbar.back:SetAnchor(BOTTOMRIGHT, castbar, BOTTOMRIGHT, 0, 0)
 
