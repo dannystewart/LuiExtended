@@ -240,7 +240,7 @@ function CrowdControlTracker:OnProc(ccDuration, interval)
 
     self.Timer = GetFrameTimeSeconds() + (interval / 1000)
 
-    local remaining, duration, global = GetSlotCooldownInfo(1, GetActiveHotbarCategory())
+    local remaining, duration, global = GetSlotCooldownInfo(1, nil)
     if remaining > 0 then
         LUIE_CCTracker_IconFrame_GlobalCooldown:ResetCooldown()
         if CombatInfo.SV.cct.showGCD and LUIE.ResolvePVPZone() then
