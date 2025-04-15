@@ -1520,7 +1520,7 @@ function UnitFrames.CustomFramesApplyBarAlignment()
 end
 
 -- A function to extract the anchor information
----@param frame Control
+--- @param frame Control
 local function GetAnchorInfo(frame)
     local anchorIndex = 1
     local isValidAnchor, point, relativeTo, relativePoint, offsetX, offsetY = frame:GetAnchor(anchorIndex)
@@ -2213,7 +2213,7 @@ function UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
             local i = zo_strsub(unitTag, 6)
             if _G["ZO_GroupUnitFramegroup" .. i] then
                 local parentBar = _G["ZO_GroupUnitFramegroup" .. i .. "Hp"]
-                ---@cast parentBar Control
+                --- @cast parentBar Control
                 local parentName = _G["ZO_GroupUnitFramegroup" .. i .. "Name"]
                 -- Prepare dimension of regen bar
                 local width, height = parentBar:GetDimensions()
@@ -2845,13 +2845,14 @@ end
 --- @param params table Parameters containing values for text formatting
 --- @return string formatted The formatted text string
 local function FormatAttributeText(format, params)
-    local substitutions = {
-        ["Percentage"] = tostring(params.percentValue);
-        ["Max"] = AbbreviateNumber(params.powerEffectiveMax, UnitFrames.SV.ShortenNumbers, true);
-        ["Current"] = AbbreviateNumber(params.powerValue, UnitFrames.SV.ShortenNumbers, true);
-        ["+ Shield"] = params.shield and ("+ " .. AbbreviateNumber(params.shield, UnitFrames.SV.ShortenNumbers, true)) or "";
-        ["- Trauma"] = params.trauma and ("- (" .. AbbreviateNumber(params.trauma, UnitFrames.SV.ShortenNumbers, true) .. ")") or "";
-        ["Nothing"] = "";
+    local substitutions =
+    {
+        ["Percentage"] = tostring(params.percentValue),
+        ["Max"] = AbbreviateNumber(params.powerEffectiveMax, UnitFrames.SV.ShortenNumbers, true),
+        ["Current"] = AbbreviateNumber(params.powerValue, UnitFrames.SV.ShortenNumbers, true),
+        ["+ Shield"] = params.shield and ("+ " .. AbbreviateNumber(params.shield, UnitFrames.SV.ShortenNumbers, true)) or "",
+        ["- Trauma"] = params.trauma and ("- (" .. AbbreviateNumber(params.trauma, UnitFrames.SV.ShortenNumbers, true) .. ")") or "",
+        ["Nothing"] = "",
     }
 
     local str = format
@@ -3837,7 +3838,7 @@ function UnitFrames.OnCombatEvent(eventCode, result, isError, abilityName, abili
         g_powerError[powerType] = true
         -- Save original center color and color to red
         local backdrop = UnitFrames.CustomFrames["player"][powerType].backdrop
-        ---@cast backdrop BackdropControl
+        --- @cast backdrop BackdropControl
         local r, g, b = backdrop:GetCenterColor()
         if powerType == COMBAT_MECHANIC_FLAGS_STAMINA then
             backdrop:SetCenterColor(0, 0.2, 0, 0.9)
@@ -4212,14 +4213,16 @@ function UnitFrames.CustomFramesSetMovingState(state)
             tlw:SetMovable(state)
             tlw:SetHidden(false)
 
-            -- Add grid snapping handler
-            tlw:SetHandler("OnMoveStop", function (self)
+            --- @param self TopLevelWindow
+            local function OnMoveStop(self)
                 local left, top = self:GetLeft(), self:GetTop()
                 left, top = LUIE.ApplyGridSnap(left, top, "unitFrames")
                 self:ClearAnchors()
                 self:SetAnchor(TOPLEFT, GuiRoot, TOPLEFT, left, top)
                 UnitFrames.SV[self.customPositionAttr] = { left, top }
-            end)
+            end
+            -- Add grid snapping handler
+            tlw:SetHandler("OnMoveStop", OnMoveStop)
         end
     end
 
@@ -5898,11 +5901,11 @@ local function insertRole(list, currentRole)
     end
 end
 
----@param index number
----@param itemsPerColumn number
----@param spacerHeight number
----@return number xOffset
----@return number yOffset
+--- @param index number
+--- @param itemsPerColumn number
+--- @param spacerHeight number
+--- @return number xOffset
+--- @return number yOffset
 local function calculateFramePosition(index, itemsPerColumn, spacerHeight)
     local column = zo_floor((index - 1) / itemsPerColumn)
     local row = (index - 1) % itemsPerColumn + 1

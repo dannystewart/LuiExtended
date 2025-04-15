@@ -219,27 +219,29 @@ function Unlock.CreateTopLevelWindow(element, config, point, relativePoint, offs
     -- Create coordinate label with initial position
     tlw.preview.coordLabel = Unlock.CreateCoordinateLabel(tlw.preview, positionText)
 
-    -- Add movement handlers
-    tlw:SetHandler("OnMoveStart",
-        --- @param self TopLevelWindow
-        function (self)
-            eventManager:RegisterForUpdate("LUIE_UnlockMoveUpdate", 200, function ()
-                if self.preview and self.preview.coordLabel then
-                    local frameName = config[1] -- Get the frame name from the config
-                    self.preview.coordLabel:SetText(string.format("%d, %d | %s", self:GetLeft(), self:GetTop(), frameName))
-                end
-            end)
-        end)
-
-    tlw:SetHandler("OnMoveStop",
-        --- @param self TopLevelWindow
-        function (self)
-            eventManager:UnregisterForUpdate("LUIE_UnlockMoveUpdate")
+    --- @param self TopLevelWindow
+    local function OnMoveStart(self)
+        eventManager:RegisterForUpdate("LUIE_UnlockMoveUpdate", 200, function ()
             if self.preview and self.preview.coordLabel then
                 local frameName = config[1] -- Get the frame name from the config
                 self.preview.coordLabel:SetText(string.format("%d, %d | %s", self:GetLeft(), self:GetTop(), frameName))
             end
         end)
+    end
+
+    --- @param self TopLevelWindow
+    local function OnMoveStop(self)
+        eventManager:UnregisterForUpdate("LUIE_UnlockMoveUpdate")
+        if self.preview and self.preview.coordLabel then
+            local frameName = config[1] -- Get the frame name from the config
+            self.preview.coordLabel:SetText(string.format("%d, %d | %s", self:GetLeft(), self:GetTop(), frameName))
+        end
+    end
+
+    -- Add movement handlers
+    tlw:SetHandler("OnMoveStart", OnMoveStart)
+
+    tlw:SetHandler("OnMoveStop", OnMoveStop)
 
     return tlw
 end
@@ -276,9 +278,8 @@ function Unlock.InitializeElementMover(element, config)
         end
     end
 
-    -- Create and configure the top-level window (mover) for the element
-    local mover = Unlock.CreateTopLevelWindow(element, config, point, relativePoint, offsetX, offsetY, relativeTo)
-    mover:SetHandler("OnMoveStop", function (self)
+    --- @param self TopLevelWindow
+    local function OnMoveStop(self)
         local left, top = self:GetLeft(), self:GetTop()
 
         -- Apply grid snapping if enabled
@@ -291,7 +292,11 @@ function Unlock.InitializeElementMover(element, config)
         -- Save the new position and update the element positions
         LUIE.SV[self.customPositionAttr] = { left, top }
         Unlock.SetElementPosition()
-    end)
+    end
+
+    -- Create and configure the top-level window (mover) for the element
+    local mover = Unlock.CreateTopLevelWindow(element, config, point, relativePoint, offsetX, offsetY, relativeTo)
+    mover:SetHandler("OnMoveStop", OnMoveStop)
 
     return mover
 end
