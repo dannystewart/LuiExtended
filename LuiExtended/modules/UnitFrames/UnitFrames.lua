@@ -130,30 +130,33 @@ local function CreateRegenAnimation(parent, anchors, dims, alpha, number)
     control:SetAlpha(0)
     control:SetDrawLayer(1)
 
-    local offsetY = select(6, control:GetAnchor())
+    for i = 0, MAX_ANCHORS - 1 do
+        local isValid, _, _, _, _, offsetY = control:GetAnchor(i)
+        if isValid then
+            -- Create an horizontal sliding animation
+            local animation, timeline = CreateSimpleAnimation(ANIMATION_TRANSLATE, control, 0)
+            animation:SetTranslateOffsets(offsetX, offsetY, offsetX + distance, offsetY)
+            animation:SetDuration(1000)
 
-    -- Create an horizontal sliding animation
-    local animation, timeline = CreateSimpleAnimation(ANIMATION_TRANSLATE, control, 0)
-    animation:SetTranslateOffsets(offsetX, offsetY, offsetX + distance, offsetY)
-    animation:SetDuration(1000)
+            -- Fade alpha coming in
+            local fadeIn = timeline:InsertAnimation(ANIMATION_ALPHA, control, 0)
+            fadeIn:SetAlphaValues(0, 0.75)
+            fadeIn:SetDuration(250)
+            fadeIn:SetEasingFunction(ZO_EaseOutQuadratic)
 
-    -- Fade alpha coming in
-    local fadeIn = timeline:InsertAnimation(ANIMATION_ALPHA, control, 0)
-    fadeIn:SetAlphaValues(0, 0.75)
-    fadeIn:SetDuration(250)
-    fadeIn:SetEasingFunction(ZO_EaseOutQuadratic)
+            -- Fade alpha going out
+            local fadeOut = timeline:InsertAnimation(ANIMATION_ALPHA, control, 750)
+            fadeOut:SetAlphaValues(0.75, 0)
+            fadeOut:SetDuration(250)
+            fadeIn:SetEasingFunction(ZO_EaseOutQuadratic)
 
-    -- Fade alpha going out
-    local fadeOut = timeline:InsertAnimation(ANIMATION_ALPHA, control, 750)
-    fadeOut:SetAlphaValues(0.75, 0)
-    fadeOut:SetDuration(250)
-    fadeIn:SetEasingFunction(ZO_EaseOutQuadratic)
+            timeline:SetPlaybackType(ANIMATION_PLAYBACK_LOOP, LOOP_INDEFINITELY)
+            control.animation = animation
+            control.timeline = timeline
 
-    timeline:SetPlaybackType(ANIMATION_PLAYBACK_LOOP, LOOP_INDEFINITELY)
-    control.animation = animation
-    control.timeline = timeline
-
-    return control
+            return control
+        end
+    end
 end
 
 -- Decreased armour overlay visuals
@@ -240,7 +243,7 @@ end
 function UnitFrames.SetDefaultFramesSetting(frame, value)
     local key = "DefaultFramesNew" .. tostring(frame)
     if value == g_DefaultFramesOptions[3] then
-        SetSetting(SETTING_TYPE_UI, UI_SETTING_RESOURCE_NUMBERS, 0)
+        SetSetting(SETTING_TYPE_UI, UI_SETTING_RESOURCE_NUMBERS, 0, SETTINGS_SET_OPTION_SAVE_TO_PERSISTED_DATA)
         UnitFrames.SV[key] = 3
     elseif value == g_DefaultFramesOptions[2] then
         UnitFrames.SV[key] = 2
@@ -5136,30 +5139,51 @@ end
 -- Apply selected texture for all known bars on custom unit frames
 function UnitFrames.CustomFramesApplyTexture()
     local texture = LUIE.StatusbarTextures[UnitFrames.SV.CustomTexture]
+    local isRoundTexture = UnitFrames.SV.CustomTexture == "Tube" or UnitFrames.SV.CustomTexture == "Steel"
+
+    -- Helper function to set texture and handle Round texture edge color (Now with placeholder EdgeTexture)
+    local function applyTextureToBackdrop(backdrop)
+        -- Set the main texture
+        backdrop:SetCenterTexture(texture) -- TODO: Add optional tilingInterval, addressMode args here if needed?
+
+        -- Set Blend Mode
+        backdrop:SetBlendMode(TEX_BLEND_MODE_ALPHA)
+
+        -- Set Pixel Rounding
+        backdrop:SetPixelRoundingEnabled(true) -- Keep true for now, toggle to false to test sharpness.
+
+        if isRoundTexture then
+            -- Still setting edge color to transparent for round textures
+            backdrop:SetEdgeColor(0, 0, 0, 0)
+        else
+            backdrop:SetEdgeColor(0, 0, 0, 0.5)
+        end
+    end
 
     -- After texture is applied unhide frames, so player can see changes even from menu
     if UnitFrames.CustomFrames["player"] and UnitFrames.CustomFrames["player"].tlw then
-        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop:SetCenterTexture(texture)
+        applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
         if UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop then
-            UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop:SetCenterTexture(texture)
+            applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
         end
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
-        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].backdrop:SetCenterTexture(texture)
+        applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].backdrop)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].bar:SetTexture(texture)
-        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA].backdrop:SetCenterTexture(texture)
+        applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA].backdrop)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA].bar:SetTexture(texture)
-        UnitFrames.CustomFrames["player"].alternative.backdrop:SetCenterTexture(texture)
+        applyTextureToBackdrop(UnitFrames.CustomFrames["player"].alternative.backdrop)
         UnitFrames.CustomFrames["player"].alternative.bar:SetTexture(texture)
         UnitFrames.CustomFrames["player"].alternative.enlightenment:SetTexture(texture)
         UnitFrames.CustomFrames["player"].tlw:SetHidden(false)
     end
+
     if UnitFrames.CustomFrames["reticleover"] and UnitFrames.CustomFrames["reticleover"].tlw then
-        UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop:SetCenterTexture(texture)
+        applyTextureToBackdrop(UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
         if UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop then
-            UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop:SetCenterTexture(texture)
+            applyTextureToBackdrop(UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
         end
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
@@ -5167,11 +5191,12 @@ function UnitFrames.CustomFramesApplyTexture()
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerableInlay:SetTexture("LuiExtended/media/unitframes/invulnerable_munge.dds")
         UnitFrames.CustomFrames["reticleover"].tlw:SetHidden(false)
     end
+
     if UnitFrames.CustomFrames["AvaPlayerTarget"] and UnitFrames.CustomFrames["AvaPlayerTarget"].tlw then
-        UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop:SetCenterTexture(texture)
+        applyTextureToBackdrop(UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
         if UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop then
-            UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop:SetCenterTexture(texture)
+            applyTextureToBackdrop(UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
         end
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
@@ -5179,50 +5204,55 @@ function UnitFrames.CustomFramesApplyTexture()
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerableInlay:SetTexture("LuiExtended/media/unitframes/invulnerable_munge.dds")
         UnitFrames.CustomFrames["AvaPlayerTarget"].tlw:SetHidden(false)
     end
+
     if UnitFrames.CustomFrames["companion"] and UnitFrames.CustomFrames["companion"].tlw then
-        UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop:SetCenterTexture(texture)
+        applyTextureToBackdrop(UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
         UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
         UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
         UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         UnitFrames.CustomFrames["companion"].tlw:SetHidden(false)
     end
+
     if UnitFrames.CustomFrames["SmallGroup1"] and UnitFrames.CustomFrames["SmallGroup1"].tlw then
         for i = 1, 4 do
             local unitTag = "SmallGroup" .. i
-            UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop:SetCenterTexture(texture)
+            applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
             if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop then
-                UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop:SetCenterTexture(texture)
+                applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
             end
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         end
         UnitFrames.CustomFrames["SmallGroup1"].tlw:SetHidden(false)
     end
+
     if UnitFrames.CustomFrames["RaidGroup1"] and UnitFrames.CustomFrames["RaidGroup1"].tlw then
         for i = 1, 12 do
             local unitTag = "RaidGroup" .. i
-            UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop:SetCenterTexture(texture)
+            applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         end
         UnitFrames.CustomFrames["RaidGroup1"].tlw:SetHidden(false)
     end
+
     if UnitFrames.CustomFrames["PetGroup1"] and UnitFrames.CustomFrames["PetGroup1"].tlw then
         for i = 1, 7 do
             local unitTag = "PetGroup" .. i
-            UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop:SetCenterTexture(texture)
+            applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         end
         UnitFrames.CustomFrames["PetGroup1"].tlw:SetHidden(false)
     end
+
     if UnitFrames.CustomFrames["boss1"] and UnitFrames.CustomFrames["boss1"].tlw then
         for i = 1, 7 do
             local unitTag = "boss" .. i
-            UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop:SetCenterTexture(texture)
+            applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
@@ -5525,76 +5555,6 @@ function UnitFrames.CustomFramesApplyLayoutPlayer(unhide)
                 end
             end
             alt.backdrop:SetWidth(altW)
-            if not UnitFrames.SV.HideLabelHealth then
-                phb.labelOne:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightHealth - 2)
-                phb.labelTwo:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightHealth - 2)
-            end
-            if not UnitFrames.SV.HideLabelMagicka then
-                pmb.labelOne:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightMagicka - 2)
-                pmb.labelTwo:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightMagicka - 2)
-            end
-            if not UnitFrames.SV.HideLabelStamina then
-                psb.labelOne:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightStamina - 2)
-                psb.labelTwo:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightStamina - 2)
-            end
-        elseif UnitFrames.SV.PlayerFrameOptions == 2 then
-            player.tlw:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightHealth + (phb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
-            player.control:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightHealth + (phb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
-
-            player.topInfo:SetWidth(UnitFrames.SV.PlayerBarWidth)
-            player.botInfo:SetWidth(UnitFrames.SV.PlayerBarWidth)
-            player.buffAnchor:SetWidth(UnitFrames.SV.PlayerBarWidth)
-
-            player.name:SetWidth(UnitFrames.SV.PlayerBarWidth - 90)
-            player.buffs:SetWidth(1000)
-            player.debuffs:SetWidth(1000)
-
-            player.levelIcon:ClearAnchors()
-            player.levelIcon:SetAnchor(LEFT, player.topInfo, LEFT, player.name:GetTextWidth() + 1, 0)
-
-            player.name:SetHidden(not UnitFrames.SV.PlayerEnableYourname)
-            player.level:SetHidden(not UnitFrames.SV.PlayerEnableYourname)
-            player.levelIcon:SetHidden(not UnitFrames.SV.PlayerEnableYourname)
-            player.classIcon:SetHidden(not UnitFrames.SV.PlayerEnableYourname)
-
-            local altW = zo_ceil(UnitFrames.SV.PlayerBarWidth * 2 / 3)
-
-            phb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightHealth)
-            phb.backdrop:SetHidden(UnitFrames.SV.HideBarHealth)
-
-            if phb.shieldbackdrop then
-                phb.shieldbackdrop:ClearAnchors()
-                phb.shieldbackdrop:SetAnchor(TOP, phb.backdrop, BOTTOM, 0, 0)
-                phb.shieldbackdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.CustomShieldBarHeight)
-            end
-
-            if not UnitFrames.SV.ReverseResourceBars then
-                pmb.backdrop:ClearAnchors()
-                if not UnitFrames.SV.HideBarMagicka then
-                    pmb.backdrop:SetAnchor(RIGHT, phb.backdrop, LEFT, -UnitFrames.SV.AdjustMagickaHPos, UnitFrames.SV.AdjustMagickaVPos)
-                    pmb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightMagicka)
-                end
-
-                psb.backdrop:ClearAnchors()
-                if not UnitFrames.SV.HideBarStamina then
-                    psb.backdrop:SetAnchor(LEFT, phb.backdrop, RIGHT, UnitFrames.SV.AdjustStaminaHPos, UnitFrames.SV.AdjustStaminaVPos)
-                    psb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightStamina)
-                end
-            else
-                psb.backdrop:ClearAnchors()
-                if not UnitFrames.SV.HideBarStamina then
-                    psb.backdrop:SetAnchor(RIGHT, phb.backdrop, LEFT, -UnitFrames.SV.AdjustStaminaHPos, UnitFrames.SV.AdjustStaminaVPos)
-                    psb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightStamina)
-                end
-
-                pmb.backdrop:ClearAnchors()
-                if not UnitFrames.SV.HideBarMagicka then
-                    pmb.backdrop:SetAnchor(LEFT, phb.backdrop, RIGHT, UnitFrames.SV.AdjustMagickaHPos, UnitFrames.SV.AdjustMagickaVPos)
-                    pmb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightMagicka)
-                end
-            end
-            alt.backdrop:SetWidth(altW)
-
             if not UnitFrames.SV.HideLabelHealth then
                 phb.labelOne:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightHealth - 2)
                 phb.labelTwo:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightHealth - 2)
