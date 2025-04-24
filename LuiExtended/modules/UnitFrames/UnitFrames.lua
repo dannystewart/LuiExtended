@@ -266,7 +266,7 @@ function UnitFrames.GroupFrames_OnMouseUp(self, button, upInside)
         ClearMenu()
         local isPlayer = AreUnitsEqual(unitTag, "player") -- Flag Player
         local isLFG = DoesGroupModificationRequireVote()  -- Flag if we're in an LFG Group
-        local accountName = zo_strformat("<<C:1>>", GetUnitDisplayName(unitTag))
+        local accountName = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetUnitDisplayName(unitTag))
         local isOnline = IsUnitOnline(unitTag)
 
         if isPlayer then
@@ -413,7 +413,7 @@ function UnitFrames.AltBar_OnMouseEnterSiege(control)
         local siegeName = GetUnitName("controlledsiege")
         InitializeTooltip(InformationTooltip, control, BOTTOM, 0, -10)
 
-        SetTooltipText(InformationTooltip, zo_strformat("<<C:1>>", siegeName))
+        SetTooltipText(InformationTooltip, zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, siegeName))
         InformationTooltip:AddLine(zo_strformat(LUIE_STRING_UF_SIEGE_POWER, ZO_CommaDelimitNumber(currentPower), ZO_CommaDelimitNumber(maxPower), percentagePower))
     end
     UpdateSiegePower()
@@ -1520,14 +1520,38 @@ function UnitFrames.CustomFramesApplyBarAlignment()
             end
         end
     end
+
+    for i = 1, 7 do
+        local unitTag = "boss" .. i
+        if DoesUnitExist(unitTag) then
+            if UnitFrames.CustomFrames[unitTag] then
+                local hpBar = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH]
+                if hpBar then
+                    hpBar.bar:SetBarAlignment(UnitFrames.SV.BarAlignTarget - 1)
+                    if hpBar.trauma then
+                        hpBar.trauma:SetBarAlignment(UnitFrames.SV.BarAlignTarget - 1)
+                    end
+                    if hpBar.invulnerable then
+                        hpBar.invulnerable:SetBarAlignment(UnitFrames.SV.BarAlignTarget - 1)
+                    end
+                    if hpBar.invulnerableInlay then
+                        hpBar.invulnerableInlay:SetBarAlignment(UnitFrames.SV.BarAlignTarget - 1)
+                    end
+                end
+            end
+        end
+    end
 end
 
 -- A function to extract the anchor information
 --- @param frame Control
+--- @return {point:AnchorPosition,relativeTo:object,relativePoint:AnchorPosition,offsetX:number,offsetY:number }|nil
 local function GetAnchorInfo(frame)
     local anchorIndex = 1
     local isValidAnchor, point, relativeTo, relativePoint, offsetX, offsetY = frame:GetAnchor(anchorIndex)
-    if not isValidAnchor then return end
+    if not isValidAnchor then
+        return
+    end
     return { point, relativeTo, relativePoint, offsetX, offsetY }
 end
 

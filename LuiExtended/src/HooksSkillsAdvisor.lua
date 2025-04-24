@@ -169,12 +169,12 @@ function LUIE.InitializeHooksSkillAdvisor()
     end
 
     function SkillsAdvisorSuggestions_Gamepad:BuildMasterList()
-        -- intended to be overriden
+        -- intended to be overridden
         -- should build the master list of data that is later filtered by FilterScrollList
     end
 
     function SkillsAdvisorSuggestions_Gamepad:FilterScrollList()
-        -- intended to be overriden
+        -- intended to be overridden
         -- should take the master list data and filter it
     end
 
@@ -250,7 +250,7 @@ function LUIE.InitializeHooksSkillAdvisor()
 
     function SkillsAdvisorSuggestions_Gamepad:GamepadSingleLineAbilityEntryTemplateSetup(control, data, selected, reselectingDuringRebuild, enabled, active)
         ZO_SharedGamepadEntry_OnSetup(control, data, selected, reselectingDuringRebuild, enabled, active)
-        ZO_GamepadSkillEntryTemplate_Setup(control, data, selected, activated, ZO_SKILL_ABILITY_DISPLAY_VIEW)
+        ZO_GamepadSkillEntryTemplate_Setup(control, data, selected, active, ZO_SKILL_ABILITY_DISPLAY_VIEW)
     end
 
     function SkillsAdvisorSuggestions_Gamepad:SkillsAdvisorSuggestionsTextDisplayTemplateSetup(control, data, selected, reselectingDuringRebuild, enabled, active)
