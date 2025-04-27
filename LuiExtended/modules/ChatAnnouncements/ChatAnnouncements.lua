@@ -6,6 +6,7 @@
 --- @class (partial) LuiExtended
 local LUIE = LUIE
 local printToChat = LUIE.PrintToChat
+local LuiData = LuiData
 --- @type Data
 local Data = LuiData.Data
 --- @type CrownStoreCollectibles
@@ -10557,7 +10558,7 @@ function ChatAnnouncements.HookFunction()
             local currentTargetCharacterNameRaw = self.currentTargetCharacterNameRaw
             local currentTargetDisplayName = self.currentTargetDisplayName
             local primaryName = ZO_GetPrimaryPlayerName(currentTargetDisplayName, currentTargetCharacterName, false)
-            local primaryNameInternal = ZO_GetPrimaryPlayerName(currentTargetDisplayName, currentTargetCharacterName, false)
+            local primaryNameInternal = ZO_GetPrimaryPlayerName(currentTargetDisplayName, currentTargetCharacterName, true)
             local platformIcons = IsInGamepadPreferredMode() and GAMEPAD_INTERACT_ICONS or KEYBOARD_INTERACT_ICONS
             local ENABLED = true
             local DISABLED = false
