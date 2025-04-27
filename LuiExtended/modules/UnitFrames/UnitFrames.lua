@@ -178,11 +178,14 @@ local function CreateDecreasedArmorOverlay(parent, small)
 end
 
 function UnitFrames.AddCurrentPetsToCustomList(list)
-    for i = 1, 7 do
+    for i = 1, MAX_PET_UNIT_TAGS do
         local unitTag = "playerpet" .. i
-        if DoesUnitExist(unitTag) then
+        if DoesUnitExist(unitTag) and (GetUnitType(unitTag) == COMBAT_UNIT_TYPE_PLAYER_PET) then
             local unitName = GetUnitName(unitTag)
             if unitName ~= "" and unitName ~= nil then
+                if LUIE.IsDevDebugEnabled() then
+                    LUIE.Debug(unitName)
+                end
                 UnitFrames.AddToCustomList(list, unitName)
             end
         end
