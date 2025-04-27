@@ -132,6 +132,21 @@ local function OnAddonOnLoaded(eventCode, addonName)
     -- -----------------------------------------------------------------------------
     -- Initialize Hooks
     LUIE.InitializeHooks()
+    LUIE.HookActionButton()
+    LUIE.HookSynergy()
+
+    -- Hook Gamepad Skill Advisor for custom icon support
+    LUIE.InitializeHooksSkillAdvisor()
+    LUIE.HookGamePadIcons()
+    LUIE.HookGamePadStats()
+    LUIE.HookGamePadMap()
+
+
+    LUIE.HookKeyboardIcons()
+    LUIE.HookKeyboardStats()
+    LUIE.HookKeyboardMap()
+
+
     -- -----------------------------------------------------------------------------
     -- Toggle Alert Frame Visibility if needed
     LUIE.SetupAlertFrameVisibility()

@@ -7,7 +7,6 @@
 ---
 --- @class (partial) LuiExtended
 --- @field __index LuiExtended
---- @field Data Data
 --- @field Combat LUIE.CombatInfo
 --- @field SpellCastBuffs LUIE.SpellCastBuffs
 --- @field name string The addon name

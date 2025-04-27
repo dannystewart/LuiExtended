@@ -1335,6 +1335,9 @@ function CrowdControlTracker:BreakFreeAnimation()
 end
 
 --- @param control Control
+--- @param animType "proc"|"end"|"endstagger"|"silence"|"stagger"|"immune"
+--- @param test boolean|nil
+--- @return AnimationTimeline|nil timeline
 function CrowdControlTracker:StartAnimation(control, animType, test)
     if self.currentlyPlaying then
         self.currentlyPlaying:Stop()

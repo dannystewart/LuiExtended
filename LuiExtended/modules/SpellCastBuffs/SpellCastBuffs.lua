@@ -145,25 +145,25 @@ local function UpdateEffectOnSkillUpdate(overrideRank, casterUnitTag)
 end
 
 --- @param abilityId integer
+--- @return boolean
 function SpellCastBuffs.ShouldUseDefaultIcon(abilityId)
-    if Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].cc then
-        if SpellCastBuffs.SV.DefaultIconOptions == 1 then
-            return true
-        elseif SpellCastBuffs.SV.DefaultIconOptions == 2 then
-            return Effects.EffectOverride[abilityId].isPlayerAbility and true or false
-        elseif SpellCastBuffs.SV.DefaultIconOptions == 3 then
-            return Effects.EffectOverride[abilityId].isPlayerAbility and true or false
-        end
+    local effect = Effects.EffectOverride[abilityId]
+
+    -- Check if effect exists and has either cc or ccMergedType (with HideReduce enabled)
+    if not effect or (not effect.cc and not (SpellCastBuffs.SV.HideReduce and effect.ccMergedType)) then
+        return false
     end
-    if SpellCastBuffs.SV.HideReduce and Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].ccMergedType then
-        if SpellCastBuffs.SV.DefaultIconOptions == 1 then
-            return true
-        elseif SpellCastBuffs.SV.DefaultIconOptions == 2 then
-            return Effects.EffectOverride[abilityId].isPlayerAbility and true or false
-        elseif SpellCastBuffs.SV.DefaultIconOptions == 3 then
-            return Effects.EffectOverride[abilityId].isPlayerAbility and true or false
-        end
+
+    -- Option 1: Always use default icon for all cc effects
+    if SpellCastBuffs.SV.DefaultIconOptions == 1 then
+        return true
+
+        -- Options 2 and 3: Use default icon only for player ability cc effects
+    elseif SpellCastBuffs.SV.DefaultIconOptions == 2 or SpellCastBuffs.SV.DefaultIconOptions == 3 then
+        return effect.isPlayerAbility
     end
+
+    return false
 end
 
 function SpellCastBuffs.GetDefaultIcon(ccType)

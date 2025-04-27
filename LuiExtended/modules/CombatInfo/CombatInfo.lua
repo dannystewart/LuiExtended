@@ -66,9 +66,8 @@ local g_disableProcSound = {}                                 -- When we play a 
 local g_hotbarCategory = GetActiveHotbarCategory()            -- Set on initialization and when we swap weapons to determine the current hotbar category
 local g_actionBarActiveWeaponPair = GetActiveWeaponPairInfo() -- Toggled on when weapon swapping, TODO: maybe not needed
 local g_backbarButtons = {}                                   -- Table to hold backbar buttons
---- Flag to track when we're in the middle of a weapon swap
-local g_weaponSwapInProgress = false
-local g_castbarWorldMapFix = false -- Fix for viewing the World Map changing the player coordinates for some reason
+local g_activeWeaponSwapInProgress = false                    -- Toggled on when weapon swapping, TODO: maybe not needed
+local g_castbarWorldMapFix = false                            -- Fix for viewing the World Map changing the player coordinates for some reason
 local ACTION_BAR_META = ZO_ActionBar1
 local ACTION_BAR = ACTION_BAR_META
 local BAR_INDEX_START = ACTION_BAR_FIRST_NORMAL_SLOT_INDEX + 1
@@ -76,94 +75,7 @@ local BAR_INDEX_END = ACTION_BAR_ULTIMATE_SLOT_INDEX + 1
 local BACKBAR_INDEX_END = ACTION_BAR_ULTIMATE_SLOT_INDEX -- Separate index for backbar as long as we're not using an ultimate button.
 local BACKBAR_INDEX_OFFSET = 50
 
--- ===== HELPER FUNCTIONS TO REDUCE CODE DUPLICATION =====
-
---- Sets high draw priority for UI elements to ensure they're visible
---- @param control table UI control with label and stack properties
-local function SetHighDrawPriority(control)
-    if control.label then
-        control.label:SetDrawLayer(DL_CONTROLS)
-        control.label:SetDrawLayer(DL_OVERLAY)
-        control.label:SetDrawTier(DT_HIGH)
-    end
-
-    if control.stack then
-        control.stack:SetDrawLayer(DL_CONTROLS)
-        control.stack:SetDrawLayer(DL_OVERLAY)
-        control.stack:SetDrawTier(DT_HIGH)
-    end
-end
-
---- Gets corrected ability ID based on weapon type and special cases
---- @param abilityId integer Original ability ID
---- @param hotbarCategory number Hotbar category
---- @return integer Corrected ability ID
-local function GetCorrectedAbilityId(abilityId, hotbarCategory)
-    local correctedAbilityId = abilityId
-
-    -- Handle staff weapon types for backbar
-    if hotbarCategory == HOTBAR_CATEGORY_BACKUP then
-        -- Check backbar weapon type
-        local weaponSlot = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and 4 or 20
-        local weaponType = GetItemWeaponType(BAG_WORN, weaponSlot)
-
-        -- Fix tracking for Staff Backbar
-        if weaponType == WEAPONTYPE_FIRE_STAFF or weaponType == WEAPONTYPE_FROST_STAFF or weaponType == WEAPONTYPE_LIGHTNING_STAFF then
-            if Effects.BarHighlightDestroFix[abilityId] and Effects.BarHighlightDestroFix[abilityId][weaponType] then
-                correctedAbilityId = Effects.BarHighlightDestroFix[abilityId][weaponType]
-            end
-        end
-    end
-
-    -- Special case for certain skills
-    local specialCases =
-    {
-        [114716] = 46324, -- Crystal Fragments --> Crystal Fragments
-        [20824] = 20816,  -- Power Lash --> Flame Lash
-        [35445] = 35441,  -- Shadow Image Teleport --> Shadow Image
-        [126659] = 38910, -- Flying Blade --> Flying Blade
-    }
-
-    if specialCases[correctedAbilityId] then
-        correctedAbilityId = specialCases[correctedAbilityId]
-    end
-
-    return correctedAbilityId
-end
-
---- Updates the stack count text on slot UI elements
---- @param slotNum integer Slot number
---- @param stackCount integer? Stack count (nil to clear)
-local function UpdateStackText(slotNum, stackCount)
-    if g_uiCustomToggle[slotNum] then
-        if stackCount and stackCount > 0 then
-            g_uiCustomToggle[slotNum].stack:SetText(stackCount)
-        else
-            g_uiCustomToggle[slotNum].stack:SetText("")
-        end
-    end
-end
-
---- Formats duration in seconds for display
---- @param remain number Remaining time in milliseconds
---- @return string Formatted duration
-local function FormatDurationSeconds(remain)
-    return string_format((CombatInfo.SV.BarMillis and ((remain < CombatInfo.SV.BarMillisThreshold * 1000) or CombatInfo.SV.BarMillisAboveTen)) and "%.1f" or "%.1d", remain / 1000)
-end
-
---- Sets bar remain label based on ability type
---- @param remain number Remaining time in milliseconds
---- @param abilityId number Ability ID
---- @return string Formatted label text
-local function SetBarRemainLabel(remain, abilityId)
-    if Effects.IsGrimFocus[abilityId] or Effects.IsBloodFrenzy[abilityId] then
-        return ""
-    else
-        return FormatDurationSeconds(remain)
-    end
-end
-
--- QuickSlot
+-- Quickslot
 local uiQuickSlot =
 {
     color = { 0.941, 0.565, 0.251 },
@@ -252,7 +164,7 @@ end
 local function OnSwapAnimationDone(animation, button)
     button.noUpdates = false
     if button:GetSlot() == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
-        g_weaponSwapInProgress = false
+        g_activeWeaponSwapInProgress = false
     end
     slotsUpdated = {}
 end
@@ -291,16 +203,11 @@ function CombatInfo.Initialize(enabled)
     uiQuickSlot.label:SetDrawTier(DT_HIGH)
     CombatInfo.ResetPotionTimerLabel() -- Set the label position
 
-    -- Initialize base game action bar effect timers
-    CombatInfo:InitializeActionBarEffects()
-
-    -- Set ultimate label
-    local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot)
-
     -- Create Ultimate overlay labels
     local AB8 = _G["ActionButton8"]
     uiUltimate.LabelVal = UI:Label(AB8, { BOTTOM, TOP, 0, -3 }, nil, { 1, 2 }, "$(BOLD_FONT)|16|soft-shadow-thick", nil, true)
     uiUltimate.LabelPct = UI:Label(AB8, nil, nil, nil, g_ultimateFont, nil, true)
+    local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot, g_hotbarCategory)
     uiUltimate.LabelPct:SetAnchor(TOPLEFT, actionButton.slot, nil, 0, 0)
     uiUltimate.LabelPct:SetAnchor(BOTTOMRIGHT, actionButton.slot, nil, 0, -CombatInfo.SV.UltimateLabelPosition)
 
@@ -389,6 +296,123 @@ function CombatInfo.Initialize(enabled)
     LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsCI = 2
 end
 
+--- Handles updates to action slot effects like timers and stack counts.
+--- @param eventCode integer
+--- @param hotbarCategory HotBarCategory
+--- @param actionSlotIndex number
+function CombatInfo.OnActionSlotEffectUpdate(eventCode, hotbarCategory, actionSlotIndex)
+    local timeRemainingMS = GetActionSlotEffectTimeRemaining(actionSlotIndex, hotbarCategory)
+
+    -- Important: We want to apply the effect to the ACTIVE bar that used the ability
+    -- not to the slot on the backbar
+    local slotNum = actionSlotIndex
+    local displayHotbarCategory = hotbarCategory
+
+    -- Get ability ID for the slot
+    local abilityId = GetSlotTrueBoundId(actionSlotIndex, displayHotbarCategory)
+    if not abilityId or abilityId == 0 then return end
+
+    -- Get the corrected ability ID using our helper function
+    abilityId = GetSlotTrueBoundId(abilityId, displayHotbarCategory)
+
+    -- CRITICAL: Show the timer on the ACTIVE hotbar if the effect is triggered on that bar
+    -- This is the key change to fix the issue where timers show on backbar instead of frontbar
+    local currentTime = GetFrameTimeMilliseconds()
+    local stackCount = GetActionSlotEffectStackCount(actionSlotIndex, displayHotbarCategory)
+    local endTime = currentTime + timeRemainingMS
+
+    -- If this is the active hotbar category, show the effect on the active bar
+    if displayHotbarCategory == g_hotbarCategory then
+        g_toggledSlotsFront[abilityId] = slotNum
+        g_toggledSlotsRemain[abilityId] = endTime
+        g_toggledSlotsStack[abilityId] = stackCount
+        g_toggledSlotsPlayer[abilityId] = true
+
+        if timeRemainingMS > 0 then
+            -- Create UI elements if they don't exist yet
+            if not g_uiCustomToggle[slotNum] then
+                CombatInfo.ShowCustomToggle(slotNum)
+            end
+
+            CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
+        else
+            if g_uiCustomToggle[slotNum] then
+                CombatInfo.HideSlot(slotNum, abilityId)
+            end
+        end
+    elseif displayHotbarCategory == (g_hotbarCategory == HOTBAR_CATEGORY_PRIMARY and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY) then
+        -- This is the inactive bar, track for when we swap
+        local backbarSlot = slotNum + BACKBAR_INDEX_OFFSET
+        g_toggledSlotsBack[abilityId] = backbarSlot
+        g_toggledSlotsRemain[abilityId] = endTime
+        g_toggledSlotsStack[abilityId] = stackCount
+        g_toggledSlotsPlayer[abilityId] = true
+
+        if timeRemainingMS > 0 then
+            -- Create UI elements if they don't exist yet
+            if not g_uiCustomToggle[backbarSlot] then
+                CombatInfo.ShowCustomToggle(backbarSlot)
+            end
+
+            CombatInfo.ShowSlot(backbarSlot, abilityId, currentTime, false)
+        else
+            if g_uiCustomToggle[backbarSlot] then
+                CombatInfo.HideSlot(backbarSlot, abilityId)
+            end
+        end
+    end
+
+    -- Apply any needed weapon swap effects
+    for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
+        CombatInfo.handleFlip(i)
+    end
+end
+
+--- Disables base game timer display elements to prevent conflicts with our custom UI
+function CombatInfo.DisableBaseGameTimerDisplay()
+    local currentHotbarCategory = GetActiveHotbarCategory()
+
+    -- Handle ultimate button
+    local ultButton = ZO_ActionBar_GetButton(ACTION_BAR_ULTIMATE_SLOT_INDEX + 1)
+    if ultButton then
+        ultButton.showTimer = false
+    end
+
+    -- Handle regular ability buttons
+    for i = BAR_INDEX_START, BAR_INDEX_END do
+        local button = ZO_ActionBar_GetButton(i)
+        if button then
+            -- button.hotbarSwapAnimation = nil
+            button.noUpdates = true
+            -- Keep animations but disable built-in timer display
+            button.showTimer = false
+
+            -- Hide built-in stack count and timer displays
+            if button.stackCountText then
+                button.stackCountText:SetHidden(true)
+            end
+            if button.timerText then
+                button.timerText:SetHidden(true)
+            end
+            if button.timerOverlay then
+                button.timerOverlay:SetHidden(true)
+            end
+            button:HandleSlotChanged()
+        end
+
+        -- Handle backbar buttons
+        if (currentHotbarCategory == HOTBAR_CATEGORY_PRIMARY or currentHotbarCategory == HOTBAR_CATEGORY_BACKUP) then
+            local altCategory = (currentHotbarCategory == HOTBAR_CATEGORY_PRIMARY) and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY
+            local altButton = ZO_ActionBar_GetButton(i, altCategory)
+            if altButton then
+                altButton.noUpdates = true
+                altButton.showTimer = false
+                altButton.showBackRowSlot = false
+            end
+        end
+    end
+end
+
 -- Called on initialization and on full update to swap icons on backbar
 function CombatInfo.SetupBackBarIcons(button, flip)
     -- Setup icons for backbar
@@ -396,8 +420,29 @@ function CombatInfo.SetupBackBarIcons(button, flip)
     local slotNum = button.slot.slotNum
     local slotId = GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, hotbarCategory)
 
-    -- Get corrected ability ID
-    slotId = GetCorrectedAbilityId(slotId, hotbarCategory)
+    -- Check backbar weapon type
+    local weaponSlot = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and 4 or 20
+    local weaponType = GetItemWeaponType(BAG_WORN, weaponSlot)
+
+    -- Fix tracking for Staff Backbar
+    if weaponType == WEAPONTYPE_FIRE_STAFF or weaponType == WEAPONTYPE_FROST_STAFF or weaponType == WEAPONTYPE_LIGHTNING_STAFF then
+        if Effects.BarHighlightDestroFix[slotId] and Effects.BarHighlightDestroFix[slotId][weaponType] then
+            slotId = Effects.BarHighlightDestroFix[slotId][weaponType]
+        end
+    end
+
+    -- Special case for certain skills, so the proc icon doesn't get stuck.
+    local specialCases =
+    {
+        [114716] = 46324, -- Crystal Fragments --> Crystal Fragments
+        [20824] = 20816,  -- Power Lash --> Flame Lash
+        [35445] = 35441,  -- Shadow Image Teleport --> Shadow Image
+        [126659] = 38910, -- Flying Blade --> Flying Blade
+    }
+
+    if specialCases[slotId] then
+        slotId = specialCases[slotId]
+    end
 
     -- Check if something is in this action bar slot and if not hide the slot
     if slotId > 0 then
@@ -431,80 +476,10 @@ end
 --- @param eventCode integer
 --- @param activeWeaponPair integer
 function CombatInfo.OnActiveWeaponPairChanged(eventCode, activeWeaponPair)
-    -- Set flag to prevent timer clearing during weapon swap
-    g_weaponSwapInProgress = true
-
     if activeWeaponPair ~= g_actionBarActiveWeaponPair then
         g_hotbarCategory = GetActiveHotbarCategory()
+        g_activeWeaponSwapInProgress = true
         g_actionBarActiveWeaponPair = activeWeaponPair
-
-        -- Preserve all active timers before the swap
-        local activeTimers = {}
-        local currentTime = GetFrameTimeMilliseconds()
-
-        -- Store all active timers
-        for abilityId, endTime in pairs(g_toggledSlotsRemain) do
-            if endTime > currentTime then
-                activeTimers[abilityId] =
-                {
-                    endTime = endTime,
-                    stackCount = g_toggledSlotsStack[abilityId] or 0
-                }
-                -- Always mark active effects as player-targeted so they don't get removed during weapon swap
-                g_toggledSlotsPlayer[abilityId] = true
-            end
-        end
-
-        -- Schedule a function to restore timers after weapon swap animation
-        LUIE_CallLater(function ()
-            g_hotbarCategory = GetActiveHotbarCategory()
-            g_weaponSwapInProgress = false
-
-            -- Apply timers to the appropriate slots on the new active bar
-            local _currentTime = GetFrameTimeMilliseconds()
-
-            -- Re-map abilities to their new bar positions
-            CombatInfo.UpdateAllTrackedActionSlots()
-
-            -- Restore all active timers
-            for abilityId, timerData in pairs(activeTimers) do
-                if timerData.endTime > _currentTime then
-                    g_toggledSlotsRemain[abilityId] = timerData.endTime
-                    g_toggledSlotsStack[abilityId] = timerData.stackCount
-
-                    -- Show on frontbar if we have it mapped there
-                    if g_toggledSlotsFront[abilityId] then
-                        local slotNum = g_toggledSlotsFront[abilityId]
-                        -- Create UI elements if needed
-                        if not g_uiCustomToggle[slotNum] then
-                            CombatInfo.ShowCustomToggle(slotNum)
-                        end
-                        CombatInfo.ShowSlot(slotNum, abilityId, _currentTime, false)
-                    end
-
-                    -- Show on backbar if we have it mapped there
-                    if g_toggledSlotsBack[abilityId] then
-                        local slotNum = g_toggledSlotsBack[abilityId]
-                        -- Create UI elements if needed
-                        if not g_uiCustomToggle[slotNum] then
-                            CombatInfo.ShowCustomToggle(slotNum)
-                        end
-                        CombatInfo.ShowSlot(slotNum, abilityId, _currentTime, false)
-                    end
-                end
-            end
-
-            -- Update backbar icons
-            for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-                local button = g_backbarButtons[i]
-                if button then
-                    CombatInfo.SetupBackBarIcons(button, true)
-                end
-            end
-
-            -- Ensure timer visibility
-            CombatInfo.EnsureBackbarTimerVisibility()
-        end, 250) -- Slightly longer delay to ensure the weapon swap is complete
     end
 end
 
@@ -551,9 +526,7 @@ do
             self.cooldown:SetHidden(false)
 
             anim:SetImageData(16, 1)
-            local minFrameTime = tonumber(GetCVar("MinFrameTime.2"))
-            local fps = zo_floor(1 / minFrameTime + 0.5)
-            anim:SetFramerate(fps)
+            anim:SetFramerate(30)
             anim:GetTimeline():PlayFromStart()
 
             if updateChromaQuickslot then
@@ -735,6 +708,35 @@ function CombatInfo.UpdateBarHighlightTables()
     end
 end
 
+--- Handles clearing of all action slot effects
+--- @param eventCode integer
+function CombatInfo.OnActionSlotEffectsCleared(eventCode)
+    -- Skip clearing if we're in the middle of a weapon swap
+    if g_activeWeaponSwapInProgress then return end
+
+    -- Clear all active timers
+    for abilityId, _ in pairs(g_toggledSlotsFront) do
+        local slotNum = g_toggledSlotsFront[abilityId]
+        if slotNum and g_uiCustomToggle[slotNum] then
+            CombatInfo.HideSlot(slotNum, abilityId)
+        end
+    end
+
+    for abilityId, _ in pairs(g_toggledSlotsBack) do
+        local slotNum = g_toggledSlotsBack[abilityId]
+        if slotNum and g_uiCustomToggle[slotNum] then
+            CombatInfo.HideSlot(slotNum, abilityId)
+        end
+    end
+
+    -- Clear all stacks
+    for slotNum, control in pairs(g_uiCustomToggle) do
+        if control.stack then
+            control.stack:SetText("")
+        end
+    end
+end
+
 -- Clear and then (maybe) re-register event listeners for Combat/Power/Slot Updates
 function CombatInfo.RegisterCombatInfo()
     eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, CombatInfo.OnUpdate)
@@ -807,11 +809,17 @@ function CombatInfo.RegisterCombatInfo()
         eventManager:RegisterForEvent(moduleName, EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
         eventManager:RegisterForEvent(moduleName .. "Pet", EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
         eventManager:AddFilterForEvent(moduleName .. "Pet", EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET)
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_EFFECTS_CLEARED, CombatInfo.OnActionSlotEffectsCleared)
+        local function OnActionSlotEffectUpdated(_, hotbarCategory, actionSlotIndex)
+            CombatInfo.DisableBaseGameTimerDisplay()
+            CombatInfo.OnActionSlotEffectUpdate(_, hotbarCategory, actionSlotIndex)
+        end
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_EFFECT_UPDATE, OnActionSlotEffectUpdated)
     end
 
     -- Display default UI ultimate text if the LUIE option is enabled.
     if CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled then
-        SetSetting(SETTING_TYPE_UI, UI_SETTING_ULTIMATE_NUMBER, 0, SETTINGS_SET_OPTION_SAVE_TO_PERSISTED_DATA)
+        SetSetting(SETTING_TYPE_UI, UI_SETTING_ULTIMATE_NUMBER, 0, nil)
     end
 end
 
@@ -894,10 +902,27 @@ function CombatInfo.OnPlayerActivated(eventCode)
     CombatInfo.OnPowerUpdatePlayer(EVENT_POWER_UPDATE, "player", nil, COMBAT_MECHANIC_FLAGS_ULTIMATE, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_ULTIMATE))
 end
 
+local function FormatDurationSeconds(remain)
+    return string_format((CombatInfo.SV.BarMillis and ((remain < CombatInfo.SV.BarMillisThreshold * 1000) or CombatInfo.SV.BarMillisAboveTen)) and "%.1f" or "%.1d", remain / 1000)
+end
+
 local savedPlayerX = 0
 local savedPlayerZ = 0
 local playerX
 local playerZ
+
+-- Hide duration label if the ability is Grim Focus or one of its morphs
+---
+--- @param remain number
+--- @param abilityId number
+--- @return string
+local function SetBarRemainLabel(remain, abilityId)
+    if Effects.IsGrimFocus[abilityId] or Effects.IsBloodFrenzy[abilityId] then
+        return ""
+    else
+        return FormatDurationSeconds(remain)
+    end
+end
 
 -- Procs
 local function doProcs(currentTime)
@@ -1103,7 +1128,6 @@ function CombatInfo.StopCastBar()
     castbar.remain = nil
     castbar.starts = nil
     castbar.ends = nil
-    castbar.currentIcon = nil -- >>> Clear cached icon <<<
     g_casting = false
     eventManager:UnregisterForUpdate(moduleName .. "CastBar")
 
@@ -1300,7 +1324,7 @@ function CombatInfo.OnReticleTargetChanged(eventCode)
 
             if not IsUnitDead(unitTag) then
                 CombatInfo.OnEffectChanged(
-                    0, -- eventCode
+                    nil, -- eventCode
                     EFFECT_RESULT_UPDATED,
                     buffSlot,
                     buffName,
@@ -1458,7 +1482,13 @@ end
 --- @param slotNum integer
 local function UpdateGroundMineStackUI(abilityId, mineStacks, slotNum)
     if not Effects.HideGroundMineStacks[abilityId] then
-        UpdateStackText(slotNum, mineStacks > 0 and mineStacks or nil)
+        if g_uiCustomToggle[slotNum] then
+            if mineStacks > 0 then
+                g_uiCustomToggle[slotNum].stack:SetText(mineStacks)
+            else
+                g_uiCustomToggle[slotNum].stack:SetText("")
+            end
+        end
     end
 end
 
@@ -1885,16 +1915,16 @@ function CombatInfo.ShowSlot(slotNum, abilityId, currentTime, desaturate)
         end
         local remain = g_toggledSlotsRemain[abilityId] - currentTime
         g_uiCustomToggle[slotNum].label:SetText(SetBarRemainLabel(remain, abilityId))
-
-        -- Set stack count
-        local stackCount = nil
         if g_toggledSlotsStack[abilityId] and g_toggledSlotsStack[abilityId] > 0 then
-            stackCount = g_toggledSlotsStack[abilityId]
-        elseif g_mineStacks[abilityId] and g_mineStacks[abilityId] > 0 and not Effects.HideGroundMineStacks[abilityId] then
-            stackCount = g_mineStacks[abilityId]
+            g_uiCustomToggle[slotNum].stack:SetText(g_toggledSlotsStack[abilityId])
+        elseif g_mineStacks[abilityId] and g_mineStacks[abilityId] > 0 then
+            -- No stack for Time Freeze
+            if not Effects.HideGroundMineStacks[abilityId] then
+                g_uiCustomToggle[slotNum].stack:SetText(g_mineStacks[abilityId])
+            end
+        else
+            g_uiCustomToggle[slotNum].stack:SetText("")
         end
-
-        UpdateStackText(slotNum, stackCount)
     end
 end
 
@@ -2329,6 +2359,7 @@ end
 --- @return boolean channeled
 --- @return integer durationValue
 local function getAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
+    overrideActiveRank = overrideActiveRank or nil
     overrideCasterUnitTag = overrideCasterUnitTag or "player"
     local channeled, durationValue = GetAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
     return channeled, durationValue
@@ -2473,11 +2504,7 @@ function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abili
             castbar.remain = endTime
             castbar.starts = currentTime
             castbar.ends = endTime
-            -- >>> Check if icon needs updating before setting <<<
-            if castbar.currentIcon ~= icon then
-                castbar.icon:SetTexture(icon)
-                castbar.currentIcon = icon -- Store the new icon path
-            end
+            castbar.icon:SetTexture(icon)
             castbar.id = abilityId
 
             if channeled then
@@ -2531,6 +2558,17 @@ local TRAP_BEAST_IDS =
     [40382] = true, -- Morph 1
     [40372] = true  -- Morph 2
 }
+
+-- Helper function to update stack text on UI element
+local function UpdateStackText(slotNum, stackCount)
+    if g_uiCustomToggle[slotNum] then
+        if stackCount and stackCount > 0 then
+            g_uiCustomToggle[slotNum].stack:SetText(stackCount)
+        else
+            g_uiCustomToggle[slotNum].stack:SetText("")
+        end
+    end
+end
 
 -- Helper function to update stack display for an ability
 local function UpdateAbilityStackDisplay(abilityId)
@@ -2897,7 +2935,7 @@ function CombatInfo.OnActiveHotbarUpdate(eventCode, didActiveHotbarChange, shoul
             end
         end
     else
-        g_weaponSwapInProgress = false
+        g_activeWeaponSwapInProgress = false
     end
 end
 
@@ -3161,339 +3199,5 @@ end
 function CombatInfo.OnInventorySlotUpdate(eventCode, bagId, slotIndex, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange, triggeredByCharacterName, triggeredByDisplayName, isLastUpdateForMessage, bonusDropSource)
     if stackCountChange >= 0 then
         CombatInfo.UpdateUltimateLabel()
-    end
-end
-
---- Handles updates to action slot effects like timers and stack counts.
---- @param eventCode integer
---- @param hotbarCategory number
---- @param actionSlotIndex number
-function CombatInfo.OnActionSlotEffectUpdate(eventCode, hotbarCategory, actionSlotIndex)
-    local timeRemainingMS = GetActionSlotEffectTimeRemaining(actionSlotIndex, hotbarCategory)
-
-    -- -- Skip updates for very short duration effects
-    -- if timeRemainingMS <= 1000 and timeRemainingMS ~= 0 then
-    --     return
-    -- end
-
-    -- Important: We want to apply the effect to the ACTIVE bar that used the ability
-    -- not to the slot on the backbar
-    local slotNum = actionSlotIndex
-    local displayHotbarCategory = hotbarCategory
-
-    -- Get ability ID for the slot
-    local abilityId = GetSlotTrueBoundId(actionSlotIndex, hotbarCategory)
-    if not abilityId or abilityId == 0 then return end
-
-    -- Get the corrected ability ID using our helper function
-    abilityId = GetCorrectedAbilityId(abilityId, hotbarCategory)
-
-    -- CRITICAL: Show the timer on the ACTIVE hotbar if the effect is triggered on that bar
-    -- This is the key change to fix the issue where timers show on backbar instead of frontbar
-    local currentTime = GetFrameTimeMilliseconds()
-    local stackCount = GetActionSlotEffectStackCount(actionSlotIndex, hotbarCategory)
-    local endTime = currentTime + timeRemainingMS
-
-    -- If this is the active hotbar category, show the effect on the active bar
-    if hotbarCategory == g_hotbarCategory then
-        g_toggledSlotsFront[abilityId] = slotNum
-        g_toggledSlotsRemain[abilityId] = endTime
-        g_toggledSlotsStack[abilityId] = stackCount
-        g_toggledSlotsPlayer[abilityId] = true
-
-        if timeRemainingMS > 0 then
-            -- Create UI elements if they don't exist yet
-            if not g_uiCustomToggle[slotNum] then
-                CombatInfo.ShowCustomToggle(slotNum)
-            end
-
-            CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
-        else
-            if g_uiCustomToggle[slotNum] then
-                CombatInfo.HideSlot(slotNum, abilityId)
-            end
-        end
-    elseif hotbarCategory == (g_hotbarCategory == HOTBAR_CATEGORY_PRIMARY and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY) then
-        -- This is the inactive bar, track for when we swap
-        local backbarSlot = slotNum + BACKBAR_INDEX_OFFSET
-        g_toggledSlotsBack[abilityId] = backbarSlot
-        g_toggledSlotsRemain[abilityId] = endTime
-        g_toggledSlotsStack[abilityId] = stackCount
-        g_toggledSlotsPlayer[abilityId] = true
-
-        if timeRemainingMS > 0 then
-            -- Create UI elements if they don't exist yet
-            if not g_uiCustomToggle[backbarSlot] then
-                CombatInfo.ShowCustomToggle(backbarSlot)
-            end
-
-            CombatInfo.ShowSlot(backbarSlot, abilityId, currentTime, false)
-        else
-            if g_uiCustomToggle[backbarSlot] then
-                CombatInfo.HideSlot(backbarSlot, abilityId)
-            end
-        end
-    end
-
-    -- Apply any needed weapon swap effects
-    for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-        CombatInfo.handleFlip(i)
-    end
-
-    -- Ensure timer labels are visible
-    CombatInfo.EnsureBackbarTimerVisibility()
-end
-
---- Handles clearing of all action slot effects
---- @param eventCode integer
-function CombatInfo.OnActionSlotEffectsCleared(eventCode)
-    -- Skip clearing if we're in the middle of a weapon swap
-    if g_weaponSwapInProgress then return end
-
-    -- Clear all active timers
-    for abilityId, _ in pairs(g_toggledSlotsFront) do
-        local slotNum = g_toggledSlotsFront[abilityId]
-        if slotNum and g_uiCustomToggle[slotNum] then
-            CombatInfo.HideSlot(slotNum, abilityId)
-        end
-    end
-
-    for abilityId, _ in pairs(g_toggledSlotsBack) do
-        local slotNum = g_toggledSlotsBack[abilityId]
-        if slotNum and g_uiCustomToggle[slotNum] then
-            CombatInfo.HideSlot(slotNum, abilityId)
-        end
-    end
-
-    -- Clear all stacks
-    for slotNum, control in pairs(g_uiCustomToggle) do
-        if control.stack then
-            control.stack:SetText("")
-        end
-    end
-end
-
---- Disables base game timer display elements to prevent conflicts with our custom UI
-function CombatInfo.DisableBaseGameTimerDisplay()
-    local currentHotbarCategory = GetActiveHotbarCategory()
-
-    -- Handle ultimate button
-    local ultButton = ZO_ActionBar_GetButton(ACTION_BAR_ULTIMATE_SLOT_INDEX + 1)
-    if ultButton then
-        ultButton.showTimer = false
-    end
-
-    -- Handle regular ability buttons
-    for i = BAR_INDEX_START, BAR_INDEX_END do
-        local button = ZO_ActionBar_GetButton(i)
-        if button then
-            -- button.hotbarSwapAnimation = nil
-            button.noUpdates = true
-            -- Keep animations but disable built-in timer display
-            button.showTimer = false
-
-            -- Hide built-in stack count and timer displays
-            if button.stackCountText then
-                button.stackCountText:SetHidden(true)
-            end
-            if button.timerText then
-                button.timerText:SetHidden(true)
-            end
-            if button.timerOverlay then
-                button.timerOverlay:SetHidden(true)
-            end
-            button:HandleSlotChanged()
-        end
-
-        -- Handle backbar buttons
-        if (currentHotbarCategory == HOTBAR_CATEGORY_PRIMARY or currentHotbarCategory == HOTBAR_CATEGORY_BACKUP) then
-            local altCategory = (currentHotbarCategory == HOTBAR_CATEGORY_PRIMARY) and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY
-            local altButton = ZO_ActionBar_GetButton(i, altCategory)
-            if altButton then
-                altButton.noUpdates = true
-                altButton.showTimer = false
-                altButton.showBackRowSlot = false
-            end
-        end
-    end
-end
-
---- Register for action bar effect updates when module initializes
-function CombatInfo:InitializeActionBarEffects()
-    local function OnActionSlotEffectUpdated(_, hotbarCategory, actionSlotIndex)
-        CombatInfo.OnActionSlotEffectUpdate(_, hotbarCategory, actionSlotIndex)
-    end
-    eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_EFFECT_UPDATE, OnActionSlotEffectUpdated)
-    eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_EFFECTS_CLEARED, CombatInfo.OnActionSlotEffectsCleared)
-    eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_ABILITY_USED, CombatInfo.OnActionSlotAbilityUsed)
-
-    -- Register for weapon swap events
-    eventManager:RegisterForEvent(moduleName, EVENT_ACTIVE_WEAPON_PAIR_CHANGED, CombatInfo.OnActiveWeaponPairChanged)
-
-    -- Disable base game timer display elements
-    CombatInfo.DisableBaseGameTimerDisplay()
-
-    -- Initialize tracking of all abilities currently on action bars
-    CombatInfo.UpdateAllTrackedActionSlots()
-
-    -- Setup backbar icons
-    for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-        local button = g_backbarButtons[i]
-        if button then
-            CombatInfo.SetupBackBarIcons(button, true)
-        end
-    end
-
-    -- Ensure backbar timer visibility
-    CombatInfo.EnsureBackbarTimerVisibility()
-
-    -- Also update tracked abilities when active bar changes or slots are updated
-    eventManager:RegisterForEvent(moduleName .. "SlotUpdate", EVENT_ACTION_SLOT_UPDATED, function (eventId, actionSlotIndex)
-        -- Skip updates during weapon swap to prevent flickering
-        if g_weaponSwapInProgress then return end
-
-        CombatInfo.UpdateAllTrackedActionSlots()
-        CombatInfo.DisableBaseGameTimerDisplay() -- Re-apply after hotbar updates
-
-        -- Update backbar icons
-        for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-            local button = g_backbarButtons[i]
-            if button then
-                CombatInfo.SetupBackBarIcons(button, true)
-            end
-        end
-
-        -- Re-check all active effects
-        local currentTime = GetFrameTimeMilliseconds()
-        -- Process frontbar effects
-        for abilityId, slotNum in pairs(g_toggledSlotsFront) do
-            if g_toggledSlotsRemain[abilityId] and g_toggledSlotsRemain[abilityId] > currentTime then
-                CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
-            end
-        end
-        -- Process backbar effects
-        for abilityId, slotNum in pairs(g_toggledSlotsBack) do
-            if g_toggledSlotsRemain[abilityId] and g_toggledSlotsRemain[abilityId] > currentTime then
-                CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
-            end
-        end
-
-        -- Ensure backbar timer visibility
-        CombatInfo.EnsureBackbarTimerVisibility()
-    end)
-
-    -- Register for animation completion to ensure timers are visible after animation
-    eventManager:RegisterForEvent(moduleName .. "Animations", EVENT_ACTION_SLOT_UPDATED, function (eventId, actionSlotIndex)
-        -- Skip updates during weapon swap to prevent flickering
-        if g_weaponSwapInProgress then return end
-        CombatInfo.EnsureBackbarTimerVisibility()
-    end)
-end
-
---- Updates the tracked abilities for action slot effect updates
---- @param slotNum integer
---- @param hotbarCategory number
-function CombatInfo.UpdateTrackedActionSlotEffects(slotNum, hotbarCategory)
-    LUIE.Debug("UpdateTrackedActionSlotEffects", slotNum, hotbarCategory)
-    local abilityId = GetSlotTrueBoundId(slotNum, hotbarCategory)
-    if not abilityId or abilityId == 0 then return end
-
-    -- Get corrected ability ID using our helper function
-    local correctedAbilityId = GetCorrectedAbilityId(abilityId, hotbarCategory)
-
-    -- Track this ability ID for the appropriate bar using the corrected ability ID
-    if hotbarCategory == HOTBAR_CATEGORY_PRIMARY then
-        if g_hotbarCategory == HOTBAR_CATEGORY_PRIMARY then
-            g_toggledSlotsFront[correctedAbilityId] = slotNum
-        else
-            local backbarSlot = slotNum + BACKBAR_INDEX_OFFSET
-            g_toggledSlotsBack[correctedAbilityId] = backbarSlot
-        end
-    elseif hotbarCategory == HOTBAR_CATEGORY_BACKUP then
-        if g_hotbarCategory == HOTBAR_CATEGORY_BACKUP then
-            g_toggledSlotsFront[correctedAbilityId] = slotNum
-        else
-            local backbarSlot = slotNum + BACKBAR_INDEX_OFFSET
-            g_toggledSlotsBack[correctedAbilityId] = backbarSlot
-        end
-    end
-end
-
---- Update slot mapping for both bars
-function CombatInfo.UpdateAllTrackedActionSlots()
-    -- Get current hotbar category
-    g_hotbarCategory = GetActiveHotbarCategory()
-
-    -- Update front bar slots
-    for i = BAR_INDEX_START, BAR_INDEX_END do
-        local abilityId = GetSlotTrueBoundId(i, g_hotbarCategory)
-        if abilityId and abilityId > 0 then
-            g_toggledSlotsFront[abilityId] = i
-        end
-    end
-
-    -- Update back bar slots
-    local backbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_PRIMARY and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY
-    for i = BAR_INDEX_START, BAR_INDEX_END do
-        local abilityId = GetSlotTrueBoundId(i, backbarCategory)
-        if abilityId and abilityId > 0 then
-            local backbarSlot = i + BACKBAR_INDEX_OFFSET
-            g_toggledSlotsBack[abilityId] = backbarSlot
-        end
-    end
-end
-
--- Runs on the `EVENT_ACTION_SLOT_ABILITY_USED` handler to track ability usage
---- @param eventCode integer
---- @param slotNum integer
-function CombatInfo.OnActionSlotAbilityUsed(eventCode, slotNum)
-    -- Update the tracked abilities when one is used
-    CombatInfo.UpdateTrackedActionSlotEffects(slotNum, g_hotbarCategory)
-end
-
---- Ensure that backbar custom toggles (timers) are properly visible
-function CombatInfo.EnsureBackbarTimerVisibility()
-    -- Iterate through all backbar slots
-    for slotNum = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-        if g_uiCustomToggle[slotNum] then
-            -- Set higher draw layer for labels to ensure they're visible above the icon
-            SetHighDrawPriority(g_uiCustomToggle[slotNum])
-
-            -- Ensure the parent frame is visible if it should be
-            if g_backbarButtons[slotNum] and not g_backbarButtons[slotNum].icon:IsHidden() then
-                local abilityId = nil
-
-                -- Find the associated ability ID for this slot
-                for id, slot in pairs(g_toggledSlotsBack) do
-                    if slot == slotNum then
-                        abilityId = id
-                        break
-                    end
-                end
-
-                if abilityId and g_toggledSlotsRemain[abilityId] then
-                    local currentTime = GetFrameTimeMilliseconds()
-                    if g_toggledSlotsRemain[abilityId] > currentTime then
-                        g_uiCustomToggle[slotNum]:SetHidden(false)
-                    end
-                end
-            end
-        end
-    end
-end
-
---- Handle backbar slot visibility
---- @param slotNum number
-function CombatInfo.BackbarShowSlot(slotNum)
-    if not g_backbarButtons[slotNum] then
-        return
-    end
-
-    -- Show the custom toggle UI if it exists
-    if g_uiCustomToggle[slotNum] then
-        g_uiCustomToggle[slotNum]:SetHidden(false)
-
-        -- Ensure draw layer and visibility
-        SetHighDrawPriority(g_uiCustomToggle[slotNum])
     end
 end
