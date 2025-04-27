@@ -137,7 +137,7 @@ local function OnAddonOnLoaded(eventCode, addonName)
 
     -- Hook Gamepad Skill Advisor for custom icon support
     LUIE.InitializeHooksSkillAdvisor()
-    LUIE.HookGamePadIcons()
+    --LUIE.HookGamePadIcons() --Disabled for now until I can dig into gamepad menu more.
     LUIE.HookGamePadStats()
     LUIE.HookGamePadMap()
 
