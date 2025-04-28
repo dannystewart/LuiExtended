@@ -141,10 +141,6 @@ LUIE.Fonts =
     ["Transformers"] = "LuiExtended/media/fonts/Transformers/transformers.slug",
     ["Univers 55"] = "/EsoUI/Common/Fonts/univers55.slug",
     ["Yellowjacket"] = "LuiExtended/media/fonts/Yellowjacket/yellowjacket.slug",
-}
-
-local keyboardFonts =
-{
     ["ProseAntique"] = ZoFontBookPaper:GetFontInfo(),
     ["Skyrim Handwritten"] = ZoFontBookLetter:GetFontInfo(),
     ["Trajan Pro"] = ZoFontBookTablet:GetFontInfo(),
@@ -152,11 +148,6 @@ local keyboardFonts =
     ["Univers 67"] = ZoFontWinH1:GetFontInfo(),
 }
 
-if IsKeyboardUISupported() then
-    for fontName, fontPath in pairs(keyboardFonts) do
-        LUIE.Fonts[fontName] = fontPath
-    end
-end
 -- -----------------------------------------------------------------------------
 LUIE.Sounds =
 {
