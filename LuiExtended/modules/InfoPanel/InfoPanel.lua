@@ -131,10 +131,10 @@ function InfoPanel.ApplyFont()
     -- Get font settings
     local fontName = LUIE.Fonts[InfoPanel.SV.FontFace]
     if not fontName or fontName == "" then
-        if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
-        end
         fontName = "$(BOLD_FONT)"
+        -- if LUIE.IsDevDebugEnabled() then
+        --     LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
+        -- end
     end
 
     local fontStyle = (InfoPanel.SV.FontStyle and InfoPanel.SV.FontStyle ~= "") and InfoPanel.SV.FontStyle or "soft-shadow-thin"
