@@ -2646,7 +2646,7 @@ function UnitFrames.UpdateStaticControls(unitFrame)
     -- unitFrame frame also have a text label for class name: right now only target
     if unitFrame.className then
         local classId = GetUnitClassId(unitFrame.unitTag)
-        local className = zo_strformat(SI_CLASS_NAME, GetClassName(GENDER_MALE, classId))
+        local className = zo_strformat(GetString(SI_CLASS_NAME), GetClassName(GENDER_MALE, classId))
         local showClass = unitFrame.isPlayer and className ~= nil and UnitFrames.SV.TargetEnableClass
         if showClass then
             local classNameText = zo_strgsub(className, "%^%a+", "")
