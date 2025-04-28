@@ -39,6 +39,7 @@ Effects/AddNameOnEvent.lua
 Effects/AddStackOnEvent.lua
 Effects/ArtificialEffectOverride.lua
 Effects/AssistantIcons.lua
+Effects/OakenSoul.lua
 
 # Effects - Bar Highlight
 Effects/BarHighlight/AddNoDurationBarHighlight.lua

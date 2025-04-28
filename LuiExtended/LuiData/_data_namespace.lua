@@ -52,6 +52,7 @@
 --- @field IsAbilityActiveHighlight IsAbilityActiveHighlight Table of ability active highlight effects
 --- @field IsBloodFrenzy IsBloodFrenzy Table of blood frenzy effect definitions
 --- @field IsGrimFocus IsGrimFocus Table of grim focus effect definitions
+--- @field IsOakenSoul EffectIsOakenSoul table of Oakensoul localized buff names
 --- @field KeepUpgradeAlliance KeepUpgradeAlliance Table of keep upgrade alliance definitions
 --- @field KeepUpgradeNameFix KeepUpgradeNameFix Table of keep upgrade name fixes
 --- @field KeepUpgradeOverride KeepUpgradeOverride Table of keep upgrade overrides
@@ -187,6 +188,7 @@ local Effects =
     IsGroundMineDamage = {},
     IsGroundMineStack = {},
     IsLycan = {},
+    IsOakenSoul = {},
     IsSetICD = {},
     IsSoulSummons = {},
     IsVamp = {},

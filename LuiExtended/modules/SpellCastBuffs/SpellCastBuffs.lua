@@ -10,6 +10,7 @@ local LUIE = LUIE
 local SpellCastBuffs = LUIE.SpellCastBuffs
 
 local UI = LUIE.UI
+local LuiData = LuiData
 --- @type Data
 local Data = LuiData.Data
 --- @type Effects
@@ -97,26 +98,7 @@ local function EaseOutQuad(t, b, c, d)
 end
 
 --- @type table<number, string>
-local oakensoul =
-{
-    [61665] = "Major Brutality",
-    [61667] = "Major Savagery",
-    [61687] = "Major Sorcery",
-    [61689] = "Major Prophecy",
-    [61694] = "Major Resolve",
-    [61697] = "Minor Fortitude",
-    [61704] = "Minor Endurance",
-    [61706] = "Minor Intellect",
-    [61708] = "Minor Heroism",
-    [61710] = "Minor Mending",
-    [61721] = "Minor Protection",
-    [61737] = "Empower",
-    [61744] = "Minor Berserk",
-    [61746] = "Minor Force",
-    [76617] = "Minor Slayer",
-    [76618] = "Minor Aegis",
-    [147417] = "Minor Courage",
-}
+local oakensoul = Effects.EffectIsOakenSoul
 
 --- @return boolean
 local function OakensoulEquipped()
