@@ -430,20 +430,6 @@ function InfoPanel.SetScale()
     uiPanel:SetScale(InfoPanel.SV.panelScale and InfoPanel.SV.panelScale / 100 or 1)
 end
 
--- EVENT HANDLING PATTERN:
--- We use a consistent pattern for event handling in InfoPanel:
--- 1. For simple events, the event handler is a direct function like OnCurrencyUpdate
--- 2. For events that need debouncing (like bag updates), we use a two-function pattern:
---    - OnBagUpdate: registers a delayed update
---    - DoBagUpdate: does the actual work after the delay
--- 3. Event handlers accept all event parameters and utilize them for rich functionality:
---    - UpdateMountFeedTimer: Different display based on riding skill improvement
---    - OnBagCapacityChanged: Shows capacity upgrades with special formatting
---    - OnCurrencyUpdate: Shows temporary notifications for significant gold changes
---
--- This approach reduces redundancy, makes the code easier to maintain, and creates
--- a better user experience by leveraging the event data for more contextual updates.
-
 -- Listens to EVENT_INVENTORY_SINGLE_SLOT_UPDATE and EVENT_LOOT_RECEIVED
 --- @param eventId integer|nil
 --- @param bagId number|nil

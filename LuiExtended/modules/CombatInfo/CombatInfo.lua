@@ -80,23 +80,85 @@ local BACKBAR_INDEX_OFFSET = 50
 -- Quickslot
 local uiQuickSlot =
 {
-    color = { 0.941, 0.565, 0.251 },
+    color =
+    {
+        0.941,
+        0.565,
+        0.251,
+        1.0
+    },
     timeColors =
     {
-        [1] = { remain = 15000, color = { 0.878, 0.941, 0.251 } },
-        [2] = { remain = 5000, color = { 0.251, 0.941, 0.125 } },
+        [1] =
+        {
+            remain = 15000,
+            color =
+            {
+                0.878,
+                0.941,
+                0.251,
+                1.0
+            }
+        },
+        [2] =
+        {
+            remain = 5000,
+            color =
+            {
+                0.251,
+                0.941,
+                0.125,
+                1.0
+            }
+        },
     },
 }
 
 -- Ultimate slot
 local uiUltimate =
 {
-    color = { 0.941, 0.973, 0.957 },
+    color =
+    {
+        0.941,
+        0.973,
+        0.957,
+        1.0
+    },
     pctColors =
     {
-        [1] = { pct = 100, color = { 0.878, 0.941, 0.251 } },
-        [2] = { pct = 80, color = { 0.941, 0.565, 0.251 } },
-        [3] = { pct = 50, color = { 0.941, 0.251, 0.125 } },
+        [1] =
+        {
+            pct = 100,
+            color =
+            {
+                0.878,
+                0.941,
+                0.251,
+                1.0
+            }
+        },
+        [2] =
+        {
+            pct = 80,
+            color =
+            {
+                0.941,
+                0.565,
+                0.251,
+                1.0
+            }
+        },
+        [3] =
+        {
+            pct = 50,
+            color =
+            {
+                0.941,
+                0.251,
+                0.125,
+                1.0
+            }
+        },
     },
     FadeTime = 0,
     NotFull = false,
@@ -165,7 +227,7 @@ end
 
 local function OnSwapAnimationDone(animation, button)
     button.noUpdates = false
-    if ZO_ActionBar_IsUltimateSlot(button:GetSlot(), button:GetHotbarCategory()) then
+    if button:GetSlot() == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
         g_activeWeaponSwapInProgress = false
     end
     slotsUpdated = {}
@@ -217,14 +279,9 @@ function CombatInfo.Initialize(enabled)
     -- And buff texture
     uiUltimate.Texture = UI:Texture(AB8, { CENTER, CENTER }, { 160, 160 }, "/esoui/art/crafting/white_burst.dds", DL_BACKGROUND, true)
 
-    -- Create a top level window for backbar buttons using UI:Control
-    local tlw = UI:Control(
-        ACTION_BAR,    -- parent
-        "fill",        -- anchors
-        "inherit",     -- dims
-        false,         -- hidden
-        "LUIE_Backbar" -- name
-    )
+    -- Create a top level window for backbar butons
+    local tlw = windowManager:CreateControl("LUIE_Backbar", ACTION_BAR, CT_CONTROL)
+    tlw:SetParent(ACTION_BAR)
 
     for i = BAR_INDEX_START + BAR_INDEX_END, BACKBAR_INDEX_OFFSET + BACKBAR_INDEX_END do
         local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, tlw, "ZO_ActionButton")
@@ -658,30 +715,6 @@ function CombatInfo.UpdateBarHighlightTables()
     g_barDurationOverride = {}
     g_barNoRemove = {}
 
-    -- Unregister any existing combat events
-    for _, handle in pairs(CombatInfo.eventHandles or {}) do
-        eventManager:UnregisterForEvent(handle, EVENT_COMBAT_EVENT)
-    end
-    CombatInfo.eventHandles = {}
-
-    -- Helper function to register combat events with multiple filters
-    local nextEventHandleNr = 0
-    local function RegisterFilteredCombatEvent(abilityId, combatResult)
-        local eventHandleName = moduleName .. "CombatEvent" .. tostring(nextEventHandleNr)
-        nextEventHandleNr = nextEventHandleNr + 1
-
-        eventManager:RegisterForEvent(eventHandleName, EVENT_COMBAT_EVENT, function (...) CombatInfo.OnCombatEventBar(...) end)
-        eventManager:AddFilterForEvent(eventHandleName, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, abilityId, REGISTER_FILTER_IS_ERROR, false)
-
-        -- If a combat result was specified, add that filter too
-        if combatResult then
-            eventManager:AddFilterForEvent(eventHandleName, EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, combatResult)
-        end
-
-        table.insert(CombatInfo.eventHandles, eventHandleName)
-        return eventHandleName
-    end
-
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled then
         -- Grab any aura's from the list that have on EVENT_COMBAT_EVENT AURA support
         for abilityId, value in pairs(Effects.BarHighlightOverride) do
@@ -714,30 +747,14 @@ function CombatInfo.UpdateBarHighlightTables()
                     end
                 end
             end
-
-            -- Register combat results based on each ability's needed results
-            if value.combatResults and type(value.combatResults) == "table" then
-                local targetId = value.newId or abilityId
-                if g_barOverrideCI[targetId] then
-                    for _, result in ipairs(value.combatResults) do
-                        RegisterFilteredCombatEvent(targetId, result)
-                    end
-                end
-            end
         end
-
-        -- Register default handlers for abilities that don't specify combat results
+        local counter = 0
         for abilityId, _ in pairs(g_barOverrideCI) do
-            -- Check if we already registered specific combat results for this ability
-            local hasSpecificFilters = false
-            if Effects.BarHighlightOverride[abilityId] and Effects.BarHighlightOverride[abilityId].combatResults then
-                hasSpecificFilters = true
-            end
-
-            -- If no specific filters, register the default way
-            if not hasSpecificFilters then
-                RegisterFilteredCombatEvent(abilityId)
-            end
+            counter = counter + 1
+            local eventName = (moduleName .. "CombatEventBar" .. counter)
+            eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, function (...) CombatInfo.OnCombatEventBar(...) end)
+            -- Register filter for specific abilityId's in table only, and filter for source = player, no errors
+            eventManager:AddFilterForEvent(eventName, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, abilityId, REGISTER_FILTER_IS_ERROR, false)
         end
     end
 end
@@ -775,7 +792,7 @@ end
 
 -- Clear and then (maybe) re-register event listeners for Combat/Power/Slot Updates
 function CombatInfo.RegisterCombatInfo()
-    eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, function (...) CombatInfo.OnUpdate(...) end)
+    eventManager:RegisterForPostEffectsUpdate(moduleName .. "OnUpdate", 100, function (...) CombatInfo.OnUpdate(...) end)
     eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, function (...) CombatInfo.OnPlayerActivated(...) end)
 
     eventManager:UnregisterForEvent(moduleName, EVENT_COMBAT_EVENT)
@@ -848,7 +865,7 @@ function CombatInfo.RegisterCombatInfo()
     -- Highjack the games built in action button timers.
     if CombatInfo.SV.BarShowLabel then
         CombatInfo.DisableBaseGameTimerDisplay()
-        -- eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_EFFECTS_CLEARED, CombatInfo.OnActionSlotEffectsCleared)
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_EFFECTS_CLEARED, CombatInfo.OnActionSlotEffectsCleared)
         local function OnActionSlotEffectUpdated(_, hotbarCategory, actionSlotIndex)
             CombatInfo.OnActionSlotEffectUpdate(actionSlotIndex, hotbarCategory)
         end
@@ -2114,7 +2131,7 @@ function CombatInfo.CreateCastBar()
     castbar.back:SetAnchor(TOPLEFT, castbar, TOPLEFT, 0, 0)
     castbar.back:SetAnchor(BOTTOMRIGHT, castbar, BOTTOMRIGHT, 0, 0)
 
-    castbar.iconbg = UI:Texture(castbar, nil, nil, "/esoui/art/actionbar/abilityinset.dds", DL_CONTROLS, false)
+    castbar.iconbg = UI:Texture(castbar, nil, nil, "EsoUI/Art/ActionBar/abilityInset.dds", DL_CONTROLS, false)
     castbar.iconbg = UI:Backdrop(castbar, nil, nil, { 0, 0, 0, 0.9 }, { 0, 0, 0, 0.9 }, false)
     castbar.iconbg:SetDrawLevel(DL_CONTROLS)
     castbar.iconbg:SetAnchor(TOPLEFT, castbar, TOPLEFT, 3, 3)
