@@ -154,7 +154,7 @@ end
 --- @param step AnimationTimeline The animation step
 --- @param delay number The delay in milliseconds
 function CombatTextAnimation:SetStepDelay(step, delay)
-    return self.timeline:SetAnimationOffset(step, delay)
+    self.timeline:SetAnimationOffset(step, delay)
 end
 
 --- Gets the total duration of the timeline
