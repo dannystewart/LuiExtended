@@ -8,9 +8,12 @@ local LUIE = LUIE
 --- @class (partial) LUIE.SpellCastBuffs
 local SpellCastBuffs = LUIE.SpellCastBuffs
 
-local Abilities = LuiData.Data.Abilities
-local Tooltips = LuiData.Data.Tooltips
-local AssistantIcons = LuiData.Data.Effects.AssistantIcons
+local LuiData = LuiData
+local Data = LuiData.Data
+local Effects = Data.Effects
+local Abilities = Data.Abilities
+local Tooltips = Data.Tooltips
+local AssistantIcons = Effects.AssistantIcons
 
 local pairs = pairs
 local zo_strformat = zo_strformat
@@ -48,7 +51,7 @@ function SpellCastBuffs.DisplayMountIcon()
 
                 -- Add the nickname into the name if present
                 if nickname ~= "" and nickname ~= nil then
-                    name = zo_strformat("<<1>> \"<<2>>\"", name, nickname)
+                    name = zo_strformat(GetString(SI_COLLECTIBLE_NAME_WITH_NICKNAME_FORMATTER), name, nickname)
                 end
             else
                 name = Abilities.Innate_Mounted
@@ -83,8 +86,12 @@ function SpellCastBuffs.DisplayMountIcon()
     end
 end
 
--- EVENT_MOUNTED_STATE_CHANGED handler to create Mount Buff icon for player
-function SpellCastBuffs.MountStatus(eventCode, mounted)
+--- - Handler to create Mount Buff icon for player.
+--- - **EVENT_MOUNTED_STATE_CHANGED **
+---
+--- @param eventId integer
+--- @param mounted boolean
+function SpellCastBuffs.MountStatus(eventId, mounted)
     -- Clear current mount icon
     local abilityId = 999017
     SpellCastBuffs.ClearPlayerBuff(abilityId)
@@ -94,8 +101,13 @@ function SpellCastBuffs.MountStatus(eventCode, mounted)
     end
 end
 
--- EVENT_COLLECTIBLE_USE_RESULT handler - Waits 100 ms + latency for the delay in activating collectibles before checking
-function SpellCastBuffs.CollectibleUsed(eventCode, result, isAttemptingActivation)
+--- - Waits 100 ms + latency for the delay in activating collectibles before checking
+--- - **EVENT_COLLECTIBLE_USE_RESULT **
+---
+--- @param eventId integer
+--- @param result CollectibleUsageBlockReason
+--- @param isAttemptingActivation boolean
+function SpellCastBuffs.CollectibleUsed(eventId, result, isAttemptingActivation)
     local latency = GetLatency()
     latency = latency + 100
     LUIE_CallLater(SpellCastBuffs.CollectibleBuff, latency)
@@ -138,7 +150,7 @@ function SpellCastBuffs.CollectibleBuff()
 
             -- Add the nickname into the name if present
             if nickname ~= "" and nickname ~= nil then
-                name = zo_strformat("<<1>> \"<<2>>\"", name, nickname)
+                name = zo_strformat(GetString(SI_COLLECTIBLE_NAME_WITH_NICKNAME_FORMATTER), name, nickname)
             end
         else
             name = Abilities.Innate_Vanity_Pet
