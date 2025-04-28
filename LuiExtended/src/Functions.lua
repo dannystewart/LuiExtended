@@ -403,20 +403,42 @@ if not LUIE.GuildIndexData then
     --- }
     LUIE.GuildIndexData = {}
 end
+
 --- Function to update guild data.
 --- Retrieves information about each guild the player is a member of and stores it in LUIE.GuildIndexData table.
-function LUIE.UpdateGuildData()
+---
+--- @param eventId integer
+--- @param guildServerId integer
+--- @param characterName string
+--- @param guildId integer
+function LUIE.UpdateGuildData(eventId, guildServerId, characterName, guildId)
+    if LUIE.IsDevDebugEnabled() then
+        local Debug = LUIE.Debug
+        local traceback = "Update Guild Data:\n" ..
+            "--> eventId: " .. tostring(eventId) .. "\n" ..
+            "--> guildServerId: " .. tostring(guildServerId) .. "\n" ..
+            "--> characterName: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, characterName) .. "\n" ..
+            "--> guildId: " .. tostring(guildId)
+        Debug(traceback)
+    end
     local GuildsIndex = GetNumGuilds()
     for i = 1, GuildsIndex do
         local id = GetGuildId(i)
         local name = GetGuildName(id)
         local guildAlliance = GetGuildAlliance(id)
-        LUIE.GuildIndexData[i] =
-        {
-            id = id,
-            name = name,
-            guildAlliance = guildAlliance
-        }
+        if not LUIE.GuildIndexData[i] then
+            LUIE.GuildIndexData[i] =
+            {
+                id = id,
+                name = name,
+                guildAlliance = guildAlliance
+            }
+        else
+            -- Update existing guild entry
+            LUIE.GuildIndexData[i].id = id
+            LUIE.GuildIndexData[i].name = name
+            LUIE.GuildIndexData[i].guildAlliance = guildAlliance
+        end
     end
 end
 
