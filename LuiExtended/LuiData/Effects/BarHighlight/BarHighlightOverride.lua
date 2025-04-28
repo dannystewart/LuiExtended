@@ -94,8 +94,8 @@ local barHighlightOverride =
     [25255] = { newId = 34733 }, -- Veiled Strike --> Off-Balance
     [25260] = { newId = 34733 }, -- Surprise Attack --> Off-Balance
     [25267] = { newId = 34736 }, -- Concealed Weapon
-    [25375] = { newId = 25376 }, -- Shadow Cloak
-    [25380] = { newId = 62141 }, -- Shadowy Disguise
+    [25375] = { newId = 234617 }, -- Shadow Cloak
+    [25380] = { newId = 234617 }, -- Shadowy Disguise
     -- [25352] = { }, -- Aspect of Terror -- TODO: Disabled because API won't return correct duration for Fear
     -- [37470] = { }, -- Mass Hysteria -- TODO: Disabled because API won't return correct duration for Fear
     [33211] = { showFakeAura = true, noRemove = true },                -- Summon Shade
