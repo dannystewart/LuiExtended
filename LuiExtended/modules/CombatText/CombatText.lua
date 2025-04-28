@@ -371,37 +371,6 @@ CombatText.Defaults =
 }
 CombatText.SV = {}
 
----
---- @param panel userdata
-local function SavePosition(panel)
-    -- Validate panel
-    if not panel or not panel.GetAnchor or not panel.GetDimensions then
-        return
-    end
-
-    -- Get anchor data
-    local anchor = { panel:GetAnchor(0) }
-    if not anchor[1] then -- isValidAnchor is false
-        return
-    end
-
-    -- Get dimensions
-    local dimensions = { panel:GetDimensions() }
-    if not dimensions[1] or not dimensions[2] then -- Invalid dimensions
-        return
-    end
-
-    -- Save position and dimensions
-    local panelSettings = LUIE.CombatText.SV.panels[panel:GetName()]
-    if panelSettings then
-        panelSettings.point = anchor[2]
-        panelSettings.relativePoint = anchor[4]
-        panelSettings.offsetX = anchor[5]
-        panelSettings.offsetY = anchor[6]
-        panelSettings.dimensions = dimensions
-    end
-end
-
 -- Bulk list add from menu buttons
 function CombatText.AddBulkToCustomList(list, table)
     if table ~= nil then
@@ -512,7 +481,40 @@ function CombatText.Initialize(enabled)
             _G[k]:ClearAnchors()
             _G[k]:SetAnchor(s.point, Combattext, s.relativePoint, s.offsetX, s.offsetY)
             _G[k]:SetDimensions(unpack(s.dimensions))
-            _G[k]:SetHandler("OnMouseUp", SavePosition)
+            _G[k]:SetHandler("OnMouseUp", function (self, button, upInside, ctrl, alt, shift, command)
+                -- Validate panel
+                if not self or not self.GetAnchor or not self.GetDimensions then
+                    return
+                end
+
+                -- Get anchor data
+                local anchor =
+                {
+                    self:GetAnchor(0)
+                }
+                if not anchor[1] then -- isValidAnchor is false
+                    return
+                end
+
+                -- Get dimensions
+                local dimensions =
+                {
+                    self:GetDimensions()
+                }
+                if not dimensions[1] or not dimensions[2] then -- Invalid dimensions
+                    return
+                end
+
+                -- Save position and dimensions
+                local panelSettings = LUIE.CombatText.SV.panels[self:GetName()]
+                if panelSettings then
+                    panelSettings.point = anchor[2]
+                    panelSettings.relativePoint = anchor[4]
+                    panelSettings.offsetX = anchor[5]
+                    panelSettings.offsetY = anchor[6]
+                    panelSettings.dimensions = dimensions
+                end
+            end)
             _G[k .. "_Label"]:SetFont(LUIE.CombatText.SV.fontFaceApplied .. "|26|" .. LUIE.CombatText.SV.fontStyle)
             _G[k .. "_Label"]:SetText(panelTitles[k])
         else
