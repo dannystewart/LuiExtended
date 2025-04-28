@@ -1,3 +1,4 @@
+---@diagnostic disable: missing-global-doc
 -- -----------------------------------------------------------------------------
 --  LuiExtended                                                               --
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
