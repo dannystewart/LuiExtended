@@ -16,7 +16,8 @@ local zo_strformat = zo_strformat
 local g_currentDuelTarget = nil -- Saved Duel Target for generating Battle Spirit icon when enabled
 
 -- EVENT_DUEL_STARTED handler for creating Battle Spirit Icon on Target
-function SpellCastBuffs.DuelStart()
+--- @param eventId integer|nil
+function SpellCastBuffs.DuelStart(eventId)
     local duelState, characterName = GetDuelInfo()
     if duelState == 3 and not SpellCastBuffs.SV.HideTargetBuffs and not SpellCastBuffs.SV.IgnoreBattleSpiritTarget then
         g_currentDuelTarget = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, characterName)
@@ -25,7 +26,16 @@ function SpellCastBuffs.DuelStart()
 end
 
 -- EVENT_DUEL_FINISHED handler for removing Battle Spirit Icon on Target
-function SpellCastBuffs.DuelEnd()
+--- @param eventId integer
+--- @param duelResult DuelResult
+--- @param wasLocalPlayersResult boolean
+--- @param opponentCharacterName string
+--- @param opponentDisplayName string
+--- @param opponentAlliance Alliance
+--- @param opponentGender Gender
+--- @param opponentClassId integer
+--- @param opponentRaceId integer
+function SpellCastBuffs.DuelEnd(eventId, duelResult, wasLocalPlayersResult, opponentCharacterName, opponentDisplayName, opponentAlliance, opponentGender, opponentClassId, opponentRaceId)
     g_currentDuelTarget = nil
     SpellCastBuffs.ReloadEffects("reticleover")
 end

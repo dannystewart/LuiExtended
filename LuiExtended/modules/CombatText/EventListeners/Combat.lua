@@ -136,8 +136,8 @@ function CombatTextCombatEventListener:New()
     obj:RegisterForEvent(EVENT_COMBAT_EVENT, function (...)
         self:OnCombatOut(...)
     end, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET) -- Player Pet -> Target
-    obj:RegisterForEvent(EVENT_PLAYER_COMBAT_STATE, function ()
-        self:CombatState()
+    obj:RegisterForEvent(EVENT_PLAYER_COMBAT_STATE, function (...)
+        self:CombatState(...)
     end)
 
     return obj
@@ -150,9 +150,26 @@ function CombatTextCombatEventListener:OnPlayerActivated()
 end
 
 --- Handles incoming combat events (Target == Player).
-function CombatTextCombatEventListener:OnCombatIn(...)
-    local resultType, isError, _, abilityGraphic, abilityAction_slotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow = ... -- Renamed abilityName locally
-
+---
+--- @param eventId integer
+--- @param result ActionResult
+--- @param isError boolean
+--- @param abilityName string
+--- @param abilityGraphic integer
+--- @param abilityActionSlotType ActionSlotType
+--- @param sourceName string
+--- @param sourceType CombatUnitType
+--- @param targetName string
+--- @param targetType CombatUnitType
+--- @param hitValue integer
+--- @param powerType CombatMechanicFlags
+--- @param damageType DamageType
+--- @param log boolean
+--- @param sourceUnitId integer
+--- @param targetUnitId integer
+--- @param abilityId integer
+--- @param overflow integer
+function CombatTextCombatEventListener:OnCombatIn(eventId, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     local Settings = LUIE.CombatText.SV
     if not Settings or not Settings.toggles or not Settings.common or not Settings.blacklist then
         -- d("CombatText Settings not fully loaded for OnCombatIn") -- Optional debug
@@ -164,7 +181,7 @@ function CombatTextCombatEventListener:OnCombatIn(...)
 
     -- Get base and potentially overridden ability name
     local baseAbilityName = GetAbilityName(abilityId)
-    local abilityName = GetOverriddenAbilityName(abilityId, baseAbilityName, sourceName)
+    abilityName = GetOverriddenAbilityName(abilityId, baseAbilityName, sourceName)
     local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, abilityName) -- Use overridden name for caching/display
     abilityName = cachedName                                            -- Assign cached/overridden name
 
@@ -174,7 +191,7 @@ function CombatTextCombatEventListener:OnCombatIn(...)
     end
 
     -- Parse the result type into boolean flags
-    local parsedResults = ParseCombatResult(resultType)
+    local parsedResults = ParseCombatResult(result)
 
     -- Process the main combat event trigger (damage, healing, mitigation, etc.)
     self:ProcessCombatEventTrigger(parsedResults, togglesInOut, combatType, powerType, hitValue, abilityName, abilityId, damageType, sourceName, overflow)
@@ -186,9 +203,26 @@ function CombatTextCombatEventListener:OnCombatIn(...)
 end
 
 --- Handles outgoing combat events (Source == Player or Player Pet).
-function CombatTextCombatEventListener:OnCombatOut(...)
-    local resultType, isError, _, abilityGraphic, abilityAction_slotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow = ... -- Renamed abilityName locally
-
+---
+--- @param eventId integer
+--- @param result ActionResult
+--- @param isError boolean
+--- @param abilityName string
+--- @param abilityGraphic integer
+--- @param abilityActionSlotType ActionSlotType
+--- @param sourceName string
+--- @param sourceType CombatUnitType
+--- @param targetName string
+--- @param targetType CombatUnitType
+--- @param hitValue integer
+--- @param powerType CombatMechanicFlags
+--- @param damageType DamageType
+--- @param log boolean
+--- @param sourceUnitId integer
+--- @param targetUnitId integer
+--- @param abilityId integer
+--- @param overflow integer
+function CombatTextCombatEventListener:OnCombatOut(eventId, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     -- Don't display duplicate messages for events sourced from the player/pet that target the player/pet
     if targetType == COMBAT_UNIT_TYPE_PLAYER or targetType == COMBAT_UNIT_TYPE_PLAYER_PET then
         return
@@ -204,7 +238,7 @@ function CombatTextCombatEventListener:OnCombatOut(...)
     local togglesInOut = Settings.toggles.outgoing
 
     -- Get base ability name (Overrides not applied here in original code)
-    local abilityName = GetAbilityName(abilityId)
+    abilityName = GetAbilityName(abilityId)
     local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, abilityName)
     abilityName = cachedName
 
@@ -214,7 +248,7 @@ function CombatTextCombatEventListener:OnCombatOut(...)
     end
 
     -- Parse the result type into boolean flags
-    local parsedResults = ParseCombatResult(resultType)
+    local parsedResults = ParseCombatResult(result)
 
     -- Process the main combat event trigger (damage, healing, mitigation, etc.)
     self:ProcessCombatEventTrigger(parsedResults, togglesInOut, combatType, powerType, hitValue, abilityName, abilityId, damageType, sourceName, overflow)
@@ -377,7 +411,26 @@ end
 ---------------------------------------------------------------------------------------------------------------------------------------
 -- //COMBAT STATE EVENTS & TRIGGERS//--
 ---------------------------------------------------------------------------------------------------------------------------------------
-function CombatTextCombatEventListener:CombatState(inCombat) -- Argument 'inCombat' wasn't actually used in original, uses IsUnitInCombat directly
+---
+--- @param eventId integer
+--- @param result ActionResult
+--- @param isError boolean
+--- @param abilityName string
+--- @param abilityGraphic integer
+--- @param abilityActionSlotType ActionSlotType
+--- @param sourceName string
+--- @param sourceType CombatUnitType
+--- @param targetName string
+--- @param targetType CombatUnitType
+--- @param hitValue integer
+--- @param powerType CombatMechanicFlags
+--- @param damageType DamageType
+--- @param log boolean
+--- @param sourceUnitId integer
+--- @param targetUnitId integer
+--- @param abilityId integer
+--- @param overflow integer
+function CombatTextCombatEventListener:CombatState(eventId, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow) -- Argument 'inCombat' wasn't actually used in original, uses IsUnitInCombat directly
     local Settings = LUIE.CombatText.SV
     if not Settings or not Settings.toggles then
         -- d("CombatText Settings not loaded for CombatState") -- Optional debug

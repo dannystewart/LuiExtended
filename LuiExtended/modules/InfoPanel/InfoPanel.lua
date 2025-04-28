@@ -392,14 +392,14 @@ function InfoPanel.Initialize(enabled)
     InfoPanel.ApplyFont()
 
     -- Set event handlers
-    eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, InfoPanel.OnBagUpdate)
-    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, InfoPanel.OnBagUpdate)
-    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BAG_CAPACITY_CHANGED, InfoPanel.OnBagCapacityChanged)
-    eventManager:RegisterForEvent(moduleName, EVENT_CARRIED_CURRENCY_UPDATE, InfoPanel.OnCurrencyUpdate)
-    eventManager:RegisterForEvent(moduleName, EVENT_RIDING_SKILL_IMPROVEMENT, InfoPanel.UpdateMountFeedTimer)
-    eventManager:RegisterForUpdate(moduleName .. "01", ZO_ONE_SECOND_IN_MILLISECONDS, InfoPanel.OnUpdate01)
-    eventManager:RegisterForUpdate(moduleName .. "10", ZO_ONE_SECOND_IN_MILLISECONDS * 10, InfoPanel.OnUpdate10)
-    eventManager:RegisterForUpdate(moduleName .. "60", ZO_ONE_MINUTE_IN_MILLISECONDS, InfoPanel.OnUpdate60)
+    eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, function (...) InfoPanel.OnBagUpdate(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) InfoPanel.OnBagUpdate(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BAG_CAPACITY_CHANGED, function (...) InfoPanel.OnBagCapacityChanged(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_CARRIED_CURRENCY_UPDATE, function (...) InfoPanel.OnCurrencyUpdate(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_RIDING_SKILL_IMPROVEMENT, function (...) InfoPanel.UpdateMountFeedTimer(...) end)
+    eventManager:RegisterForUpdate(moduleName .. "01", ZO_ONE_SECOND_IN_MILLISECONDS, function () InfoPanel.OnUpdate01() end)
+    eventManager:RegisterForUpdate(moduleName .. "10", ZO_ONE_SECOND_IN_MILLISECONDS * 10, function () InfoPanel.OnUpdate10() end)
+    eventManager:RegisterForUpdate(moduleName .. "60", ZO_ONE_MINUTE_IN_MILLISECONDS, function () InfoPanel.OnUpdate60() end)
 end
 
 function InfoPanel.ResetPosition()
@@ -455,7 +455,7 @@ function InfoPanel.OnBagUpdate(eventId, bagId, slotIndex, isNewItem, itemSoundCa
     -- We shall not execute bags size calculation immediately, but rather set a flag with delay function
     -- This is needed to avoid lockups when the game start flooding us with same event for every bag slot used
     -- While we do not need any good latency, we can afford to update info-panel label with 250ms delay
-    eventManager:RegisterForUpdate(moduleName .. "PendingBagsUpdate", ZO_ONE_SECOND_IN_MILLISECONDS / 4, InfoPanel.DoBagUpdate)
+    eventManager:RegisterForUpdate(moduleName .. "PendingBagsUpdate", ZO_ONE_SECOND_IN_MILLISECONDS / 4, function () InfoPanel.DoBagUpdate() end)
 end
 
 -- Helper function to update bag display

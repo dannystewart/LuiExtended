@@ -11,6 +11,7 @@ local LUIE = LUIE
 local CombatInfo = LUIE.CombatInfo
 
 local UI = LUIE.UI
+local LuiData = LuiData
 local Data = LuiData.Data
 local Effects = Data.Effects
 local Abilities = Data.Abilities
