@@ -7,7 +7,14 @@
 local LUIE = LUIE
 --- @class (partial) LUIE.SpellCastBuffs
 local SpellCastBuffs = LUIE.SpellCastBuffs
-local Effects = LuiData.Data.Effects
+local LuiData = LuiData
+local Data = LuiData.Data
+local Effects = Data.Effects
+local EffectOverride = Effects.EffectOverride
+local DebugAuras = Data.DebugAuras
+local DebugResults = Data.DebugResults
+local Tooltips = Data.Tooltips
+local AssistantIcons = Effects.AssistantIcons
 
 -- -----------------------------------------------------------------------------
 -- Core Lua function localizations
@@ -138,7 +145,7 @@ end
 --- @return string, string Formatted icon, formatted name
 local function FormatAbilityInfo(abilityId, size)
     size = size or 16
-    local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), size, size)
+    local iconFormatted = zo_iconFormat(LUIE.GetAbilityIcon(abilityId), size, size)
     local nameFormatted = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetAbilityName(abilityId))
 
     return iconFormatted, nameFormatted
@@ -158,7 +165,7 @@ end
 --- @param abilityId number The ability ID
 --- @return string Status text
 local function GetRefreshOnlyStatus(abilityId)
-    if Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].refreshOnly then
+    if EffectOverride[abilityId] and EffectOverride[abilityId].refreshOnly then
         return string_format(" %s(%s)%s ", DebugFormatConfig.hiddenColor, DebugFormatConfig.hiddenText, "|r")
     end
     return ""
@@ -178,7 +185,7 @@ end
 --- @return string Formatted debug message
 local function GenerateCombatDebugMessage(abilityId, source, target, duration, castInfo, result)
     local iconFormatted, nameFormatted = FormatAbilityInfo(abilityId)
-    local formattedResult = LuiData.Data.DebugResults[result]
+    local formattedResult = DebugResults[result]
     local castTimeText = ""
     local channelTimeText = ""
 
@@ -285,7 +292,7 @@ end
 --- @param casterUnitTag string Caster unit tag
 function SpellCastBuffs.EventCombatDebug(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overrideRank, casterUnitTag)
     -- Skip if this aura is filtered
-    if LuiData.Data.DebugAuras[abilityId] and SpellCastBuffs.SV.ShowDebugFilter then
+    if DebugAuras[abilityId] and SpellCastBuffs.SV.ShowDebugFilter then
         return
     end
 
@@ -327,7 +334,7 @@ end
 --- @param castByPlayer boolean Whether cast by player
 function SpellCastBuffs.EventEffectDebug(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, castByPlayer)
     -- Skip if this aura is filtered
-    if LuiData.Data.DebugAuras[abilityId] and SpellCastBuffs.SV.ShowDebugFilter then
+    if DebugAuras[abilityId] and SpellCastBuffs.SV.ShowDebugFilter then
         return
     end
 
@@ -338,7 +345,7 @@ function SpellCastBuffs.EventEffectDebug(eventCode, changeType, effectSlot, effe
     local duration = (endTime - beginTime) * 1000
 
     -- Check if effect is hidden
-    local isHidden = Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].hide
+    local isHidden = EffectOverride[abilityId] and EffectOverride[abilityId].hide
 
     -- Generate and send debug message
     local message = GenerateEffectDebugMessage(changeType, abilityId, formattedUnitName, unitTag, duration, isHidden)
@@ -365,7 +372,7 @@ end
 --- @param abilityId number Ability ID
 function SpellCastBuffs.AuthorCombatDebug(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId)
     -- Skip if not a hidden effect
-    if not (Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].hide) then
+    if not (EffectOverride[abilityId] and EffectOverride[abilityId].hide) then
         return
     end
 
@@ -376,7 +383,7 @@ function SpellCastBuffs.AuthorCombatDebug(eventCode, result, isError, abilityNam
     -- Format ability information
     local iconFormatted, nameFormatted = FormatAbilityInfo(abilityId)
     local cmxHiddenStatus = GetCMXHiddenStatus(abilityId)
-    local formattedResult = LuiData.Data.DebugResults[result]
+    local formattedResult = DebugResults[result]
 
     -- Generate debug message
     local message = string_format("%s[%d] %s: HIDDEN LUI%s: [S] %s --> [T] %s [R] %s",
@@ -406,7 +413,7 @@ end
 --- @param castByPlayer boolean Whether cast by player
 function SpellCastBuffs.AuthorEffectDebug(eventCode, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, buffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, castByPlayer)
     -- Skip if not a hidden effect
-    if not (Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].hide) then
+    if not (EffectOverride[abilityId] and EffectOverride[abilityId].hide) then
         return
     end
 
@@ -560,7 +567,7 @@ end
 --- Outputs a list of ability IDs that no longer exist in the game to chat.
 function SpellCastBuffs.TempSlashCheckRemovedAbilities()
     AddSystemMessage("Removed AbilityIds:")
-    for abilityId in pairs(LuiData.Data.DebugAuras) do
+    for abilityId in pairs(DebugAuras) do
         if not DoesAbilityExist(abilityId) then
             AddSystemMessage(tostring(abilityId))
         end
