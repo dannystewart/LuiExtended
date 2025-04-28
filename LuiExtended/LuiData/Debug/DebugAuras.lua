@@ -16977,6 +16977,9 @@ local debugAuras =
     [209409] = true, -- Rift Projectile B
     [209410] = true, -- Rift Projectile C
     [209411] = true, -- Rift Projectile D
+
+    -- Misc
+    [172621] = true, -- Pearlescent Ward
 }
 
 --- @type DebugAuras
