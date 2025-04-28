@@ -77,11 +77,11 @@ do
     --- @return integer
     local function callLater(func, ms)
         local id = LUIE_CallLaterId
-        local name = "LUIE_CallLaterFunction" .. id
+        local name = "LUIE_CallLater_PostEffectsUpdate_Function" .. tostring(id)
         LUIE_CallLaterId = LUIE_CallLaterId + 1
 
-        eventManager:RegisterForUpdate(name, ms, function ()
-            eventManager:UnregisterForUpdate(name)
+        eventManager:RegisterForPostEffectsUpdate(name, ms, function ()
+            eventManager:UnregisterForPostEffectsUpdate(name)
             func(id)
         end)
         return id
@@ -230,9 +230,9 @@ do
 
         CHAT_ROUTER:AddSystemMessage(formattedMessage)
 
-        if LibDebugLogger and LUIE.IsDevDebugEnabled() then
-            LUIE.Debug(formattedMessage, ...)
-        end
+        -- if LibDebugLogger and LUIE.IsDevDebugEnabled() then
+        --     LUIE.Debug(formattedMessage, ...)
+        -- end
     end
 
     LUIE.AddSystemMessage = AddSystemMessage
