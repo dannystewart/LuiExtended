@@ -880,6 +880,7 @@ local castBarTable =
         [193331] = true, -- Fatecarver (Arcanist)
         [193397] = true, -- Exhausting Fatecarver (Arcanist)
         [193398] = true, -- Pragmatic Fatecarver (Arcanist)
+        [186366] = true, -- Pragmatic Fatecarver (Arcanist)
         [198309] = true, -- Remedy Cascade (Arcanist)
         [198330] = true, -- Cascading Fortune (Arcanist)
         [198537] = true, -- Curative Surge (Arcanist)
