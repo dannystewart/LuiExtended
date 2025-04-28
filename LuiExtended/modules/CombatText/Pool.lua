@@ -15,6 +15,8 @@ local CombatTextPool = LUIE.CombatTextPool
 -- Import constants and utilities
 local poolTypes = LuiData.Data.CombatTextConstants.poolType
 
+local wm = GetWindowManager()
+
 --- @see easeInOutCirc(https://easings.net/#easeInOutCirc)
 ---
 --- @param x number
@@ -138,7 +140,7 @@ end
 --- @return Control
 function CombatTextPool:CreateNewControl()
     --- @type LUIE_CombatText_Virtual
-    local control = CreateControlFromVirtual("LUIE_CombatText_Virtual_Instance", LUIE_CombatText, "LUIE_CombatText_Virtual", self:GetNextControlId())
+    local control = wm:CreateControlFromVirtual("LUIE_CombatText_Virtual_Instance", LUIE_CombatText, "LUIE_CombatText_Virtual", self:GetNextControlId())
     control.label = control:GetNamedChild("_Amount")
     control.icon = control:GetNamedChild("_Icon")
     return control
