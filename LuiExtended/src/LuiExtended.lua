@@ -41,7 +41,22 @@ LUIE.SV = {}
 LUIE.SVVer = 2
 LUIE.SVName = "LUIESV"
 -- -----------------------------------------------------------------------------
-LUIE.callbackObject = ZO_CallbackObject:New()
+do
+    --- @type ZO_CallbackObject
+    local callbackObject = ZO_CallbackObject:New()
+
+    function LUIE:FireCallbacks(...)
+        return callbackObject:FireCallbacks(...)
+    end
+
+    function LUIE:RegisterCallback(...)
+        return callbackObject:RegisterCallback(...)
+    end
+
+    function LUIE:UnregisterCallback(...)
+        return callbackObject:UnregisterCallback(...)
+    end
+end
 -- -----------------------------------------------------------------------------
 -- Components
 LUIE.Components = {}

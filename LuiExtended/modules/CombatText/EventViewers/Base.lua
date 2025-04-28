@@ -13,8 +13,6 @@ local string_format = string.format
 local Effects = LuiData.Data.Effects
 local CombatTextConstants = LuiData.Data.CombatTextConstants
 
-local callbackManager = LUIE.callbackObject
-
 CombatTextEventViewer.resourceNames = setmetatable({},
     {
         __index = function (t, k)
@@ -296,7 +294,7 @@ function CombatTextEventViewer:ControlLayout(control, abilityId, combatType, sou
 end
 
 function CombatTextEventViewer:RegisterCallback(eventType, func)
-    callbackManager:RegisterCallback(eventType, function (...)
+    LUIE:RegisterCallback(eventType, function (...)
         func(...)
     end)
 end

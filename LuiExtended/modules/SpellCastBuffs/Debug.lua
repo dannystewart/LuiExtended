@@ -437,7 +437,7 @@ end
 local function CollectZoneMapInfo()
     -- Set map to player location and handle callback
     if SetMapToPlayerLocation() == SET_MAP_RESULT_MAP_CHANGED then
-        LUIE.callbackObject:FireCallbacks("OnWorldMapChanged")
+        LUIE:FireCallbacks("OnWorldMapChanged")
     end
 
     -- Get basic zone and map info
@@ -469,7 +469,7 @@ local function CollectZoneMapInfo()
 
     -- Reset map to player location
     if SetMapToPlayerLocation() == SET_MAP_RESULT_MAP_CHANGED then
-        LUIE.callbackObject:FireCallbacks("OnWorldMapChanged")
+        LUIE:FireCallbacks("OnWorldMapChanged")
     end
 
     -- Return collected information
@@ -539,9 +539,9 @@ function SpellCastBuffs.TempSlashZoneCheck()
         { "Map Index:",          info.mapindex or "nil" },
         { "--------------------" },
         { "GPS Coordinates:" },
-        { "Map:",                string_format("%s: %s\195\151%s", info.mapName, FormatCoords(info.mapX), FormatCoords(info.mapY)) },
-        { "Zone:",               string_format("%s: %s\195\151%s", info.zoneName, FormatCoords(info.zoneX), FormatCoords(info.zoneY)) },
-        { "World:",              string_format("Tamriel: %s\195\151%s", FormatCoords(info.worldX), FormatCoords(info.worldY)) },
+        { "Map:",                string_format("%s: %s" .. LUIE_TINY_X_FORMATTER .. "%s", info.mapName, FormatCoords(info.mapX), FormatCoords(info.mapY)) },
+        { "Zone:",               string_format("%s: %s" .. LUIE_TINY_X_FORMATTER .. "%s", info.zoneName, FormatCoords(info.zoneX), FormatCoords(info.zoneY)) },
+        { "World:",              string_format("Tamriel: %s" .. LUIE_TINY_X_FORMATTER .. "%s", FormatCoords(info.worldX), FormatCoords(info.worldY)) },
         { "--------------------" },
         { "Map Name:",           info.name },
         { "Map Type:",           info.mapType },

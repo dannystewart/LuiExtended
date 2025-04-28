@@ -9,7 +9,6 @@ local LUIE = LUIE
 --- @class (partial) CombatTextEventListener : ZO_InitializingObject
 local CombatTextEventListener = ZO_InitializingObject:Subclass()
 
-local callbackManager = LUIE.callbackObject
 local eventManager = GetEventManager()
 
 local moduleName = LUIE.name .. "CombatText"
@@ -27,7 +26,7 @@ end
 --- @param func fun(...)
 --- @param ... any
 function CombatTextEventListener:RegisterForEvent(event, func, ...)
-    eventManager:RegisterForEvent(moduleName .. "Event" .. event .. "_" .. eventPostfix, event, function (eventCode, ...)
+    eventManager:RegisterForEvent(moduleName .. "Event" .. event .. "_" .. eventPostfix, event, function (...)
         func(...)
     end)
 
@@ -53,7 +52,7 @@ end
 
 --- @param ... any
 function CombatTextEventListener:TriggerEvent(...)
-    callbackManager:FireCallbacks(...)
+    LUIE:FireCallbacks(...)
 end
 
 --- @class (partial) CombatTextEventListener

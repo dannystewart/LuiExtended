@@ -16,9 +16,6 @@ if not LMP then
     error("LibMediaProvider is not initialized", 2)
 end
 
--- Reference to CALLBACK_MANAGER for registering callbacks
-local cm = LUIE.callbackObject
-
 -- Load saved settings.
 local function LoadSavedVars()
     -- Addon options
@@ -80,8 +77,11 @@ local function LoadMedia()
     UpdateSounds()
 end
 
+--- - **EVENT_PLAYER_ACTIVATED **
 -- Startup Info string.
-local function LoadScreen()
+--- @param eventId integer
+--- @param initial boolean
+local function LoadScreen(eventId, initial)
     eventManager:UnregisterForEvent(LUIE.name, EVENT_PLAYER_ACTIVATED)
     -- Set Positions for moved Default UI elements
     LUIE.SetElementPosition()
@@ -92,11 +92,11 @@ end
 
 -- Register events.
 local function RegisterEvents()
-    eventManager:RegisterForEvent(LUIE.name, EVENT_PLAYER_ACTIVATED, LoadScreen)
+    eventManager:RegisterForEvent(LUIE.name, EVENT_PLAYER_ACTIVATED, function (...) LoadScreen(...) end)
 
     -- Register for LibMediaProvider media registration callbacks
     if LMP then
-        cm:RegisterCallback("LibMediaProvider_Registered", function (mediatype, key)
+        LUIE:RegisterCallback("LibMediaProvider_Registered", function (mediatype, key)
             if mediatype == LMP.MediaType.FONT then
                 LUIE.Fonts[key] = LMP:Fetch(mediatype, key)
             elseif mediatype == LMP.MediaType.STATUSBAR then
@@ -109,26 +109,29 @@ local function RegisterEvents()
 
     -- Existing event registrations
     if LUIE.SV.SlashCommands_Enable or LUIE.SV.ChatAnnouncements_Enable then
-        eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_JOINED_GUILD, LUIE.UpdateGuildData)
-        eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_LEFT_GUILD, LUIE.UpdateGuildData)
+        eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_JOINED_GUILD, function (...) LUIE.UpdateGuildData(...) end)
+        eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_LEFT_GUILD, function (...) LUIE.UpdateGuildData(...) end)
     end
 
     -- Load additional media from LMP and other addons
     LoadMedia()
 end
 
+--- - **EVENT_ADD_ON_LOADED **
 -- LuiExtended Initialization.
-local function OnAddonOnLoaded(eventCode, addonName)
+--- @param eventId integer
+--- @param addonName string
+local function OnAddonOnLoaded(eventId, addonName)
     -- Only initialize our own addon
     if LUIE.name ~= addonName then
         return
     end
     -- Once we know it's ours, lets unregister the event listener
-    eventManager:UnregisterForEvent(addonName, eventCode)
+    eventManager:UnregisterForEvent(addonName, eventId)
     -- -----------------------------------------------------------------------------
     -- Load saved variables
     LoadSavedVars()
-    LUIE.UpdateGuildData()
+    LUIE.UpdateGuildData(nil, nil, nil, nil)
     -- -----------------------------------------------------------------------------
     -- Initialize Hooks
     LUIE.InitializeHooks()
@@ -137,7 +140,7 @@ local function OnAddonOnLoaded(eventCode, addonName)
 
     -- Hook Gamepad Skill Advisor for custom icon support
     LUIE.InitializeHooksSkillAdvisor()
-    --LUIE.HookGamePadIcons() --Disabled for now until I can dig into gamepad menu more.
+    -- LUIE.HookGamePadIcons() --Disabled for now until I can dig into gamepad menu more.
     LUIE.HookGamePadStats()
     LUIE.HookGamePadMap()
 
@@ -188,4 +191,4 @@ local function OnAddonOnLoaded(eventCode, addonName)
 end
 
 -- Hook initialization
-eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, OnAddonOnLoaded)
+eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, function (...) OnAddonOnLoaded(...) end)
