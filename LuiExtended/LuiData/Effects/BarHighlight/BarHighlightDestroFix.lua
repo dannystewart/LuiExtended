@@ -29,6 +29,7 @@ local WEAPONTYPE_FROST_STAFF = WEAPONTYPE_FROST_STAFF
 -- Switch backbar slotId's when we have a certain type of staff equipped
 -- Back Bar ID will unfortunately return either the base ability or the element type of the Staff we are using in our current weapon pair, so have to check for ALL of these conditions
 --- @class (partial) BarHighlightDestroFix
+--- @field [integer] table<WeaponType,integer>
 local barHighlightDestroFix =
 {
     -- Base Ability
