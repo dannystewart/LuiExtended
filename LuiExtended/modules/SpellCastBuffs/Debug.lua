@@ -48,7 +48,7 @@ local GetMapType = GetMapType
 local SetMapToPlayerLocation = SetMapToPlayerLocation
 local SetMapToMapListIndex = SetMapToMapListIndex
 local MapZoomOut = MapZoomOut
-local GetGameTimeMilliseconds = GetGameTimeMilliseconds
+local GetFrameTimeMilliseconds = GetFrameTimeMilliseconds
 local FormatTimeMilliseconds = FormatTimeMilliseconds
 
 -- LUIE utility functions
@@ -93,7 +93,7 @@ local function MillisecondTimestampDebug(message)
         return message
     end
 
-    local currentTime = GetGameTimeMilliseconds()
+    local currentTime = GetFrameTimeMilliseconds()
     local timestamp = FormatTimeMilliseconds(currentTime, TIME_FORMAT_STYLE_COLONS, TIME_FORMAT_PRECISION_MILLISECONDS_NO_HOURS_OR_DAYS, TIME_FORMAT_DIRECTION_NONE)
 
     -- Remove unnecessary parts from timestamp
@@ -145,7 +145,7 @@ end
 --- @return string, string Formatted icon, formatted name
 local function FormatAbilityInfo(abilityId, size)
     size = size or 16
-    local iconFormatted = zo_iconFormat(LUIE.GetAbilityIcon(abilityId), size, size)
+    local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), size, size)
     local nameFormatted = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetAbilityName(abilityId))
 
     return iconFormatted, nameFormatted

@@ -121,7 +121,7 @@ end
 -- LuiExtended Initialization.
 --- @param eventId integer
 --- @param addonName string
-local function OnAddonOnLoaded(eventId, addonName)
+eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, function (eventId, addonName)
     -- Only initialize our own addon
     if LUIE.name ~= addonName then
         return
@@ -149,7 +149,9 @@ local function OnAddonOnLoaded(eventId, addonName)
     LUIE.HookKeyboardStats()
     LUIE.HookKeyboardMap()
 
-
+    --
+    LUIE.OtherAddonCompatability.isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar\43")
+    LUIE.OtherAddonCompatability.isWritCreatorEnabled = LUIE.IsItEnabled("DolgubonsLazyWritCreator")
     -- -----------------------------------------------------------------------------
     -- Toggle Alert Frame Visibility if needed
     LUIE.SetupAlertFrameVisibility()
@@ -188,7 +190,4 @@ local function OnAddonOnLoaded(eventId, addonName)
     -- -----------------------------------------------------------------------------
     -- Register global event listeners
     RegisterEvents()
-end
-
--- Hook initialization
-eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, function (...) OnAddonOnLoaded(...) end)
+end)

@@ -25,9 +25,7 @@ LUIE.HookGamePadStats = function ()
         MUNDUS = 9,
     }
 
-    local function ArtificialEffectsRowComparator(left, right)
-        return left.sortOrder < right.sortOrder
-    end
+
 
     function ZO_GamepadStats:RefreshMainList()
         if self.currentTitleDropdown and self.currentTitleDropdown:IsDropdownVisible() then
@@ -184,7 +182,9 @@ LUIE.HookGamePadStats = function ()
             end
         end
 
-        table.sort(sortedArtificialEffectsTable, ArtificialEffectsRowComparator)
+        table.sort(sortedArtificialEffectsTable, function (left, right)
+            return left.sortOrder < right.sortOrder
+        end)
 
         for i, data in ipairs(sortedArtificialEffectsTable) do
             self:AddActiveEffectData(data)

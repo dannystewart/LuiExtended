@@ -82,8 +82,7 @@ function LUIE.Log(color, ...)
         if select("#", ...) > 0 then
             message = message .. string_format(...)
         end
-        -- ESO only supports 6 digit hex colors
-        CHAT_ROUTER:AddSystemMessage("|c" .. string.sub(color, 3) .. message .. "|r")
+        CHAT_ROUTER:AddSystemMessage("|c" .. color .. message .. "|r")
     end
 end
 
@@ -91,15 +90,15 @@ end
 --- @param message string The message to log
 --- @param ... any Additional values to format into message
 function LUIE.Debug(message, ...)
-    LUIE.Log("FF666666", ...)
-    LUIE_LOGGER:Debug(message, ...)
+    LUIE.Log("666666", ...)
+    LUIE_LOGGER:Debug(EscapeMarkup(message, ALLOW_MARKUP_TYPE_NONE), ...)
 end
 
 --- Logs an info message
 --- @param message string The message to log
 --- @param ... any Additional values to format into message
 function LUIE.Info(message, ...)
-    LUIE.Log("FF999999", ...)
+    LUIE.Log("999999", ...)
     LUIE_LOGGER:Info(message, ...)
 end
 
@@ -107,7 +106,7 @@ end
 --- @param message string The message to log
 --- @param ... any Additional values to format into message
 function LUIE.Warn(message, ...)
-    LUIE.Log("FFFF8800", ...)
+    LUIE.Log("FF8800", ...)
     LUIE_LOGGER:Warn(message, ...)
 end
 
@@ -115,7 +114,7 @@ end
 --- @param message string The message to log
 --- @param ... any Additional values to format into message
 function LUIE.Error(message, ...)
-    LUIE.Log("FFFF6666", ...)
+    LUIE.Log("FF6666", ...)
     LUIE_LOGGER:Error(message, ...)
 end
 
@@ -123,6 +122,6 @@ end
 --- @param message string The message to log
 --- @param ... any Additional values to format into message
 function LUIE.Verbose(message, ...)
-    LUIE.Log("FF777575", ...)
+    LUIE.Log("777575", ...)
     LUIE_LOGGER:Verbose(message, ...)
 end

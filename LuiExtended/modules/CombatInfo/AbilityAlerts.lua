@@ -177,7 +177,7 @@ function AbilityAlerts.CreateAlertFrame()
         alert.icon.back:SetAnchor(TOPLEFT, alert.icon, TOPLEFT, 0, 0)
         alert.icon.back:SetAnchor(BOTTOMRIGHT, alert.icon, BOTTOMRIGHT, 0, 0)
 
-        alert.icon.iconbg = UI:Texture(alert.icon, nil, nil, "/esoui/art/actionbar/abilityinset.dds", DL_CONTROLS, false)
+        alert.icon.iconbg = UI:Texture(alert.icon, nil, nil, "EsoUI/Art/ActionBar/abilityInset.dds", DL_CONTROLS, false)
         alert.icon.iconbg = UI:Backdrop(alert.icon, nil, nil, { 0, 0, 0, 0.9 }, { 0, 0, 0, 0.9 }, false)
         alert.icon.iconbg:SetDrawLevel(DL_CONTROLS)
         alert.icon.iconbg:SetAnchor(TOPLEFT, alert.icon, TOPLEFT, 3, 3)
@@ -264,7 +264,10 @@ function AbilityAlerts.CreateAlertFrame()
         eventManager:AddFilterForEvent(moduleName .. result, EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, result, REGISTER_FILTER_IS_ERROR, false)
     end
 
-    eventManager:RegisterForUpdate(moduleName .. "AlertUpdate", 100, function (...) AbilityAlerts.AlertUpdate(...) end)
+    eventManager:RegisterForUpdate(moduleName .. "AlertUpdate", 100, function (currentTime)
+        currentTime = GetFrameTimeMilliseconds()
+        AbilityAlerts.AlertUpdate(currentTime)
+    end)
 
     eventManager:RegisterForEvent(moduleName, EVENT_DUEL_STARTED, function (...) AbilityAlerts.OnDuelStarted(...) end)
     eventManager:RegisterForEvent(moduleName, EVENT_DUEL_FINISHED, function (...) AbilityAlerts.OnDuelFinished(...) end)
@@ -442,7 +445,7 @@ function AbilityAlerts.AlertInterrupt(eventCode, result, isError, abilityName, a
             -- d("targetUnitId: " .. targetUnitId)
             -- d("targetName: " .. targetName)
 
-            local currentTime = GetGameTimeMilliseconds()
+            local currentTime = GetFrameTimeMilliseconds()
             local remain = alert.data.duration - currentTime
 
             -- If the source isn't a UnitId and the targetName is also nil then bail
@@ -1020,7 +1023,7 @@ local function CheckInterruptEvent(unitId, abilityId, resultType)
         local alert = _G["LUIE_Alert" .. i]
         if alert.data.sourceUnitId then
             if alert.data.id == abilityId then
-                local currentTime = GetGameTimeMilliseconds()
+                local currentTime = GetFrameTimeMilliseconds()
                 local remain = alert.data.duration - currentTime
 
                 -- DEBUG
@@ -1390,7 +1393,7 @@ function AbilityAlerts.OnEvent(alertType, abilityId, abilityName, abilityIcon, s
         end
     end
 
-    local currentTime = GetGameTimeMilliseconds()
+    local currentTime = GetFrameTimeMilliseconds()
     local endTime = currentTime + duration
 
     AbilityAlerts.SetupSingleAlertFrame(abilityId, textPrefix, textModifier, textName, textMitigation, abilityIcon, currentTime, endTime, showDuration, crowdControl, sourceUnitId, postCast, alwaysShowInterrupt, neverShowInterrupt, effectOnlyInterrupt)

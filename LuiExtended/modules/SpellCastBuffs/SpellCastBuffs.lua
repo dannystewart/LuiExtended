@@ -67,18 +67,23 @@ local containerRouting =
     promd_player = nil,
 }
 
-local g_alignmentDirection = {}    -- Holds alignment direction for all containers
-local g_sortDirection = {}         -- Holds sorting direction for all containers
+local g_alignmentDirection = {}      -- Holds alignment direction for all containers
+local g_sortDirection = {}           -- Holds sorting direction for all containers
 
-local g_playerActive = false       -- Player Active State
-local g_playerDead = false         -- Player Dead State
-local g_playerResurrectStage = nil -- Player resurrection sequence state
+local g_playerActive = false         -- Player Active State
+local g_playerDead = false           -- Player Dead State
+local g_playerResurrectStage = nil   -- Player resurrection sequence state
 
-local g_buffsFont                  -- Buff font
-local g_prominentFont              -- Prominent buffs label font
-local g_padding = 0                -- Padding between icons
-local g_protectAbilityRemoval = {} -- AbilityId's set to a timestamp here to prevent removal of ground effects when refreshing ground auras from causing the aura to fade.
-local g_ignoreAbilityId = {}       -- Ignored abilityId's on EVENT_COMBAT_EVENT, some events fire twice and we need to ignore every other one.
+local g_buffsFont                    -- Buff font
+local g_prominentFont                -- Prominent buffs label font
+local g_padding = 0                  -- Padding between icons
+local g_protectAbilityRemoval = {}   -- AbilityId's set to a timestamp here to prevent removal of ground effects when refreshing ground auras from causing the aura to fade.
+local g_ignoreAbilityId = {}         -- Ignored abilityId's on EVENT_COMBAT_EVENT, some events fire twice and we need to ignore every other one.
+
+local TextureCoordsLeft = "0.1875"   -- TextureCoordsLeft
+local TextureCoordsRight = "0.8125"  -- TextureCoordsRight
+local TextureCoordsTop = "0.1875"    -- TextureCoordsTop
+local TextureCoordsBottom = "0.8125" -- TextureCoordsBottom
 
 -- Add buff containers into LUIE namespace
 SpellCastBuffs.BuffContainers = uiTlw
@@ -98,7 +103,7 @@ local function EaseOutQuad(t, b, c, d)
 end
 
 --- @type table<number, string>
-local oakensoul = Effects.EffectIsOakenSoul
+local oakensoul = Effects.IsOakenSoul
 
 --- @return boolean
 local function OakensoulEquipped()
@@ -480,7 +485,10 @@ function SpellCastBuffs.Initialize(enabled)
     SpellCastBuffs.UpdateDisplayOverrideIdList()
 
     -- Register events
-    eventManager:RegisterForPostEffectsUpdate(moduleName, 100, function (...) SpellCastBuffs.OnUpdate(...) end)
+    eventManager:RegisterForPostEffectsUpdate(moduleName, 100, function (currentTime)
+        currentTime = GetFrameTimeMilliseconds()
+        SpellCastBuffs.OnUpdate(currentTime)
+    end)
 
     -- Target Events
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, function (...) SpellCastBuffs.OnTargetChange(...) end)
@@ -1709,88 +1717,70 @@ end
 function SpellCastBuffs.CreateSingleIcon(container, AnchorItem, effectType)
     -- Create main buff container
     local buff = UI:Backdrop(uiTlw[container], nil, nil, { 0, 0, 0, 0.5 }, { 0, 0, 0, 1 }, false)
-
     -- Setup mouse interaction
     buff:SetMouseEnabled(true)
     buff:SetHandler("OnMouseEnter", SpellCastBuffs.Buff_OnMouseEnter)
     buff:SetHandler("OnMouseExit", SpellCastBuffs.Buff_OnMouseExit)
     buff:SetHandler("OnMouseUp", SpellCastBuffs.Buff_OnMouseUp)
 
-    -- Create visual layers
-    local function createVisualElements()
-        -- Border layer - hidden by default, shown only for non-collectible buffs
-        buff.back = UI:Texture(buff, "fill", nil, "LuiExtended/media/icons/icon_border/icon_border.dds", DL_BACKGROUND, true)
+    -- Border layer - hidden by default, shown only for non-collectible buffs
+    buff.back = UI:Texture(buff, "fill", nil, "EsoUI/Art/ActionBar/abilityFrame_buff.dds", DL_BACKGROUND, true)
 
-        -- Glow border layer
-        buff.frame = UI:Texture(buff, { CENTER, CENTER }, nil, nil, DL_OVERLAY, false)
+    -- Glow border layer
+    buff.frame = UI:Texture(buff, { CENTER, CENTER }, nil, nil, DL_OVERLAY, false)
 
-        -- Background layer (except for player_long container)
-        if container ~= "player_long" then
-            -- Create background texture
-            buff.iconbg = UI:Texture(buff, "fill", nil, "/esoui/art/actionbar/abilityinset.dds", DL_CONTROLS, false)
-
-            -- Create dark backdrop behind the texture
-            local bgBackdrop = UI:Backdrop(buff.iconbg, "fill", nil, { 0, 0, 0, 0.9 }, { 0, 0, 0, 0.9 }, false)
-            bgBackdrop:SetDrawLevel(DL_CONTROLS)
-        end
-
-        -- Collectible/mount background
-        buff.drop = UI:Texture(buff, nil, nil, "LuiExtended/media/icons/abilities/ability_innate_background.dds", DL_BACKGROUND, true)
-
-        -- Main ability icon
-        buff.icon = UI:Texture(buff, nil, nil, "/esoui/art/icons/icon_missing.dds", DL_CONTROLS, false)
+    -- Background layer (except for player_long container)
+    if container ~= "player_long" then
+        -- Create background texture
+        buff.iconbg = UI:Texture(buff, "fill", nil, "EsoUI/Art/ActionBar/abilityInset.dds", DL_CONTROLS, false)
+        -- Create dark backdrop behind the texture
+        local bgBackdrop = UI:Backdrop(buff.iconbg, "fill", nil, { 0, 0, 0, 0.9 }, { 0, 0, 0, 0.9 }, false)
+        bgBackdrop:SetDrawLevel(DL_CONTROLS)
     end
 
-    -- Rest of the code remains the same...
-    local function createTextElements()
-        -- Duration label
-        buff.label = UI:Label(buff, nil, nil, nil, g_buffsFont, nil, false)
-        buff.label:SetAnchor(TOPLEFT, buff, LEFT, -g_padding, -SpellCastBuffs.SV.LabelPosition)
-        buff.label:SetAnchor(BOTTOMRIGHT, buff, BOTTOMRIGHT, g_padding, -2)
+    -- Collectible/mount background
+    buff.drop = UI:Texture(buff, nil, nil, "LuiExtended/media/icons/abilities/ability_innate_background.dds", DL_BACKGROUND, true)
 
-        -- Debug ability ID label
-        buff.abilityId = UI:Label(buff, { CENTER, CENTER }, nil, nil, g_buffsFont, nil, false)
+    -- Main ability icon
+    buff.icon = UI:Texture(buff, nil, nil, "/esoui/art/icons/icon_missing.dds", DL_CONTROLS, false)
 
-        -- Stack count label
-        buff.stack = UI:Label(buff, nil, nil, nil, g_buffsFont, nil, false)
-        buff.stack:SetAnchor(CENTER, buff, BOTTOMLEFT, 0, 0)
-        buff.stack:SetAnchor(CENTER, buff, TOPRIGHT, -g_padding * 3, g_padding * 3)
+    -- Duration label
+    buff.label = UI:Label(buff, nil, nil, nil, g_buffsFont, nil, false)
+    buff.label:SetAnchor(TOPLEFT, buff, LEFT, -g_padding, -SpellCastBuffs.SV.LabelPosition)
+    buff.label:SetAnchor(BOTTOMRIGHT, buff, BOTTOMRIGHT, g_padding, -2)
+
+    -- Debug ability ID label
+    buff.abilityId = UI:Label(buff, { CENTER, CENTER }, nil, nil, g_buffsFont, nil, false)
+
+    -- Stack count label
+    buff.stack = UI:Label(buff, nil, nil, nil, g_buffsFont, nil, false)
+    buff.stack:SetAnchor(CENTER, buff, BOTTOMLEFT, 0, 0)
+    buff.stack:SetAnchor(CENTER, buff, TOPRIGHT, -g_padding * 3, g_padding * 3)
+
+    if buff.iconbg then
+        buff.cd = windowManager:CreateControl(nil, buff, CT_COOLDOWN)
+        buff.cd:SetAnchor(TOPLEFT, buff, TOPLEFT, 1, 1)
+        buff.cd:SetAnchor(BOTTOMRIGHT, buff, BOTTOMRIGHT, -1, -1)
+        buff.cd:SetDrawLayer(DL_BACKGROUND)
     end
 
-    local function createCooldownElement()
-        if buff.iconbg then
-            buff.cd = windowManager:CreateControl(nil, buff, CT_COOLDOWN)
-            buff.cd:SetAnchor(TOPLEFT, buff, TOPLEFT, 1, 1)
-            buff.cd:SetAnchor(BOTTOMRIGHT, buff, BOTTOMRIGHT, -1, -1)
-            buff.cd:SetDrawLayer(DL_BACKGROUND)
-        end
+    if container == "prominentbuffs" or container == "prominentdebuffs" then
+        buff.effectType = effectType
+        buff.name = UI:Label(buff, nil, nil, nil, g_prominentFont, nil, false)
+
+        -- Create progress bar
+        buff.bar =
+        {
+            backdrop = UI:Backdrop(buff, nil, { 154, 16 }, nil, nil, false),
+            bar = UI:StatusBar(buff, nil, { 150, 12 }, nil, false),
+        }
+
+        -- Setup bar properties
+        buff.bar.backdrop:SetEdgeTexture("", 8, 2, 2, 2)
+        buff.bar.backdrop:SetDrawLayer(DL_BACKGROUND)
+        buff.bar.backdrop:SetDrawLevel(DL_CONTROLS)
+        buff.bar.bar:SetMinMax(0, 1)
     end
-
-    local function createProminentElements()
-        if container == "prominentbuffs" or container == "prominentdebuffs" then
-            buff.effectType = effectType
-            buff.name = UI:Label(buff, nil, nil, nil, g_prominentFont, nil, false)
-
-            -- Create progress bar
-            buff.bar =
-            {
-                backdrop = UI:Backdrop(buff, nil, { 154, 16 }, nil, nil, false),
-                bar = UI:StatusBar(buff, nil, { 150, 12 }, nil, false),
-            }
-
-            -- Setup bar properties
-            buff.bar.backdrop:SetEdgeTexture("", 8, 2, 2, 2)
-            buff.bar.backdrop:SetDrawLayer(DL_BACKGROUND)
-            buff.bar.backdrop:SetDrawLevel(DL_CONTROLS)
-            buff.bar.bar:SetMinMax(0, 1)
-        end
-    end
-
-    -- Create all elements
-    createVisualElements()
-    createTextElements()
-    createCooldownElement()
-    createProminentElements()
 
     -- Reset icon properties
     SpellCastBuffs.ResetSingleIcon(container, buff, AnchorItem)
@@ -1867,8 +1857,7 @@ function SpellCastBuffs.SetSingleIconBuffType(buff, buffType, unbreakable, id)
             (isPriority and SpellCastBuffs.SV.ProminentProgressBuffPriorityC1 or SpellCastBuffs.SV.ProminentProgressBuffC1)
 
         buff.bar.backdrop:SetCenterColor(0.1 * colors[1], 0.1 * colors[2], 0.1 * colors[3], 0.75)
-        buff.bar.bar:SetGradientColors(colors[1], colors[2], colors[3], 1,
-            gradientColors[1], gradientColors[2], gradientColors[3], 1)
+        buff.bar.bar:SetGradientColors(colors[1], colors[2], colors[3], 1, gradientColors[1], gradientColors[2], gradientColors[3], 1)
     end
 
     -- Apply visual settings
@@ -2005,7 +1994,7 @@ function SpellCastBuffs.OnEffectChangedGround(eventId, changeType, effectSlot, e
         if Effects.EffectGroundDisplay[abilityId] and Effects.EffectGroundDisplay[abilityId].noRemove then
             return
         end -- Ignore some abilities
-        local currentTime = GetGameTimeMilliseconds()
+        local currentTime = GetFrameTimeMilliseconds()
         if not g_protectAbilityRemoval[abilityId] or g_protectAbilityRemoval[abilityId] < currentTime then
             for i = 1, 3 do
                 if groundType[i].info == true then
@@ -2033,7 +2022,7 @@ function SpellCastBuffs.OnEffectChangedGround(eventId, changeType, effectSlot, e
             end
         end
     elseif changeType == EFFECT_RESULT_GAINED then
-        local currentTime = GetGameTimeMilliseconds()
+        local currentTime = GetFrameTimeMilliseconds()
         g_protectAbilityRemoval[abilityId] = currentTime + 150
 
         local duration = endTime - beginTime
@@ -2662,7 +2651,7 @@ function SpellCastBuffs.AddZoneBuffs()
         local abilityId = Effects.ZoneBuffs[zoneId]
         local abilityName = GetAbilityName(abilityId)
         local abilityIcon = GetAbilityIcon(abilityId)
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local stack
         local groundLabel
         local toggle
@@ -2824,7 +2813,7 @@ function SpellCastBuffs.OnCombatEventIn(eventCode, result, isError, abilityName,
             buffSlot = abilityId
         end
 
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local endTime = beginTime + duration
         local context = "player" .. effectType
 
@@ -2933,7 +2922,7 @@ function SpellCastBuffs.OnCombatEventIn(eventCode, result, isError, abilityName,
         SpellCastBuffs.EffectsList[context][abilityId] = nil
         local overrideDuration = Effects.FakeExternalBuffs[abilityId].overrideDuration
         duration = Effects.FakeExternalBuffs[abilityId].duration
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local endTime = beginTime + duration
         local source = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, sourceName)
         local target = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, targetName)
@@ -3016,7 +3005,7 @@ function SpellCastBuffs.OnCombatEventIn(eventCode, result, isError, abilityName,
         iconName = Effects.FakeExternalDebuffs[abilityId].icon or GetAbilityIcon(abilityId)
         effectName = Effects.FakeExternalDebuffs[abilityId].name or GetAbilityName(abilityId)
         duration = Effects.FakeExternalDebuffs[abilityId].duration
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local endTime = beginTime + duration
         local source = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, sourceName)
         local target = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, targetName)
@@ -3157,7 +3146,7 @@ function SpellCastBuffs.OnCombatEventIn(eventCode, result, isError, abilityName,
         context = SpellCastBuffs.DetermineContextSimple(context, finalId, effectName)
         SpellCastBuffs.EffectsList[context][finalId] = nil
         local forcedType = Effects.FakePlayerBuffs[abilityId].long and "long" or "short"
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local endTime = beginTime + duration
         local source = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, sourceName)
         local target = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, targetName)
@@ -3203,7 +3192,7 @@ function SpellCastBuffs.OnCombatEventIn(eventCode, result, isError, abilityName,
         iconName = Effects.FakeStagger[abilityId].icon or GetAbilityIcon(abilityId)
         effectName = Effects.FakeStagger[abilityId].name or GetAbilityName(abilityId)
         duration = Effects.FakeStagger[abilityId].duration
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local endTime = beginTime + duration
         local source = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, sourceName)
         local target = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, targetName)
@@ -3376,7 +3365,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
             effectName = Effects.FakePlayerOfflineAura and Effects.FakePlayerOfflineAura[finalId].name or GetAbilityName(finalId)
         end
         local forcedType = Effects.FakePlayerOfflineAura[abilityId].long and "long" or "short"
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local endTime = beginTime + duration
         local source = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, sourceName)
         local target = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, targetName)
@@ -3463,7 +3452,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
         duration = Effects.FakePlayerDebuffs[abilityId].duration
         local overrideDuration = Effects.FakePlayerDebuffs[abilityId].overrideDuration
         effectType = BUFF_EFFECT_TYPE_DEBUFF
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local endTime = beginTime + duration
         local source = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, sourceName)
         local target = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, targetName)
@@ -3534,7 +3523,7 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
         effectName = Effects.FakeStagger[abilityId].name or GetAbilityName(abilityId)
         local context = "reticleover2" -- NOTE: TODO - No prominent support here and probably won't add
         duration = Effects.FakeStagger[abilityId].duration
-        local beginTime = GetGameTimeMilliseconds()
+        local beginTime = GetFrameTimeMilliseconds()
         local endTime = beginTime + duration
         local source = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, sourceName)
         local target = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, targetName)
@@ -3721,7 +3710,7 @@ end
 function SpellCastBuffs.ShowRecallCooldown()
     local recallRemain, _ = GetRecallCooldown()
     if recallRemain > 0 then
-        local currentTime = GetGameTimeMilliseconds()
+        local currentTime = GetFrameTimeMilliseconds()
         local abilityId = 999016
         local abilityName = Abilities.Innate_Recall_Penalty
         local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)
@@ -3822,7 +3811,7 @@ end
 
 -- Called by menu to preview icon positions. Simply iterates through all containers other than player_long and adds dummy test buffs into them.
 function SpellCastBuffs.MenuPreview()
-    local currentTime = GetGameTimeMilliseconds()
+    local currentTime = GetFrameTimeMilliseconds()
     local routing = { "player1", "reticleover1", "promb_player", "player2", "reticleover2", "promd_player" }
     local testEffectDurationList = { 22, 44, 55, 300, 1800000 }
     local abilityId = 999000
@@ -3850,33 +3839,6 @@ function SpellCastBuffs.MenuPreview()
             }
             abilityId = abilityId + 1
         end
-    end
-end
-
--- Helper function to sort buffs
-local function buffSort(x, y)
-    local xDuration = (x.ends == nil or x.dur == 0 or x.groundLabel or x.toggle) and 0 or x.dur
-    local yDuration = (y.ends == nil or y.dur == 0 or y.groundLabel or y.toggle) and 0 or y.dur
-    -- Sort toggle effects
-    if x.toggle or y.toggle then
-        if xDuration == 0 and yDuration == 0 then
-            if x.toggle and y.toggle then
-                return (x.name < y.name)
-            elseif x.toggle and not y.toggle then
-                return (xDuration == 0)
-            end
-        else
-            return (xDuration == 0)
-        end
-        -- Sort permanent/ground effects (might separate these at some point but for now want the sorting function simplified)
-    elseif xDuration == 0 and yDuration == 0 then
-        return (x.name < y.name)
-        -- Both non-permanent
-    elseif xDuration ~= 0 and yDuration ~= 0 then
-        return (x.starts == y.starts) and (x.name < y.name) or (x.ends > y.ends)
-        -- One permanent, one not
-    else
-        return (xDuration == 0)
     end
 end
 
@@ -3942,7 +3904,33 @@ function SpellCastBuffs.OnUpdate(currentTime)
     -- Sort effects in container and draw them on screen
     for _, container in pairs(containerRouting) do
         if needs_update[container] then
-            table_sort(buffsSorted[container], buffSort)
+            table_sort(buffsSorted[container], function (x, y)
+                local xDuration = (x.ends == nil or x.dur == 0 or x.groundLabel or x.toggle) and 0 or x.dur
+                local yDuration = (y.ends == nil or y.dur == 0 or y.groundLabel or y.toggle) and 0 or y.dur
+                -- Sort toggle effects
+                if x.toggle or y.toggle then
+                    if xDuration == 0 and yDuration == 0 then
+                        if x.toggle and y.toggle then
+                            return (x.name < y.name)
+                        elseif x.toggle and not y.toggle then
+                            return true  -- Toggle effects should come before non-toggle effects
+                        else             -- x is not toggle but y is toggle
+                            return false -- Non-toggle effects should come after toggle effects
+                        end
+                    else
+                        return (xDuration == 0)
+                    end
+                    -- Sort permanent/ground effects
+                elseif xDuration == 0 and yDuration == 0 then
+                    return (x.name < y.name)
+                    -- Both non-permanent
+                elseif xDuration ~= 0 and yDuration ~= 0 then
+                    return (x.starts == y.starts) and (x.name < y.name) or (x.ends > y.ends)
+                    -- One permanent, one not
+                else
+                    return (xDuration == 0)
+                end
+            end)
             SpellCastBuffs.updateIcons(currentTime, buffsSorted[container], container)
         end
         needs_update[container] = false
@@ -4223,7 +4211,8 @@ function SpellCastBuffs.updateIcons(currentTime, sortedList, container)
         -- Now possibly fade out expiring icon
         if SpellCastBuffs.SV.FadeOutIcons and remain ~= nil and remain < 2000 then
             -- buff:SetAlpha( 0.05 + remain/2106 )
-            buff:SetAlpha(EaseOutQuad(remain, 0, 1, 2000))
+            local easedValue = EaseOutQuad(remain, 0, 1, 2000)
+            buff:SetAlpha(easedValue)
         end
     end
 
@@ -4340,7 +4329,7 @@ function SpellCastBuffs.OnVibration(eventCode, duration, coarseMotor, fineMotor,
     elseif g_playerResurrectStage == 3 and duration == 350 and SpellCastBuffs.SV.ShowResurrectionImmunity then
         -- We got correct sequence, so let us create a buff and reset the g_playerResurrectStage
         g_playerResurrectStage = nil
-        local currentTime = GetGameTimeMilliseconds()
+        local currentTime = GetFrameTimeMilliseconds()
         local abilityId = 14646
         local abilityName = Abilities.Innate_Resurrection_Immunity
         local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)

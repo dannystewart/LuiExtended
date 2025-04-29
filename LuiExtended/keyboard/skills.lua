@@ -1,4 +1,4 @@
----@diagnostic disable: missing-global-doc
+--- @diagnostic disable: missing-global-doc
 -- -----------------------------------------------------------------------------
 --  LuiExtended                                                               --
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
@@ -12,21 +12,7 @@ local Effects = Data.Effects
 
 LUIE.HookKeyboardStats = function ()
     -- Hook STATS Screen Buffs & Debuffs to hide buffs not needed, update icons, names, durations, and tooltips
-    local function EffectsRowComparator(left, right)
-        local leftIsArtificial, rightIsArtificial = left.isArtificial, right.isArtificial
-        if leftIsArtificial ~= rightIsArtificial then
-            -- Artificial before real
-            return leftIsArtificial
-        else
-            if leftIsArtificial then
-                -- Both artificial, use def defined sort order
-                return left.sortOrder < right.sortOrder
-            else
-                -- Both real, use time
-                return left.time.endTime < right.time.endTime
-            end
-        end
-    end
+
 
     -- Helper function to determine if an effect should be shown
     ---
@@ -245,7 +231,21 @@ LUIE.HookKeyboardStats = function ()
                 end
 
                 -- Sort and position rows
-                table.sort(effectsRows, EffectsRowComparator)
+                table.sort(effectsRows, function (left, right)
+                    local leftIsArtificial, rightIsArtificial = left.isArtificial, right.isArtificial
+                    if leftIsArtificial ~= rightIsArtificial then
+                        -- Artificial before real
+                        return leftIsArtificial
+                    else
+                        if leftIsArtificial then
+                            -- Both artificial, use def defined sort order
+                            return left.sortOrder < right.sortOrder
+                        else
+                            -- Both real, use time
+                            return left.time.endTime < right.time.endTime
+                        end
+                    end
+                end)
                 local prevRow
                 for i, effectsRow in ipairs(effectsRows) do
                     if prevRow then

@@ -60,11 +60,22 @@ local table_sort = table.sort
 
 local moduleName = LUIE.name .. "ChatAnnouncements"
 
+--- @class QueuedMessage
+--- @field message string
+--- @field messageType string
+--- @field isSystem? boolean
+--- @field itemId? any
+--- @field formattedRecipient? string
+--- @field color? any
+--- @field logPrefix? string
+--- @field totalString? string
+--- @field groupLoot? boolean
+
 --- @class (partial) ChatAnnouncements
 local ChatAnnouncements =
 {
     -- Queued Messages Storage for CA Modules
-    QueuedMessages = {},
+    QueuedMessages = {}, --- @type table<integer,QueuedMessage>
     QueuedMessagesCounter = 1,
     -- Setup Color Table
     Colors = {},
@@ -689,7 +700,7 @@ local ColorizeColors = {}
 -- LOCAL (GLOBAL) VARIABLE SETUP ---------------
 ------------------------------------------------
 
-local isWritCreatorEnabled = false
+local isWritCreatorEnabled = LUIE.OtherAddonCompatability.isWritCreatorEnabled
 
 -- Loot/Currency
 local g_savedPurchase = {}
@@ -993,7 +1004,7 @@ function ChatAnnouncements.Initialize(enabled)
     end
     ChatAnnouncements.Enabled = true
 
-    isWritCreatorEnabled = LUIE.IsItEnabled("DolgubonsLazyWritCreator")
+    -- isWritCreatorEnabled = LUIE.IsItEnabled("DolgubonsLazyWritCreator")
 
     -- Get current group leader
     g_currentGroupLeaderRawName = GetRawUnitName(GetGroupLeaderUnitTag())
@@ -1013,8 +1024,8 @@ function ChatAnnouncements.Initialize(enabled)
     eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BAG_CAPACITY_CHANGED, function (...) ChatAnnouncements.StorageBag(...) end)
     eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BANK_CAPACITY_CHANGED, function (...) ChatAnnouncements.StorageBank(...) end)
     -- TODO: Move these too:
-    LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_MOUSE_UP_EVENT, function (...) ChatAnnouncements.HandleClickEvent(...) end)
-    LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_CLICKED_EVENT, function (...) ChatAnnouncements.HandleClickEvent(...) end)
+    LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_MOUSE_UP_EVENT, ChatAnnouncements.HandleClickEvent)
+    LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_CLICKED_EVENT, ChatAnnouncements.HandleClickEvent)
 
     -- TODO: also move this
     eventManager:RegisterForEvent(moduleName, EVENT_SKILL_XP_UPDATE, function (...) ChatAnnouncements.SkillXPUpdate(...) end)
@@ -1202,11 +1213,11 @@ function ChatAnnouncements.RegisterMailEvents()
     eventManager:UnregisterForEvent(moduleName, EVENT_MAIL_ATTACHED_MONEY_CHANGED)
     eventManager:UnregisterForEvent(moduleName, EVENT_MAIL_COD_CHANGED)
     eventManager:UnregisterForEvent(moduleName, EVENT_MAIL_REMOVED)
-    if ChatAnnouncements.SV.MiscMail or ChatAnnouncements.SV.Inventory.LootMail then
+    if ChatAnnouncements.SV.Inventory.LootMail then
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_READABLE, function (...) ChatAnnouncements.OnMailReadable(...) end)
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_TAKE_ATTACHED_ITEM_SUCCESS, function (...) ChatAnnouncements.OnMailTakeAttachedItem(...) end)
     end
-    if ChatAnnouncements.SV.MiscMail or ChatAnnouncements.SV.Inventory.LootMail or ChatAnnouncements.SV.Currency.CurrencyGoldChange then
+    if ChatAnnouncements.SV.Inventory.LootMail or ChatAnnouncements.SV.Currency.CurrencyGoldChange then
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_ADDED, function (...) ChatAnnouncements.OnMailAttach(...) end)
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_REMOVED, function (...) ChatAnnouncements.OnMailAttachRemove(...) end)
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_SEND_SUCCESS, function (...) ChatAnnouncements.OnMailSuccess(...) end)
@@ -1214,7 +1225,7 @@ function ChatAnnouncements.RegisterMailEvents()
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_COD_CHANGED, function (...) ChatAnnouncements.MailCODChanged(...) end)
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_REMOVED, function (...) ChatAnnouncements.MailRemoved(...) end)
     end
-    if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.MiscMail or ChatAnnouncements.SV.Inventory.LootMail or ChatAnnouncements.SV.Currency.CurrencyGoldChange then
+    if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootMail or ChatAnnouncements.SV.Currency.CurrencyGoldChange then
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_OPEN_MAILBOX, function (...) ChatAnnouncements.OnMailOpenBox(...) end)
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_CLOSE_MAILBOX, function (...) ChatAnnouncements.OnMailCloseBox(...) end)
     end
@@ -1275,6 +1286,9 @@ function ChatAnnouncements.RegisterLootEvents()
     -- INDEX
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
         eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_QUEST_COMPLETE_ATTEMPT_FAILED_INVENTORY_FULL, function (...) ChatAnnouncements.InventoryFullQuest(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_IS_FULL, function (...) ChatAnnouncements.InventoryFull(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_LOOT_ITEM_FAILED, function (...) ChatAnnouncements.LootItemFailed(...) end)
         g_equippedStacks = {}
         g_inventoryStacks = {}
         ChatAnnouncements.IndexEquipped()
@@ -1328,12 +1342,6 @@ function ChatAnnouncements.RegisterLootEvents()
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Notify.NotificationConfiscateCA or ChatAnnouncements.SV.Notify.NotificationConfiscateAlert or ChatAnnouncements.SV.Inventory.LootShowDisguise then
         eventManager:RegisterForEvent(moduleName, EVENT_JUSTICE_STOLEN_ITEMS_REMOVED, function (...) ChatAnnouncements.JusticeStealRemove(...) end)
     end
-
-    --[[if ChatAnnouncements.SV.ShowLootFail then
-        eventManager:RegisterForEvent(moduleName, EVENT_QUEST_COMPLETE_ATTEMPT_FAILED_INVENTORY_FULL, ChatAnnouncements.InventoryFullQuest)
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_IS_FULL, ChatAnnouncements.InventoryFull)
-        eventManager:RegisterForEvent(moduleName, EVENT_LOOT_ITEM_FAILED, ChatAnnouncements.LootItemFailed)
-    end]]
 end
 
 function ChatAnnouncements.RegisterDisguiseEvents()
@@ -4527,22 +4535,22 @@ end
 --- @param itemId integer
 --- @param isStolen boolean
 function ChatAnnouncements.OnLootReceived(eventCode, receivedBy, itemLink, quantity, itemSound, lootType, lootedBySelf, isPickpocketLoot, questItemIcon, itemId, isStolen)
-    if LUIE.IsDevDebugEnabled() then
-        local Debug = LUIE.Debug
-        local traceback = "Loot Received:\n" ..
-            "--> eventCode: " .. tostring(eventCode) .. "\n" ..
-            "--> receivedBy: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, receivedBy) .. "\n" ..
-            "--> itemLink: " .. tostring(itemLink) .. "\n" ..
-            "--> quantity: " .. tostring(quantity) .. "\n" ..
-            "--> itemSound: " .. tostring(itemSound) .. "\n" ..
-            "--> lootType: " .. tostring(lootType) .. "\n" ..
-            "--> lootedBySelf: " .. tostring(lootedBySelf) .. "\n" ..
-            "--> isPickpocketLoot: " .. tostring(isPickpocketLoot) .. "\n" ..
-            "--> questItemIcon: " .. tostring(questItemIcon) .. "\n" ..
-            "--> itemId: " .. tostring(itemId) .. "\n" ..
-            "--> isStolen: " .. tostring(isStolen)
-        Debug(traceback)
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     local Debug = LUIE.Debug
+    --     local traceback = "Loot Received:\n" ..
+    --         "--> eventCode: " .. tostring(eventCode) .. "\n" ..
+    --         "--> receivedBy: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, receivedBy) .. "\n" ..
+    --         "--> itemLink: " .. tostring(itemLink) .. "\n" ..
+    --         "--> quantity: " .. tostring(quantity) .. "\n" ..
+    --         "--> itemSound: " .. tostring(itemSound) .. "\n" ..
+    --         "--> lootType: " .. tostring(lootType) .. "\n" ..
+    --         "--> lootedBySelf: " .. tostring(lootedBySelf) .. "\n" ..
+    --         "--> isPickpocketLoot: " .. tostring(isPickpocketLoot) .. "\n" ..
+    --         "--> questItemIcon: " .. tostring(questItemIcon) .. "\n" ..
+    --         "--> itemId: " .. tostring(itemId) .. "\n" ..
+    --         "--> isStolen: " .. tostring(isStolen)
+    --     Debug(traceback)
+    -- end
     -- If the player loots an item
     if not isPickpocketLoot and lootedBySelf then
         g_isLooted = true
@@ -5157,22 +5165,22 @@ local crownRidingIds =
 --- @param isLastUpdateForMessage boolean
 --- @param bonusDropSource BonusDropSource
 function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange, triggeredByCharacterName, triggeredByDisplayName, isLastUpdateForMessage, bonusDropSource)
-    if LUIE.IsDevDebugEnabled() then
-        local Debug = LUIE.Debug
-        local traceback = "Inventory Update:\n" ..
-            "--> eventId: " .. tostring(eventId) .. "\n" ..
-            "--> bagId: " .. tostring(bagId) .. "\n" ..
-            "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
-            "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
-            "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
-            "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
-            "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
-            "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
-            "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
-            "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
-            "--> bonusDropSource: " .. tostring(bonusDropSource)
-        Debug(traceback)
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     local Debug = LUIE.Debug
+    --     local traceback = "Inventory Update:\n" ..
+    --         "--> eventId: " .. tostring(eventId) .. "\n" ..
+    --         "--> bagId: " .. tostring(bagId) .. "\n" ..
+    --         "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
+    --         "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
+    --         "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
+    --         "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
+    --         "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
+    --         "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
+    --         "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
+    --         "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
+    --         "--> bonusDropSource: " .. tostring(bonusDropSource)
+    --     Debug(traceback)
+    -- end
 
     -- End right now if this is any other reason (durability loss, etc)
     if inventoryUpdateReason ~= INVENTORY_UPDATE_REASON_DEFAULT then
@@ -5791,22 +5799,22 @@ end
 --- @param isLastUpdateForMessage boolean
 --- @param bonusDropSource BonusDropSource
 function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange, triggeredByCharacterName, triggeredByDisplayName, isLastUpdateForMessage, bonusDropSource)
-    if LUIE.IsDevDebugEnabled() then
-        local Debug = LUIE.Debug
-        local traceback = "Inventory Update Craft:\n" ..
-            "--> eventId: " .. tostring(eventId) .. "\n" ..
-            "--> bagId: " .. tostring(bagId) .. "\n" ..
-            "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
-            "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
-            "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
-            "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
-            "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
-            "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
-            "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
-            "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
-            "--> bonusDropSource: " .. tostring(bonusDropSource)
-        Debug(traceback)
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     local Debug = LUIE.Debug
+    --     local traceback = "Inventory Update Craft:\n" ..
+    --         "--> eventId: " .. tostring(eventId) .. "\n" ..
+    --         "--> bagId: " .. tostring(bagId) .. "\n" ..
+    --         "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
+    --         "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
+    --         "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
+    --         "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
+    --         "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
+    --         "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
+    --         "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
+    --         "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
+    --         "--> bonusDropSource: " .. tostring(bonusDropSource)
+    --     Debug(traceback)
+    -- end
     -- End right now if this is any other reason (durability loss, etc)
     if inventoryUpdateReason ~= INVENTORY_UPDATE_REASON_DEFAULT then
         return
@@ -6449,22 +6457,22 @@ end
 --- @param isLastUpdateForMessage boolean
 --- @param bonusDropSource BonusDropSource
 function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange, triggeredByCharacterName, triggeredByDisplayName, isLastUpdateForMessage, bonusDropSource)
-    if LUIE.IsDevDebugEnabled() then
-        local Debug = LUIE.Debug
-        local traceback = "Inventory Update Bank:\n" ..
-            "--> eventId: " .. tostring(eventId) .. "\n" ..
-            "--> bagId: " .. tostring(bagId) .. "\n" ..
-            "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
-            "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
-            "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
-            "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
-            "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
-            "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
-            "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
-            "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
-            "--> bonusDropSource: " .. tostring(bonusDropSource)
-        Debug(traceback)
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     local Debug = LUIE.Debug
+    --     local traceback = "Inventory Update Bank:\n" ..
+    --         "--> eventId: " .. tostring(eventId) .. "\n" ..
+    --         "--> bagId: " .. tostring(bagId) .. "\n" ..
+    --         "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
+    --         "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
+    --         "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
+    --         "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
+    --         "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
+    --         "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
+    --         "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
+    --         "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
+    --         "--> bonusDropSource: " .. tostring(bonusDropSource)
+    --     Debug(traceback)
+    -- end
     -- End right now if this is any other reason (durability loss, etc)
     if inventoryUpdateReason ~= INVENTORY_UPDATE_REASON_DEFAULT then
         return
@@ -6841,22 +6849,22 @@ end
 --- @param isLastUpdateForMessage boolean
 --- @param bonusDropSource BonusDropSource
 function ChatAnnouncements.InventoryUpdateGuildBank(eventId, bagId, slotIndex, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange, triggeredByCharacterName, triggeredByDisplayName, isLastUpdateForMessage, bonusDropSource)
-    if LUIE.IsDevDebugEnabled() then
-        local Debug = LUIE.Debug
-        local traceback = "Inventory Update Guild Bank:\n" ..
-            "--> eventId: " .. tostring(eventId) .. "\n" ..
-            "--> bagId: " .. tostring(bagId) .. "\n" ..
-            "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
-            "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
-            "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
-            "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
-            "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
-            "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
-            "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
-            "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
-            "--> bonusDropSource: " .. tostring(bonusDropSource)
-        Debug(traceback)
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     local Debug = LUIE.Debug
+    --     local traceback = "Inventory Update Guild Bank:\n" ..
+    --         "--> eventId: " .. tostring(eventId) .. "\n" ..
+    --         "--> bagId: " .. tostring(bagId) .. "\n" ..
+    --         "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
+    --         "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
+    --         "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
+    --         "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
+    --         "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
+    --         "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
+    --         "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
+    --         "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
+    --         "--> bonusDropSource: " .. tostring(bonusDropSource)
+    --     Debug(traceback)
+    -- end
 
     local receivedBy = ""
     ---------------------------------- INVENTORY ----------------------------------
@@ -7001,22 +7009,22 @@ end
 --- @param isLastUpdateForMessage boolean
 --- @param bonusDropSource BonusDropSource
 function ChatAnnouncements.InventoryUpdateFence(eventId, bagId, slotIndex, isNewItem, itemSoundCategory, inventoryUpdateReason, stackCountChange, triggeredByCharacterName, triggeredByDisplayName, isLastUpdateForMessage, bonusDropSource)
-    if LUIE.IsDevDebugEnabled() then
-        local Debug = LUIE.Debug
-        local traceback = "Inventory Update Fence:\n" ..
-            "--> eventId: " .. tostring(eventId) .. "\n" ..
-            "--> bagId: " .. tostring(bagId) .. "\n" ..
-            "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
-            "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
-            "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
-            "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
-            "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
-            "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
-            "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
-            "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
-            "--> bonusDropSource: " .. tostring(bonusDropSource)
-        Debug(traceback)
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     local Debug = LUIE.Debug
+    --     local traceback = "Inventory Update Fence:\n" ..
+    --         "--> eventId: " .. tostring(eventId) .. "\n" ..
+    --         "--> bagId: " .. tostring(bagId) .. "\n" ..
+    --         "--> slotIndex: " .. tostring(slotIndex) .. "\n" ..
+    --         "--> isNewItem: " .. tostring(isNewItem) .. "\n" ..
+    --         "--> itemSoundCategory: " .. tostring(itemSoundCategory) .. "\n" ..
+    --         "--> inventoryUpdateReason: " .. tostring(inventoryUpdateReason) .. "\n" ..
+    --         "--> stackCountChange: " .. tostring(stackCountChange) .. "\n" ..
+    --         "--> triggeredByCharacterName: " .. tostring(triggeredByCharacterName) .. "\n" ..
+    --         "--> triggeredByDisplayName: " .. tostring(triggeredByDisplayName) .. "\n" ..
+    --         "--> isLastUpdateForMessage: " .. tostring(isLastUpdateForMessage) .. "\n" ..
+    --         "--> bonusDropSource: " .. tostring(bonusDropSource)
+    --     Debug(traceback)
+    -- end
 
     -- End right now if this is any other reason (durability loss, etc)
     if inventoryUpdateReason ~= INVENTORY_UPDATE_REASON_DEFAULT then
@@ -7563,40 +7571,49 @@ function ChatAnnouncements.StuckOnCooldown(eventCode)
 end
 ]]
 
--- TODO: Replace/Remove
-
---[[
-function ChatAnnouncements.InventoryFullQuest(eventCode)
+--- - **EVENT_QUEST_COMPLETE_ATTEMPT_FAILED_INVENTORY_FULL**
+---
+--- @param eventId integer
+function ChatAnnouncements.InventoryFullQuest(eventId)
     printToChat(GetString(SI_INVENTORY_ERROR_INVENTORY_FULL))
 end
 
-function ChatAnnouncements.InventoryFull(eventCode, numSlotsRequested, numSlotsFree)
+--- - **EVENT_INVENTORY_IS_FULL **
+---
+--- @param eventId integer
+--- @param numSlotsRequested integer
+--- @param numSlotsFree integer
+function ChatAnnouncements.InventoryFull(eventId, numSlotsRequested, numSlotsFree)
     local function DisplayItemFailed()
         if numSlotsRequested == 1 then
             printToChat(GetString(SI_INVENTORY_ERROR_INVENTORY_FULL))
         else
-            printToChat(zo_strformat(GetString(SI_INVENTORY_ERROR_INSUFFICIENT_SPACE), (numSlotsRequested - numSlotsFree) ))
+            printToChat(zo_strformat(GetString(SI_INVENTORY_ERROR_INSUFFICIENT_SPACE), (numSlotsRequested - numSlotsFree)))
         end
     end
 
     LUIE_CallLater(DisplayItemFailed, 100)
 end
 
-function ChatAnnouncements.LootItemFailed(eventCode, reason, itemName)
+--- - **EVENT_LOOT_ITEM_FAILED **
+---
+--- @param eventId integer
+--- @param reason LootItemResult
+--- @param itemLink string
+function ChatAnnouncements.LootItemFailed(eventId, reason, itemLink)
     -- Stop Spam
     eventManager:UnregisterForEvent(moduleName, EVENT_LOOT_ITEM_FAILED)
-
+    local itemName = GetItemLinkName(itemLink)
     local function ReactivateLootItemFailed()
-    printToChat(zo_strformat(GetString("SI_LOOTITEMRESULT", reason), itemName))
+        printToChat(zo_strformat(GetString("SI_LOOTITEMRESULT", reason), itemName))
         eventManager:RegisterForEvent(moduleName, EVENT_LOOT_ITEM_FAILED, ChatAnnouncements.LootItemFailed)
     end
 
     LUIE_CallLater(ReactivateLootItemFailed, 100)
 end
-]]
 
 -------------------------------------------------------------------------
--- UPDATED CODE
+-- LINK HANDLER STUFF.
 -------------------------------------------------------------------------
 
 -- LINK_HANDLER.LINK_MOUSE_UP_EVENT
@@ -7818,8 +7835,25 @@ function ChatAnnouncements.HookFunction()
     end
 
     -- EVENT_LORE_BOOK_LEARNED (Alert Handler)
-    local function LoreBookLearnedAlertHook(categoryIndex, collectionIndex, bookIndex, guildReputationIndex, isMaxRank)
-        if guildReputationIndex == 0 or isMaxRank then
+    ---
+    --- @param categoryIndex luaindex
+    --- @param collectionIndex luaindex
+    --- @param bookIndex luaindex
+    --- @param guildIndex luaindex
+    --- @param isMaxRank boolean
+    --- @return boolean|nil
+    local function LoreBookLearnedAlertHook(categoryIndex, collectionIndex, bookIndex, guildIndex, isMaxRank)
+        -- if LUIE.IsDevDebugEnabled() then
+        --     local Debug = LUIE.Debug
+        --     local traceback = "Lore Book Learned Alert Hook:\n" ..
+        --         "--> categoryIndex: " .. tostring(categoryIndex) .. "\n" ..
+        --         "--> collectionIndex: " .. tostring(collectionIndex) .. "\n" ..
+        --         "--> bookIndex: " .. tostring(bookIndex) .. "\n" ..
+        --         "--> guildIndex: " .. tostring(guildIndex) .. "\n" ..
+        --         "--> isMaxRank: " .. tostring(isMaxRank)
+        --     Debug(traceback)
+        -- end
+        if guildIndex == 0 or isMaxRank then
             -- We only want to fire this event if a player is not part of the guild or if they've reached max level in the guild.
             -- Otherwise, the _SKILL_EXPERIENCE version of this event will send a center screen message instead.
             local name, numCollections, categoryId = GetLoreCategoryInfo(categoryIndex)
@@ -7827,7 +7861,7 @@ function ChatAnnouncements.HookFunction()
                 return
             end
 
-            local collectionName, _, numKnownBooks, totalBooks, hidden = GetLoreCollectionInfo(categoryIndex, collectionIndex)
+            local collectionName, description, numKnownBooks, totalBooks, hidden, gamepadIcon, collectionId = GetLoreCollectionInfo(categoryIndex, collectionIndex)
 
             if not hidden or ChatAnnouncements.SV.Lorebooks.LorebookShowHidden then
                 local title, icon = GetLoreBookInfo(categoryIndex, collectionIndex, bookIndex)
@@ -9447,20 +9481,24 @@ function ChatAnnouncements.HookFunction()
     end
 
     -- EVENT_QUEST_ADDED (CSA Handler)
+    --- @param journalIndex luaindex
+    --- @param questName string
+    --- @param objectiveName string
+    --- @return boolean
     local function QuestAddedHook(journalIndex, questName, objectiveName)
         eventManager:UnregisterForUpdate(moduleName .. "BufferedXP")
         ChatAnnouncements.PrintBufferedXP()
 
         local questType = GetJournalQuestType(journalIndex)
-        local instanceDisplayType = GetJournalQuestZoneDisplayType(journalIndex)
+        local zoneDisplayType = GetJournalQuestZoneDisplayType(journalIndex)
         local questJournalObject = SYSTEMS:GetObject("questJournal")
-        local iconTexture = questJournalObject and questJournalObject:GetIconTexture(questType, instanceDisplayType)
+        local iconTexture = questJournalObject:GetIconTexture(questType, zoneDisplayType)
 
         -- Add quest to index
         g_questIndex[questName] =
         {
             questType = questType,
-            instanceDisplayType = instanceDisplayType,
+            instanceDisplayType = zoneDisplayType,
         }
 
         if ChatAnnouncements.SV.Quests.QuestAcceptCSA then
@@ -9520,12 +9558,20 @@ function ChatAnnouncements.HookFunction()
     end
 
     -- EVENT_QUEST_COMPLETE (CSA Handler)
-    local function QuestCompleteHook(questName, level, previousExperience, currentExperience, championPoints, questType, instanceDisplayType)
+    --- @param questName string
+    --- @param level integer
+    --- @param previousExperience integer
+    --- @param currentExperience integer
+    --- @param championPoints integer
+    --- @param questType QuestType
+    --- @param zoneDisplayType ZoneDisplayType
+    --- @return boolean
+    local function QuestCompleteHook(questName, level, previousExperience, currentExperience, championPoints, questType, zoneDisplayType)
         eventManager:UnregisterForUpdate(moduleName .. "BufferedXP")
         ChatAnnouncements.PrintBufferedXP()
 
         local questJournalObject = SYSTEMS:GetObject("questJournal")
-        local iconTexture = questJournalObject and questJournalObject:GetIconTexture(questType, instanceDisplayType)
+        local iconTexture = questJournalObject and questJournalObject:GetIconTexture(questType, zoneDisplayType)
 
         if ChatAnnouncements.SV.Quests.QuestCompleteCSA then
             local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_LARGE_TEXT, SOUNDS.QUEST_COMPLETED)
@@ -12493,117 +12539,155 @@ function ChatAnnouncements.ResetStackSplit()
     eventManager:UnregisterForUpdate(moduleName .. "StackTracker")
 end
 
-do
-    --- @class QueuedMessage
-    --- @field message string
-    --- @field messageType string
-    --- @field isSystem? boolean
-    --- @field itemId? any
-    --- @field formattedRecipient? string
-    --- @field color? any
-    --- @field logPrefix? string
-    --- @field totalString? string
-    --- @field groupLoot? boolean
-
-    --- Handler for NOTIFICATION message type.
-    --- @param messageData QueuedMessage
-    local function handleNotification(messageData)
-        local isSystem = messageData.isSystem or false
-        printToChat(messageData.message, isSystem)
-    end
-
-    --- Handler for QUEST_POI message type.
-    --- @param messageData QueuedMessage
-    local function handleQuestPOI(messageData)
-        printToChat(messageData.message)
-    end
-
-    --- Handler for QUEST or EXPERIENCE message types.
-    --- @param messageData QueuedMessage
-    local function handleQuestOrExperience(messageData)
-        printToChat(messageData.message)
-    end
-
-    --- Handler for SKILL-related message types (GAIN, MORPH, LINE, etc.).
-    --- @param messageData QueuedMessage
-    local function handleSkill(messageData)
-        printToChat(messageData.message)
-    end
-
-    --- Handler for CURRENCY_POSTAGE message type.
-    --- @param messageData QueuedMessage
-    local function handlePostage(messageData)
-        printToChat(messageData.message)
-    end
-
-    --- Handler for QUEST_LOOT_REMOVE message type.
-    --- @param messageData QueuedMessage
-    local function handleQuestLootRemove(messageData)
-        if not g_questItemAdded[messageData.itemId] then
-            printToChat(messageData.message)
+function ChatAnnouncements.PrintQueuedMessages()
+    -- Resolve notification messages first
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "NOTIFICATION" then
+            local isSystem
+            if ChatAnnouncements.QueuedMessages[i].isSystem then
+                isSystem = true
+            else
+                isSystem = false
+            end
+            printToChat(ChatAnnouncements.QueuedMessages[i].message, isSystem)
         end
     end
 
-    --- Handler for CONTAINER or LOOT message types.
-    --- @param messageData QueuedMessage
-    local function handleContainerOrLoot(messageData)
-        ChatAnnouncements.ResolveItemMessage(
-            messageData.message,
-            messageData.formattedRecipient,
-            messageData.color,
-            messageData.logPrefix,
-            messageData.totalString,
-            messageData.groupLoot
-        )
+    -- Resolve quest POI added
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_POI" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
     end
 
-    --- Handler for ACHIEVEMENT, ANTIQUITY, or COLLECTIBLE message types.
-    --- @param messageData QueuedMessage
-    local function handleAchievementOrCollectible(messageData)
-        printToChat(messageData.message)
+    -- Next display Quest/Objective Completion and Experience
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and (ChatAnnouncements.QueuedMessages[i].messageType == "QUEST" or ChatAnnouncements.QueuedMessages[i].messageType == "EXPERIENCE") then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
     end
 
-    --- Lookup table mapping messageType to handler functions.
-    local messageHandlers =
-    {
-        NOTIFICATION = handleNotification,
-        QUEST_POI = handleQuestPOI,
-        QUEST = handleQuestOrExperience,
-        EXPERIENCE = handleQuestOrExperience,
-        EXPERIENCE_LEVEL = handleQuestOrExperience,
-        SKILL_GAIN = handleSkill,
-        SKILL_MORPH = handleSkill,
-        SKILL_LINE = handleSkill,
-        SKILL = handleSkill,
-        CURRENCY_POSTAGE = handlePostage,
-        QUEST_LOOT_REMOVE = handleQuestLootRemove,
-        CONTAINER = handleContainerOrLoot,
-        LOOT = handleContainerOrLoot,
-        CURRENCY = handleQuestOrExperience,
-        QUEST_LOOT_ADD = handleQuestLootRemove,
-        ANTIQUITY = handleAchievementOrCollectible,
-        COLLECTIBLE = handleAchievementOrCollectible,
-        ACHIEVEMENT = handleAchievementOrCollectible,
-        MESSAGE = handleNotification, -- Reuse NOTIFICATION logic
-    }
+    -- Level Up Notifications
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "EXPERIENCE_LEVEL" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
 
-    --- Prints queued messages.
-    function ChatAnnouncements.PrintQueuedMessages()
-        for i = 1, #ChatAnnouncements.QueuedMessages do
-            local messageData = ChatAnnouncements.QueuedMessages[i]
-            if messageData and messageData.message ~= "" then
-                local handler = messageHandlers[messageData.messageType]
-                if handler then
-                    handler(messageData)
-                end
+    -- Skill Gain
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_GAIN" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Skill Morph
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_MORPH" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Skill Line
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_LINE" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Skill
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Postage
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CURRENCY_POSTAGE" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Quest Items (Remove)
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_LOOT_REMOVE" then
+            local itemId = ChatAnnouncements.QueuedMessages[i].itemId
+            if not g_questItemAdded[itemId] == true then
+                printToChat(ChatAnnouncements.QueuedMessages[i].message)
             end
         end
-
-        -- Clear Messages and Unregister Print Event
-        ChatAnnouncements.QueuedMessages = {}
-        ChatAnnouncements.QueuedMessagesCounter = 1
-        eventManager:UnregisterForUpdate(moduleName .. "Printer")
     end
+
+    -- Loot (Container)
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CONTAINER" then
+            ChatAnnouncements.ResolveItemMessage(ChatAnnouncements.QueuedMessages[i].message, ChatAnnouncements.QueuedMessages[i].formattedRecipient, ChatAnnouncements.QueuedMessages[i].color, ChatAnnouncements.QueuedMessages[i].logPrefix, ChatAnnouncements.QueuedMessages[i].totalString, ChatAnnouncements.QueuedMessages[i].groupLoot)
+        end
+    end
+
+    -- Currency
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CURRENCY" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Quest Items (ADD)
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_LOOT_ADD" then
+            local itemId = ChatAnnouncements.QueuedMessages[i].itemId
+            if not g_questItemRemoved[itemId] == true then
+                printToChat(ChatAnnouncements.QueuedMessages[i].message)
+            end
+        end
+    end
+
+    -- Loot
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "LOOT" then
+            ChatAnnouncements.ResolveItemMessage(ChatAnnouncements.QueuedMessages[i].message, ChatAnnouncements.QueuedMessages[i].formattedRecipient, ChatAnnouncements.QueuedMessages[i].color, ChatAnnouncements.QueuedMessages[i].logPrefix, ChatAnnouncements.QueuedMessages[i].totalString, ChatAnnouncements.QueuedMessages[i].groupLoot)
+        end
+    end
+
+    -- Resolve achievement update messages second to last
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "ANTIQUITY" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Collectible
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "COLLECTIBLE" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Resolve achievement update messages second to last
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "ACHIEVEMENT" then
+            printToChat(ChatAnnouncements.QueuedMessages[i].message)
+        end
+    end
+
+    -- Display the rest
+    for i = 1, #ChatAnnouncements.QueuedMessages do
+        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "MESSAGE" then
+            local isSystem
+            if ChatAnnouncements.QueuedMessages[i].isSystem then
+                isSystem = true
+            else
+                isSystem = false
+            end
+            printToChat(ChatAnnouncements.QueuedMessages[i].message, isSystem)
+        end
+    end
+
+    -- Clear Messages and Unregister Print Event
+    ChatAnnouncements.QueuedMessages = {}
+    ChatAnnouncements.QueuedMessagesCounter = 1
+    eventManager:UnregisterForUpdate(moduleName .. "Printer")
 end
 
 local mementoTable =

@@ -5,38 +5,27 @@
 
 --- @class (partial) LuiExtended
 local LUIE = LUIE
-local printToChat = LUIE.PrintToChat
-
-
--- -----------------------------------------------------------------------------
--- ESO API Locals.
--- -----------------------------------------------------------------------------
-
-local animationManager = GetAnimationManager()
-local eventManager = GetEventManager()
-local windowManager = GetWindowManager()
-
-local GetString = GetString
-local zo_strformat = zo_strformat
 
 -- -----------------------------------------------------------------------------
 -- Lua Locals.
 -- -----------------------------------------------------------------------------
 
-local pairs = pairs
-local ipairs = ipairs
-local select = select
-local tonumber = tonumber
-local unpack = unpack
-local type = type
-local string = string
+--- @type _G
+local _G = getfenv(0)
+local pairs = _G.pairs
+local ipairs = _G.ipairs
+local select = _G.select
+local tonumber = _G.tonumber
+local unpack = _G.unpack
+local type = _G.type
+local string = _G.string
 local string_find = string.find
 local string_gmatch = string.gmatch
 local string_gsub = string.gsub
 local string_match = string.match
 local string_rep = string.rep
 local string_format = string.format
-local table = table
+local table = _G.table
 local table_concat = table.concat
 local table_insert = table.insert
 local table_move = table.move
@@ -44,18 +33,32 @@ local table_remove = table.remove
 local table_sort = table.sort
 
 -- -----------------------------------------------------------------------------
+-- ESO API Locals.
+-- -----------------------------------------------------------------------------
+
+local animationManager = _G.GetAnimationManager()
+local eventManager = _G.GetEventManager()
+local windowManager = _G.GetWindowManager()
+
+local GetString = _G.GetString
+local zo_strformat = _G.zo_strformat
+
+-- -----------------------------------------------------------------------------
 
 do
-    --- @param addonName string
-    --- @return boolean
-    local function is_it_enabled(addonName)
-        local addonManager = GetAddOnManager()
-        local numAddOns = addonManager:GetNumAddOns()
+    local addonManager = GetAddOnManager()
+    local numAddOns = addonManager:GetNumAddOns()
 
-        for i = 1, numAddOns do
+    --- @param addOnName string
+    --- @return boolean
+    local function is_it_enabled(addOnName)
+        if not addonManager:WasAddOnDetected(addOnName) then
+            return false
+        end
+        for i = 0, numAddOns do
             local name, _, _, _, _, state, _, _ = addonManager:GetAddOnInfo(i)
 
-            if name == addonName and state == ADDON_STATE_ENABLED then
+            if name == addOnName and state == ADDON_STATE_ENABLED then
                 return true
             end
         end
@@ -75,7 +78,7 @@ do
     --- @param func function
     --- @param ms integer
     --- @return integer
-    local function callLater(func, ms)
+    local callLater = function (func, ms)
         local id = LUIE_CallLaterId
         local name = "LUIE_CallLater_PostEffectsUpdate_Function" .. tostring(id)
         LUIE_CallLaterId = LUIE_CallLaterId + 1
@@ -116,8 +119,7 @@ end
 do
     -- Get milliseconds from game time
     local function getCurrentMillisecondsFormatted()
-        local currentTimeMs = GetGameTimeMilliseconds()
-        if currentTimeMs == nil then return end
+        local currentTimeMs = GetFrameTimeMilliseconds()
         local formattedTime = string_format("%03d", currentTimeMs % 1000)
         return formattedTime
     end
@@ -222,7 +224,7 @@ do
         local formattedMessage
         if select("#", ...) > 0 then
             -- Escape '%' characters to prevent illegal format specifiers
-            local safeFormat = string_gsub(messageOrFormatter, "%%", "%%%%")
+            local safeFormat = (string_gsub(messageOrFormatter, "%%", "%%%%"))
             formattedMessage = string_format(safeFormat, ...)
         else
             formattedMessage = messageOrFormatter
@@ -230,9 +232,9 @@ do
 
         CHAT_ROUTER:AddSystemMessage(formattedMessage)
 
-        -- if LibDebugLogger and LUIE.IsDevDebugEnabled() then
-        --     LUIE.Debug(formattedMessage, ...)
-        -- end
+        if LibDebugLogger and LUIE.IsDevDebugEnabled() then
+            LUIE.Debug(formattedMessage, ...)
+        end
     end
 
     LUIE.AddSystemMessage = AddSystemMessage
@@ -286,7 +288,9 @@ do
         end
 
         -- Default message if none provided
-        msg = msg or "no message"
+        if msg == "" then
+            msg = "[Empty String]"
+        end
 
         -- Determine if we should format the message with a timestamp
         local shouldFormat = not LUIE.ChatAnnouncements.SV.ChatBypassFormat

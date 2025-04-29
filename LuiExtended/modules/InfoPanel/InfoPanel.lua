@@ -162,78 +162,6 @@ function InfoPanel.SetDisplayOnMap()
     end
 end
 
-local function CreateUIControls()
-    uiPanel = UI:TopLevel(nil, { 240, 48 })
-    uiPanel:SetDrawLayer(DL_BACKGROUND)
-    uiPanel:SetDrawTier(DT_LOW)
-    uiPanel:SetDrawLevel(DL_CONTROLS)
-
-    panelFragment = ZO_HUDFadeSceneFragment:New(uiPanel, 0, 0)
-
-    sceneManager:GetScene("hud"):AddFragment(panelFragment)
-    sceneManager:GetScene("hudui"):AddFragment(panelFragment)
-    sceneManager:GetScene("siegeBar"):AddFragment(panelFragment)
-    sceneManager:GetScene("siegeBarUI"):AddFragment(panelFragment)
-
-    InfoPanel.SetDisplayOnMap() -- Add to map scene if the option is enabled.
-
-    uiPanel.div = UI:Texture(uiPanel, nil, nil, "/esoui/art/miscellaneous/horizontaldivider.dds", DL_BACKGROUND, false)
-    uiPanel.div:SetAnchor(LEFT, uiPanel, LEFT, -60, 0)
-    uiPanel.div:SetAnchor(RIGHT, uiPanel, RIGHT, 60, 0)
-    uiPanel.div:SetHeight(4)
-
-    uiTopRow = UI:Control(uiPanel, { TOP, TOP, 0, 2 }, { 300, 20 }, false)
-
-    uiBotRow = UI:Control(uiPanel, { BOTTOM, BOTTOM, 0, -2 }, { 300, 20 }, false)
-
-    -- Create font string from settings
-    local fontName = LUIE.Fonts[InfoPanel.SV.FontFace]
-    if not fontName or fontName == "" then
-        fontName = "$(BOLD_FONT)"
-    end
-    local fontStyle = (InfoPanel.SV.FontStyle and InfoPanel.SV.FontStyle ~= "") and InfoPanel.SV.FontStyle or "soft-shadow-thin"
-    local fontSize = (InfoPanel.SV.FontSize and InfoPanel.SV.FontSize > 0) and InfoPanel.SV.FontSize or 16
-    g_infoPanelFont = string_format("%s|%d|%s", fontName, fontSize, fontStyle)
-
-    uiLatency.control = UI:Control(uiTopRow, nil, { 75, 20 }, false)
-    uiLatency.icon = UI:Texture(uiLatency.control, { LEFT, LEFT }, { 24, 24 }, "/esoui/art/campaign/campaignbrowser_hipop.dds", nil, false)
-    uiLatency.label = UI:Label(uiLatency.control, { LEFT, RIGHT, 0, 0, uiLatency.icon }, { 56, 20 }, { 0, 1 }, g_infoPanelFont, "11999 ms", false)
-
-    uiFps.label = UI:Label(uiTopRow, nil, { 50, 20 }, { 1, 1 }, g_infoPanelFont, "999 fps", false)
-    uiFps.control = uiFps.label
-
-    uiClock.label = UI:Label(uiTopRow, nil, { 60, 20 }, { 1, 1 }, g_infoPanelFont, "88:88:88", false)
-    uiClock.control = uiClock.label
-
-    uiGems.control = UI:Control(uiTopRow, nil, { 48, 20 }, false)
-    uiGems.icon = UI:Texture(uiGems.control, { LEFT, LEFT }, { 16, 16 }, nil, nil, false)
-    uiGems.label = UI:Label(uiGems.control, { LEFT, RIGHT, 2, 0, uiGems.icon }, { 32, 20 }, { 0, 1 }, g_infoPanelFont, "8/88", false)
-
-    -- Gold display
-    uiGold.control = UI:Control(uiBotRow, nil, { 85, 20 }, false)
-    uiGold.icon = UI:Texture(uiGold.control, { LEFT, LEFT }, { 12, 12 }, ZO_Currency_GetKeyboardCurrencyIcon(CURT_MONEY), nil, false)
-    uiGold.label = UI:Label(uiGold.control, { LEFT, RIGHT, 2, 0, uiGold.icon }, { 65, 20 }, { 0, 1 }, g_infoPanelFont, ZO_CommaDelimitNumber(GetCurrencyAmount(CURT_MONEY, CURRENCY_LOCATION_CHARACTER)), false)
-    uiGold.label:SetColor(colors.GOLD.r, colors.GOLD.g, colors.GOLD.b, 1)
-
-    uiFeedTimer.control = UI:Control(uiBotRow, nil, { 96, 20 }, false)
-    uiFeedTimer.icon = UI:Texture(uiFeedTimer.control, { LEFT, LEFT }, { 28, 28 }, "/esoui/art/mounts/tabicon_mounts_up.dds", nil, false)
-    uiFeedTimer.label = UI:Label(uiFeedTimer.control, { LEFT, RIGHT, 0, 0, uiFeedTimer.icon }, { 68, 20 }, { 0, 1 }, g_infoPanelFont, GetString(LUIE_STRING_PNL_TRAINNOW), false)
-
-    uiArmour.control = UI:Control(uiBotRow, nil, { 55, 20 }, false)
-    uiArmour.icon = UI:Texture(uiArmour.control, { LEFT, LEFT }, { 24, 24 }, "/esoui/art/progression/progression_indexicon_armor_up.dds", nil, false)
-    uiArmour.label = UI:Label(uiArmour.control, { LEFT, RIGHT, 0, 0, uiArmour.icon }, { 41, 20 }, { 0, 1 }, g_infoPanelFont, "100%", false)
-
-    uiWeapons.control = UI:Control(uiBotRow, nil, { 46, 20 }, false)
-    uiWeapons.main = UI:Texture(uiWeapons.control, { LEFT, LEFT }, { 30, 30 }, "/esoui/art/progression/icon_1handplusrune.dds", nil, false)
-    uiWeapons.swap = UI:Texture(uiWeapons.control, { RIGHT, RIGHT, 5 }, { 30, 30 }, "/esoui/art/progression/icon_1handplusrune.dds", nil, false)
-    uiWeapons.main.slotIndex = EQUIP_SLOT_MAIN_HAND
-    uiWeapons.swap.slotIndex = EQUIP_SLOT_BACKUP_MAIN
-
-    uiBags.control = UI:Control(uiBotRow, nil, { 78, 20 }, false)
-    uiBags.icon = UI:Texture(uiBags.control, { LEFT, LEFT }, { 28, 28 }, "/esoui/art/inventory/inventory_tabicon_misc_up.dds", nil, false)
-    uiBags.label = UI:Label(uiBags.control, { LEFT, RIGHT, 0, 0, uiBags.icon }, { 50, 20 }, { 0, 1 }, g_infoPanelFont, "888/888", false)
-end
-
 -- Rearranges panel elements. Called from Initialize and settings menu.
 function InfoPanel.RearrangePanel()
     if not InfoPanel.Enabled then
@@ -363,7 +291,76 @@ function InfoPanel.Initialize(enabled)
     end
     InfoPanel.Enabled = true
 
-    CreateUIControls()
+    uiPanel = UI:TopLevel(nil, { 240, 48 })
+    uiPanel:SetDrawLayer(DL_BACKGROUND)
+    uiPanel:SetDrawTier(DT_LOW)
+    uiPanel:SetDrawLevel(DL_CONTROLS)
+
+    panelFragment = ZO_HUDFadeSceneFragment:New(uiPanel, 0, 0)
+
+    sceneManager:GetScene("hud"):AddFragment(panelFragment)
+    sceneManager:GetScene("hudui"):AddFragment(panelFragment)
+    sceneManager:GetScene("siegeBar"):AddFragment(panelFragment)
+    sceneManager:GetScene("siegeBarUI"):AddFragment(panelFragment)
+
+    InfoPanel.SetDisplayOnMap() -- Add to map scene if the option is enabled.
+
+    uiPanel.div = UI:Texture(uiPanel, nil, nil, "/esoui/art/miscellaneous/horizontaldivider.dds", DL_BACKGROUND, false)
+    uiPanel.div:SetAnchor(LEFT, uiPanel, LEFT, -60, 0)
+    uiPanel.div:SetAnchor(RIGHT, uiPanel, RIGHT, 60, 0)
+    uiPanel.div:SetHeight(4)
+
+    uiTopRow = UI:Control(uiPanel, { TOP, TOP, 0, 2 }, { 300, 20 }, false)
+
+    uiBotRow = UI:Control(uiPanel, { BOTTOM, BOTTOM, 0, -2 }, { 300, 20 }, false)
+
+    -- Create font string from settings
+    local fontName = LUIE.Fonts[InfoPanel.SV.FontFace]
+    if not fontName or fontName == "" then
+        fontName = "$(BOLD_FONT)"
+    end
+    local fontStyle = (InfoPanel.SV.FontStyle and InfoPanel.SV.FontStyle ~= "") and InfoPanel.SV.FontStyle or "soft-shadow-thin"
+    local fontSize = (InfoPanel.SV.FontSize and InfoPanel.SV.FontSize > 0) and InfoPanel.SV.FontSize or 16
+    g_infoPanelFont = string_format("%s|%d|%s", fontName, fontSize, fontStyle)
+
+    uiLatency.control = UI:Control(uiTopRow, nil, { 75, 20 }, false)
+    uiLatency.icon = UI:Texture(uiLatency.control, { LEFT, LEFT }, { 24, 24 }, "/esoui/art/campaign/campaignbrowser_hipop.dds", nil, false)
+    uiLatency.label = UI:Label(uiLatency.control, { LEFT, RIGHT, 0, 0, uiLatency.icon }, { 56, 20 }, { 0, 1 }, g_infoPanelFont, "11999 ms", false)
+
+    uiFps.label = UI:Label(uiTopRow, nil, { 50, 20 }, { 1, 1 }, g_infoPanelFont, "999 fps", false)
+    uiFps.control = uiFps.label
+
+    uiClock.label = UI:Label(uiTopRow, nil, { 60, 20 }, { 1, 1 }, g_infoPanelFont, "88:88:88", false)
+    uiClock.control = uiClock.label
+
+    uiGems.control = UI:Control(uiTopRow, nil, { 48, 20 }, false)
+    uiGems.icon = UI:Texture(uiGems.control, { LEFT, LEFT }, { 16, 16 }, nil, nil, false)
+    uiGems.label = UI:Label(uiGems.control, { LEFT, RIGHT, 2, 0, uiGems.icon }, { 32, 20 }, { 0, 1 }, g_infoPanelFont, "8/88", false)
+
+    -- Gold display
+    uiGold.control = UI:Control(uiBotRow, nil, { 85, 20 }, false)
+    uiGold.icon = UI:Texture(uiGold.control, { LEFT, LEFT }, { 12, 12 }, ZO_Currency_GetKeyboardCurrencyIcon(CURT_MONEY), nil, false)
+    uiGold.label = UI:Label(uiGold.control, { LEFT, RIGHT, 2, 0, uiGold.icon }, { 65, 20 }, { 0, 1 }, g_infoPanelFont, ZO_CommaDelimitNumber(GetCurrencyAmount(CURT_MONEY, CURRENCY_LOCATION_CHARACTER)), false)
+    uiGold.label:SetColor(colors.GOLD.r, colors.GOLD.g, colors.GOLD.b, 1)
+
+    uiFeedTimer.control = UI:Control(uiBotRow, nil, { 96, 20 }, false)
+    uiFeedTimer.icon = UI:Texture(uiFeedTimer.control, { LEFT, LEFT }, { 28, 28 }, "/esoui/art/mounts/tabicon_mounts_up.dds", nil, false)
+    uiFeedTimer.label = UI:Label(uiFeedTimer.control, { LEFT, RIGHT, 0, 0, uiFeedTimer.icon }, { 68, 20 }, { 0, 1 }, g_infoPanelFont, GetString(LUIE_STRING_PNL_TRAINNOW), false)
+
+    uiArmour.control = UI:Control(uiBotRow, nil, { 55, 20 }, false)
+    uiArmour.icon = UI:Texture(uiArmour.control, { LEFT, LEFT }, { 24, 24 }, "/esoui/art/progression/progression_indexicon_armor_up.dds", nil, false)
+    uiArmour.label = UI:Label(uiArmour.control, { LEFT, RIGHT, 0, 0, uiArmour.icon }, { 41, 20 }, { 0, 1 }, g_infoPanelFont, "100%", false)
+
+    uiWeapons.control = UI:Control(uiBotRow, nil, { 46, 20 }, false)
+    uiWeapons.main = UI:Texture(uiWeapons.control, { LEFT, LEFT }, { 30, 30 }, "/esoui/art/progression/icon_1handplusrune.dds", nil, false)
+    uiWeapons.swap = UI:Texture(uiWeapons.control, { RIGHT, RIGHT, 5 }, { 30, 30 }, "/esoui/art/progression/icon_1handplusrune.dds", nil, false)
+    uiWeapons.main.slotIndex = EQUIP_SLOT_MAIN_HAND
+    uiWeapons.swap.slotIndex = EQUIP_SLOT_BACKUP_MAIN
+
+    uiBags.control = UI:Control(uiBotRow, nil, { 78, 20 }, false)
+    uiBags.icon = UI:Texture(uiBags.control, { LEFT, LEFT }, { 28, 28 }, "/esoui/art/inventory/inventory_tabicon_misc_up.dds", nil, false)
+    uiBags.label = UI:Label(uiBags.control, { LEFT, RIGHT, 0, 0, uiBags.icon }, { 50, 20 }, { 0, 1 }, g_infoPanelFont, "888/888", false)
+
     InfoPanel.RearrangePanel()
 
     -- add control to global list so it can be hidden
@@ -441,7 +438,7 @@ function InfoPanel.OnBagUpdate(eventId, bagId, slotIndex, isNewItem, itemSoundCa
     -- We shall not execute bags size calculation immediately, but rather set a flag with delay function
     -- This is needed to avoid lockups when the game start flooding us with same event for every bag slot used
     -- While we do not need any good latency, we can afford to update info-panel label with 250ms delay
-    eventManager:RegisterForUpdate(moduleName .. "PendingBagsUpdate", ZO_ONE_SECOND_IN_MILLISECONDS / 4, function () InfoPanel.DoBagUpdate() end)
+    eventManager:RegisterForUpdate(moduleName .. "PendingBagsUpdate", 250, InfoPanel.DoBagUpdate)
 end
 
 -- Helper function to update bag display

@@ -16,8 +16,8 @@
 --- @field version string The addon version
 --- @field SVName string SavedVariables name
 --- @field SVVer number SavedVariables version
---- @field Defaults table Default settings
---- @field SV table Current saved variables
+--- @field Defaults LUIE_Defaults_SV Default settings
+--- @field SV LUIE_Defaults_SV Current saved variables
 --- @field UI LUIE.UI
 LUIE = {}
 LUIE.__index = LUIE
@@ -61,12 +61,17 @@ end
 -- Components
 LUIE.Components = {}
 -- -----------------------------------------------------------------------------
+LUIE.OtherAddonCompatability = {
+    isFancyActionBarEnabled = false,
+    isWritCreatorEnabled = false
+}
 local LuiData = LuiData
 if not LuiData then
     error("LuiData is not enabled", 2)
 end
 -- -----------------------------------------------------------------------------
 -- Default Settings
+---@class LUIE_Defaults_SV
 LUIE.Defaults =
 {
     CharacterSpecificSV       = false,
