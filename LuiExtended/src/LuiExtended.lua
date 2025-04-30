@@ -61,17 +61,22 @@ end
 -- Components
 LUIE.Components = {}
 -- -----------------------------------------------------------------------------
-LUIE.OtherAddonCompatability = {
+-- Table to hold cached values so we don't have to ask addon manager each time we run a function.
+LUIE.OtherAddonCompatability =
+{
+    isActionDurationReminderEnabled = false,
     isFancyActionBarEnabled = false,
+    isFancyActionBarPlusEnabled = false,
     isWritCreatorEnabled = false
 }
+-- -----------------------------------------------------------------------------
 local LuiData = LuiData
 if not LuiData then
     error("LuiData is not enabled", 2)
 end
 -- -----------------------------------------------------------------------------
 -- Default Settings
----@class LUIE_Defaults_SV
+--- @class LUIE_Defaults_SV
 LUIE.Defaults =
 {
     CharacterSpecificSV       = false,

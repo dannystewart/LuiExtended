@@ -10,6 +10,8 @@ local LUIE = LUIE
 --- @field SV LUIE.CombatInfo.SV
 local CombatInfo = LUIE.CombatInfo
 
+local OtherAddonCompatability = LUIE.OtherAddonCompatability
+
 local UI = LUIE.UI
 local LuiData = LuiData
 local Data = LuiData.Data
@@ -3157,7 +3159,7 @@ local function CreateBackBarButtons()
         g_backbarButtons[i] = button
     end
 
-    if LUIE.OtherAddonCompatability.isFancyActionBarEnabled then
+    if OtherAddonCompatability.isActionDurationReminderEnabled or OtherAddonCompatability.isFancyActionBarEnabled or OtherAddonCompatability.isFancyActionBarPlusEnabled then
         _G["LUIE_Backbar"]:SetHidden(true)
     end
 end

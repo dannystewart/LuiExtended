@@ -1751,6 +1751,8 @@ function SpellCastBuffs.CreateSingleIcon(container, AnchorItem, effectType)
 
     -- Debug ability ID label
     buff.abilityId = UI:Label(buff, { CENTER, CENTER }, nil, nil, g_buffsFont, nil, false)
+    buff.abilityId:SetDrawLayer(DL_OVERLAY)
+    buff.abilityId:SetDrawTier(DT_MEDIUM)
 
     -- Stack count label
     buff.stack = UI:Label(buff, nil, nil, nil, g_buffsFont, nil, false)

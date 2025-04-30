@@ -150,7 +150,9 @@ eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, function (eventId,
     LUIE.HookKeyboardMap()
 
     --
-    LUIE.OtherAddonCompatability.isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar\43")
+    LUIE.OtherAddonCompatability.isActionDurationReminderEnabled = LUIE.IsItEnabled("ActionDurationReminder")
+    LUIE.OtherAddonCompatability.isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar")
+    LUIE.OtherAddonCompatability.isFancyActionBarPlusEnabled = LUIE.IsItEnabled("FancyActionBar\43")
     LUIE.OtherAddonCompatability.isWritCreatorEnabled = LUIE.IsItEnabled("DolgubonsLazyWritCreator")
     -- -----------------------------------------------------------------------------
     -- Toggle Alert Frame Visibility if needed
