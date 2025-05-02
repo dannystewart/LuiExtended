@@ -200,13 +200,13 @@ local function loadDialogButtons()
     end
 end
 
-function UnitFrames.CreateSettings()
-    -- Load LibAddonMenu
-    local LAM = LibAddonMenu2
-    if LAM == nil then
-        return
-    end
+-- Load LibAddonMenu
+local LAM = LibAddonMenu2
+if LAM == nil then
+    return
+end
 
+function UnitFrames.CreateSettings()
     local Defaults = UnitFrames.Defaults
     --- @class (partial) LUIE_UnitFrames_SV
     local Settings = UnitFrames.SV

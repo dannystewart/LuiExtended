@@ -49,13 +49,13 @@ local function GetAchievementCategoryInfoName(topLevelIndex)
     return name
 end
 
-function ChatAnnouncements.CreateSettings()
-    -- Load LibAddonMenu
-    local LAM = LibAddonMenu2
-    if LAM == nil then
-        return
-    end
+-- Load LibAddonMenu
+local LAM = LibAddonMenu2
+if LAM == nil then
+    return
+end
 
+function ChatAnnouncements.CreateSettings()
     local Defaults = ChatAnnouncements.Defaults
     local Settings = ChatAnnouncements.SV
 

@@ -154,13 +154,13 @@ local function loadDialogButtons()
     end
 end
 
-function SpellCastBuffs.CreateSettings()
-    -- Load LibAddonMenu
-    local LAM = LibAddonMenu2
-    if LAM == nil then
-        return
-    end
+-- Load LibAddonMenu
+local LAM = LibAddonMenu2
+if LAM == nil then
+    return
+end
 
+function SpellCastBuffs.CreateSettings()
     local Defaults = SpellCastBuffs.Defaults
     local Settings = SpellCastBuffs.SV
 

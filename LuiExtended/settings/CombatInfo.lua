@@ -122,13 +122,13 @@ local function loadDialogButtons()
     end
 end
 
-function CombatInfo.CreateSettings()
-    -- Load LibAddonMenu
-    local LAM = LibAddonMenu2
-    if LAM == nil then
-        return
-    end
+-- Load LibAddonMenu
+local LAM = LibAddonMenu2
+if LAM == nil then
+    return
+end
 
+function CombatInfo.CreateSettings()
     local Defaults = CombatInfo.Defaults
     local Settings = CombatInfo.SV
 

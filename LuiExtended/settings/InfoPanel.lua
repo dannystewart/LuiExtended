@@ -27,14 +27,14 @@ if LMP then
     end
 end
 
+-- Load LibAddonMenu
+local LAM = LibAddonMenu2
+if LAM == nil then
+    return
+end
+
 -- Create Settings Menu
 function InfoPanel.CreateSettings()
-    -- Load LibAddonMenu
-    local LAM = LibAddonMenu2
-    if LAM == nil then
-        return
-    end
-
     local Defaults = InfoPanel.Defaults
     local Settings = InfoPanel.SV
 

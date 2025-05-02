@@ -10,14 +10,14 @@ local g_ElementMovingEnabled
 local pairs = pairs
 local table_concat = table.concat
 
+-- Load LibAddonMenu
+local LAM = LibAddonMenu2
+if LAM == nil then
+    return
+end
+
 -- Create Settings Menu
 function LUIE.CreateSettings()
-    -- Load LibAddonMenu
-    local LAM = LibAddonMenu2
-    if LAM == nil then
-        return
-    end
-
     local Defaults = LUIE.Defaults
     local Settings = LUIE.SV
 
@@ -129,7 +129,7 @@ function LUIE.CreateSettings()
             SCENE_MANAGER:ShowBaseScene()
         end,
         width = "half",
-        disabled = function()
+        disabled = function ()
             return not Settings.ShowChangeLog
         end,
     }
