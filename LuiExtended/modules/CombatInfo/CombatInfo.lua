@@ -3151,7 +3151,6 @@ local function CreateBackBarButtons()
         "LUIE_Backbar" -- name
     )
 
-
     for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
         local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, tlw, "ZO_ActionButton")
         SetupSwapAnimation(button)
