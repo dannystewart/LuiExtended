@@ -491,77 +491,77 @@ function SpellCastBuffs.Initialize(enabled)
     end)
 
     -- Target Events
-    eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, function (...) SpellCastBuffs.OnTargetChange(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, function (...) SpellCastBuffs.OnReticleTargetChanged(...) end)
-    eventManager:RegisterForEvent(moduleName .. "Disposition", EVENT_DISPOSITION_UPDATE, function (...) SpellCastBuffs.OnDispositionUpdate(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, SpellCastBuffs.OnTargetChange)
+    eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, SpellCastBuffs.OnReticleTargetChanged)
+    eventManager:RegisterForEvent(moduleName .. "Disposition", EVENT_DISPOSITION_UPDATE, SpellCastBuffs.OnDispositionUpdate)
     eventManager:AddFilterForEvent(moduleName .. "Disposition", EVENT_DISPOSITION_UPDATE, REGISTER_FILTER_UNIT_TAG, "reticleover")
 
     -- Buff Events
-    eventManager:RegisterForEvent(moduleName .. "Player", EVENT_EFFECT_CHANGED, function (...) SpellCastBuffs.OnEffectChanged(...) end)
-    eventManager:RegisterForEvent(moduleName .. "Target", EVENT_EFFECT_CHANGED, function (...) SpellCastBuffs.OnEffectChanged(...) end)
+    eventManager:RegisterForEvent(moduleName .. "Player", EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChanged)
+    eventManager:RegisterForEvent(moduleName .. "Target", EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChanged)
     eventManager:AddFilterForEvent(moduleName .. "Player", EVENT_EFFECT_CHANGED, REGISTER_FILTER_UNIT_TAG, "player")
     eventManager:AddFilterForEvent(moduleName .. "Target", EVENT_EFFECT_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
     -- GROUND & MINE EFFECTS - add a filtered event for each AbilityId
     for k, v in pairs(Effects.EffectGroundDisplay) do
-        eventManager:RegisterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, function (...) SpellCastBuffs.OnEffectChangedGround(...) end)
+        eventManager:RegisterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
         eventManager:AddFilterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
     end
     for k, v in pairs(Effects.LinkedGroundMine) do
-        eventManager:RegisterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, function (...) SpellCastBuffs.OnEffectChangedGround(...) end)
+        eventManager:RegisterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
         eventManager:AddFilterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
     end
 
     -- Combat Events
-    eventManager:RegisterForEvent(moduleName .. "Event1", EVENT_COMBAT_EVENT, function (...) SpellCastBuffs.OnCombatEventIn(...) end)
-    eventManager:RegisterForEvent(moduleName .. "Event2", EVENT_COMBAT_EVENT, function (...) SpellCastBuffs.OnCombatEventOut(...) end)
-    eventManager:RegisterForEvent(moduleName .. "Event3", EVENT_COMBAT_EVENT, function (...) SpellCastBuffs.OnCombatEventOut(...) end)
+    eventManager:RegisterForEvent(moduleName .. "Event1", EVENT_COMBAT_EVENT, SpellCastBuffs.OnCombatEventIn)
+    eventManager:RegisterForEvent(moduleName .. "Event2", EVENT_COMBAT_EVENT, SpellCastBuffs.OnCombatEventOut)
+    eventManager:RegisterForEvent(moduleName .. "Event3", EVENT_COMBAT_EVENT, SpellCastBuffs.OnCombatEventOut)
     eventManager:AddFilterForEvent(moduleName .. "Event1", EVENT_COMBAT_EVENT, REGISTER_FILTER_TARGET_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_IS_ERROR, false)     -- Target -> Player
     eventManager:AddFilterForEvent(moduleName .. "Event2", EVENT_COMBAT_EVENT, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_IS_ERROR, false)     -- Player -> Target
     eventManager:AddFilterForEvent(moduleName .. "Event3", EVENT_COMBAT_EVENT, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET, REGISTER_FILTER_IS_ERROR, false) -- Player Pet -> Target
     for k, v in pairs(Effects.AddNameOnEvent) do
-        eventManager:RegisterForEvent(moduleName .. "Event4" .. k, EVENT_COMBAT_EVENT, function (...) SpellCastBuffs.OnCombatAddNameEvent(...) end)
+        eventManager:RegisterForEvent(moduleName .. "Event4" .. k, EVENT_COMBAT_EVENT, SpellCastBuffs.OnCombatAddNameEvent)
         eventManager:AddFilterForEvent(moduleName .. "Event4" .. k, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, k)
     end
-    eventManager:RegisterForEvent(moduleName, EVENT_BOSSES_CHANGED, function (...) SpellCastBuffs.AddNameOnBossEngaged(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_BOSSES_CHANGED, SpellCastBuffs.AddNameOnBossEngaged)
 
     -- Stealth Events
-    eventManager:RegisterForEvent(moduleName .. "Player", EVENT_STEALTH_STATE_CHANGED, function (...) SpellCastBuffs.StealthStateChanged(...) end)
-    eventManager:RegisterForEvent(moduleName .. "Reticleover", EVENT_STEALTH_STATE_CHANGED, function (...) SpellCastBuffs.StealthStateChanged(...) end)
+    eventManager:RegisterForEvent(moduleName .. "Player", EVENT_STEALTH_STATE_CHANGED, SpellCastBuffs.StealthStateChanged)
+    eventManager:RegisterForEvent(moduleName .. "Reticleover", EVENT_STEALTH_STATE_CHANGED, SpellCastBuffs.StealthStateChanged)
     eventManager:AddFilterForEvent(moduleName .. "Player", EVENT_STEALTH_STATE_CHANGED, REGISTER_FILTER_UNIT_TAG, "player")
     eventManager:AddFilterForEvent(moduleName .. "Reticleover", EVENT_STEALTH_STATE_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
 
     -- Disguise Events
-    eventManager:RegisterForEvent(moduleName .. "Player", EVENT_DISGUISE_STATE_CHANGED, function (...) SpellCastBuffs.DisguiseStateChanged(...) end)
-    eventManager:RegisterForEvent(moduleName .. "Reticleover", EVENT_DISGUISE_STATE_CHANGED, function (...) SpellCastBuffs.DisguiseStateChanged(...) end)
+    eventManager:RegisterForEvent(moduleName .. "Player", EVENT_DISGUISE_STATE_CHANGED, SpellCastBuffs.DisguiseStateChanged)
+    eventManager:RegisterForEvent(moduleName .. "Reticleover", EVENT_DISGUISE_STATE_CHANGED, SpellCastBuffs.DisguiseStateChanged)
     eventManager:AddFilterForEvent(moduleName .. "Player", EVENT_DISGUISE_STATE_CHANGED, REGISTER_FILTER_UNIT_TAG, "player")
     eventManager:AddFilterForEvent(moduleName .. "Reticleover", EVENT_DISGUISE_STATE_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
 
     -- Artificial Effects Handling
-    eventManager:RegisterForEvent(moduleName, EVENT_ARTIFICIAL_EFFECT_ADDED, function (...) SpellCastBuffs.ArtificialEffectUpdate(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_ARTIFICIAL_EFFECT_REMOVED, function (...) SpellCastBuffs.ArtificialEffectUpdate(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_ARTIFICIAL_EFFECT_ADDED, SpellCastBuffs.ArtificialEffectUpdate)
+    eventManager:RegisterForEvent(moduleName, EVENT_ARTIFICIAL_EFFECT_REMOVED, SpellCastBuffs.ArtificialEffectUpdate)
 
     -- Activate/Deactivate Player, Player Dead/Alive, Vibration, and Unit Death
-    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, function (...) SpellCastBuffs.OnPlayerActivated(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_DEACTIVATED, function (...) SpellCastBuffs.OnPlayerDeactivated(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ALIVE, function (...) SpellCastBuffs.OnPlayerAlive(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_DEAD, function (...) SpellCastBuffs.OnPlayerDead(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_VIBRATION, function (...) SpellCastBuffs.OnVibration(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_UNIT_DEATH_STATE_CHANGED, function (...) SpellCastBuffs.OnDeath(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, SpellCastBuffs.OnPlayerActivated)
+    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_DEACTIVATED, SpellCastBuffs.OnPlayerDeactivated)
+    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ALIVE, SpellCastBuffs.OnPlayerAlive)
+    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_DEAD, SpellCastBuffs.OnPlayerDead)
+    eventManager:RegisterForEvent(moduleName, EVENT_VIBRATION, SpellCastBuffs.OnVibration)
+    eventManager:RegisterForEvent(moduleName, EVENT_UNIT_DEATH_STATE_CHANGED, SpellCastBuffs.OnDeath)
 
     -- Mount Events
-    eventManager:RegisterForEvent(moduleName, EVENT_MOUNTED_STATE_CHANGED, function (...) SpellCastBuffs.MountStatus(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_COLLECTIBLE_USE_RESULT, function (...) SpellCastBuffs.CollectibleUsed(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_MOUNTED_STATE_CHANGED, SpellCastBuffs.MountStatus)
+    eventManager:RegisterForEvent(moduleName, EVENT_COLLECTIBLE_USE_RESULT, SpellCastBuffs.CollectibleUsed)
 
     -- Inventory Events
-    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) SpellCastBuffs.DisguiseItem(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, SpellCastBuffs.DisguiseItem)
     eventManager:AddFilterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, REGISTER_FILTER_BAG_ID, BAG_WORN)
 
     -- Duel (For resolving Target Battle Spirit Status)
-    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_STARTED, function (...) SpellCastBuffs.DuelStart(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_FINISHED, function (...) SpellCastBuffs.DuelEnd(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_STARTED, SpellCastBuffs.DuelStart)
+    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_FINISHED, SpellCastBuffs.DuelEnd)
 
     -- Register event to update icons/names/tooltips for some abilities where we pull information from the currently learned morph
-    eventManager:RegisterForEvent(moduleName, EVENT_SKILLS_FULL_UPDATE, function (...) UpdateEffectOnSkillUpdate(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_SKILLS_FULL_UPDATE, UpdateEffectOnSkillUpdate)
 
     -- Werewolf
     SpellCastBuffs.RegisterWerewolfEvents()
@@ -604,7 +604,7 @@ function SpellCastBuffs.RegisterWerewolfEvents()
     eventManager:UnregisterForUpdate(moduleName .. "WerewolfTicker")
     eventManager:UnregisterForEvent(moduleName, EVENT_WEREWOLF_STATE_CHANGED)
     if SpellCastBuffs.SV.ShowWerewolf then
-        eventManager:RegisterForEvent(moduleName, EVENT_WEREWOLF_STATE_CHANGED, function (...) SpellCastBuffs.WerewolfState(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_WEREWOLF_STATE_CHANGED, SpellCastBuffs.WerewolfState)
         if IsPlayerInWerewolfForm() then
             SpellCastBuffs.WerewolfState(nil, true, true)
         end
@@ -617,16 +617,16 @@ function SpellCastBuffs.RegisterDebugEvents()
     eventManager:UnregisterForEvent(moduleName .. "DebugEffect", EVENT_EFFECT_CHANGED)
     -- Register standard debug events if enabled
     if SpellCastBuffs.SV.ShowDebugCombat then
-        eventManager:RegisterForEvent(moduleName .. "DebugCombat", EVENT_COMBAT_EVENT, function (...) SpellCastBuffs.EventCombatDebug(...) end)
+        eventManager:RegisterForEvent(moduleName .. "DebugCombat", EVENT_COMBAT_EVENT, SpellCastBuffs.EventCombatDebug)
     end
     if SpellCastBuffs.SV.ShowDebugEffect then
-        eventManager:RegisterForEvent(moduleName .. "DebugEffect", EVENT_EFFECT_CHANGED, function (...) SpellCastBuffs.EventEffectDebug(...) end)
+        eventManager:RegisterForEvent(moduleName .. "DebugEffect", EVENT_EFFECT_CHANGED, SpellCastBuffs.EventEffectDebug)
     end
 
     -- Author-specific debug events
     if LUIE.IsDevDebugEnabled() and SpellCastBuffs.SV.ShowDebugEffect and SpellCastBuffs.SV.ShowDebugEffect then
-        eventManager:RegisterForEvent(moduleName .. "AuthorDebugCombat", EVENT_COMBAT_EVENT, function (...) SpellCastBuffs.AuthorCombatDebug(...) end)
-        eventManager:RegisterForEvent(moduleName .. "AuthorDebugEffect", EVENT_EFFECT_CHANGED, function (...) SpellCastBuffs.AuthorEffectDebug(...) end)
+        eventManager:RegisterForEvent(moduleName .. "AuthorDebugCombat", EVENT_COMBAT_EVENT, SpellCastBuffs.AuthorCombatDebug)
+        eventManager:RegisterForEvent(moduleName .. "AuthorDebugEffect", EVENT_EFFECT_CHANGED, SpellCastBuffs.AuthorEffectDebug)
     end
 end
 
@@ -1953,6 +1953,13 @@ end
 function SpellCastBuffs.OnEffectChangedGround(eventId, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, deprecatedBuffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceType)
     if SpellCastBuffs.SV.HideGroundEffects then
         return
+    end
+
+    -- Ensure all necessary contexts are initialized
+    for context, _ in pairs(containerRouting) do
+        if not SpellCastBuffs.EffectsList[context] then
+            SpellCastBuffs.EffectsList[context] = {}
+        end
     end
 
     -- Mines with multiple auras have to be linked into one id for the purpose of tracking stacks

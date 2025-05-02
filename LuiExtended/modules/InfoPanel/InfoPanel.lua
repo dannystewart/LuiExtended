@@ -389,14 +389,14 @@ function InfoPanel.Initialize(enabled)
     InfoPanel.ApplyFont()
 
     -- Set event handlers
-    eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, function (...) InfoPanel.OnBagUpdate(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) InfoPanel.OnBagUpdate(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BAG_CAPACITY_CHANGED, function (...) InfoPanel.OnBagCapacityChanged(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_CARRIED_CURRENCY_UPDATE, function (...) InfoPanel.OnCurrencyUpdate(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_RIDING_SKILL_IMPROVEMENT, function (...) InfoPanel.UpdateMountFeedTimer(...) end)
-    eventManager:RegisterForUpdate(moduleName .. "01", ZO_ONE_SECOND_IN_MILLISECONDS, function () InfoPanel.OnUpdate01() end)
-    eventManager:RegisterForUpdate(moduleName .. "10", ZO_ONE_SECOND_IN_MILLISECONDS * 10, function () InfoPanel.OnUpdate10() end)
-    eventManager:RegisterForUpdate(moduleName .. "60", ZO_ONE_MINUTE_IN_MILLISECONDS, function () InfoPanel.OnUpdate60() end)
+    eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, InfoPanel.OnBagUpdate)
+    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, InfoPanel.OnBagUpdate)
+    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BAG_CAPACITY_CHANGED, InfoPanel.OnBagCapacityChanged)
+    eventManager:RegisterForEvent(moduleName, EVENT_CARRIED_CURRENCY_UPDATE, InfoPanel.OnCurrencyUpdate)
+    eventManager:RegisterForEvent(moduleName, EVENT_RIDING_SKILL_IMPROVEMENT, InfoPanel.UpdateMountFeedTimer)
+    eventManager:RegisterForUpdate(moduleName .. "01", ZO_ONE_SECOND_IN_MILLISECONDS, InfoPanel.OnUpdate01)
+    eventManager:RegisterForUpdate(moduleName .. "10", ZO_ONE_SECOND_IN_MILLISECONDS * 10, InfoPanel.OnUpdate10)
+    eventManager:RegisterForUpdate(moduleName .. "60", ZO_ONE_MINUTE_IN_MILLISECONDS, InfoPanel.OnUpdate60)
 end
 
 function InfoPanel.ResetPosition()

@@ -26,7 +26,7 @@ local changelogMessages =
     "",
     -- Features
     "|cFFFF00Features:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added support for rounded textures on unitframes. This would be the `Tube` and `Round` textures in the texture list.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added support for rounded textures on unitframes. This would be the `Tube` and `Steel` textures in the texture list.",
     "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t New tracking system for abilities without existing data.",
     "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added conditional checks for displaying the last item count.",
     "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Tweaked the fade animation for buff/debuff icons to fade out smoother.",

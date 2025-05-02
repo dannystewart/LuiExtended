@@ -92,7 +92,7 @@ end
 
 -- Register events.
 local function RegisterEvents()
-    eventManager:RegisterForEvent(LUIE.name, EVENT_PLAYER_ACTIVATED, function (...) LoadScreen(...) end)
+    eventManager:RegisterForEvent(LUIE.name, EVENT_PLAYER_ACTIVATED, LoadScreen)
 
     -- Register for LibMediaProvider media registration callbacks
     if LMP then
@@ -109,8 +109,8 @@ local function RegisterEvents()
 
     -- Existing event registrations
     if LUIE.SV.SlashCommands_Enable or LUIE.SV.ChatAnnouncements_Enable then
-        eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_JOINED_GUILD, function (...) LUIE.UpdateGuildData(...) end)
-        eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_LEFT_GUILD, function (...) LUIE.UpdateGuildData(...) end)
+        eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_JOINED_GUILD, LUIE.UpdateGuildData)
+        eventManager:RegisterForEvent(LUIE.name .. "ChatAnnouncements", EVENT_GUILD_SELF_LEFT_GUILD, LUIE.UpdateGuildData)
     end
 
     -- Load additional media from LMP and other addons

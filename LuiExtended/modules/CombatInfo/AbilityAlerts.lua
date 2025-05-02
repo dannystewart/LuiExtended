@@ -248,19 +248,19 @@ function AbilityAlerts.CreateAlertFrame()
     sceneManager:GetScene("siegeBarUI"):AddFragment(fragment)
 
     -- Register Events
-    eventManager:RegisterForEvent(moduleName .. "Combat", EVENT_COMBAT_EVENT, function (...) AbilityAlerts.OnCombatIn(...) end)
+    eventManager:RegisterForEvent(moduleName .. "Combat", EVENT_COMBAT_EVENT, AbilityAlerts.OnCombatIn)
     eventManager:AddFilterForEvent(moduleName .. "Combat", EVENT_COMBAT_EVENT, REGISTER_FILTER_TARGET_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER)
-    eventManager:RegisterForEvent(moduleName .. "Effect", EVENT_EFFECT_CHANGED, function (...) AbilityAlerts.AlertEffectChanged(...) end)
+    eventManager:RegisterForEvent(moduleName .. "Effect", EVENT_EFFECT_CHANGED, AbilityAlerts.AlertEffectChanged)
 
     for abilityId, data in pairs(Alerts) do
         if data.eventdetect == true then
-            eventManager:RegisterForEvent(moduleName .. abilityId, EVENT_COMBAT_EVENT, function (...) AbilityAlerts.OnCombatAlert(...) end)
+            eventManager:RegisterForEvent(moduleName .. abilityId, EVENT_COMBAT_EVENT, AbilityAlerts.OnCombatAlert)
             eventManager:AddFilterForEvent(moduleName .. abilityId, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, abilityId, REGISTER_FILTER_IS_ERROR, false)
         end
     end
 
     for result, _ in pairs(ccResults) do
-        eventManager:RegisterForEvent(moduleName .. result, EVENT_COMBAT_EVENT, function (...) AbilityAlerts.AlertInterrupt(...) end)
+        eventManager:RegisterForEvent(moduleName .. result, EVENT_COMBAT_EVENT, AbilityAlerts.AlertInterrupt)
         eventManager:AddFilterForEvent(moduleName .. result, EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, result, REGISTER_FILTER_IS_ERROR, false)
     end
 
@@ -269,9 +269,9 @@ function AbilityAlerts.CreateAlertFrame()
         AbilityAlerts.AlertUpdate(currentTime)
     end)
 
-    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_STARTED, function (...) AbilityAlerts.OnDuelStarted(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_FINISHED, function (...) AbilityAlerts.OnDuelFinished(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, function (...) AbilityAlerts.OnPlayerActivated(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_STARTED, AbilityAlerts.OnDuelStarted)
+    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_FINISHED, AbilityAlerts.OnDuelFinished)
+    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, AbilityAlerts.OnPlayerActivated)
 end
 
 --- @param eventId integer

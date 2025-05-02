@@ -996,7 +996,7 @@ function ChatAnnouncements.Initialize(enabled)
     -- Some modules might need to pull some of the color settings from CA so we want these to always be set regardless of CA module being enabled/disabled.
     ChatAnnouncements.RegisterColorEvents()
     -- Always register this function for other components to use
-    eventManager:RegisterForEvent(moduleName, EVENT_COLLECTIBLE_USE_RESULT, function (...) ChatAnnouncements.CollectibleUsed(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_COLLECTIBLE_USE_RESULT, ChatAnnouncements.CollectibleUsed)
 
     -- Disable module if setting not toggled on
     if not enabled then
@@ -1021,35 +1021,35 @@ function ChatAnnouncements.Initialize(enabled)
     ChatAnnouncements.RegisterXPEvents()
     ChatAnnouncements.RegisterAchievementsEvent()
     -- TODO: Possibly don't register these unless enabled, I'm not sure -- at least move to better sorted order
-    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BAG_CAPACITY_CHANGED, function (...) ChatAnnouncements.StorageBag(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BANK_CAPACITY_CHANGED, function (...) ChatAnnouncements.StorageBank(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BAG_CAPACITY_CHANGED, ChatAnnouncements.StorageBag)
+    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_BANK_CAPACITY_CHANGED, ChatAnnouncements.StorageBank)
     -- TODO: Move these too:
     LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_MOUSE_UP_EVENT, ChatAnnouncements.HandleClickEvent)
     LINK_HANDLER:RegisterCallback(LINK_HANDLER.LINK_CLICKED_EVENT, ChatAnnouncements.HandleClickEvent)
 
     -- TODO: also move this
-    eventManager:RegisterForEvent(moduleName, EVENT_SKILL_XP_UPDATE, function (...) ChatAnnouncements.SkillXPUpdate(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, function (...) ChatAnnouncements.OnPlayerActivated(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_SKILL_XP_UPDATE, ChatAnnouncements.SkillXPUpdate)
+    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, ChatAnnouncements.OnPlayerActivated)
 
     -- TODO: Maybe move this, is needed for ALL INVENTORY & QUEST
-    eventManager:RegisterForEvent(moduleName, EVENT_CHATTER_BEGIN, function (...) ChatAnnouncements.OnChatterBegin(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_CHATTER_END, function () ChatAnnouncements.OnChatterEnd() end)
+    eventManager:RegisterForEvent(moduleName, EVENT_CHATTER_BEGIN, ChatAnnouncements.OnChatterBegin)
+    eventManager:RegisterForEvent(moduleName, EVENT_CHATTER_END, ChatAnnouncements.OnChatterEnd)
 
     -- TEMP: Social Error Register
-    eventManager:RegisterForEvent(moduleName, EVENT_SOCIAL_ERROR, function (...) ChatAnnouncements.OnErrorSocialChat(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_SOCIAL_ERROR, ChatAnnouncements.OnErrorSocialChat)
 
     -- TEMP: Register Antiquity Dig Toggle
-    eventManager:RegisterForEvent(moduleName, EVENT_ANTIQUITY_DIGGING_READY_TO_PLAY, function () ChatAnnouncements.OnDigStart() end)
-    eventManager:RegisterForEvent(moduleName, EVENT_ANTIQUITY_DIGGING_GAME_OVER, function (...) ChatAnnouncements.OnDigEnd(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_ANTIQUITY_DIGGING_READY_TO_PLAY, ChatAnnouncements.OnDigStart)
+    eventManager:RegisterForEvent(moduleName, EVENT_ANTIQUITY_DIGGING_GAME_OVER, ChatAnnouncements.OnDigEnd)
 
     -- Timed Activity
-    eventManager:RegisterForEvent(moduleName, EVENT_TIMED_ACTIVITY_PROGRESS_UPDATED, function (...) ChatAnnouncements.OnTimedActivityProgressUpdated(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_TIMED_ACTIVITY_PROGRESS_UPDATED, ChatAnnouncements.OnTimedActivityProgressUpdated)
 
     -- Promotional Events Activity
-    eventManager:RegisterForEvent(moduleName, EVENT_PROMOTIONAL_EVENTS_ACTIVITY_PROGRESS_UPDATED, function (...) ChatAnnouncements.OnPromotionalEventsActivityProgressUpdated(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_PROMOTIONAL_EVENTS_ACTIVITY_PROGRESS_UPDATED, ChatAnnouncements.OnPromotionalEventsActivityProgressUpdated)
 
-    eventManager:RegisterForEvent(moduleName, EVENT_CRAFTED_ABILITY_LOCK_STATE_CHANGED, function (...) ChatAnnouncements.OnCraftedAbilityLockStateChanged(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_CRAFTED_ABILITY_SCRIPT_LOCK_STATE_CHANGED, function (...) ChatAnnouncements.OnCraftedAbilityScriptLockStateChanged(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_CRAFTED_ABILITY_LOCK_STATE_CHANGED, ChatAnnouncements.OnCraftedAbilityLockStateChanged)
+    eventManager:RegisterForEvent(moduleName, EVENT_CRAFTED_ABILITY_SCRIPT_LOCK_STATE_CHANGED, ChatAnnouncements.OnCraftedAbilityScriptLockStateChanged)
 
     ChatAnnouncements.RegisterGuildEvents()
     ChatAnnouncements.RegisterSocialEvents()
@@ -1125,16 +1125,16 @@ function ChatAnnouncements.RegisterColorEvents()
 end
 
 function ChatAnnouncements.RegisterSocialEvents()
-    eventManager:RegisterForEvent(moduleName, EVENT_FRIEND_ADDED, function (...) ChatAnnouncements.FriendAdded(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_FRIEND_REMOVED, function (...) ChatAnnouncements.FriendRemoved(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_INCOMING_FRIEND_INVITE_ADDED, function (...) ChatAnnouncements.FriendInviteAdded(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_IGNORE_ADDED, function (...) ChatAnnouncements.IgnoreAdded(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_IGNORE_REMOVED, function (...) ChatAnnouncements.IgnoreRemoved(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_FRIEND_PLAYER_STATUS_CHANGED, function (...) ChatAnnouncements.FriendPlayerStatus(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_FRIEND_ADDED, ChatAnnouncements.FriendAdded)
+    eventManager:RegisterForEvent(moduleName, EVENT_FRIEND_REMOVED, ChatAnnouncements.FriendRemoved)
+    eventManager:RegisterForEvent(moduleName, EVENT_INCOMING_FRIEND_INVITE_ADDED, ChatAnnouncements.FriendInviteAdded)
+    eventManager:RegisterForEvent(moduleName, EVENT_IGNORE_ADDED, ChatAnnouncements.IgnoreAdded)
+    eventManager:RegisterForEvent(moduleName, EVENT_IGNORE_REMOVED, ChatAnnouncements.IgnoreRemoved)
+    eventManager:RegisterForEvent(moduleName, EVENT_FRIEND_PLAYER_STATUS_CHANGED, ChatAnnouncements.FriendPlayerStatus)
 end
 
 function ChatAnnouncements.RegisterQuestEvents()
-    eventManager:RegisterForEvent(moduleName, EVENT_QUEST_SHARED, function (...) ChatAnnouncements.QuestShared(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_QUEST_SHARED, ChatAnnouncements.QuestShared)
     -- Create a table for quests
     for i = 1, MAX_JOURNAL_QUESTS do
         if IsValidQuestIndex(i) then
@@ -1157,27 +1157,27 @@ end
 
 function ChatAnnouncements.RegisterGuildEvents()
     -- TODO: Possibly implement conditionals here again in the future
-    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_SELF_JOINED_GUILD, function (...) ChatAnnouncements.GuildAddedSelf(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_INVITE_ADDED, function (...) ChatAnnouncements.GuildInviteAdded(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MEMBER_RANK_CHANGED, function (...) ChatAnnouncements.GuildRankChanged(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_SELF_JOINED_GUILD, ChatAnnouncements.GuildAddedSelf)
+    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_INVITE_ADDED, ChatAnnouncements.GuildInviteAdded)
+    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MEMBER_RANK_CHANGED, ChatAnnouncements.GuildRankChanged)
     -- eventManager:RegisterForEvent(moduleName, EVENT_HERALDRY_SAVED, ChatAnnouncements.GuildHeraldrySaved) -- TODO: Fix later
-    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_RANKS_CHANGED, function (...) ChatAnnouncements.GuildRanksSaved(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_RANK_CHANGED, function (...) ChatAnnouncements.GuildRankSaved(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_DESCRIPTION_CHANGED, function (...) ChatAnnouncements.GuildTextChanged(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MOTD_CHANGED, function (...) ChatAnnouncements.GuildTextChanged(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_RANKS_CHANGED, ChatAnnouncements.GuildRanksSaved)
+    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_RANK_CHANGED, ChatAnnouncements.GuildRankSaved)
+    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_DESCRIPTION_CHANGED, ChatAnnouncements.GuildTextChanged)
+    eventManager:RegisterForEvent(moduleName, EVENT_GUILD_MOTD_CHANGED, ChatAnnouncements.GuildTextChanged)
 end
 
 function ChatAnnouncements.RegisterAchievementsEvent()
     eventManager:UnregisterForEvent(moduleName, EVENT_ACHIEVEMENT_UPDATED)
     if ChatAnnouncements.SV.Achievement.AchievementUpdateCA or ChatAnnouncements.SV.Achievement.AchievementUpdateAlert then
-        eventManager:RegisterForEvent(moduleName, EVENT_ACHIEVEMENT_UPDATED, function (...) ChatAnnouncements.OnAchievementUpdated(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_ACHIEVEMENT_UPDATED, ChatAnnouncements.OnAchievementUpdated)
     end
 end
 
 function ChatAnnouncements.RegisterXPEvents()
     eventManager:UnregisterForEvent(moduleName, EVENT_EXPERIENCE_GAIN)
     if ChatAnnouncements.SV.XP.Experience or ChatAnnouncements.SV.XP.ExperienceLevelUp then
-        eventManager:RegisterForEvent(moduleName, EVENT_EXPERIENCE_GAIN, function (...) ChatAnnouncements.OnExperienceGain(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_EXPERIENCE_GAIN, ChatAnnouncements.OnExperienceGain)
     end
 end
 
@@ -1191,15 +1191,15 @@ function ChatAnnouncements.RegisterGoldEvents()
     eventManager:UnregisterForEvent(moduleName, EVENT_MAIL_COD_CHANGED)
     eventManager:UnregisterForEvent(moduleName, EVENT_MAIL_REMOVED)
 
-    eventManager:RegisterForEvent(moduleName, EVENT_CURRENCY_UPDATE, function (...) ChatAnnouncements.OnCurrencyUpdate(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_LOOT_UPDATED, function (...) ChatAnnouncements.OnLootUpdated(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_ADDED, function (...) ChatAnnouncements.OnMailAttach(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_REMOVED, function (...) ChatAnnouncements.OnMailAttachRemove(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_CLOSE_MAILBOX, function (...) ChatAnnouncements.OnMailCloseBox(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_SEND_SUCCESS, function (...) ChatAnnouncements.OnMailSuccess(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHED_MONEY_CHANGED, function (...) ChatAnnouncements.MailMoneyChanged(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_COD_CHANGED, function (...) ChatAnnouncements.MailCODChanged(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_REMOVED, function (...) ChatAnnouncements.MailRemoved(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_CURRENCY_UPDATE, ChatAnnouncements.OnCurrencyUpdate)
+    eventManager:RegisterForEvent(moduleName, EVENT_LOOT_UPDATED, ChatAnnouncements.OnLootUpdated)
+    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_ADDED, ChatAnnouncements.OnMailAttach)
+    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_REMOVED, ChatAnnouncements.OnMailAttachRemove)
+    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_CLOSE_MAILBOX, ChatAnnouncements.OnMailCloseBox)
+    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_SEND_SUCCESS, ChatAnnouncements.OnMailSuccess)
+    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHED_MONEY_CHANGED, ChatAnnouncements.MailMoneyChanged)
+    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_COD_CHANGED, ChatAnnouncements.MailCODChanged)
+    eventManager:RegisterForEvent(moduleName, EVENT_MAIL_REMOVED, ChatAnnouncements.MailRemoved)
 end
 
 function ChatAnnouncements.RegisterMailEvents()
@@ -1214,28 +1214,28 @@ function ChatAnnouncements.RegisterMailEvents()
     eventManager:UnregisterForEvent(moduleName, EVENT_MAIL_COD_CHANGED)
     eventManager:UnregisterForEvent(moduleName, EVENT_MAIL_REMOVED)
     if ChatAnnouncements.SV.Inventory.LootMail then
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_READABLE, function (...) ChatAnnouncements.OnMailReadable(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_TAKE_ATTACHED_ITEM_SUCCESS, function (...) ChatAnnouncements.OnMailTakeAttachedItem(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_READABLE, ChatAnnouncements.OnMailReadable)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_TAKE_ATTACHED_ITEM_SUCCESS, ChatAnnouncements.OnMailTakeAttachedItem)
     end
     if ChatAnnouncements.SV.Inventory.LootMail or ChatAnnouncements.SV.Currency.CurrencyGoldChange then
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_ADDED, function (...) ChatAnnouncements.OnMailAttach(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_REMOVED, function (...) ChatAnnouncements.OnMailAttachRemove(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_SEND_SUCCESS, function (...) ChatAnnouncements.OnMailSuccess(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHED_MONEY_CHANGED, function (...) ChatAnnouncements.MailMoneyChanged(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_COD_CHANGED, function (...) ChatAnnouncements.MailCODChanged(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_REMOVED, function (...) ChatAnnouncements.MailRemoved(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_ADDED, ChatAnnouncements.OnMailAttach)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHMENT_REMOVED, ChatAnnouncements.OnMailAttachRemove)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_SEND_SUCCESS, ChatAnnouncements.OnMailSuccess)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_ATTACHED_MONEY_CHANGED, ChatAnnouncements.MailMoneyChanged)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_COD_CHANGED, ChatAnnouncements.MailCODChanged)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_REMOVED, ChatAnnouncements.MailRemoved)
     end
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootMail or ChatAnnouncements.SV.Currency.CurrencyGoldChange then
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_OPEN_MAILBOX, function (...) ChatAnnouncements.OnMailOpenBox(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_CLOSE_MAILBOX, function (...) ChatAnnouncements.OnMailCloseBox(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_OPEN_MAILBOX, ChatAnnouncements.OnMailOpenBox)
+        eventManager:RegisterForEvent(moduleName, EVENT_MAIL_CLOSE_MAILBOX, ChatAnnouncements.OnMailCloseBox)
     end
 end
 
 function ChatAnnouncements.RegisterLootEvents()
     -- NON CONDITIONAL EVENTS
     -- LOCKPICK
-    eventManager:RegisterForEvent(moduleName, EVENT_LOCKPICK_BROKE, function (...) ChatAnnouncements.MiscAlertLockBroke(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_LOCKPICK_SUCCESS, function (...) ChatAnnouncements.MiscAlertLockSuccess(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_LOCKPICK_BROKE, ChatAnnouncements.MiscAlertLockBroke)
+    eventManager:RegisterForEvent(moduleName, EVENT_LOCKPICK_SUCCESS, ChatAnnouncements.MiscAlertLockSuccess)
     -- LOOT RECEIVED
     eventManager:UnregisterForEvent(moduleName, EVENT_LOOT_RECEIVED)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_ITEM_USED)
@@ -1262,8 +1262,8 @@ function ChatAnnouncements.RegisterLootEvents()
     eventManager:UnregisterForEvent(moduleName, EVENT_GUILD_BANK_ITEM_ADDED)
     eventManager:UnregisterForEvent(moduleName, EVENT_GUILD_BANK_ITEM_REMOVED)
     -- CRAFT
-    eventManager:UnregisterForEvent(moduleName, EVENT_CRAFTING_STATION_INTERACT, function (...) ChatAnnouncements.CraftingOpen(...) end)
-    eventManager:UnregisterForEvent(moduleName, EVENT_END_CRAFTING_STATION_INTERACT, function (...) ChatAnnouncements.CraftingClose(...) end)
+    eventManager:UnregisterForEvent(moduleName, EVENT_CRAFTING_STATION_INTERACT, ChatAnnouncements.CraftingOpen)
+    eventManager:UnregisterForEvent(moduleName, EVENT_END_CRAFTING_STATION_INTERACT, ChatAnnouncements.CraftingClose)
     -- TRADE
     eventManager:UnregisterForEvent(moduleName, EVENT_TRADE_ITEM_ADDED)
     eventManager:UnregisterForEvent(moduleName, EVENT_TRADE_ITEM_REMOVED)
@@ -1276,8 +1276,8 @@ function ChatAnnouncements.RegisterLootEvents()
 
     -- LOOT RECEIVED
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootQuestAdd or ChatAnnouncements.SV.Inventory.LootQuestRemove then
-        eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, function (...) ChatAnnouncements.OnLootReceived(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_ITEM_USED, function (...) ChatAnnouncements.OnInventoryItemUsed(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_LOOT_RECEIVED, ChatAnnouncements.OnLootReceived)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_ITEM_USED, ChatAnnouncements.OnInventoryItemUsed)
     end
     -- QUEST LOOT
     if ChatAnnouncements.SV.Inventory.LootQuestAdd or ChatAnnouncements.SV.Inventory.LootQuestRemove then
@@ -1285,10 +1285,10 @@ function ChatAnnouncements.RegisterLootEvents()
     end
     -- INDEX
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_QUEST_COMPLETE_ATTEMPT_FAILED_INVENTORY_FULL, function (...) ChatAnnouncements.InventoryFullQuest(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_IS_FULL, function (...) ChatAnnouncements.InventoryFull(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_LOOT_ITEM_FAILED, function (...) ChatAnnouncements.LootItemFailed(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
+        eventManager:RegisterForEvent(moduleName, EVENT_QUEST_COMPLETE_ATTEMPT_FAILED_INVENTORY_FULL, ChatAnnouncements.InventoryFullQuest)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_IS_FULL, ChatAnnouncements.InventoryFull)
+        eventManager:RegisterForEvent(moduleName, EVENT_LOOT_ITEM_FAILED, ChatAnnouncements.LootItemFailed)
         g_equippedStacks = {}
         g_inventoryStacks = {}
         ChatAnnouncements.IndexEquipped()
@@ -1296,58 +1296,58 @@ function ChatAnnouncements.RegisterLootEvents()
     end
     -- VENDOR
     if ChatAnnouncements.SV.Inventory.LootVendor then
-        eventManager:RegisterForEvent(moduleName, EVENT_BUYBACK_RECEIPT, function (...) ChatAnnouncements.OnBuybackItem(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_BUY_RECEIPT, function (...) ChatAnnouncements.OnBuyItem(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_SELL_RECEIPT, function (...) ChatAnnouncements.OnSellItem(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_ITEM_LAUNDER_RESULT, function (...) ChatAnnouncements.FenceSuccess(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_BUYBACK_RECEIPT, ChatAnnouncements.OnBuybackItem)
+        eventManager:RegisterForEvent(moduleName, EVENT_BUY_RECEIPT, ChatAnnouncements.OnBuyItem)
+        eventManager:RegisterForEvent(moduleName, EVENT_SELL_RECEIPT, ChatAnnouncements.OnSellItem)
+        eventManager:RegisterForEvent(moduleName, EVENT_ITEM_LAUNDER_RESULT, ChatAnnouncements.FenceSuccess)
     end
     -- TRADING POST
     if ChatAnnouncements.SV.Inventory.LootShowList then
-        eventManager:RegisterForEvent(moduleName, EVENT_TRADING_HOUSE_RESPONSE_RECEIVED, function (...) ChatAnnouncements.TradingHouseResponseReceived(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_TRADING_HOUSE_RESPONSE_RECEIVED, ChatAnnouncements.TradingHouseResponseReceived)
     end
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootVendor then
-        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_FENCE, function (...) ChatAnnouncements.FenceOpen(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_STORE, function (...) ChatAnnouncements.StoreOpen(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_CLOSE_STORE, function (...) ChatAnnouncements.StoreClose(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_TRADING_HOUSE, function (...) ChatAnnouncements.GuildStoreOpen(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_CLOSE_TRADING_HOUSE, function (...) ChatAnnouncements.GuildStoreClose(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_FENCE, ChatAnnouncements.FenceOpen)
+        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_STORE, ChatAnnouncements.StoreOpen)
+        eventManager:RegisterForEvent(moduleName, EVENT_CLOSE_STORE, ChatAnnouncements.StoreClose)
+        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_TRADING_HOUSE, ChatAnnouncements.GuildStoreOpen)
+        eventManager:RegisterForEvent(moduleName, EVENT_CLOSE_TRADING_HOUSE, ChatAnnouncements.GuildStoreClose)
     end
     -- BANK
     if ChatAnnouncements.SV.Inventory.LootBank then
-        eventManager:RegisterForEvent(moduleName, EVENT_GUILD_BANK_ITEM_ADDED, function (...) ChatAnnouncements.GuildBankItemAdded(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_GUILD_BANK_ITEM_REMOVED, function (...) ChatAnnouncements.GuildBankItemRemoved(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_GUILD_BANK_ITEM_ADDED, ChatAnnouncements.GuildBankItemAdded)
+        eventManager:RegisterForEvent(moduleName, EVENT_GUILD_BANK_ITEM_REMOVED, ChatAnnouncements.GuildBankItemRemoved)
     end
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootBank then
-        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_BANK, function (...) ChatAnnouncements.BankOpen(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_CLOSE_BANK, function (...) ChatAnnouncements.BankClose(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_GUILD_BANK, function (...) ChatAnnouncements.GuildBankOpen(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_CLOSE_GUILD_BANK, function (...) ChatAnnouncements.GuildBankClose(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_BANK, ChatAnnouncements.BankOpen)
+        eventManager:RegisterForEvent(moduleName, EVENT_CLOSE_BANK, ChatAnnouncements.BankClose)
+        eventManager:RegisterForEvent(moduleName, EVENT_OPEN_GUILD_BANK, ChatAnnouncements.GuildBankOpen)
+        eventManager:RegisterForEvent(moduleName, EVENT_CLOSE_GUILD_BANK, ChatAnnouncements.GuildBankClose)
     end
     if ChatAnnouncements.SV.Inventory.LootTrade then
-        eventManager:RegisterForEvent(moduleName, EVENT_TRADE_ITEM_ADDED, function (...) ChatAnnouncements.OnTradeAdded(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_TRADE_ITEM_REMOVED, function (...) ChatAnnouncements.OnTradeRemoved(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_TRADE_ITEM_ADDED, ChatAnnouncements.OnTradeAdded)
+        eventManager:RegisterForEvent(moduleName, EVENT_TRADE_ITEM_REMOVED, ChatAnnouncements.OnTradeRemoved)
     end
     -- TRADE
-    eventManager:RegisterForEvent(moduleName, EVENT_TRADE_INVITE_ACCEPTED, function (...) ChatAnnouncements.TradeInviteAccepted(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_TRADE_INVITE_ACCEPTED, ChatAnnouncements.TradeInviteAccepted)
     -- CRAFT
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootCraft then
-        eventManager:RegisterForEvent(moduleName, EVENT_CRAFTING_STATION_INTERACT, function (...) ChatAnnouncements.CraftingOpen(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_END_CRAFTING_STATION_INTERACT, function (...) ChatAnnouncements.CraftingClose(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_CRAFTING_STATION_INTERACT, ChatAnnouncements.CraftingOpen)
+        eventManager:RegisterForEvent(moduleName, EVENT_END_CRAFTING_STATION_INTERACT, ChatAnnouncements.CraftingClose)
     end
     -- DESTROY
-    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_ITEM_DESTROYED, function (...) ChatAnnouncements.DestroyItem(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_ITEM_DESTROYED, ChatAnnouncements.DestroyItem)
     -- PACK SIEGE
-    eventManager:RegisterForEvent(moduleName, EVENT_DISABLE_SIEGE_PACKUP_ABILITY, function () ChatAnnouncements.OnPackSiege() end)
+    eventManager:RegisterForEvent(moduleName, EVENT_DISABLE_SIEGE_PACKUP_ABILITY, ChatAnnouncements.OnPackSiege)
     -- JUSTICE
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Notify.NotificationConfiscateCA or ChatAnnouncements.SV.Notify.NotificationConfiscateAlert or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-        eventManager:RegisterForEvent(moduleName, EVENT_JUSTICE_STOLEN_ITEMS_REMOVED, function (...) ChatAnnouncements.JusticeStealRemove(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_JUSTICE_STOLEN_ITEMS_REMOVED, ChatAnnouncements.JusticeStealRemove)
     end
 end
 
 function ChatAnnouncements.RegisterDisguiseEvents()
     eventManager:UnregisterForEvent(moduleName .. "Player", EVENT_DISGUISE_STATE_CHANGED)
     if ChatAnnouncements.SV.Notify.DisguiseCA or ChatAnnouncements.SV.Notify.DisguiseCSA or ChatAnnouncements.SV.Notify.DisguiseAlert or ChatAnnouncements.SV.Notify.DisguiseWarnCA or ChatAnnouncements.SV.Notify.DisguiseWarnCSA or ChatAnnouncements.SV.Notify.DisguiseWarnAlert then
-        eventManager:RegisterForEvent(moduleName .. "Player", EVENT_DISGUISE_STATE_CHANGED, function (...) ChatAnnouncements.DisguiseState(...) end)
+        eventManager:RegisterForEvent(moduleName .. "Player", EVENT_DISGUISE_STATE_CHANGED, ChatAnnouncements.DisguiseState)
         eventManager:AddFilterForEvent(moduleName .. "Player", EVENT_DISGUISE_STATE_CHANGED, REGISTER_FILTER_UNIT_TAG, "player")
         g_currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0 -- Get the currently equipped disguise itemId if any
         if g_firstLoad then
@@ -3469,7 +3469,7 @@ end
 function ChatAnnouncements.OnMailOpenBox(eventId)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.LootMail then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
         g_inventoryStacks = {}
         ChatAnnouncements.IndexInventory() -- Index Inventory
     end
@@ -3482,7 +3482,7 @@ end
 function ChatAnnouncements.OnMailCloseBox(eventId)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
     end
     if not (ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise) then
         g_inventoryStacks = {}
@@ -4032,7 +4032,7 @@ end
 function ChatAnnouncements.CraftingOpen(eventId, craftSkill, sameStation, craftMode)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.LootCraft then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdateCraft(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdateCraft)
         g_inventoryStacks = {}
         g_bankStacks = {}
         g_bankSubscriberStacks = {}
@@ -4049,7 +4049,7 @@ end
 function ChatAnnouncements.CraftingClose(eventId, craftSkill, craftMode)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
     end
     if not (ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise) then
         g_inventoryStacks = {}
@@ -4065,7 +4065,7 @@ end
 function ChatAnnouncements.BankOpen(eventId, bankBag)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.LootBank then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdateBank(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdateBank)
         g_inventoryStacks = {}
         g_bankStacks = {}
         g_bankSubscriberStacks = {}
@@ -4083,7 +4083,7 @@ end
 function ChatAnnouncements.BankClose(eventId)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
     end
     if not (ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise) then
         g_inventoryStacks = {}
@@ -4099,7 +4099,7 @@ end
 function ChatAnnouncements.GuildBankOpen(eventId)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.LootBank then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdateGuildBank(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdateGuildBank)
         g_inventoryStacks = {}
         ChatAnnouncements.IndexInventory() -- Index Inventory
     end
@@ -4111,7 +4111,7 @@ end
 function ChatAnnouncements.GuildBankClose(eventId)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
     end
     if not (ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise) then
         g_inventoryStacks = {}
@@ -4127,7 +4127,7 @@ function ChatAnnouncements.FenceOpen(eventId, allowSell, allowLaunder)
     g_weAreInAFence = true
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.LootVendor then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdateFence(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdateFence)
         g_inventoryStacks = {}
         ChatAnnouncements.IndexInventory() -- Index Inventory
     end
@@ -4146,7 +4146,7 @@ end
 function ChatAnnouncements.StoreClose(eventId)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
     end
     if not (ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise) then
         g_inventoryStacks = {}
@@ -4171,7 +4171,7 @@ end
 function ChatAnnouncements.GuildStoreClose(eventId)
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
     end
     if not (ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise) then
         g_inventoryStacks = {}
@@ -8707,7 +8707,7 @@ function ChatAnnouncements.HookFunction()
 
         eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
         if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-            eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+            eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
         end
         if not (ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise) then
             g_inventoryStacks = {}
@@ -8795,7 +8795,7 @@ function ChatAnnouncements.HookFunction()
 
         eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
         if ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise then
-            eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+            eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
         end
         if not (ChatAnnouncements.SV.Inventory.Loot or ChatAnnouncements.SV.Inventory.LootShowDisguise) then
             g_inventoryStacks = {}
@@ -8832,7 +8832,7 @@ function ChatAnnouncements.HookFunction()
                 end
                 eventManager:UnregisterForEvent(moduleName, EVENT_CURRENCY_UPDATE)
                 LUIE_CallLater(function ()
-                    eventManager:RegisterForEvent(moduleName, EVENT_CURRENCY_UPDATE, function (...) ChatAnnouncements.OnCurrencyUpdate(...) end)
+                    eventManager:RegisterForEvent(moduleName, EVENT_CURRENCY_UPDATE, ChatAnnouncements.OnCurrencyUpdate)
                 end, 500)
             end
 
@@ -8876,14 +8876,14 @@ function ChatAnnouncements.HookFunction()
 
     -- This function isn't needed if CA isn't enabled so only load it if CA is enabled
     if ChatAnnouncements.Enabled then
-        eventManager:RegisterForEvent(moduleName, EVENT_GROUP_TYPE_CHANGED, function (...) ChatAnnouncements.OnGroupTypeChanged(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_GROUP_TYPE_CHANGED, ChatAnnouncements.OnGroupTypeChanged)
     end
-    eventManager:RegisterForEvent(moduleName, EVENT_GROUP_INVITE_RECEIVED, function (...) ChatAnnouncements.OnGroupInviteReceived(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GROUP_ELECTION_NOTIFICATION_ADDED, function (...) ChatAnnouncements.VoteNotify(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GROUPING_TOOLS_NO_LONGER_LFG, function (...) ChatAnnouncements.LFGLeft(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GROUPING_TOOLS_LFG_JOINED, function (...) ChatAnnouncements.GroupingToolsLFGJoined(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_ACTIVITY_FINDER_STATUS_UPDATE, function (...) ChatAnnouncements.ActivityStatusUpdate(...) end)
-    eventManager:RegisterForEvent(moduleName, EVENT_GROUPING_TOOLS_READY_CHECK_UPDATED, function (...) ChatAnnouncements.ReadyCheckUpdate(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_GROUP_INVITE_RECEIVED, ChatAnnouncements.OnGroupInviteReceived)
+    eventManager:RegisterForEvent(moduleName, EVENT_GROUP_ELECTION_NOTIFICATION_ADDED, ChatAnnouncements.VoteNotify)
+    eventManager:RegisterForEvent(moduleName, EVENT_GROUPING_TOOLS_NO_LONGER_LFG, ChatAnnouncements.LFGLeft)
+    eventManager:RegisterForEvent(moduleName, EVENT_GROUPING_TOOLS_LFG_JOINED, ChatAnnouncements.GroupingToolsLFGJoined)
+    eventManager:RegisterForEvent(moduleName, EVENT_ACTIVITY_FINDER_STATUS_UPDATE, ChatAnnouncements.ActivityStatusUpdate)
+    eventManager:RegisterForEvent(moduleName, EVENT_GROUPING_TOOLS_READY_CHECK_UPDATED, ChatAnnouncements.ReadyCheckUpdate)
 
     ZO_PreHook(alertHandlers, EVENT_GUILD_SELF_LEFT_GUILD, GuildSelfLeftAlert)
     ZO_PreHook(alertHandlers, EVENT_SAVE_GUILD_RANKS_RESPONSE, GuildRanksResponseAlert)
@@ -11407,9 +11407,9 @@ function ChatAnnouncements.HookFunction()
     eventManager:UnregisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_REMOVED)
     eventManager:UnregisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_ADVANCED)
     eventManager:UnregisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_ADDED)
-    eventManager:RegisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_REMOVED, function (...) OnQuestRemoved(...) end)
-    eventManager:RegisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_ADVANCED, function (...) OnQuestAdvanced(...) end)
-    eventManager:RegisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_ADDED, function (...) OnQuestAdded(...) end)
+    eventManager:RegisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_REMOVED, OnQuestRemoved)
+    eventManager:RegisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_ADVANCED, OnQuestAdvanced)
+    eventManager:RegisterForEvent("CSA_MiscellaneousHandlers", EVENT_QUEST_ADDED, OnQuestAdded)
 
     ZO_PreHook(csaHandlers, EVENT_LORE_BOOK_LEARNED_SKILL_EXPERIENCE, LoreBookXPHook)
     ZO_PreHook(csaHandlers, EVENT_LORE_COLLECTION_COMPLETED, LoreCollectionHook)
@@ -11440,7 +11440,7 @@ function ChatAnnouncements.HookFunction()
     ZO_PreHook(csaHandlers, EVENT_DUEL_FINISHED, DuelFinishedHook)
     ZO_PreHook(csaHandlers, EVENT_DUEL_COUNTDOWN, DuelCountdownHook)
 
-    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_STARTED, function (...) ChatAnnouncements.DuelStarted(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_DUEL_STARTED, ChatAnnouncements.DuelStarted)
 
     ZO_PreHook(csaHandlers, EVENT_RAID_TRIAL_STARTED, RaidStartedHook)
     ZO_PreHook(csaHandlers, EVENT_RAID_TRIAL_COMPLETE, RaidCompleteHook)
@@ -11453,7 +11453,7 @@ function ChatAnnouncements.HookFunction()
     ZO_PreHook(csaHandlers, EVENT_ACHIEVEMENT_AWARDED, AchievementAwardedHook)
     ZO_PreHook(csaHandlers, EVENT_PLEDGE_OF_MARA_RESULT, PledgeOfMaraHook)
 
-    eventManager:RegisterForEvent(moduleName, EVENT_PLEDGE_OF_MARA_OFFER, function (...) ChatAnnouncements.MaraOffer(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_PLEDGE_OF_MARA_OFFER, ChatAnnouncements.MaraOffer)
 
     ZO_PreHook(csaHandlers, EVENT_ANTIQUITY_LEAD_ACQUIRED, AntiquityLeadAcquired)
 
@@ -12131,9 +12131,9 @@ function ChatAnnouncements.GuildHooks()
     eventManager:UnregisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_PLAYER_RANK_CHANGED)
     eventManager:UnregisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_MEMBER_PROMOTE_SUCCESSFUL)
     eventManager:UnregisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_MEMBER_DEMOTE_SUCCESSFUL)
-    eventManager:RegisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_PLAYER_RANK_CHANGED, function (...) ChatAnnouncements.GuildPlayerRankChanged(...) end)
-    eventManager:RegisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_MEMBER_PROMOTE_SUCCESSFUL, function (...) ChatAnnouncements.GuildMemberPromoteSuccessful(...) end)
-    eventManager:RegisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_MEMBER_DEMOTE_SUCCESSFUL, function (...) ChatAnnouncements.GuildMemberDemoteSuccessful(...) end)
+    eventManager:RegisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_PLAYER_RANK_CHANGED, ChatAnnouncements.GuildPlayerRankChanged)
+    eventManager:RegisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_MEMBER_PROMOTE_SUCCESSFUL, ChatAnnouncements.GuildMemberPromoteSuccessful)
+    eventManager:RegisterForEvent(EVENT_NAMESPACE, EVENT_GUILD_MEMBER_DEMOTE_SUCCESSFUL, ChatAnnouncements.GuildMemberDemoteSuccessful)
 
     -- Hook for Guild Invite function used from Guild Menu
     ---
@@ -12252,7 +12252,7 @@ function ChatAnnouncements.TradeInviteAccepted(eventCode)
 
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE)
     if ChatAnnouncements.SV.Inventory.LootTrade then
-        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) ChatAnnouncements.InventoryUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_SINGLE_SLOT_UPDATE, ChatAnnouncements.InventoryUpdate)
         g_inventoryStacks = {}
         ChatAnnouncements.IndexInventory() -- Index Inventory
     end

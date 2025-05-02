@@ -540,7 +540,7 @@ function CombatInfo.SetMarker(removeMarker)
     -- Otherwise, setup the marker texture & register EVENT_PLAYER_ACTIVATED handler
     local LUIE_MARKER = "/LuiExtended/media/combatinfo/floatingicon/redarrow.dds"
     SetFloatingMarkerInfo(MAP_PIN_TYPE_AGGRO, CombatInfo.SV.markerSize, LUIE_MARKER, "", true, false)
-    eventManager:RegisterForEvent(moduleName .. "Marker", EVENT_PLAYER_ACTIVATED, function (...) CombatInfo.OnPlayerActivatedMarker(...) end)
+    eventManager:RegisterForEvent(moduleName .. "Marker", EVENT_PLAYER_ACTIVATED, CombatInfo.OnPlayerActivatedMarker)
 end
 
 local slotsUpdated = {}
@@ -885,7 +885,7 @@ function CombatInfo.UpdateBarHighlightTables()
         for abilityId, value in pairs(g_barOverrideCI) do
             counter = counter + 1
             local eventName = (moduleName .. "CombatEventBar" .. tostring(counter))
-            eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, function (...) CombatInfo.OnCombatEventBar(...) end)
+            eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, CombatInfo.OnCombatEventBar)
             -- Register filter for specific abilityId's in table only, and filter for source = player, no errors
             eventManager:AddFilterForEvent(eventName, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, abilityId, REGISTER_FILTER_IS_ERROR, false)
         end
@@ -898,7 +898,7 @@ function CombatInfo.RegisterCombatInfo()
         currentTime = time()
         CombatInfo.OnUpdate(currentTime)
     end)
-    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, function (...) CombatInfo.OnPlayerActivated(...) end)
+    eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, CombatInfo.OnPlayerActivated)
 
     eventManager:UnregisterForEvent(moduleName, EVENT_COMBAT_EVENT)
     eventManager:UnregisterForEvent(moduleName, EVENT_POWER_UPDATE)
@@ -909,15 +909,15 @@ function CombatInfo.RegisterCombatInfo()
     eventManager:UnregisterForEvent(moduleName, EVENT_INVENTORY_ITEM_USED)
     eventManager:UnregisterForEvent(moduleName, EVENT_ACTION_SLOT_ABILITY_USED)
     if CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled then
-        eventManager:RegisterForEvent(moduleName .. "CombatEvent1", EVENT_COMBAT_EVENT, function (...) CombatInfo.OnCombatEvent(...) end)
+        eventManager:RegisterForEvent(moduleName .. "CombatEvent1", EVENT_COMBAT_EVENT, CombatInfo.OnCombatEvent)
         eventManager:AddFilterForEvent(moduleName .. "CombatEvent1", EVENT_COMBAT_EVENT, REGISTER_FILTER_TARGET_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_IS_ERROR, false, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_BLOCKED_DAMAGE)
-        eventManager:RegisterForEvent(moduleName .. "PowerUpdate", EVENT_POWER_UPDATE, function (...) CombatInfo.OnPowerUpdatePlayer(...) end)
+        eventManager:RegisterForEvent(moduleName .. "PowerUpdate", EVENT_POWER_UPDATE, CombatInfo.OnPowerUpdatePlayer)
         eventManager:AddFilterForEvent(moduleName .. "PowerUpdate", EVENT_POWER_UPDATE, REGISTER_FILTER_UNIT_TAG, "player")
-        eventManager:RegisterForEvent(moduleName .. "InventoryUpdate", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, function (...) CombatInfo.OnInventorySlotUpdate(...) end)
+        eventManager:RegisterForEvent(moduleName .. "InventoryUpdate", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, CombatInfo.OnInventorySlotUpdate)
         eventManager:AddFilterForEvent(moduleName .. "InventoryUpdate", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, REGISTER_FILTER_BAG_ID, BAG_WORN, REGISTER_FILTER_INVENTORY_UPDATE_REASON, INVENTORY_UPDATE_REASON_DEFAULT, REGISTER_FILTER_IS_NEW_ITEM, false)
     end
     if CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled or CombatInfo.SV.CastBarEnable then
-        eventManager:RegisterForEvent(moduleName .. "CombatEvent2", EVENT_COMBAT_EVENT, function (...) CombatInfo.OnCombatEvent(...) end)
+        eventManager:RegisterForEvent(moduleName .. "CombatEvent2", EVENT_COMBAT_EVENT, CombatInfo.OnCombatEvent)
         eventManager:AddFilterForEvent(moduleName .. "CombatEvent2", EVENT_COMBAT_EVENT, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_IS_ERROR, false)
     end
     if CombatInfo.SV.CastBarEnable then
@@ -925,14 +925,14 @@ function CombatInfo.RegisterCombatInfo()
         for result, _ in pairs(Castbar.CastBreakingStatus) do
             counter = counter + 1
             local eventName = (moduleName .. "CombatEventCC" .. counter)
-            eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, function (...) CombatInfo.OnCombatEventBreakCast(...) end)
+            eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, CombatInfo.OnCombatEventBreakCast)
             eventManager:AddFilterForEvent(eventName, EVENT_COMBAT_EVENT, REGISTER_FILTER_TARGET_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_IS_ERROR, false, REGISTER_FILTER_COMBAT_RESULT, result)
         end
-        eventManager:RegisterForEvent(moduleName, EVENT_START_SOUL_GEM_RESURRECTION, function (...) CombatInfo.SoulGemResurrectionStart(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_END_SOUL_GEM_RESURRECTION, function (...) CombatInfo.SoulGemResurrectionEnd(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_GAME_CAMERA_UI_MODE_CHANGED, function (...) CombatInfo.OnGameCameraUIModeChanged(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_END_SIEGE_CONTROL, function (...) CombatInfo.OnSiegeEnd(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_ABILITY_USED, function (...) CombatInfo.OnAbilityUsed(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_START_SOUL_GEM_RESURRECTION, CombatInfo.SoulGemResurrectionStart)
+        eventManager:RegisterForEvent(moduleName, EVENT_END_SOUL_GEM_RESURRECTION, CombatInfo.SoulGemResurrectionEnd)
+        eventManager:RegisterForEvent(moduleName, EVENT_GAME_CAMERA_UI_MODE_CHANGED, CombatInfo.OnGameCameraUIModeChanged)
+        eventManager:RegisterForEvent(moduleName, EVENT_END_SIEGE_CONTROL, CombatInfo.OnSiegeEnd)
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_ABILITY_USED, CombatInfo.OnAbilityUsed)
         -- eventManager:RegisterForEvent(moduleName, EVENT_CLIENT_INTERACT_RESULT, CombatInfo.ClientInteractResult)
         --[[counter = 0
         for id, _ in pairs (Effects.CastBreakOnRemoveEvent) do
@@ -944,17 +944,17 @@ function CombatInfo.RegisterCombatInfo()
         --
     end
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled or CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled then
-        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOTS_ACTIVE_HOTBAR_UPDATED, function (...) CombatInfo.OnActiveHotbarUpdate(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, function () CombatInfo.OnSlotsFullUpdate() end)
-        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_UPDATED, function (...) CombatInfo.OnSlotUpdated(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_ACTIVE_WEAPON_PAIR_CHANGED, function (...) CombatInfo.OnActiveWeaponPairChanged(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_WEAPON_PAIR_LOCK_CHANGED, function (...) CombatInfo.OnActiveWeaponPairChanged(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOTS_ACTIVE_HOTBAR_UPDATED, CombatInfo.OnActiveHotbarUpdate)
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, CombatInfo.OnSlotsFullUpdate)
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_UPDATED, CombatInfo.OnSlotUpdated)
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTIVE_WEAPON_PAIR_CHANGED, CombatInfo.OnActiveWeaponPairChanged)
+        eventManager:RegisterForEvent(moduleName, EVENT_WEAPON_PAIR_LOCK_CHANGED, CombatInfo.OnActiveWeaponPairChanged)
     end
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled then
-        eventManager:RegisterForEvent(moduleName, EVENT_UNIT_DEATH_STATE_CHANGED, function (...) CombatInfo.OnDeath(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, function (...) CombatInfo.OnTargetChange(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, function (...) CombatInfo.OnReticleTargetChanged(...) end)
-        eventManager:RegisterForEvent(moduleName, EVENT_GAMEPAD_PREFERRED_MODE_CHANGED, function () CombatInfo.BackbarSetupTemplate() end)
+        eventManager:RegisterForEvent(moduleName, EVENT_UNIT_DEATH_STATE_CHANGED, CombatInfo.OnDeath)
+        eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, CombatInfo.OnTargetChange)
+        eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, CombatInfo.OnReticleTargetChanged)
+        eventManager:RegisterForEvent(moduleName, EVENT_GAMEPAD_PREFERRED_MODE_CHANGED, CombatInfo.BackbarSetupTemplate)
 
         eventManager:RegisterForEvent(moduleName, EVENT_INVENTORY_ITEM_USED, function () CombatInfo.InventoryItemUsed() end)
 
@@ -963,8 +963,8 @@ function CombatInfo.RegisterCombatInfo()
     end
     -- Have to register EVENT_EFFECT_CHANGED for werewolf as well - Stop devour cast bar when devour fades / also handles updating Vampire Ultimate cost on stage change
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled or CombatInfo.SV.CastBarEnable or CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled then
-        eventManager:RegisterForEvent(moduleName, EVENT_EFFECT_CHANGED, function (...) CombatInfo.OnEffectChanged(...) end)
-        eventManager:RegisterForEvent(moduleName .. "Pet", EVENT_EFFECT_CHANGED, function (...) CombatInfo.OnEffectChanged(...) end)
+        eventManager:RegisterForEvent(moduleName, EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
+        eventManager:RegisterForEvent(moduleName .. "Pet", EVENT_EFFECT_CHANGED, CombatInfo.OnEffectChanged)
         eventManager:AddFilterForEvent(moduleName .. "Pet", EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET)
     end
 
