@@ -614,6 +614,18 @@ function CombatInfo.handleFlip(slotNum)
     CombatInfo.ToggleBackbarSaturation(slotNum, desaturate)
 end
 
+--- - **EVENT_ACTIVE_WEAPON_PAIR_CHANGED **
+---
+---
+--- @param eventId integer
+--- @param activeWeaponPair ActiveWeaponPair
+--- @param locked boolean
+function CombatInfo.OnActiveWeaponPairChangedCastBar(eventId, activeWeaponPair, locked)
+    if activeWeaponPair ~= g_actionBarActiveWeaponPair then
+        CombatInfo.StopCastBar()
+    end
+end
+
 --- Handles active weapon pair changes
 --- @param eventCode integer
 --- @param activeWeaponPair integer
@@ -933,6 +945,7 @@ function CombatInfo.RegisterCombatInfo()
         eventManager:RegisterForEvent(moduleName, EVENT_GAME_CAMERA_UI_MODE_CHANGED, CombatInfo.OnGameCameraUIModeChanged)
         eventManager:RegisterForEvent(moduleName, EVENT_END_SIEGE_CONTROL, CombatInfo.OnSiegeEnd)
         eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_ABILITY_USED, CombatInfo.OnAbilityUsed)
+        eventManager:RegisterForEvent(moduleName .. "Cast Bar", EVENT_ACTIVE_WEAPON_PAIR_CHANGED, CombatInfo.OnActiveWeaponPairChangedCastBar)
         -- eventManager:RegisterForEvent(moduleName, EVENT_CLIENT_INTERACT_RESULT, CombatInfo.ClientInteractResult)
         --[[counter = 0
         for id, _ in pairs (Effects.CastBreakOnRemoveEvent) do
