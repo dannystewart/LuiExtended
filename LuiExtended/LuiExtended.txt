@@ -89,7 +89,6 @@ modules/CombatInfo/CrowdControlTracker.lua
 modules/InfoPanel/InfoPanel.lua
 
 # Modules - Spell Cast Buffs
-modules/SpellCastBuffs/SpellCastBuffsConstants.lua
 modules/SpellCastBuffs/SpellCastBuffs.lua
 modules/SpellCastBuffs/Collectibles.lua
 modules/SpellCastBuffs/Cyrodiil.lua
