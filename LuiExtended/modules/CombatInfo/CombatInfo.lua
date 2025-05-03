@@ -3512,7 +3512,8 @@ function CombatInfo.Initialize(enabled)
     uiUltimate.LabelPct:SetColor(unpack(uiUltimate.color))
     -- And buff texture
     uiUltimate.Texture = UI:Texture(AB8, { CENTER, CENTER }, { 160, 160 }, "/esoui/art/crafting/white_burst.dds", DL_BACKGROUND, true)
-
+    uiUltimate.Texture:SetDrawTier(DT_LOW)
+    uiUltimate.Texture:SetBlendMode(TEX_BLEND_MODE_ADD)
 
     CreateBackBarButtons()
     CombatInfo.BackbarSetupTemplate()
