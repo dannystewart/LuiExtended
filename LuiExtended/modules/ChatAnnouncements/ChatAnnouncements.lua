@@ -1370,46 +1370,37 @@ end
 --- @param displayName string The display name
 --- @return string nameLink The resolved name link
 function ChatAnnouncements.ResolveNameLink(characterName, displayName)
-    local nameLink = ""
+    local useBrackets = ChatAnnouncements.SV.BracketOptionCharacter ~= 1
+    local displayOption = ChatAnnouncements.SV.ChatPlayerDisplayOptions
 
-    if ChatAnnouncements.SV.ChatPlayerDisplayOptions == 1 then
-        if ChatAnnouncements.SV.BracketOptionCharacter == 1 then
-            nameLink = ZO_LinkHandler_CreateLinkWithoutBrackets(displayName, nil, DISPLAY_NAME_LINK_TYPE, displayName)
-        else
-            nameLink = ZO_LinkHandler_CreateLink(displayName, nil, DISPLAY_NAME_LINK_TYPE, displayName)
-        end
-    elseif ChatAnnouncements.SV.ChatPlayerDisplayOptions == 2 then
-        if ChatAnnouncements.SV.BracketOptionCharacter == 1 then
-            nameLink = ZO_LinkHandler_CreateLinkWithoutBrackets(characterName, nil, CHARACTER_LINK_TYPE, characterName)
-        else
-            nameLink = ZO_LinkHandler_CreateLink(characterName, nil, CHARACTER_LINK_TYPE, characterName)
-        end
-    elseif ChatAnnouncements.SV.ChatPlayerDisplayOptions == 3 then
+    if displayOption == 1 then
+        return useBrackets and ZO_LinkHandler_CreateDisplayNameLink(displayName) or
+               ZO_LinkHandler_CreateLinkWithoutBrackets(displayName, nil, DISPLAY_NAME_LINK_TYPE, displayName)
+    elseif displayOption == 2 then
+        return useBrackets and ZO_LinkHandler_CreateCharacterLink(characterName) or
+               ZO_LinkHandler_CreateLinkWithoutBrackets(characterName, nil, CHARACTER_LINK_TYPE, characterName)
+    else
         local displayBothString = zo_strformat("<<1>><<2>>", characterName, displayName)
-        if ChatAnnouncements.SV.BracketOptionCharacter == 1 then
-            nameLink = ZO_LinkHandler_CreateLinkWithoutBrackets(displayBothString, nil, DISPLAY_NAME_LINK_TYPE, displayName)
-        else
-            nameLink = ZO_LinkHandler_CreateLink(displayBothString, nil, DISPLAY_NAME_LINK_TYPE, displayName)
-        end
+        return useBrackets and ZO_LinkHandler_CreateLink(displayBothString, nil, DISPLAY_NAME_LINK_TYPE, displayName) or
+               ZO_LinkHandler_CreateLinkWithoutBrackets(displayBothString, nil, DISPLAY_NAME_LINK_TYPE, displayName)
     end
-    return nameLink
 end
 
 -- Called by most functions that use character or display name to resolve NON-LINK display method (mostly used for alerts).
 --
 --- @param characterName string The character name
 --- @param displayName string The display name
---- @return string nameLink The resolved name link
+--- @return string nameLink The resolved name string
 function ChatAnnouncements.ResolveNameNoLink(characterName, displayName)
-    local nameLink = ""
-    if ChatAnnouncements.SV.ChatPlayerDisplayOptions == 1 then
-        nameLink = displayName
-    elseif ChatAnnouncements.SV.ChatPlayerDisplayOptions == 2 then
-        nameLink = characterName
-    elseif ChatAnnouncements.SV.ChatPlayerDisplayOptions == 3 then
-        nameLink = zo_strformat("<<1>><<2>>", characterName, displayName)
+    local displayOption = ChatAnnouncements.SV.ChatPlayerDisplayOptions
+    
+    if displayOption == 1 then
+        return displayName
+    elseif displayOption == 2 then
+        return characterName
+    else
+        return zo_strformat("<<1>><<2>>", characterName, displayName)
     end
-    return nameLink
 end
 
 local function ShouldShowSocialErrorInChat(error)
@@ -1512,7 +1503,12 @@ function ChatAnnouncements.GuildRanksSaved(eventCode, guildId)
 
     if ChatAnnouncements.SV.Social.GuildManageCA then
         local finalMessage = zo_strformat(GetString(LUIE_STRING_CA_GUILD_RANKS_UPDATE), guildNameAlliance)
-        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "NOTIFICATION", isSystem = true }
+        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+        {
+            message = finalMessage,
+            messageType = "NOTIFICATION",
+            isSystem = true
+        }
         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
         eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
     end
@@ -1562,7 +1558,12 @@ function ChatAnnouncements.GuildTextChanged(eventCode, guildId)
     if messageString ~= nil then
         if ChatAnnouncements.SV.Social.GuildManageCA then
             local finalMessage = zo_strformat(GetString(messageString), guildNameAlliance)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "NOTIFICATION", isSystem = true }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = finalMessage,
+                messageType = "NOTIFICATION",
+                isSystem = true
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -2276,7 +2277,12 @@ function ChatAnnouncements.PointRespecDisplay(respecType)
     local messageCSA = LUIE_AttributeDisplayType[respecType]
 
     if ChatAnnouncements.SV.DisplayAnnouncements.Respec.CA then
-        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "MESSAGE", isSystem = true }
+        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+        {
+            message = message,
+            messageType = "MESSAGE",
+            isSystem = true
+        }
         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
         eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
     end
@@ -2859,7 +2865,11 @@ function ChatAnnouncements.CurrencyPrinter(baseCurrencyType, formattedValue, cha
         -- Otherwise sent to our Print Queued Messages function to be processed on a 50 ms delay.
     else
         local resolveType = (messageType == "LUIE_CURRENCY_POSTAGE" and "CURRENCY_POSTAGE") or (baseCurrencyType == CURT_CROWNS and "EXPERIENCE") or "CURRENCY"
-        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = resolveType }
+        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+        {
+            message = finalMessage,
+            messageType = resolveType
+        }
         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
         eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
     end
@@ -2938,7 +2948,11 @@ end
 function ChatAnnouncements.MiscAlertLockSuccess(eventId)
     if ChatAnnouncements.SV.Notify.NotificationLockpickCA then
         local message = GetString(LUIE_STRING_CA_LOCKPICK_SUCCESS)
-        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "NOTIFICATION" }
+        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+        {
+            message = message,
+            messageType = "NOTIFICATION"
+        }
         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
         eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
     end
@@ -3361,7 +3375,12 @@ function ChatAnnouncements.MailRemoved(eventId, mailId)
     if ChatAnnouncements.SV.Notify.NotificationMailSendCA or ChatAnnouncements.SV.Notify.NotificationMailSendAlert then
         if ChatAnnouncements.SV.Notify.NotificationMailSendCA then
             local message = GetString(LUIE_STRING_CA_MAIL_DELETED_MSG)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "NOTIFICATION", isSystem = true }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = message,
+                messageType = "NOTIFICATION",
+                isSystem = true
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -3527,7 +3546,12 @@ function ChatAnnouncements.OnMailSuccess(eventId, playerName)
         end
         if mailString then
             if ChatAnnouncements.SV.Notify.NotificationMailSendCA then
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = mailString, messageType = "NOTIFICATION", isSystem = true }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = mailString,
+                    messageType = "NOTIFICATION",
+                    isSystem = true
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -3680,7 +3704,11 @@ function ChatAnnouncements.OnAchievementUpdated(eventId, id)
                 end
             end
             local finalString = string_format("%s%s%s%s", stringpart1, stringpart2, stringpart3, stringpart4)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalString, messageType = "ACHIEVEMENT" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = finalString,
+                mssageType = "ACHIEVEMENT"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -4376,7 +4404,12 @@ function ChatAnnouncements.ResolveQuestItemChange()
                         finalMessage = string_format("|c%s%s|r%s", color, formattedMessageP2, totalString)
 
                         eventManager:UnregisterForUpdate(moduleName .. "Printer")
-                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "QUEST_LOOT_REMOVE", itemId = itemId }
+                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                        {
+                            message = finalMessage,
+                            messageType = "QUEST_LOOT_REMOVE",
+                            itemId = itemId
+                        }
                         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                         eventManager:RegisterForUpdate(moduleName .. "Printer", 25, ChatAnnouncements.PrintQueuedMessages)
                     end
@@ -4466,7 +4499,12 @@ function ChatAnnouncements.ResolveQuestItemChange()
                         finalMessage = string_format("|c%s%s|r%s", color, formattedMessageP2, totalString)
 
                         eventManager:UnregisterForUpdate(moduleName .. "Printer")
-                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "QUEST_LOOT_ADD", itemId = itemId }
+                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                        {
+                            message = finalMessage,
+                            messageType = "QUEST_LOOT_ADD",
+                            itemId = itemId
+                        }
                         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                         eventManager:RegisterForUpdate(moduleName .. "Printer", 25, ChatAnnouncements.PrintQueuedMessages)
                     end
@@ -4523,34 +4561,39 @@ local function DisplayQuestItem(itemId, stackCount, icon, reset)
     eventManager:RegisterForUpdate(moduleName .. "QuestItemUpdater", 25, ChatAnnouncements.ResolveQuestItemChange)
 end
 
---- @param eventCode integer
+--- - **EVENT_LOOT_RECEIVED **
+---
+---
+--- @param eventId integer
 --- @param receivedBy string
---- @param itemLink string
+--- @param itemName string
 --- @param quantity integer
---- @param itemSound ItemUISoundCategory
+--- @param soundCategory ItemUISoundCategory
 --- @param lootType LootItemType
 --- @param lootedBySelf boolean
 --- @param isPickpocketLoot boolean
 --- @param questItemIcon string
 --- @param itemId integer
 --- @param isStolen boolean
-function ChatAnnouncements.OnLootReceived(eventCode, receivedBy, itemLink, quantity, itemSound, lootType, lootedBySelf, isPickpocketLoot, questItemIcon, itemId, isStolen)
-    -- if LUIE.IsDevDebugEnabled() then
-    --     local Debug = LUIE.Debug
-    --     local traceback = "Loot Received:\n" ..
-    --         "--> eventCode: " .. tostring(eventCode) .. "\n" ..
-    --         "--> receivedBy: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, receivedBy) .. "\n" ..
-    --         "--> itemLink: " .. tostring(itemLink) .. "\n" ..
-    --         "--> quantity: " .. tostring(quantity) .. "\n" ..
-    --         "--> itemSound: " .. tostring(itemSound) .. "\n" ..
-    --         "--> lootType: " .. tostring(lootType) .. "\n" ..
-    --         "--> lootedBySelf: " .. tostring(lootedBySelf) .. "\n" ..
-    --         "--> isPickpocketLoot: " .. tostring(isPickpocketLoot) .. "\n" ..
-    --         "--> questItemIcon: " .. tostring(questItemIcon) .. "\n" ..
-    --         "--> itemId: " .. tostring(itemId) .. "\n" ..
-    --         "--> isStolen: " .. tostring(isStolen)
-    --     Debug(traceback)
-    -- end
+function ChatAnnouncements.OnLootReceived(eventId, receivedBy, itemName, quantity, soundCategory, lootType, lootedBySelf, isPickpocketLoot, questItemIcon, itemId, isStolen)
+    local itemLink = itemName
+    
+    if LUIE.IsDevDebugEnabled() then
+        local Debug = LUIE.Debug
+        local traceback = "Loot Received:\n" ..
+            "--> eventCode: " .. tostring(eventId) .. "\n" ..
+            "--> receivedBy: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, ZO_LinkHandler_CreatePlayerLink(receivedBy)) .. "\n" ..
+            "--> itemLink: " .. tostring(itemLink) .. "\n" ..
+            "--> quantity: " .. tostring(quantity) .. "\n" ..
+            "--> itemSound: " .. tostring(soundCategory) .. "\n" ..
+            "--> lootType: " .. tostring(lootType) .. "\n" ..
+            "--> lootedBySelf: " .. tostring(lootedBySelf) .. "\n" ..
+            "--> isPickpocketLoot: " .. tostring(isPickpocketLoot) .. "\n" ..
+            "--> questItemIcon: " .. tostring(questItemIcon) .. "\n" ..
+            "--> itemId: " .. tostring(itemId) .. "\n" ..
+            "--> isStolen: " .. tostring(isStolen)
+        Debug(traceback)
+    end
     -- If the player loots an item
     if not isPickpocketLoot and lootedBySelf then
         g_isLooted = true
@@ -7264,7 +7307,12 @@ function ChatAnnouncements.JusticeDisplayConfiscate()
     if ChatAnnouncements.SV.Notify.NotificationConfiscateCA or ChatAnnouncements.SV.Notify.NotificationConfiscateAlert then
         local ConfiscateMessage = getConfiscateMessage()
         if ChatAnnouncements.SV.Notify.NotificationConfiscateCA then
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = ConfiscateMessage, messageType = "NOTIFICATION", isSystem = true }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = ConfiscateMessage,
+                messageType = "NOTIFICATION",
+                isSystem = true
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         else
@@ -7399,7 +7447,11 @@ function ChatAnnouncements.DisguiseState(eventId, unitTag, disguiseState)
     if disguiseState == DISGUISE_STATE_DANGER then
         if ChatAnnouncements.SV.Notify.DisguiseWarnCA then
             local message = GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_DANGER)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "MESSAGE" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = message,
+                essageType = "MESSAGE"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -7421,7 +7473,11 @@ function ChatAnnouncements.DisguiseState(eventId, unitTag, disguiseState)
     if disguiseState == DISGUISE_STATE_SUSPICIOUS then
         if ChatAnnouncements.SV.Notify.DisguiseWarnCA then
             local message = GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_SUSPICIOUS)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "MESSAGE" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = message,
+                messageType = "MESSAGE"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -7447,7 +7503,11 @@ function ChatAnnouncements.DisguiseState(eventId, unitTag, disguiseState)
     if g_disguiseState == 1 and (disguiseState == DISGUISE_STATE_NONE) then
         local message = zo_strformat("<<1>> <<2>>", GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_NONE), Effects.DisguiseIcons[g_currentDisguise].description)
         if ChatAnnouncements.SV.Notify.DisguiseCA then
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "MESSAGE" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = message,
+                messageType = "MESSAGE"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -7466,7 +7526,11 @@ function ChatAnnouncements.DisguiseState(eventId, unitTag, disguiseState)
         g_currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0
         local message = zo_strformat("<<1>> <<2>>", GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_DISGUISED), Effects.DisguiseIcons[g_currentDisguise].description)
         if ChatAnnouncements.SV.Notify.DisguiseCA then
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "MESSAGE" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = message,
+                messageType = "MESSAGE"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -7520,7 +7584,11 @@ function ChatAnnouncements.OnPlayerActivated(eventId, initial)
                 g_currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0
                 local message = zo_strformat("<<1>> <<2>>", GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_DISGUISED), Effects.DisguiseIcons[g_currentDisguise].description)
                 if ChatAnnouncements.SV.Notify.DisguiseCA then
-                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "MESSAGE" }
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = message,
+                        essageType = "MESSAGE"
+                    }
                     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
@@ -7540,7 +7608,11 @@ function ChatAnnouncements.OnPlayerActivated(eventId, initial)
             if g_disguiseState == 0 then
                 local message = zo_strformat("<<1>> <<2>>", GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_NONE), Effects.DisguiseIcons[g_currentDisguise].description)
                 if ChatAnnouncements.SV.Notify.DisguiseCA then
-                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "MESSAGE" }
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = message,
+                        messageType = "MESSAGE"
+                    }
                     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
@@ -7814,7 +7886,11 @@ function ChatAnnouncements.HookFunction()
 
             if ChatAnnouncements.SV.Notify.StorageRidingCA then
                 local formattedString = ColorizeColors.StorageRidingColorize:Colorize(zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkill), previous, current))
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "MESSAGE" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "MESSAGE"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -7904,7 +7980,11 @@ function ChatAnnouncements.HookFunction()
                     end
 
                     local finalMessage = zo_strformat("<<1>><<2>><<3>><<4>>", stringPart1, formattedIcon, bookLink, stringPart2)
-                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "COLLECTIBLE" }
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = finalMessage,
+                        messageType = "COLLECTIBLE"
+                    }
                     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
@@ -8584,7 +8664,11 @@ function ChatAnnouncements.HookFunction()
     local function LockpickFailedAlert(result)
         if ChatAnnouncements.SV.Notify.NotificationLockpickCA then
             local message = GetString(LUIE_STRING_CA_LOCKPICK_FAILED)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "NOTIFICATION" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = message,
+                messageType = "NOTIFICATION"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -8739,7 +8823,12 @@ function ChatAnnouncements.HookFunction()
     local function TradeSucceededAlert()
         if ChatAnnouncements.SV.Notify.NotificationTradeCA then
             local message = GetString(SI_TRADE_COMPLETE)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = message, messageType = "NOTIFICATION", isSystem = true }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = message,
+                messageType = "NOTIFICATION",
+                sSystem = true
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -8951,7 +9040,11 @@ function ChatAnnouncements.HookFunction()
                 end
 
                 local finalMessage = zo_strformat("<<1>><<2>><<3>><<4>>", stringPart1, formattedIcon, bookLink, stringPart2)
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "COLLECTIBLE" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = finalMessage,
+                    messageType = "COLLECTIBLE"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -9019,7 +9112,11 @@ function ChatAnnouncements.HookFunction()
                     end
 
                     local finalMessage = zo_strformat("<<1>><<2>><<3>>", stringPart1, formattedIcon, stringPart2)
-                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "COLLECTIBLE" }
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = finalMessage,
+                        messageType = "COLLECTIBLE"
+                    }
                     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
@@ -9070,7 +9167,11 @@ function ChatAnnouncements.HookFunction()
                     end
 
                     local finalMessage = zo_strformat("<<1>><<2>><<3>>", stringPart1, formattedIcon, stringPart2)
-                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "COLLECTIBLE" }
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = finalMessage,
+                        messageType = "COLLECTIBLE"
+                    }
                     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
@@ -9203,7 +9304,11 @@ function ChatAnnouncements.HookFunction()
             if ChatAnnouncements.SV.Skills.SkillLineUnlockCA then
                 local formattedIcon = ChatAnnouncements.SV.Skills.SkillLineIcon and zo_strformat("<<1>> ", zo_iconFormatInheritColor(icon, 16, 16)) or ""
                 local formattedString = ColorizeColors.SkillLineColorize:Colorize(zo_strformat(LUIE_STRING_CA_SKILL_LINE_ADDED, formattedIcon, lineName))
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "SKILL_GAIN" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "SKILL_GAIN"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -9235,7 +9340,11 @@ function ChatAnnouncements.HookFunction()
         if atMorph then
             if ChatAnnouncements.SV.Skills.SkillAbilityCA then
                 local formattedString = ColorizeColors.SkillLineColorize:Colorize(zo_strformat(SI_MORPH_AVAILABLE_ANNOUNCEMENT, name) .. ".")
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "SKILL_MORPH" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "SKILL_MORPH"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -9258,7 +9367,11 @@ function ChatAnnouncements.HookFunction()
         else
             if ChatAnnouncements.SV.Skills.SkillAbilityCA then
                 local formattedString = ColorizeColors.SkillLineColorize:Colorize(zo_strformat(LUIE_STRING_CA_ABILITY_RANK_UP, name, rank) .. ".")
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "SKILL" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "SKILL"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -9293,7 +9406,11 @@ function ChatAnnouncements.HookFunction()
 
                 if ChatAnnouncements.SV.Skills.SkillLineCA then
                     local formattedString = ColorizeColors.SkillLineColorize:Colorize(zo_strformat(SI_SKILL_RANK_UP, lineName, rank) .. ".")
-                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "SKILL_LINE" }
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = formattedString,
+                        messageType = "SKILL_LINE"
+                    }
                     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
@@ -9359,7 +9476,11 @@ function ChatAnnouncements.HookFunction()
                         end
                         local string2 = ColorizeColors.CollectibleColorize2:Colorize(zo_strformat(SI_COLLECTIBLES_UPDATED_ANNOUNCEMENT_BODY, #nowOwnedCollectibles) .. ".")
                         local finalString = zo_strformat("<<1>><<2>>", string1, string2)
-                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalString, messageType = "COLLECTIBLE" }
+                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                        {
+                            message = finalString,
+                            messageType = "COLLECTIBLE"
+                        }
                         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                         eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                     end
@@ -9418,7 +9539,11 @@ function ChatAnnouncements.HookFunction()
                                 string2 = link
                             end
                             local finalString = zo_strformat("<<1>><<2>><<3>>", string1, formattedIcon, string2)
-                            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalString, messageType = "COLLECTIBLE" }
+                            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                            {
+                                message = finalString,
+                                messageType = "COLLECTIBLE"
+                            }
                             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                         end
@@ -9549,7 +9674,11 @@ function ChatAnnouncements.HookFunction()
                     return true
                 end
             end
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "QUEST" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = formattedString,
+                messageType = "QUEST"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -9611,7 +9740,11 @@ function ChatAnnouncements.HookFunction()
                     return true
                 end
             end
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "QUEST" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = formattedString,
+                messageType = "QUEST"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -9665,7 +9798,11 @@ function ChatAnnouncements.HookFunction()
                     return true
                 end
             end
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedText, messageType = "QUEST" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = formattedText,
+                messageType = "QUEST"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -9797,7 +9934,11 @@ function ChatAnnouncements.HookFunction()
                         return true
                     end
                 end
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedMessage, messageType = "MESSAGE" } -- We set the message messageType to MESSAGE so if we loot a quest item that progresses the quest this comes after.
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedMessage,
+                    messageType = "MESSAGE" -- We set the message messageType to MESSAGE so if we loot a quest item that progresses the quest this comes after.
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -9820,7 +9961,11 @@ function ChatAnnouncements.HookFunction()
                         return true
                     end
                 end
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedMessage, messageType = "MESSAGE" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedMessage,
+                    messageType = "MESSAGE"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -9845,7 +9990,11 @@ function ChatAnnouncements.HookFunction()
             local formattedString = zo_strformat(SI_ALERTTEXT_QUEST_CONDITION_UPDATE_NO_COUNT, message)
 
             if ChatAnnouncements.SV.Quests.QuestObjCompleteCA then
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "MESSAGE" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "MESSAGE"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -9891,7 +10040,11 @@ function ChatAnnouncements.HookFunction()
                 else
                     formattedString = zo_strformat(LUIE_STRING_CA_QUEST_ABANDONED, questNameFormatted)
                 end
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "MESSAGE" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "MESSAGE"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -9974,7 +10127,11 @@ function ChatAnnouncements.HookFunction()
                                 ChatAnnouncements.QueuedMessages[i].message = ""
                             end
                         end
-                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = stepOverrideText, messageType = "MESSAGE" }
+                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                        {
+                            message = stepOverrideText,
+                            messageType = "MESSAGE"
+                        }
                         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                         eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                     end
@@ -10001,7 +10158,11 @@ function ChatAnnouncements.HookFunction()
                                         ChatAnnouncements.QueuedMessages[i].message = ""
                                     end
                                 end
-                                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = conditionText, messageType = "MESSAGE" }
+                                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                                {
+                                    message = conditionText,
+                                    messageType = "MESSAGE"
+                                }
                                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                             end
@@ -10057,7 +10218,11 @@ function ChatAnnouncements.HookFunction()
         if ChatAnnouncements.SV.Quests.QuestLocDiscoveryCA then
             local nameFormatted = (zo_strformat("|c<<1>><<2>>|r", ColorizeColors.QuestColorLocNameColorize, subzoneName))
             local formattedString = zo_strformat(LUIE_STRING_CA_QUEST_DISCOVER, nameFormatted)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "QUEST" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = formattedString,
+                messageType = "QUEST"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -10093,7 +10258,11 @@ function ChatAnnouncements.HookFunction()
 
         if ChatAnnouncements.SV.Quests.QuestLocObjectiveCA then
             local formattedString = (zo_strformat("|c<<1>><<2>>:|r |c<<3>><<4>>|r", ColorizeColors.QuestColorLocNameColorize, name, ColorizeColors.QuestColorLocDescriptionColorize, startDescription))
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "QUEST_POI" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = formattedString,
+                messageType = "QUEST_POI"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -10180,7 +10349,11 @@ function ChatAnnouncements.HookFunction()
                 else
                     formattedString = zo_strformat("<<1>><<2>> <<3>><<4>>", ColorizeColors.ExperienceLevelUpColorize:Colorize(GetString(LUIE_STRING_CA_LVL_ANNOUNCE_XP)), icon, CurrentLevelFormatted, ColorizeColors.ExperienceLevelUpColorize:Colorize("!"))
                 end
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "EXPERIENCE_LEVEL" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "EXPERIENCE_LEVEL"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -10224,7 +10397,11 @@ function ChatAnnouncements.HookFunction()
     local function GetEnlightenedGainedAnnouncement(triggeringEvent)
         local formattedString = zo_strformat("<<1>>! <<2>>", GetString(SI_ENLIGHTENED_STATE_GAINED_HEADER), GetString(SI_ENLIGHTENED_STATE_GAINED_DESCRIPTION))
         if ChatAnnouncements.SV.XP.ExperienceEnlightenedCA then
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "EXPERIENCE" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = formattedString,
+                messageType = "EXPERIENCE"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -10265,7 +10442,11 @@ function ChatAnnouncements.HookFunction()
             local formattedString = zo_strformat("<<1>>!", GetString(SI_ENLIGHTENED_STATE_LOST_HEADER))
 
             if ChatAnnouncements.SV.XP.ExperienceEnlightenedCA then
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "EXPERIENCE" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "EXPERIENCE"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -10350,13 +10531,21 @@ function ChatAnnouncements.HookFunction()
                     local messageP2 = string_format(learnString, formattedString)
                     local finalMessage = string_format("|c%s%s|r", formattedColor, messageP2)
 
-                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "MESSAGE" }
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = finalMessage,
+                        messageType = "MESSAGE"
+                    }
                     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
 
                 local formattedString = ColorizeColors.StorageRidingColorize:Colorize(zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkill), previous, current))
-                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "MESSAGE" }
+                ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                {
+                    message = formattedString,
+                    messageType = "MESSAGE"
+                }
                 ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                 eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
             end
@@ -10410,7 +10599,11 @@ function ChatAnnouncements.HookFunction()
         if ChatAnnouncements.SV.XP.ExperienceLevelUpCA then
             local formattedIcon = ChatAnnouncements.SV.XP.ExperienceLevelUpIcon and zo_strformat("<<1>> ", zo_iconFormatInheritColor(icon, 16, 16)) or ""
             local formattedString = ColorizeColors.ExperienceLevelUpColorize:Colorize(zo_strformat(GetString(SI_CHAMPION_ANNOUNCEMENT_UNLOCKED), formattedIcon))
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "EXPERIENCE_LEVEL" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = formattedString,
+                messageType = "EXPERIENCE_LEVEL"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -10484,7 +10677,11 @@ function ChatAnnouncements.HookFunction()
         if ChatAnnouncements.SV.XP.ExperienceLevelUpCA then
             local formattedString = ColorizeColors.ExperienceLevelUpColorize:Colorize(zo_strformat(SI_CHAMPION_POINT_EARNED, savedPointDelta) .. ": ")
             eventManager:UnregisterForUpdate(moduleName .. "Printer")
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "EXPERIENCE_LEVEL" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = formattedString,
+                messageType = "EXPERIENCE_LEVEL"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 25, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -10509,7 +10706,11 @@ function ChatAnnouncements.HookFunction()
                     end
                     if ChatAnnouncements.SV.XP.ExperienceLevelUpCA then
                         eventManager:UnregisterForUpdate(moduleName .. "Printer")
-                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = formattedString, messageType = "EXPERIENCE_LEVEL" }
+                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                        {
+                            message = formattedString,
+                            messageType = "EXPERIENCE_LEVEL"
+                        }
                         ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                         eventManager:RegisterForUpdate(moduleName .. "Printer", 25, ChatAnnouncements.PrintQueuedMessages)
                     end
@@ -11295,7 +11496,11 @@ function ChatAnnouncements.HookFunction()
 
             -- Concatenate final string without using string_format
             local finalString = stringpart1 .. stringpart2 .. stringpart3
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalString, messageType = "ACHIEVEMENT" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = finalString,
+                messageType = "ACHIEVEMENT"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -11382,7 +11587,11 @@ function ChatAnnouncements.HookFunction()
             local messageP2 = antiquityLink
             local messageP3 = ColorizeColors.AntiquityColorize:Colorize(" " .. ChatAnnouncements.SV.Antiquities.AntiquitySuffix)
             local finalMessage = zo_strformat("<<1>><<2>><<3>>", messageP1, messageP2, messageP3)
-            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "ANTIQUITY" }
+            ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+            {
+                message = finalMessage,
+                messageType = "ANTIQUITY"
+            }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
         end
@@ -13018,7 +13227,11 @@ function ChatAnnouncements.PrintExperienceGain(change)
     local formattedMessageP1 = (string_format(ChatAnnouncements.SV.XP.ExperienceMessage, messageP1))
     local finalMessage = string_format("|c%s%s|r", ColorizeColors.ExperienceMessageColorize, formattedMessageP1)
 
-    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = "EXPERIENCE" }
+    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+    {
+        message = finalMessage,
+        messageType = "EXPERIENCE"
+    }
     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
 end
@@ -13146,7 +13359,11 @@ function ChatAnnouncements.PrintGuildRep(change, lineName, lineId, priority)
     local finalMessage = string_format("|c%s%s|r", ColorizeColors.SkillGuildColorize, formattedMessageP1)
 
     -- We set this to skill gain, so as to avoid creating an entire additional chat message category (we want it to show after XP but before any other skill gains or level up so we place it on top of the level up priority).
-    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] = { message = finalMessage, messageType = priority }
+    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+    {
+        message = finalMessage,
+        messageType = priority
+    }
     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
 end
