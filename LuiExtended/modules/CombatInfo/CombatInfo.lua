@@ -329,7 +329,7 @@ end
 --- @param slotNum integer
 --- @param hotbarCategory number
 function CombatInfo.UpdateTrackedActionSlotEffects(slotNum, hotbarCategory)
-    --LUIE.Debug("UpdateTrackedActionSlotEffects", slotNum, hotbarCategory)
+    -- LUIE.Debug("UpdateTrackedActionSlotEffects", slotNum, hotbarCategory)
     local abilityId = GetSlotTrueBoundId(slotNum, hotbarCategory)
     if not abilityId or abilityId == 0 then return end
 
@@ -1506,6 +1506,35 @@ function CombatInfo.BarHighlightSwap(abilityId)
     end
 end
 
+--- Handles ability ID overrides for bar highlights
+--- @param abilityId integer
+--- @param unitTag string
+--- @return integer
+local function HandleAbilityIdOverrides(abilityId, unitTag)
+    -- Only proceed with ability ID hijacking if FancyActionBar is not active
+    if not OtherAddonCompatability.isFancyActionBarPlusEnabled then
+        -- Hijack the abilityId here if we have it in the override for extra bar highlights
+        if Effects.BarHighlightExtraId[abilityId] then
+            for k, v in pairs(Effects.BarHighlightExtraId) do
+                if k == abilityId then
+                    local newAbilityId = v
+
+                    if Effects.IsGroundMineAura[newAbilityId] then
+                        -- This prevents debuffs from ground mines from not fading when mouseover is changed
+                        g_toggledSlotsPlayer[newAbilityId] = nil
+                        if unitTag == "reticleover" then
+                            g_mineNoTurnOff[newAbilityId] = true
+                        end
+                    end
+
+                    return newAbilityId
+                end
+            end
+        end
+    end
+    return abilityId
+end
+
 -- Extra returns here - passThrough & savedId
 --- Handles effect changed event
 --- @param eventCode integer
@@ -1694,22 +1723,8 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
         stackCount = Effects.BarHighlightStack[abilityId]
     end
 
-    -- Hijack the abilityId here if we have it in the override for extra bar highlights
-    if Effects.BarHighlightExtraId[abilityId] then
-        for k, v in pairs(Effects.BarHighlightExtraId) do
-            if k == abilityId then
-                abilityId = v
-                if Effects.IsGroundMineAura[abilityId] then
-                    -- This prevents debuffs from ground mines from not fading when mouseover is changed.
-                    g_toggledSlotsPlayer[abilityId] = nil
-                    if unitTag == "reticleover" then
-                        g_mineNoTurnOff[abilityId] = true
-                    end
-                end
-                break
-            end
-        end
-    end
+    -- Handle ability ID overrides for bar highlights
+    abilityId = HandleAbilityIdOverrides(abilityId, unitTag)
 
     if unitTag ~= "player" and unitTag ~= "reticleover" then
         return
@@ -3154,12 +3169,6 @@ function CombatInfo.InitializeActionBarEffects()
     end)
 end
 
-local function CompatHide()
-    if CombatInfo.SV.BarShowBack then
-        _G["LUIE_Backbar"]:SetHidden(true)
-    end
-end
-
 local function CreateBackBarButtons()
     -- Create a top level window for backbar buttons using UI:Control
     local tlw = UI:Control(
@@ -3184,7 +3193,10 @@ local function CreateBackBarButtons()
     or
        OtherAddonCompatability.isFancyActionBarPlusEnabled     -- https://www.esoui.com/downloads/info3938-FancyActionBar.html
     then
-        CompatHide()
+        CombatInfo.SV.BarShowBack = false
+        CombatInfo.SV.BarShowLabel = false
+        CombatInfo.SV.ShowToggled = false
+        CombatInfo.SV.ShowTriggered = false
     end
 end
 
