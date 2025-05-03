@@ -329,7 +329,7 @@ end
 --- @param slotNum integer
 --- @param hotbarCategory number
 function CombatInfo.UpdateTrackedActionSlotEffects(slotNum, hotbarCategory)
-    LUIE.Debug("UpdateTrackedActionSlotEffects", slotNum, hotbarCategory)
+    --LUIE.Debug("UpdateTrackedActionSlotEffects", slotNum, hotbarCategory)
     local abilityId = GetSlotTrueBoundId(slotNum, hotbarCategory)
     if not abilityId or abilityId == 0 then return end
 
