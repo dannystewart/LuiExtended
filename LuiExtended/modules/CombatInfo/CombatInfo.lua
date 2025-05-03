@@ -3154,6 +3154,12 @@ function CombatInfo.InitializeActionBarEffects()
     end)
 end
 
+local function CompatHide()
+    if CombatInfo.SV.BarShowBack then
+        _G["LUIE_Backbar"]:SetHidden(true)
+    end
+end
+
 local function CreateBackBarButtons()
     -- Create a top level window for backbar buttons using UI:Control
     local tlw = UI:Control(
@@ -3171,8 +3177,14 @@ local function CreateBackBarButtons()
         g_backbarButtons[i] = button
     end
 
-    if OtherAddonCompatability.isActionDurationReminderEnabled or OtherAddonCompatability.isFancyActionBarEnabled or OtherAddonCompatability.isFancyActionBarPlusEnabled then
-        _G["LUIE_Backbar"]:SetHidden(true)
+    if
+       OtherAddonCompatability.isActionDurationReminderEnabled -- https://www.esoui.com/downloads/info1536-ActionDurationReminder.html
+    or
+       OtherAddonCompatability.isFancyActionBarEnabled         -- https://www.esoui.com/downloads/info2462-FancyActionBar.html
+    or
+       OtherAddonCompatability.isFancyActionBarPlusEnabled     -- https://www.esoui.com/downloads/info3938-FancyActionBar.html
+    then
+        CompatHide()
     end
 end
 
