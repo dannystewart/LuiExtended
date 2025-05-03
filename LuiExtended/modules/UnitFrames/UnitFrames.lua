@@ -465,7 +465,6 @@ local function CreateRegenAnimation(parent, anchors, dims, alpha, number)
         distance = -dims[1] * 0.35
         offsetX = -dims[1] * 0.075
     end
-    if control == nil then return end
 
     control:SetHidden(true)
     control:SetAlpha(0)
@@ -503,7 +502,6 @@ end
 -- Decreased armour overlay visuals
 local function CreateDecreasedArmorOverlay(parent, small)
     local control = UI:Control(parent, { CENTER, CENTER }, { 512, 32 }, false)
-    if control == nil then return end
     control.smallTex = UI:Texture(control, { CENTER, CENTER }, { 512, 32 }, "/EsoUI/Art/UnitAttributeVisualizer/attributeBar_dynamic_decreasedArmor_small.dds", 2, false)
     control.smallTex:SetDrawTier(DT_HIGH)
     -- control.smallTexGlow = UI:Texture(control, {CENTER,CENTER}, {512,32}, "/EsoUI/Art/UnitAttributeVisualizer/attributeBar_dynamic_decreasedArmor_small_glow.dds", 2, false)
@@ -860,15 +858,12 @@ local function CreateCustomFrames()
         local botInfo = UI:Control(player, { TOP, BOTTOM, 0, 2 }, nil, false)
         local buffAnchor = UI:Control(player, { TOP, BOTTOM, 0, 2 }, nil, false)
         local phb = UI:Backdrop(player, { TOP, TOP, 0, 0 }, nil, nil, nil, false)
-        if phb == nil then return end
         phb:SetDrawLayer(DL_BACKGROUND)
         phb:SetDrawLevel(DL_CONTROLS)
         local pmb = UI:Backdrop(player, nil, nil, nil, nil, false)
-        if pmb == nil then return end
         pmb:SetDrawLayer(DL_BACKGROUND)
         pmb:SetDrawLevel(DL_CONTROLS)
         local psb = UI:Backdrop(player, nil, nil, nil, nil, false)
-        if psb == nil then return end
         psb:SetDrawLayer(DL_BACKGROUND)
         psb:SetDrawLevel(DL_CONTROLS)
         local alt = UI:Backdrop(botInfo, { RIGHT, RIGHT }, nil, nil, { 0, 0, 0, 1 }, false)
@@ -971,7 +966,6 @@ local function CreateCustomFrames()
         local botInfo = UI:Control(target, { TOP, BOTTOM, 0, 2 }, nil, false)
         local buffAnchor = UI:Control(target, { TOP, BOTTOM, 0, 2 }, nil, false)
         local thb = UI:Backdrop(target, { TOP, TOP, 0, 0 }, nil, nil, nil, false)
-        if thb == nil then return end
         thb:SetDrawLayer(DL_BACKGROUND)
         thb:SetDrawLevel(DL_CONTROLS)
         local tli = UI:Texture(topInfo, nil, { 20, 20 }, nil, nil, false)
@@ -1050,7 +1044,6 @@ local function CreateCustomFrames()
         local botInfo = UI:Control(target, { TOP, BOTTOM, 0, 2 }, nil, false)
         local buffAnchor = UI:Control(target, { TOP, BOTTOM, 0, 2 }, nil, false)
         local thb = UI:Backdrop(target, { TOP, TOP, 0, 0 }, nil, nil, nil, false)
-        if thb == nil then return end
         thb:SetDrawLayer(DL_BACKGROUND)
         thb:SetDrawLevel(DL_CONTROLS)
         local cn = UI:Label(botInfo, { TOP, TOP }, nil, { 1, 3 }, nil, "Class", false)
@@ -1130,7 +1123,6 @@ local function CreateCustomFrames()
             local control = UI:Control(group, nil, nil, false)
             local topInfo = UI:Control(control, { BOTTOMRIGHT, TOPRIGHT, 0, -3 }, nil, false)
             local ghb = UI:Backdrop(control, { TOPLEFT, TOPLEFT }, nil, nil, nil, false)
-            if ghb == nil then return end
             ghb:SetDrawLayer(DL_BACKGROUND)
             ghb:SetDrawLevel(DL_CONTROLS)
             local gli = UI:Texture(topInfo, nil, { 20, 20 }, nil, nil, false)
@@ -1160,12 +1152,10 @@ local function CreateCustomFrames()
             }
 
             UnitFrames.CustomFrames[unitTag].name:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
-            if control == nil then return end
             control.defaultUnitTag = GetGroupUnitTagByIndex(i)
             control:SetMouseEnabled(true)
             control:SetHandler("OnMouseUp", UnitFrames.GroupFrames_OnMouseUp)
             topInfo.defaultUnitTag = GetGroupUnitTagByIndex(i)
-            if topInfo == nil then return end
             topInfo:SetMouseEnabled(true)
             topInfo:SetHandler("OnMouseUp", UnitFrames.GroupFrames_OnMouseUp)
         end
@@ -1194,7 +1184,6 @@ local function CreateCustomFrames()
             local unitTag = "RaidGroup" .. i
             local control = UI:Control(raid, nil, nil, false)
             local rhb = UI:Backdrop(control, "fill", nil, nil, nil, false)
-            if rhb == nil then return end
             rhb:SetDrawLayer(DL_BACKGROUND)
             rhb:SetDrawLevel(DL_CONTROLS)
 
@@ -1218,7 +1207,6 @@ local function CreateCustomFrames()
             }
             UnitFrames.CustomFrames[unitTag].name:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
 
-            if control == nil then return end
             control.defaultUnitTag = GetGroupUnitTagByIndex(i)
             control:SetMouseEnabled(true)
             control:SetHandler("OnMouseUp", UnitFrames.GroupFrames_OnMouseUp)
@@ -1249,7 +1237,6 @@ local function CreateCustomFrames()
             local unitTag = "PetGroup" .. i
             local control = UI:Control(pet, nil, nil, false)
             local shb = UI:Backdrop(control, "fill", nil, nil, nil, false)
-            if shb == nil then return end
 
             shb:SetDrawLayer(DL_BACKGROUND)
             shb:SetDrawLevel(DL_CONTROLS)
@@ -1294,7 +1281,7 @@ local function CreateCustomFrames()
 
         local companion = UI:Control(companionTlw, nil, nil, false)
         local shb = UI:Backdrop(companion, "fill", nil, nil, nil, false)
-        if shb == nil then return end
+
         shb:SetDrawLayer(DL_BACKGROUND)
         shb:SetDrawLevel(DL_CONTROLS)
 
@@ -1341,7 +1328,7 @@ local function CreateCustomFrames()
             local unitTag = "boss" .. i
             local control = UI:Control(bosses, nil, nil, false)
             local bhb = UI:Backdrop(control, "fill", nil, nil, nil, false)
-            if bhb == nil then return end
+
             bhb:SetDrawLayer(DL_BACKGROUND)
             bhb:SetDrawLevel(DL_CONTROLS)
 
@@ -4909,7 +4896,6 @@ function UnitFrames.CustomFramesApplyColors(isMenu)
     if UnitFrames.CustomFrames["companion"] and UnitFrames.CustomFrames["companion"].tlw then
         local unitFrame = UnitFrames.CustomFrames["companion"]
         local shb = unitFrame[COMBAT_MECHANIC_FLAGS_HEALTH] -- not a backdrop
-        if shb == nil then return end
         if UnitFrames.SV.CompanionUseClassColor then
             local class_color
             local class_bg
@@ -5336,7 +5322,6 @@ function UnitFrames.CustomFramesApplyReactionColor(isPlayer)
             local thb = unitFrame[COMBAT_MECHANIC_FLAGS_HEALTH] -- not a backdrop
             local classcolor = classColor[GetUnitClassId("reticleover")]
             local classcolor_bg = classBackground[GetUnitClassId("reticleover")]
-            if thb == nil then return end
             thb.bar:SetColor(unpack(classcolor))
             thb.backdrop:SetCenterColor(unpack(classcolor_bg))
             return -- If we apply Class color then end the function here
@@ -5475,7 +5460,6 @@ function UnitFrames.CustomFramesApplyReactionColor(isPlayer)
                 reactioncolor = reactionColor[GetUnitReaction("reticleover")]
                 reactioncolor_bg = reactionBackground[GetUnitReaction("reticleover")]
             end
-            if thb == nil then return end
             thb.bar:SetColor(unpack(reactioncolor))
             thb.backdrop:SetCenterColor(unpack(reactioncolor_bg))
         end
@@ -5498,7 +5482,7 @@ function UnitFrames.CustomFramesApplyReactionColor(isPlayer)
         if UnitFrames.CustomFrames["reticleover"] then
             local unitFrame = UnitFrames.CustomFrames["reticleover"]
             local thb = unitFrame[COMBAT_MECHANIC_FLAGS_HEALTH] -- not a backdrop
-            if thb == nil then return end
+
             thb.bar:SetColor(unpack(health))
             thb.backdrop:SetCenterColor(unpack(health_bg))
         end

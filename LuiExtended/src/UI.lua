@@ -13,12 +13,12 @@ local windowManager = GetWindowManager()
 --- @field __index LUIE.UI
 --- @field isInDebug boolean # Flag to control debug naming mode
 --- @field TopLevel fun(self:LUIE.UI, anchors?: table, dims?: table): TopLevelWindow # Creates a top-level window control
---- @field Control fun(self:LUIE.UI, parent: userdata, anchors?: table|string, dims?: table|string, hidden?: boolean, name?: string): Control|nil # Creates a basic UI control
---- @field Texture fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", texture?: string, drawlayer?: integer, hidden?: boolean): TextureControl|nil # Creates a texture control
---- @field Backdrop fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", center?: table, edge?: table, hidden?: boolean): BackdropControl|nil # Creates a backdrop control
---- @field ChatBackdrop fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", color?: table, edge_size?: number, hidden?: boolean): BackdropControl|nil # Creates a chat-style backdrop
---- @field StatusBar fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", color?: table, hidden?: boolean): StatusBarControl|nil # Creates a status bar control
---- @field Label fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", align?: table, font?: string, text?: string, hidden?: boolean, name?: string): LabelControl|nil # Creates a label control
+--- @field Control fun(self:LUIE.UI, parent: userdata, anchors?: table|string, dims?: table|string, hidden?: boolean, name?: string): Control # Creates a basic UI control
+--- @field Texture fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", texture?: string, drawlayer?: integer, hidden?: boolean): TextureControl # Creates a texture control
+--- @field Backdrop fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", center?: table, edge?: table, hidden?: boolean): BackdropControl # Creates a backdrop control
+--- @field ChatBackdrop fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", color?: table, edge_size?: number, hidden?: boolean): BackdropControl # Creates a chat-style backdrop
+--- @field StatusBar fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", color?: table, hidden?: boolean): StatusBarControl # Creates a status bar control
+--- @field Label fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", align?: table, font?: string, text?: string, hidden?: boolean, name?: string): LabelControl # Creates a label control
 local UI = {}
 UI.__index = UI
 -- -----------------------------------------------------------------------------
@@ -82,7 +82,7 @@ end
 --- @return Control|nil c The created control, or nil if parent is invalid
 function UI:Control(parent, anchors, dims, hidden, name)
     if not parent then
-        return
+        return nil
     end
     local controlName = name or GetUniqueControlName("Control")
     --- @type Control
@@ -114,7 +114,7 @@ end
 --- @return TextureControl|nil texture The created texture control, or nil if parent is invalid
 function UI:Texture(parent, anchors, dims, texture, drawlayer, hidden)
     if not parent then
-        return
+        return nil
     end
     local name = GetUniqueControlName("Texture")
     --- @type TextureControl
@@ -153,7 +153,7 @@ end
 --- @return BackdropControl|nil backdrop The created backdrop control, or nil if parent is invalid
 function UI:Backdrop(parent, anchors, dims, center, edge, hidden)
     if not parent then
-        return
+        return nil
     end
     local name = GetUniqueControlName("Backdrop")
     local centerColor = (center ~= nil and #center == 4) and center or { 0, 0, 0, 0.4 }
@@ -192,7 +192,7 @@ end
 --- @return BackdropControl|nil backdrop The created chat backdrop control, or nil if parent is invalid
 function UI:ChatBackdrop(parent, anchors, dims, color, edge_size, hidden)
     if not parent then
-        return
+        return nil
     end
     local name = GetUniqueControlName("ChatBackdrop")
     local bgColor = (color ~= nil and #color == 4) and color or { 0, 0, 0, 1 }
@@ -233,7 +233,7 @@ end
 --- @return StatusBarControl|nil statusbar The created status bar control, or nil if parent is invalid
 function UI:StatusBar(parent, anchors, dims, color, hidden)
     if not parent then
-        return
+        return nil
     end
     local name = GetUniqueControlName("StatusBar")
     --- @type StatusBarControl
@@ -271,7 +271,7 @@ end
 --- @return LabelControl|nil label The created label control, or nil if parent is invalid
 function UI:Label(parent, anchors, dims, align, font, text, hidden, name)
     if not parent then
-        return
+        return nil
     end
     local labelName = name or GetUniqueControlName("Label")
     local alignment = (align ~= nil and #align == 2) and align or { TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER }
