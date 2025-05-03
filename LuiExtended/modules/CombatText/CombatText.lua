@@ -7,7 +7,6 @@
 local LUIE = LUIE
 -- CombatText namespace
 --- @class (partial) LUIE.CombatText
---- @field SV LUIE.CombatText.SV
 local CombatText = {}
 CombatText.__index = CombatText
 --- @class (partial) LUIE.CombatText
