@@ -3466,9 +3466,6 @@ local function CreateBackBarButtons()
        OtherAddonCompatability.isFancyActionBarPlusEnabled     -- https://www.esoui.com/downloads/info3938-FancyActionBar.html
     then
         CombatInfo.SV.BarShowBack = false
-        CombatInfo.SV.BarShowLabel = false
-        -- CombatInfo.SV.ShowToggled = false
-        -- CombatInfo.SV.ShowTriggered = false
     end
 end
 
