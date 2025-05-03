@@ -694,7 +694,7 @@ local ChatAnnouncements =
 
 ------------------------------------------------
 
-local ColorizeColors = {}
+local ColorizeColors = ChatAnnouncements.Colors
 
 ------------------------------------------------
 -- LOCAL (GLOBAL) VARIABLE SETUP ---------------
@@ -1375,14 +1375,14 @@ function ChatAnnouncements.ResolveNameLink(characterName, displayName)
 
     if displayOption == 1 then
         return useBrackets and ZO_LinkHandler_CreateDisplayNameLink(displayName) or
-               ZO_LinkHandler_CreateLinkWithoutBrackets(displayName, nil, DISPLAY_NAME_LINK_TYPE, displayName)
+            ZO_LinkHandler_CreateLinkWithoutBrackets(displayName, nil, DISPLAY_NAME_LINK_TYPE, displayName)
     elseif displayOption == 2 then
         return useBrackets and ZO_LinkHandler_CreateCharacterLink(characterName) or
-               ZO_LinkHandler_CreateLinkWithoutBrackets(characterName, nil, CHARACTER_LINK_TYPE, characterName)
+            ZO_LinkHandler_CreateLinkWithoutBrackets(characterName, nil, CHARACTER_LINK_TYPE, characterName)
     else
         local displayBothString = zo_strformat("<<1>><<2>>", characterName, displayName)
         return useBrackets and ZO_LinkHandler_CreateLink(displayBothString, nil, DISPLAY_NAME_LINK_TYPE, displayName) or
-               ZO_LinkHandler_CreateLinkWithoutBrackets(displayBothString, nil, DISPLAY_NAME_LINK_TYPE, displayName)
+            ZO_LinkHandler_CreateLinkWithoutBrackets(displayBothString, nil, DISPLAY_NAME_LINK_TYPE, displayName)
     end
 end
 
@@ -1393,7 +1393,7 @@ end
 --- @return string nameLink The resolved name string
 function ChatAnnouncements.ResolveNameNoLink(characterName, displayName)
     local displayOption = ChatAnnouncements.SV.ChatPlayerDisplayOptions
-    
+
     if displayOption == 1 then
         return displayName
     elseif displayOption == 2 then
@@ -4577,7 +4577,7 @@ end
 --- @param isStolen boolean
 function ChatAnnouncements.OnLootReceived(eventId, receivedBy, itemName, quantity, soundCategory, lootType, lootedBySelf, isPickpocketLoot, questItemIcon, itemId, isStolen)
     local itemLink = itemName
-    
+
     if LUIE.IsDevDebugEnabled() then
         local Debug = LUIE.Debug
         local traceback = "Loot Received:\n" ..
