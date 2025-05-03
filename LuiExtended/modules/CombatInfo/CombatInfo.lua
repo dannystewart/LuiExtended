@@ -3441,6 +3441,12 @@ function CombatInfo.InitializeActionBarEffects()
     end)
 end
 
+local function SetAbilityBarTimersEnabled()
+    if GetSetting_Bool(SETTING_TYPE_UI, UI_SETTING_SHOW_ACTION_BAR_TIMERS) == false then
+        SetSetting(SETTING_TYPE_UI, UI_SETTING_SHOW_ACTION_BAR_TIMERS, "true", SETTINGS_SET_OPTION_SAVE_TO_PERSISTED_DATA)
+    end
+end
+
 local function CreateBackBarButtons()
     -- Create a top level window for backbar buttons using UI:Control
     local tlw = UI:Control(
@@ -3456,6 +3462,10 @@ local function CreateBackBarButtons()
         SetupSwapAnimation(button)
         button:SetupBounceAnimation()
         g_backbarButtons[i] = button
+    end
+
+    if CombatInfo.SV.BarShowLabel then
+        SetAbilityBarTimersEnabled()
     end
 
     if
