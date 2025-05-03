@@ -106,7 +106,6 @@ modules/SlashCommands/Guild.lua
 modules/SlashCommands/Social.lua
 
 # Modules - Unit Frames
-modules/UnitFrames/UnitFramesConstants.lua
 modules/UnitFrames/UnitFrames.lua
 
 # Settings

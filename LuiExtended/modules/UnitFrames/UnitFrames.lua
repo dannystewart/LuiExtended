@@ -5,11 +5,12 @@
 
 --- @class (partial) LuiExtended
 local LUIE = LUIE
-
-
---- @class (partial) UnitFrames
-local UnitFrames = LUIE.UnitFrames
 local UI = LUIE.UI
+
+-- Unit Frames namespace
+--- @class (partial) UnitFrames
+local UnitFrames = {}
+UnitFrames.__index = UnitFrames
 
 local AbbreviateNumber = LUIE.AbbreviateNumber
 local printToChat = LUIE.PrintToChat
@@ -25,6 +26,346 @@ local eventManager = GetEventManager()
 local sceneManager = SCENE_MANAGER
 
 local moduleName = LUIE.name .. "UnitFrames"
+
+UnitFrames.Enabled = false
+UnitFrames.Defaults =
+{
+    ShortenNumbers = false,
+    RepositionFrames = true,
+    DefaultOocTransparency = 85,
+    DefaultIncTransparency = 85,
+    DefaultFramesNewPlayer = 1,
+    DefaultFramesNewTarget = 1,
+    DefaultFramesNewGroup = 1,
+    DefaultFramesNewBoss = 2,
+    Format = GetString(LUIE_STRING_UF_FORMAT_DEFAULT),
+    DefaultFontFace = GetString(LUIE_STRING_UF_FONT_DEFAULT),
+    DefaultFontStyle = GetString(LUIE_STRING_UF_FONT_STYLE_DEFAULT),
+    DefaultFontSize = 16,
+    DefaultTextColour = { 1, 1, 1 },
+    TargetShowClass = true,
+    TargetShowFriend = true,
+    TargetColourByReaction = false,
+    CustomFormatOnePT = GetString(LUIE_STRING_UF_FORMAT_PT_ONE),
+    CustomFormatOneGroup = GetString(LUIE_STRING_UF_FORMAT_GROUP_ONE),
+    CustomFormatTwoPT = GetString(LUIE_STRING_UF_FORMAT_PT_TWO),
+    CustomFormatTwoGroup = GetString(LUIE_STRING_UF_FORMAT_GROUP_TWO),
+    CustomFormatRaid = GetString(LUIE_STRING_UF_FORMAT_RAID),
+    CustomFormatBoss = GetString(LUIE_STRING_UF_FORMAT_BOSS),
+    CustomFontFace = GetString(LUIE_STRING_UF_FONT_DEFAULT),
+    CustomFontStyle = GetString(LUIE_STRING_UF_FONT_STYLE_CUSTOM),
+    CustomFontBars = 16,
+    CustomFontOther = 20,
+    CustomTexture = GetString(LUIE_STRING_UF_TEXTURE_DEFAULT),
+    HideBuffsPlayerOoc = false,
+    HideBuffsTargetOoc = false,
+    PlayerOocAlpha = 85,
+    PlayerIncAlpha = 85,
+    TargetOocAlpha = 85,
+    TargetIncAlpha = 85,
+    GroupAlpha = 85,
+    BossOocAlpha = 85,
+    BossIncAlpha = 85,
+    CustomOocAlphaPower = true,
+    CustomColourHealth = { 202 / 255, 20 / 255, 0 },
+    CustomColourShield = { 1, 192 / 255, 0 },
+    CustomColourTrauma = { 90 / 255, 0, 99 / 255 },
+    CustomColourMagicka = { 0, 83 / 255, 209 / 255 },
+    CustomColourStamina = { 28 / 255, 177 / 255, 0 },
+    CustomColourInvulnerable = { 95 / 255, 70 / 255, 60 / 255 },
+    CustomColourDPS = { 130 / 255, 99 / 255, 65 / 255 },
+    CustomColourHealer = { 117 / 255, 077 / 255, 135 / 255 },
+    CustomColourTank = { 133 / 255, 018 / 255, 013 / 255 },
+    CustomColourDragonknight = { 255 / 255, 125 / 255, 35 / 255 },
+    CustomColourNightblade = { 255 / 255, 51 / 255, 49 / 255 },
+    CustomColourSorcerer = { 75 / 255, 83 / 255, 247 / 255 },
+    CustomColourTemplar = { 255 / 255, 240 / 255, 95 / 255 },
+    CustomColourWarden = { 136 / 255, 245 / 255, 125 / 255 },
+    CustomColourNecromancer = { 97 / 255, 37 / 255, 201 / 255 },
+    CustomColourArcanist = { 90 / 255, 240 / 255, 80 / 255 },
+    CustomShieldBarSeparate = false,
+    CustomShieldBarHeight = 8,
+    CustomShieldBarFull = false,
+    CustomSmoothBar = true,
+    CustomFramesPlayer = true,
+    CustomFramesTarget = true,
+    PlayerBarWidth = 300,
+    TargetBarWidth = 300,
+    PlayerBarHeightHealth = 30,
+    PlayerBarHeightMagicka = 28,
+    PlayerBarHeightStamina = 28,
+    BossBarWidth = 300,
+    BossBarHeight = 36,
+    HideBarMagicka = false,
+    HideLabelMagicka = false,
+    HideBarStamina = false,
+    HideLabelStamina = false,
+    HideLabelHealth = false,
+    HideBarHealth = false,
+    PlayerBarSpacing = 0,
+    TargetBarHeight = 36,
+    PlayerEnableYourname = true,
+    PlayerEnableAltbarMSW = true,
+    PlayerEnableAltbarXP = true,
+    PlayerChampionColour = true,
+    PlayerEnableArmor = true,
+    PlayerEnablePower = true,
+    PlayerEnableRegen = true,
+    GroupEnableArmor = false,
+    GroupEnablePower = false,
+    GroupEnableRegen = true,
+    RaidEnableArmor = false,
+    RaidEnablePower = false,
+    RaidEnableRegen = false,
+    BossEnableArmor = false,
+    BossEnablePower = false,
+    BossEnableRegen = false,
+    TargetEnableClass = false,
+    TargetEnableRank = true,
+    TargetEnableRankIcon = true,
+    TargetTitlePriority = GetString(LUIE_STRING_UF_TITLE_PRIORITY),
+    TargetEnableTitle = true,
+    TargetEnableSkull = true,
+    CustomFramesGroup = true,
+    GroupExcludePlayer = false,
+    GroupBarWidth = 260,
+    GroupBarHeight = 36,
+    GroupBarSpacing = 40,
+    CustomFramesRaid = true,
+    RaidNameClip = 94,
+    RaidBarWidth = 220,
+    RaidBarHeight = 30,
+    RaidLayout = GetString(LUIE_STRING_UF_RAID_LAYOUT),
+    RoleIconSmallGroup = true,
+    ColorRoleGroup = true,
+    ColorRoleRaid = true,
+    SortRoleRaid = true,
+    ColorClassGroup = false,
+    ColorClassRaid = false,
+    RaidSpacers = false,
+    CustomFramesBosses = true,
+    AvaCustFramesTarget = false,
+    AvaTargetBarWidth = 450,
+    AvaTargetBarHeight = 36,
+    Target_FontColour = { 1, 1, 1 },
+    Target_FontColour_FriendlyNPC = { 0, 1, 0 },
+    Target_FontColour_FriendlyPlayer = { 0.7, 0.7, 1 },
+    Target_FontColour_Hostile = { 1, 0, 0 },
+    Target_FontColour_Neutral = { 1, 1, 0 },
+    Target_Neutral_UseDefaultColour = true,
+    ReticleColour_Interact = { 1, 1, 0 },
+    ReticleColourByReaction = false,
+    DisplayOptionsPlayer = 2,
+    DisplayOptionsTarget = 2,
+    DisplayOptionsGroupRaid = 2,
+    ExecutePercentage = 20,
+    RaidIconOptions = 2,
+    RepositionFramesAdjust = 0,
+    PlayerFrameOptions = 1,
+    AdjustStaminaHPos = 200,
+    AdjustStaminaVPos = 0,
+    AdjustMagickaHPos = 200,
+    AdjustMagickaVPos = 0,
+    FrameColorReaction = false,
+    FrameColorClass = false,
+    CustomColourPlayer = { 178 / 255, 178 / 255, 1 },
+    CustomColourFriendly = { 0, 1, 0 },
+    CustomColourHostile = { 1, 0, 0 },
+    CustomColourNeutral = { 150 / 255, 150 / 255, 150 / 255 },
+    CustomColourGuard = { 95 / 255, 70 / 255, 60 / 255 },
+    CustomColourCompanionFrame = { 0, 1, 0 },
+    LowResourceHealth = 25,
+    LowResourceStamina = 25,
+    LowResourceMagicka = 25,
+    ShieldAlpha = 50,
+    ResolutionOptions = 1,
+    ReverseResourceBars = false,
+    CustomFramesPet = true,
+    CustomFormatPet = GetString(LUIE_STRING_UF_FORMAT_PET),
+    CustomColourPet = { 202 / 255, 20 / 255, 0 },
+    PetHeight = 30,
+    PetWidth = 220,
+    PetUseClassColor = false,
+    PetIncAlpha = 85,
+    PetOocAlpha = 85,
+    whitelist = {}, -- Whitelist for pet names
+    PetNameClip = 88,
+    CustomFramesCompanion = true,
+    CustomFormatCompanion = GetString(LUIE_STRING_UF_FORMAT_COMPANION),
+    CustomColourCompanion = { 202 / 255, 20 / 255, 0 },
+    CompanionHeight = 30,
+    CompanionWidth = 220,
+    CompanionUseClassColor = false,
+    CompanionIncAlpha = 85,
+    CompanionOocAlpha = 85,
+    CompanionNameClip = 88,
+    BarAlignPlayerHealth = 1,
+    BarAlignPlayerMagicka = 1,
+    BarAlignPlayerStamina = 1,
+    BarAlignTarget = 1,
+    BarAlignCenterLabelPlayer = false,
+    BarAlignCenterLabelTarget = false,
+    CustomFormatCenterLabel = GetString(LUIE_STRING_UF_FORMAT_CENTER_LABEL),
+    CustomTargetMarker = false,
+}
+
+
+--- @class (partial) LUIE_UnitFrames_SV
+UnitFrames.SV = {}
+
+--- @class LUIE_ChampionXP
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field enlightenment StatusBarControl
+--- @field icon TextureControl
+
+--- @class LUIE_Boss_Group
+--- @field [32] LUIE_Boss_Group_Health
+--- @field control Control
+--- @field name LabelControl
+--- @field dead LabelControl
+--- @field tld TopLevelWindow
+--- @field unitTag string
+
+--- @class LUIE_Boss_Group_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field invulnerable StatusBarControl
+--- @field invulnerableInlay StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+--- @field threshold integer
+--- @field trauma StatusBarControl
+
+--- @class LUIE_PetGroup_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+--- @field trauma StatusBarControl
+
+--- @class LUIE_PetGroup
+--- @field tlw TopLevelWindow
+--- @field name LabelControl
+--- @field dead LabelControl
+--- @field control Control
+--- @field [32] LUIE_PetGroup_Health
+
+--- @class LUIE_RaidGroup_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field invulnerable StatusBarControl
+--- @field invulnerableInlay StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+--- @field trauma StatusBarControl
+
+--- @class LUIE_RaidGroup
+--- @field [32] LUIE_RaidGroup_Health
+--- @field tlw TopLevelWindow
+--- @field control Control
+--- @field name LabelControl
+--- @field dead LabelControl
+--- @field leader LabelControl
+--- @field roleIcon Control
+--- @field unitTag string
+
+--- @class LUIE_SmallGroup
+--- @field [32] LUIE_SmallGroup_Health
+--- @field tlw TopLevelWindow
+--- @field name LabelControl
+--- @field dead LabelControl
+--- @field control Control
+
+--- @class LUIE_SmallGroup_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field invulnerable StatusBarControl
+--- @field invulnerableInlay StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+
+--- @class LUIE_Player_Health
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field invulnerable StatusBarControl
+--- @field invulnerableInlay StatusBarControl
+--- @field label LabelControl
+--- @field shield StatusBarControl
+--- @field stat table<integer,{dec:Control,inc:TextureControl}>
+--- @field trauma StatusBarControl
+--- @field threshold integer
+
+--- @class LUIE_Player_Resource
+--- @field backdrop BackdropControl
+--- @field bar StatusBarControl
+--- @field labelOne LabelControl
+--- @field labelTwo LabelControl
+--- @field threshold integer
+
+--- @class LUIE_Player
+--- @field [32] LUIE_Player_Health
+--- @field [1] LUIE_Player_Resource
+--- @field [4] LUIE_Player_Resource
+--- @field control Control
+--- @field tlw TopLevelWindow
+--- @field name LabelControl
+--- @field level LabelControl
+--- @field levelIcon Control
+--- @field ChampionXP LUIE_ChampionXP
+--- @field isChampion boolean
+--- @field isLevelCap boolean
+--- @field isPlayer boolean
+--- @field buffs Control
+--- @field debuffs Control
+--- @field buffAnchor Control
+--- @field avaRankValue integer
+--- @field alternative Control
+--- @field unitTag string
+--- @field topInfo Control
+--- @field botInfo Control
+
+UnitFrames.CustomFrames =
+{
+    ["AvaPlayerTarget"] = nil,
+    ["boss1"] = nil, --- @type LUIE_Boss_Group
+    ["boss2"] = nil, --- @type LUIE_Boss_Group
+    ["boss3"] = nil, --- @type LUIE_Boss_Group
+    ["boss4"] = nil, --- @type LUIE_Boss_Group
+    ["boss5"] = nil, --- @type LUIE_Boss_Group
+    ["boss6"] = nil, --- @type LUIE_Boss_Group
+    ["boss7"] = nil, --- @type LUIE_Boss_Group
+    ["companion"] = nil,
+    ["controlledsiege"] = nil,
+    ["PetGroup1"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup2"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup3"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup4"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup5"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup6"] = nil,   --- @type LUIE_PetGroup
+    ["PetGroup7"] = nil,   --- @type LUIE_PetGroup
+    ["player"] = nil,      --- @type LUIE_Player
+    ["RaidGroup1"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup2"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup3"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup4"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup5"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup6"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup7"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup8"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup9"] = nil,  --- @type LUIE_RaidGroup
+    ["RaidGroup10"] = nil, --- @type LUIE_RaidGroup
+    ["RaidGroup11"] = nil, --- @type LUIE_RaidGroup
+    ["RaidGroup12"] = nil, --- @type LUIE_RaidGroup
+    ["reticleover"] = nil,
+    ["SmallGroup1"] = nil, --- @type LUIE_SmallGroup
+    ["SmallGroup2"] = nil, --- @type LUIE_SmallGroup
+    ["SmallGroup3"] = nil, --- @type LUIE_SmallGroup
+    ["SmallGroup4"] = nil, --- @type LUIE_SmallGroup
+}
+UnitFrames.CustomFramesMovingState = false
+
+
 
 local roleIcons =
 {
@@ -5469,15 +5810,15 @@ end
 -- Set dimensions of custom group frame and anchors or raid group members
 function UnitFrames.CustomFramesApplyLayoutPlayer(unhide)
     -- Player frame
-    if UnitFrames.CustomFrames["player"] then
-        local player = UnitFrames.CustomFrames["player"]
+    if UnitFrames.CustomFrames.player then
+        local player = UnitFrames.CustomFrames.player
 
         local phb = player[COMBAT_MECHANIC_FLAGS_HEALTH]  -- Not a backdrop
         local pmb = player[COMBAT_MECHANIC_FLAGS_MAGICKA] -- Not a backdrop
         local psb = player[COMBAT_MECHANIC_FLAGS_STAMINA] -- Not a backdrop
         local alt = player.alternative                    -- Not a backdrop
 
-        if UnitFrames.SV.PlayerFrameOptions == 1 and player.tlw then
+        if UnitFrames.SV.PlayerFrameOptions == 1 then
             if not UnitFrames.SV.HideBarMagicka and not UnitFrames.SV.HideBarStamina then
                 player.tlw:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightHealth + UnitFrames.SV.PlayerBarHeightMagicka + UnitFrames.SV.PlayerBarHeightStamina + 2 * UnitFrames.SV.PlayerBarSpacing + (phb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
                 player.control:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightHealth + UnitFrames.SV.PlayerBarHeightMagicka + UnitFrames.SV.PlayerBarHeightStamina + 2 * UnitFrames.SV.PlayerBarSpacing + (phb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
@@ -5583,6 +5924,76 @@ function UnitFrames.CustomFramesApplyLayoutPlayer(unhide)
                 end
             end
             alt.backdrop:SetWidth(altW)
+            if not UnitFrames.SV.HideLabelHealth then
+                phb.labelOne:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightHealth - 2)
+                phb.labelTwo:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightHealth - 2)
+            end
+            if not UnitFrames.SV.HideLabelMagicka then
+                pmb.labelOne:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightMagicka - 2)
+                pmb.labelTwo:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightMagicka - 2)
+            end
+            if not UnitFrames.SV.HideLabelStamina then
+                psb.labelOne:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightStamina - 2)
+                psb.labelTwo:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightStamina - 2)
+            end
+        elseif UnitFrames.SV.PlayerFrameOptions == 2 then
+            player.tlw:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightHealth + (phb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
+            player.control:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightHealth + (phb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
+
+            player.topInfo:SetWidth(UnitFrames.SV.PlayerBarWidth)
+            player.botInfo:SetWidth(UnitFrames.SV.PlayerBarWidth)
+            player.buffAnchor:SetWidth(UnitFrames.SV.PlayerBarWidth)
+
+            player.name:SetWidth(UnitFrames.SV.PlayerBarWidth - 90)
+            player.buffs:SetWidth(1000)
+            player.debuffs:SetWidth(1000)
+
+            player.levelIcon:ClearAnchors()
+            player.levelIcon:SetAnchor(LEFT, player.topInfo, LEFT, player.name:GetTextWidth() + 1, 0)
+
+            player.name:SetHidden(not UnitFrames.SV.PlayerEnableYourname)
+            player.level:SetHidden(not UnitFrames.SV.PlayerEnableYourname)
+            player.levelIcon:SetHidden(not UnitFrames.SV.PlayerEnableYourname)
+            player.classIcon:SetHidden(not UnitFrames.SV.PlayerEnableYourname)
+
+            local altW = zo_ceil(UnitFrames.SV.PlayerBarWidth * 2 / 3)
+
+            phb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightHealth)
+            phb.backdrop:SetHidden(UnitFrames.SV.HideBarHealth)
+
+            if phb.shieldbackdrop then
+                phb.shieldbackdrop:ClearAnchors()
+                phb.shieldbackdrop:SetAnchor(TOP, phb.backdrop, BOTTOM, 0, 0)
+                phb.shieldbackdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.CustomShieldBarHeight)
+            end
+
+            if not UnitFrames.SV.ReverseResourceBars then
+                pmb.backdrop:ClearAnchors()
+                if not UnitFrames.SV.HideBarMagicka then
+                    pmb.backdrop:SetAnchor(RIGHT, phb.backdrop, LEFT, -UnitFrames.SV.AdjustMagickaHPos, UnitFrames.SV.AdjustMagickaVPos)
+                    pmb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightMagicka)
+                end
+
+                psb.backdrop:ClearAnchors()
+                if not UnitFrames.SV.HideBarStamina then
+                    psb.backdrop:SetAnchor(LEFT, phb.backdrop, RIGHT, UnitFrames.SV.AdjustStaminaHPos, UnitFrames.SV.AdjustStaminaVPos)
+                    psb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightStamina)
+                end
+            else
+                psb.backdrop:ClearAnchors()
+                if not UnitFrames.SV.HideBarStamina then
+                    psb.backdrop:SetAnchor(RIGHT, phb.backdrop, LEFT, -UnitFrames.SV.AdjustStaminaHPos, UnitFrames.SV.AdjustStaminaVPos)
+                    psb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightStamina)
+                end
+
+                pmb.backdrop:ClearAnchors()
+                if not UnitFrames.SV.HideBarMagicka then
+                    pmb.backdrop:SetAnchor(LEFT, phb.backdrop, RIGHT, UnitFrames.SV.AdjustMagickaHPos, UnitFrames.SV.AdjustMagickaVPos)
+                    pmb.backdrop:SetDimensions(UnitFrames.SV.PlayerBarWidth, UnitFrames.SV.PlayerBarHeightMagicka)
+                end
+            end
+            alt.backdrop:SetWidth(altW)
+
             if not UnitFrames.SV.HideLabelHealth then
                 phb.labelOne:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightHealth - 2)
                 phb.labelTwo:SetDimensions(UnitFrames.SV.PlayerBarWidth - 50, UnitFrames.SV.PlayerBarHeightHealth - 2)
@@ -5703,11 +6114,11 @@ function UnitFrames.CustomFramesApplyLayoutPlayer(unhide)
     end
 
     -- Target frame
-    if UnitFrames.CustomFrames["reticleover"] then
-        local target = UnitFrames.CustomFrames["reticleover"]
+    if UnitFrames.CustomFrames.reticleover then
+        local target = UnitFrames.CustomFrames.reticleover
 
         local thb = target[COMBAT_MECHANIC_FLAGS_HEALTH] -- Not a backdrop
-        if thb == nil then return end
+
         target.tlw:SetDimensions(UnitFrames.SV.TargetBarWidth, UnitFrames.SV.TargetBarHeight + (thb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
         target.control:SetDimensions(UnitFrames.SV.TargetBarWidth, UnitFrames.SV.TargetBarHeight + (thb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
         target.topInfo:SetWidth(UnitFrames.SV.TargetBarWidth)
@@ -5770,11 +6181,11 @@ function UnitFrames.CustomFramesApplyLayoutPlayer(unhide)
     end
 
     -- Another Target frame (for PvP)
-    if UnitFrames.CustomFrames["AvaPlayerTarget"] then
-        local target = UnitFrames.CustomFrames["AvaPlayerTarget"]
+    if UnitFrames.CustomFrames.AvaPlayerTarget then
+        local target = UnitFrames.CustomFrames.AvaPlayerTarget
 
         local thb = target[COMBAT_MECHANIC_FLAGS_HEALTH] -- Not a backdrop
-        if thb == nil then return end
+
         target.tlw:SetDimensions(UnitFrames.SV.AvaTargetBarWidth, UnitFrames.SV.AvaTargetBarHeight + (thb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
         target.control:SetDimensions(UnitFrames.SV.AvaTargetBarWidth, UnitFrames.SV.AvaTargetBarHeight + (thb.shieldbackdrop and UnitFrames.SV.CustomShieldBarHeight or 0))
         target.topInfo:SetWidth(UnitFrames.SV.AvaTargetBarWidth)
@@ -6473,3 +6884,6 @@ function UnitFrames.SocialUpdateFrames()
     -- Update target frame
     UnitFrames.ReloadValues(UNIT_FRAMES.SINGLE.TARGET)
 end
+
+--- @class (partial) UnitFrames
+LUIE.UnitFrames = UnitFrames
