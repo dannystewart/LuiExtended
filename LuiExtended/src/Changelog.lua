@@ -14,6 +14,14 @@ local GetDisplayName = GetDisplayName
 local changelogMessages =
 {
     -- Version Header
+    "|cFFA500LuiExtended Version 6.9.1|r",
+    "",
+    -- Bug Fixes
+    "|cFFFF00Bug Fixes:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t hotfix for unitframe layout.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t remove left over debug print.",
+    "",
+    -- Version Header
     "|cFFA500LuiExtended Version 6.9.0|r",
     "",
     -- General Changes
