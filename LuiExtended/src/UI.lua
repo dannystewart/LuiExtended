@@ -12,13 +12,13 @@ local windowManager = GetWindowManager()
 --- @class LUIE.UI : table
 --- @field __index LUIE.UI
 --- @field isInDebug boolean # Flag to control debug naming mode
---- @field TopLevel fun(self:LUIE.UI, anchors?: table, dims?: table): TopLevelWindow # Creates a top-level window control
---- @field Control fun(self:LUIE.UI, parent: userdata, anchors?: table|string, dims?: table|string, hidden?: boolean, name?: string): Control # Creates a basic UI control
---- @field Texture fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", texture?: string, drawlayer?: integer, hidden?: boolean): TextureControl # Creates a texture control
---- @field Backdrop fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", center?: table, edge?: table, hidden?: boolean): BackdropControl # Creates a backdrop control
---- @field ChatBackdrop fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", color?: table, edge_size?: number, hidden?: boolean): BackdropControl # Creates a chat-style backdrop
---- @field StatusBar fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", color?: table, hidden?: boolean): StatusBarControl # Creates a status bar control
---- @field Label fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", align?: table, font?: string, text?: string, hidden?: boolean, name?: string): LabelControl # Creates a label control
+--- @field TopLevel fun(self:LUIE.UI, anchors?: table, dims?: table): TopLevelWindow|table # Creates a top-level window control
+--- @field Control fun(self:LUIE.UI, parent: userdata, anchors?: table|string, dims?: table|string, hidden?: boolean, name?: string): Control|table # Creates a basic UI control
+--- @field Texture fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", texture?: string, drawlayer?: integer, hidden?: boolean): TextureControl|table # Creates a texture control
+--- @field Backdrop fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", center?: table, edge?: table, hidden?: boolean): BackdropControl|table # Creates a backdrop control
+--- @field ChatBackdrop fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", color?: table, edge_size?: number, hidden?: boolean): BackdropControl|table # Creates a chat-style backdrop
+--- @field StatusBar fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", color?: table, hidden?: boolean): StatusBarControl|table # Creates a status bar control
+--- @field Label fun(self:LUIE.UI, parent: userdata, anchors?: table|"fill", dims?: table|"inherit", align?: table, font?: string, text?: string, hidden?: boolean, name?: string): LabelControl|table # Creates a label control
 local UI = {}
 UI.__index = UI
 -- -----------------------------------------------------------------------------
