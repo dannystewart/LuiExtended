@@ -16,6 +16,7 @@ local Unitnames = Data.UnitNames
 -- When a gain event or faded event fires for this id in the world, we add a buff aura to a specific unit name. Only usable for unique boss effects.
 --------------------------------------------------------------------------------------------------------------------------------
 --- @class (partial) AddNameOnEvent
+--- @field [integer] { name:string, id:integer}
 local addNameOnEvent =
 {
 

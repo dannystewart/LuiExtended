@@ -73,7 +73,7 @@ local LUIE_CC_TYPE_UNBREAKABLE = LUIE_CC_TYPE_UNBREAKABLE
     - noForcedNameOverride: boolean -- Fill in the name only if it is missing
 
     **Crowd Control (CC) Type:**
-    - cc: string             -- Set the type of CC effect (e.g. LUIE_CC_TYPE_STUN, LUIE_CC_TYPE_FEAR, etc.)
+    - cc: integer             -- Set the type of CC effect (e.g. LUIE_CC_TYPE_STUN, LUIE_CC_TYPE_FEAR, etc.)
 
     **Duration:**
     - duration: number       -- Duration in milliseconds (e.g., for cast alerts)
@@ -106,9 +106,9 @@ local LUIE_CC_TYPE_UNBREAKABLE = LUIE_CC_TYPE_UNBREAKABLE
 --- @field auradetect? boolean         -- (Filtering) Detects aura applications
 --- @field fakeName? string            -- (Source Name Modification) Custom source name override
 --- @field bossName? boolean           -- (Source Name Modification) Use boss target frame name if possible
---- @field bossMatch? string           -- (Source Name Modification) Specific boss name for matching
+--- @field bossMatch? {[string]:string}           -- (Source Name Modification) Specific boss name for matching
 --- @field noForcedNameOverride? boolean -- (Source Name Modification) Only override if name is missing
---- @field cc? string                  -- (CC Type) Crowd control type (e.g. LUIE_CC_TYPE_STUN)
+--- @field cc? integer                  -- (CC Type) Crowd control type (e.g. LUIE_CC_TYPE_STUN)
 --- @field duration? number            -- (Duration) Duration in milliseconds for alert display
 --- @field refire? number|string       -- (Other Modifiers) Refire duration (delay between alerts)
 --- @field ignoreRefresh? boolean      -- (Other Modifiers) Ignores refresh events
@@ -118,9 +118,11 @@ local LUIE_CC_TYPE_UNBREAKABLE = LUIE_CC_TYPE_UNBREAKABLE
 --- @field noSelf? boolean             -- (Other Modifiers) Suppress alerts for self-generated events
 --- @field durationOnlyIfTarget? boolean -- (Other Modifiers) Show duration timer only if the player is the target
 --- @field hideIfNoSource? boolean     -- (Other Modifiers) Hide alerts when source name is missing
+--- @field noDirect? boolean
+--- @field spreadOut? boolean
 
 --- @class (partial) AlertTable
---- @field [integer] table<AlertTableItem>
+--- @field [integer] AlertTableItem
 local alertTable =
 {
     --------------------------------------------------
@@ -3385,6 +3387,7 @@ local alertTable =
     {
         block = true,
         dodge = true,
+        priority = 2,
         eventdetect = true,
         result = ACTION_RESULT_BEGIN,
         cc = LUIE_CC_TYPE_STUN,
@@ -3403,7 +3406,7 @@ local alertTable =
     [75925] =
     {
         power = true,
-        auradetect = 2,
+        auradetect = true,
         priority = 2,
         ignoreRefresh = true,
         sound = LUIE_ALERT_SOUND_TYPE_POWER_DAMAGE,

@@ -314,8 +314,8 @@ UnitFrames.SV = {}
 --- @field isChampion boolean
 --- @field isLevelCap boolean
 --- @field isPlayer boolean
---- @field buffs Control
---- @field debuffs Control
+--- @field buffs Control|table
+--- @field debuffs Control|table
 --- @field buffAnchor Control
 --- @field avaRankValue integer
 --- @field alternative Control

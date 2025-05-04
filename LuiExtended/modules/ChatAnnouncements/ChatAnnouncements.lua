@@ -8090,8 +8090,7 @@ function ChatAnnouncements.HookFunction()
         local userFacingName = ZO_GetPrimaryPlayerNameWithSecondary(targetDisplayName, targetCharacterName)
         -- Display CA
         if ChatAnnouncements.SV.Social.DuelCA then
-            local reasonName
-            local finalName = ChatAnnouncements.ResolveNameLink(targetDisplayName, targetCharacterName)
+            local finalName = ChatAnnouncements.ResolveNameLink(targetCharacterName, targetDisplayName)
             if userFacingName then
                 printToChat(zo_strformat(GetString("LUIE_STRING_CA_DUEL_INVITE_FAILREASON", reason), finalName), true)
             else
@@ -8101,7 +8100,7 @@ function ChatAnnouncements.HookFunction()
 
         -- Display Alert
         if ChatAnnouncements.SV.Social.DuelAlert then
-            local finalAlertName = ChatAnnouncements.ResolveNameNoLink(targetDisplayName, targetCharacterName)
+            local finalAlertName = ChatAnnouncements.ResolveNameNoLink(targetCharacterName, targetDisplayName)
             local formattedString = zo_strformat(GetString("LUIE_STRING_CA_DUEL_INVITE_FAILREASON", reason), finalAlertName)
             if userFacingName then
                 ZO_Alert(UI_ALERT_CATEGORY_ERROR, SOUNDS.NONE, formattedString)
@@ -9800,6 +9799,20 @@ function ChatAnnouncements.HookFunction()
     -- EVENT_QUEST_CONDITION_COUNTER_CHANGED (CSA Handler)
     -- Note: Used for quest failure and updates
     local function ConditionCounterHook(journalIndex, questName, conditionText, conditionType, currConditionVal, newConditionVal, conditionMax, isFailCondition, stepOverrideText, isPushed, isComplete, isConditionComplete, isStepHidden, isConditionCompleteChanged)
+        -- Check WritCreater settings first
+        if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
+            --             if LUIE.IsDevDebugEnabled() then
+            --                 LUIE.Debug([[Writ Quest Condition Suppressed:
+            -- --> Quest: %s
+            -- --> Index: %d
+            -- --> Condition: %s]],
+            --                     questName,
+            --                     journalIndex,
+            --                     conditionText
+            --                 )
+            --             end
+            return true
+        end
         if isStepHidden or (isPushed and isComplete) or (currConditionVal >= newConditionVal) then
             return true
         end
@@ -9822,21 +9835,6 @@ function ChatAnnouncements.HookFunction()
         --                 isConditionComplete and "Complete" or "In Progress"
         --             )
         --         end
-
-        -- Check WritCreater settings first
-        if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
-            --             if LUIE.IsDevDebugEnabled() then
-            --                 LUIE.Debug([[Writ Quest Condition Suppressed:
-            -- --> Quest: %s
-            -- --> Index: %d
-            -- --> Condition: %s]],
-            --                     questName,
-            --                     journalIndex,
-            --                     conditionText
-            --                 )
-            --             end
-            return true
-        end
 
         local messageType      -- This variable represents whether this message is an objective update or failure state message (1 = update, 2 = failure) There are too many conditionals to resolve what we need to print inside them so we do it after setting the formatting.
         local alertMessage     -- Variable for alert message

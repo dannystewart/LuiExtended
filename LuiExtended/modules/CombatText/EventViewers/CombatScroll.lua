@@ -91,13 +91,17 @@ function CombatTextCombatScrollEventViewer:View(combatType, powerType, value, ab
     self:ControlLayout(control, abilityId, combatType, sourceName)
 
     -- Control setup
-    local panel, point, relativePoint = LUIE_CombatText_Outgoing, TOP, BOTTOM
+    local panel
+    local point = TOP
+    local relativePoint = BOTTOM
+
     if combatType == CombatTextConstants.combatType.INCOMING then
         panel = LUIE_CombatText_Incoming
         if Settings.animation.incoming.directionType == "down" then
             point, relativePoint = BOTTOM, TOP
         end
     else
+        panel = LUIE_CombatText_Outgoing
         if Settings.animation.outgoing.directionType == "down" then
             point, relativePoint = BOTTOM, TOP
         end

@@ -91,13 +91,17 @@ function CombatTextCombatEllipseEventViewer:View(combatType, powerType, value, a
     self:ControlLayout(control, abilityId, combatType, sourceName)
 
     -- Control setup
-    local panel, point, relativePoint = LUIE_CombatText_Outgoing, BOTTOMRIGHT, TOPRIGHT
+    local panel
+    local point = TOP
+    local relativePoint = BOTTOM
+
     if combatType == CombatTextConstants.combatType.INCOMING then
         panel = LUIE_CombatText_Incoming
         if Settings.animation.incoming.directionType == "up" then
             point, relativePoint = TOPRIGHT, BOTTOMRIGHT
         end
     else
+        panel = LUIE_CombatText_Outgoing
         if Settings.animation.outgoing.directionType == "up" then
             point, relativePoint = TOPRIGHT, BOTTOMRIGHT
         end

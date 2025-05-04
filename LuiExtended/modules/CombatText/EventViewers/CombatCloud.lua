@@ -78,9 +78,11 @@ function CombatTextCombatCloudEventViewer:View(combatType, powerType, value, abi
     value = AbbreviateNumber(value, Settings.common.abbreviateNumbers)
 
     -- Control setup
-    local panel = LUIE_CombatText_Outgoing
+    local panel
     if combatType == CombatTextConstants.combatType.INCOMING then
         panel = LUIE_CombatText_Incoming
+    else
+        panel = LUIE_CombatText_Outgoing
     end
     local w, h = panel:GetDimensions()
     local radiusW, radiusH = w / 2, h * 2
