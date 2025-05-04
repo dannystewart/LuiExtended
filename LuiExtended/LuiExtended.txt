@@ -26,6 +26,10 @@ src/UI.lua
 src/Functions.lua
 src/Hooks.lua
 
+shared/actionbutton.lua
+shared/synergy.lua
+shared/powershield.lua
+
 gamepad/HooksSkillsAdvisor.lua
 gamepad/hooks.lua
 gamepad/maphooks.lua
@@ -34,9 +38,6 @@ gamepad/skills.lua
 keyboard/hooks.lua
 keyboard/maphooks.lua
 keyboard/skills.lua
-
-shared/actionbutton.lua
-shared/synergy.lua
 
 src/Changelog.lua
 bindings/Bindings.xml

@@ -138,6 +138,11 @@ eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, function (eventId,
     LUIE.HookActionButton()
     LUIE.HookSynergy()
 
+    -- Fix power visualizar.
+    if LUIE.SV.UnitFrames_Enabled then
+        LUIE.HookPowerShield()
+    end
+
     -- Hook Gamepad Skill Advisor for custom icon support
     LUIE.InitializeHooksSkillAdvisor()
     -- LUIE.HookGamePadIcons() --Disabled for now until I can dig into gamepad menu more.
