@@ -96,9 +96,9 @@ space_around_assign_operator = true
 
 # [align]
 
-align_call_args = false
+align_call_args = true
 
-align_function_params = false
+align_function_params = true
 
 # true/false or always
 align_continuous_assign_statement = false
@@ -110,13 +110,13 @@ align_continuous_line_space = 2
 align_if_branch = true
 
 # option none / always / contain_curly/
-align_array_table = always
+align_array_table = contain_curly
 
 align_continuous_similar_call_args = false
 
 align_continuous_inline_comment = true
 # option none / always / only_call_stmt
-align_chain_expr = none
+align_chain_expr = always
 
 # [indent]
 

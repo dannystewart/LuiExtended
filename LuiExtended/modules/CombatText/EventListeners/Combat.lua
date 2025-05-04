@@ -128,14 +128,14 @@ function CombatTextCombatEventListener:New()
         self:OnPlayerActivated()
     end)
     obj:RegisterForEvent(EVENT_COMBAT_EVENT, function (...)
-        self:OnCombatIn(...)
-    end, REGISTER_FILTER_TARGET_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER) -- Target -> Player
+                             self:OnCombatIn(...)
+                         end, REGISTER_FILTER_TARGET_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER) -- Target -> Player
     obj:RegisterForEvent(EVENT_COMBAT_EVENT, function (...)
-        self:OnCombatOut(...)
-    end, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER) -- Player -> Target
+                             self:OnCombatOut(...)
+                         end, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER) -- Player -> Target
     obj:RegisterForEvent(EVENT_COMBAT_EVENT, function (...)
-        self:OnCombatOut(...)
-    end, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET) -- Player Pet -> Target
+                             self:OnCombatOut(...)
+                         end, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET) -- Player Pet -> Target
     obj:RegisterForEvent(EVENT_PLAYER_COMBAT_STATE, function (...)
         self:CombatState(...)
     end)
@@ -340,9 +340,9 @@ function CombatTextCombatEventListener:ProcessCombatEventTrigger(parsedResults, 
             if (Settings.toggles.inCombatOnly and isWarned.combat) or not Settings.toggles.inCombatOnly then -- Check if 'in combat only' is ticked
                 -- Trigger the event using the effectiveHitValue
                 self:TriggerEvent(CombatTextConstants.eventType.COMBAT, combatType, powerType, effectiveHitValue, abilityName, abilityId, damageType, sourceName,
-                    isDamage, isDamageCritical, isHealing, isHealingCritical, isEnergize, isDrain,
-                    isDot, isDotCritical, isHot, isHotCritical, isMiss, isImmune, isParried,
-                    isReflected, isDamageShield, isDodged, isBlocked, isInterrupted)
+                                  isDamage, isDamageCritical, isHealing, isHealingCritical, isEnergize, isDrain,
+                                  isDot, isDotCritical, isHot, isHotCritical, isMiss, isImmune, isParried,
+                                  isReflected, isDamageShield, isDodged, isBlocked, isInterrupted)
             end
         end
     end
@@ -400,11 +400,11 @@ function CombatTextCombatEventListener:HandleCrowdControlTrigger(ccType, toggleS
         self:TriggerEvent(CombatTextConstants.eventType.CROWDCONTROL, ccType, combatType)
         isWarned[ccKey] = true
         LUIE_CallLater(function ()
-            -- Ensure the key still exists before trying to reset it (paranoid check)
-            if isWarned[ccKey] ~= nil then
-                isWarned[ccKey] = false
-            end
-        end, 1000) -- 1 second buffer (same as original)
+                           -- Ensure the key still exists before trying to reset it (paranoid check)
+                           if isWarned[ccKey] ~= nil then
+                               isWarned[ccKey] = false
+                           end
+                       end, 1000) -- 1 second buffer (same as original)
     end
 end
 

@@ -270,13 +270,13 @@ LUIE.StatusbarTextures =
 -- -----------------------------------------------------------------------------
 local function readonlytable(t)
     return setmetatable({},
-        {
-            __index = t,
-            __newindex = function (_, key, value)
-                error("Attempt to modify read-only table")
-            end,
-            __metatable = false
-        })
+                        {
+                            __index = t,
+                            __newindex = function (_, key, value)
+                                error("Attempt to modify read-only table")
+                            end,
+                            __metatable = false
+                        })
 end
 
 --- @class DevEntry

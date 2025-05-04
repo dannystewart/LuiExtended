@@ -1,4 +1,4 @@
----@diagnostic disable: missing-global-doc
+--- @diagnostic disable: missing-global-doc
 -- -----------------------------------------------------------------------------
 --  LuiExtended                                                               --
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
@@ -228,33 +228,33 @@ LUIE.HookKeyboardIcons = function ()
         end
 
         ZO_Dialogs_RegisterCustomDialog("PURCHASE_ABILITY_CONFIRM",
-            {
-                customControl = confirmDialogControl,
-                setup = SetupPurchaseAbilityConfirmDialog,
-                title =
-                {
-                    text = SI_SKILLS_CONFIRM_PURCHASE_ABILITY,
-                },
-                buttons =
-                {
-                    [1] =
-                    {
-                        control = confirmDialogControl:GetNamedChild("Confirm"),
-                        text = SI_SKILLS_UNLOCK_CONFIRM,
-                        callback = function (dialog)
-                            local skillProgressionData = dialog.data
-                            local skillPointAllocator = skillProgressionData:GetSkillData():GetPointAllocator()
-                            skillPointAllocator:Purchase()
-                        end,
-                    },
+                                        {
+                                            customControl = confirmDialogControl,
+                                            setup = SetupPurchaseAbilityConfirmDialog,
+                                            title =
+                                            {
+                                                text = SI_SKILLS_CONFIRM_PURCHASE_ABILITY,
+                                            },
+                                            buttons =
+                                            {
+                                                [1] =
+                                                {
+                                                    control = confirmDialogControl:GetNamedChild("Confirm"),
+                                                    text = SI_SKILLS_UNLOCK_CONFIRM,
+                                                    callback = function (dialog)
+                                                        local skillProgressionData = dialog.data
+                                                        local skillPointAllocator = skillProgressionData:GetSkillData():GetPointAllocator()
+                                                        skillPointAllocator:Purchase()
+                                                    end,
+                                                },
 
-                    [2] =
-                    {
-                        control = confirmDialogControl:GetNamedChild("Cancel"),
-                        text = SI_CANCEL,
-                    },
-                },
-            })
+                                                [2] =
+                                                {
+                                                    control = confirmDialogControl:GetNamedChild("Cancel"),
+                                                    text = SI_CANCEL,
+                                                },
+                                            },
+                                        })
     end
 
     -- Overwrite default Upgrade menu for Skills with Custom Icons (Keyboard)
@@ -302,32 +302,32 @@ LUIE.HookKeyboardIcons = function ()
         end
 
         ZO_Dialogs_RegisterCustomDialog("UPGRADE_ABILITY_CONFIRM",
-            {
-                customControl = upgradeDialogControl,
-                setup = SetupUpgradeAbilityDialog,
-                title =
-                {
-                    text = SI_SKILLS_UPGRADE_ABILITY,
-                },
-                buttons =
-                {
-                    [1] =
-                    {
-                        control = upgradeDialogControl:GetNamedChild("Confirm"),
-                        text = SI_SKILLS_UPGRADE_CONFIRM,
-                        callback = function (dialog)
-                            local skillData = dialog.data
-                            local skillPointAllocator = skillData:GetPointAllocator()
-                            skillPointAllocator:IncreaseRank()
-                        end,
-                    },
-                    [2] =
-                    {
-                        control = upgradeDialogControl:GetNamedChild("Cancel"),
-                        text = SI_CANCEL,
-                    },
-                },
-            })
+                                        {
+                                            customControl = upgradeDialogControl,
+                                            setup = SetupUpgradeAbilityDialog,
+                                            title =
+                                            {
+                                                text = SI_SKILLS_UPGRADE_ABILITY,
+                                            },
+                                            buttons =
+                                            {
+                                                [1] =
+                                                {
+                                                    control = upgradeDialogControl:GetNamedChild("Confirm"),
+                                                    text = SI_SKILLS_UPGRADE_CONFIRM,
+                                                    callback = function (dialog)
+                                                        local skillData = dialog.data
+                                                        local skillPointAllocator = skillData:GetPointAllocator()
+                                                        skillPointAllocator:IncreaseRank()
+                                                    end,
+                                                },
+                                                [2] =
+                                                {
+                                                    control = upgradeDialogControl:GetNamedChild("Cancel"),
+                                                    text = SI_CANCEL,
+                                                },
+                                            },
+                                        })
     end
 
     InitializeKeyboardConfirmDialog()

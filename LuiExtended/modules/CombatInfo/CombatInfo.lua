@@ -928,54 +928,54 @@ function CombatInfo.OnActiveWeaponPairChanged(eventCode, activeWeaponPair)
 
         -- Schedule a function to restore timers after weapon swap animation
         LUIE_CallLater(function ()
-            g_hotbarCategory = GetActiveHotbarCategory()
-            g_activeWeaponSwapInProgress = false
+                           g_hotbarCategory = GetActiveHotbarCategory()
+                           g_activeWeaponSwapInProgress = false
 
-            -- Apply timers to the appropriate slots on the new active bar
-            local _currentTime = time()
+                           -- Apply timers to the appropriate slots on the new active bar
+                           local _currentTime = time()
 
-            -- Re-map abilities to their new bar positions
-            CombatInfo.UpdateAllTrackedActionSlots()
+                           -- Re-map abilities to their new bar positions
+                           CombatInfo.UpdateAllTrackedActionSlots()
 
-            -- Restore all active timers
-            for abilityId, timerData in pairs(activeTimers) do
-                if timerData.endTime > _currentTime then
-                    g_toggledSlotsRemain[abilityId] = timerData.endTime
-                    g_toggledSlotsStack[abilityId] = timerData.stackCount
+                           -- Restore all active timers
+                           for abilityId, timerData in pairs(activeTimers) do
+                               if timerData.endTime > _currentTime then
+                                   g_toggledSlotsRemain[abilityId] = timerData.endTime
+                                   g_toggledSlotsStack[abilityId] = timerData.stackCount
 
-                    -- Show on frontbar if we have it mapped there
-                    if g_toggledSlotsFront[abilityId] then
-                        local slotNum = g_toggledSlotsFront[abilityId]
-                        -- Create UI elements if needed
-                        if not g_uiCustomToggle[slotNum] then
-                            CombatInfo.ShowCustomToggle(slotNum)
-                        end
-                        CombatInfo.ShowSlot(slotNum, abilityId, _currentTime, false)
-                    end
+                                   -- Show on frontbar if we have it mapped there
+                                   if g_toggledSlotsFront[abilityId] then
+                                       local slotNum = g_toggledSlotsFront[abilityId]
+                                       -- Create UI elements if needed
+                                       if not g_uiCustomToggle[slotNum] then
+                                           CombatInfo.ShowCustomToggle(slotNum)
+                                       end
+                                       CombatInfo.ShowSlot(slotNum, abilityId, _currentTime, false)
+                                   end
 
-                    -- Show on backbar if we have it mapped there
-                    if g_toggledSlotsBack[abilityId] then
-                        local slotNum = g_toggledSlotsBack[abilityId]
-                        -- Create UI elements if needed
-                        if not g_uiCustomToggle[slotNum] then
-                            CombatInfo.ShowCustomToggle(slotNum)
-                        end
-                        CombatInfo.ShowSlot(slotNum, abilityId, _currentTime, false)
-                    end
-                end
-            end
+                                   -- Show on backbar if we have it mapped there
+                                   if g_toggledSlotsBack[abilityId] then
+                                       local slotNum = g_toggledSlotsBack[abilityId]
+                                       -- Create UI elements if needed
+                                       if not g_uiCustomToggle[slotNum] then
+                                           CombatInfo.ShowCustomToggle(slotNum)
+                                       end
+                                       CombatInfo.ShowSlot(slotNum, abilityId, _currentTime, false)
+                                   end
+                               end
+                           end
 
-            -- Update backbar icons
-            for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-                local button = g_backbarButtons[i]
-                if button then
-                    CombatInfo.SetupBackBarIcons(button, true)
-                end
-            end
+                           -- Update backbar icons
+                           for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
+                               local button = g_backbarButtons[i]
+                               if button then
+                                   CombatInfo.SetupBackBarIcons(button, true)
+                               end
+                           end
 
-            -- Ensure timer visibility
-            CombatInfo.EnsureBackbarTimerVisibility()
-        end, 250) -- Slightly longer delay to ensure the weapon swap is complete
+                           -- Ensure timer visibility
+                           CombatInfo.EnsureBackbarTimerVisibility()
+                       end, 250) -- Slightly longer delay to ensure the weapon swap is complete
     end
 end
 
@@ -1051,8 +1051,8 @@ do
                     end
 
                     self.slot:SetHandler("OnUpdate", function ()
-                        self:RefreshCooldown()
-                    end, "CooldownUpdate")
+                                             self:RefreshCooldown()
+                                         end, "CooldownUpdate")
 
                     if updateChromaQuickslot then
                         ZO_RZCHROMA_EFFECTS:RemoveKeybindActionEffect("ACTION_BUTTON_9")
@@ -2778,8 +2778,8 @@ function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abili
     -- Fix to lower the duration of the next cast of Profane Symbol quest ability for Scion of the Blood Matron (Vampire)
     if abilityId == 39507 then
         LUIE_CallLater(function ()
-            Castbar.CastDurationFix[39507] = 19500
-        end, 5000)
+                           Castbar.CastDurationFix[39507] = 19500
+                       end, 5000)
     end
 end
 
@@ -3077,8 +3077,8 @@ end
 function CombatInfo.InventoryItemUsed()
     g_potionUsed = true
     LUIE_CallLater(function ()
-        g_potionUsed = false
-    end, 200)
+                       g_potionUsed = false
+                   end, 200)
 end
 
 ---

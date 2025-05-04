@@ -69,11 +69,11 @@ function CombatTextResourceEventViewer:OnEvent(resourceType, value)
     end
 
     LUIE_CallLater(function ()
-        self.poolManager:ReleasePoolObject(poolTypes.CONTROL, controlPoolKey)
-        self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
-        self.activeResources = self.activeResources - 1
-        if self.activeResources == 0 then
-            self.locationOffset = 0
-        end
-    end, animation:GetDuration())
+                       self.poolManager:ReleasePoolObject(poolTypes.CONTROL, controlPoolKey)
+                       self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
+                       self.activeResources = self.activeResources - 1
+                       if self.activeResources == 0 then
+                           self.locationOffset = 0
+                       end
+                   end, animation:GetDuration())
 end

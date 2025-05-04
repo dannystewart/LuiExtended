@@ -1,4 +1,4 @@
----@diagnostic disable: missing-global-doc
+--- @diagnostic disable: missing-global-doc
 -- -----------------------------------------------------------------------------
 --  LuiExtended                                                               --
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
@@ -71,7 +71,7 @@ LUIE.HookGamePadIcons = function ()
 
                 local keybindWidth = 50 -- width assuming a single keybind
                 if ACTION_BAR_ASSIGNMENT_MANAGER:IsUltimateSlot(actionSlotIndex) then
-                    keybindWidth = 90 -- double keybind width (RB+LB)
+                    keybindWidth = 90   -- double keybind width (RB+LB)
                 end
 
                 keybindLabel:SetHidden(false)

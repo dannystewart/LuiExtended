@@ -91,7 +91,7 @@ end
 --- @param ... any Additional values to format into message
 function LUIE.Debug(message, ...)
     LUIE.Log("666666", ...)
-    LUIE_LOGGER:Debug(EscapeMarkup(message, ALLOW_MARKUP_TYPE_NONE), ...)
+    LUIE_LOGGER:Debug(message, ...)
 end
 
 --- Logs an info message

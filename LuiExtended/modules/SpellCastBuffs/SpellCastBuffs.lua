@@ -435,12 +435,12 @@ end
 local function InitializePreviewLabels()
     local frames =
     {
-        { frame = uiTlw.playerb,          name = "playerb" },
-        { frame = uiTlw.playerd,          name = "playerd" },
-        { frame = uiTlw.targetb,          name = "targetb" },
-        { frame = uiTlw.targetd,          name = "targetd" },
-        { frame = uiTlw.player_long,      name = "player_long" },
-        { frame = uiTlw.prominentbuffs,   name = "prominentbuffs" },
+        { frame = uiTlw.playerb,          name = "playerb"          },
+        { frame = uiTlw.playerd,          name = "playerd"          },
+        { frame = uiTlw.targetb,          name = "targetb"          },
+        { frame = uiTlw.targetd,          name = "targetd"          },
+        { frame = uiTlw.player_long,      name = "player_long"      },
+        { frame = uiTlw.prominentbuffs,   name = "prominentbuffs"   },
         { frame = uiTlw.prominentdebuffs, name = "prominentdebuffs" }
     }
 
@@ -4449,22 +4449,22 @@ function SpellCastBuffs.OnPlayerActivated(eventCode)
     -- Resolve Mounted icon
     if not SpellCastBuffs.SV.IgnoreMountPlayer and IsMounted() then
         LUIE_CallLater(function ()
-            SpellCastBuffs.MountStatus("", true)
-        end, 50)
+                           SpellCastBuffs.MountStatus("", true)
+                       end, 50)
     end
 
     -- Resolve Disguise Icon
     if not SpellCastBuffs.SV.IgnoreDisguise then
         LUIE_CallLater(function ()
-            SpellCastBuffs.DisguiseItem(nil, BAG_WORN, 10)
-        end, 50)
+                           SpellCastBuffs.DisguiseItem(nil, BAG_WORN, 10)
+                       end, 50)
     end
 
     -- Resolve Assistant Icon
     if not SpellCastBuffs.SV.IgnorePet or not SpellCastBuffs.SV.IgnoreAssistant then
         LUIE_CallLater(function ()
-            SpellCastBuffs.CollectibleBuff()
-        end, 50)
+                           SpellCastBuffs.CollectibleBuff()
+                       end, 50)
     end
 
     -- Resolve Werewolf
@@ -4586,17 +4586,17 @@ function SpellCastBuffs.UpdateContextHideList()
     -- List of player settings mappings
     local playerMappings =
     {
-        { key = "IgnoreMundusPlayer",      src = Effects.IsBoon },
-        { key = "IgnoreVampPlayer",        src = Effects.IsVamp },
-        { key = "IgnoreLycanPlayer",       src = Effects.IsLycan },
-        { key = "IgnoreDiseasePlayer",     src = Effects.IsVampLycanDisease },
-        { key = "IgnoreBitePlayer",        src = Effects.IsVampLycanBite },
-        { key = "IgnoreCyrodiilPlayer",    src = Effects.IsCyrodiil },
+        { key = "IgnoreMundusPlayer",      src = Effects.IsBoon                           },
+        { key = "IgnoreVampPlayer",        src = Effects.IsVamp                           },
+        { key = "IgnoreLycanPlayer",       src = Effects.IsLycan                          },
+        { key = "IgnoreDiseasePlayer",     src = Effects.IsVampLycanDisease               },
+        { key = "IgnoreBitePlayer",        src = Effects.IsVampLycanBite                  },
+        { key = "IgnoreCyrodiilPlayer",    src = Effects.IsCyrodiil                       },
         { key = "IgnoreEsoPlusPlayer",     src = nil,                       value = 63601 },
-        { key = "IgnoreSoulSummonsPlayer", src = Effects.IsSoulSummons },
-        { key = "IgnoreFoodPlayer",        src = Effects.IsFoodBuff },
-        { key = "IgnoreExperiencePlayer",  src = Effects.IsExperienceBuff },
-        { key = "IgnoreAllianceXPPlayer",  src = Effects.IsAllianceXPBuff }
+        { key = "IgnoreSoulSummonsPlayer", src = Effects.IsSoulSummons                    },
+        { key = "IgnoreFoodPlayer",        src = Effects.IsFoodBuff                       },
+        { key = "IgnoreExperiencePlayer",  src = Effects.IsExperienceBuff                 },
+        { key = "IgnoreAllianceXPPlayer",  src = Effects.IsAllianceXPBuff                 }
     }
 
     for _, mapping in ipairs(playerMappings) do
@@ -4606,17 +4606,17 @@ function SpellCastBuffs.UpdateContextHideList()
     -- List of target settings mappings
     local targetMappings =
     {
-        { key = "IgnoreMundusTarget",      src = Effects.IsBoon },
-        { key = "IgnoreVampTarget",        src = Effects.IsVamp },
-        { key = "IgnoreLycanTarget",       src = Effects.IsLycan },
-        { key = "IgnoreDiseaseTarget",     src = Effects.IsVampLycanDisease },
-        { key = "IgnoreBiteTarget",        src = Effects.IsVampLycanBite },
-        { key = "IgnoreCyrodiilTarget",    src = Effects.IsCyrodiil },
+        { key = "IgnoreMundusTarget",      src = Effects.IsBoon                           },
+        { key = "IgnoreVampTarget",        src = Effects.IsVamp                           },
+        { key = "IgnoreLycanTarget",       src = Effects.IsLycan                          },
+        { key = "IgnoreDiseaseTarget",     src = Effects.IsVampLycanDisease               },
+        { key = "IgnoreBiteTarget",        src = Effects.IsVampLycanBite                  },
+        { key = "IgnoreCyrodiilTarget",    src = Effects.IsCyrodiil                       },
         { key = "IgnoreEsoPlusTarget",     src = nil,                       value = 63601 },
-        { key = "IgnoreSoulSummonsTarget", src = Effects.IsSoulSummons },
-        { key = "IgnoreFoodTarget",        src = Effects.IsFoodBuff },
-        { key = "IgnoreExperienceTarget",  src = Effects.IsExperienceBuff },
-        { key = "IgnoreAllianceXPTarget",  src = Effects.IsAllianceXPBuff }
+        { key = "IgnoreSoulSummonsTarget", src = Effects.IsSoulSummons                    },
+        { key = "IgnoreFoodTarget",        src = Effects.IsFoodBuff                       },
+        { key = "IgnoreExperienceTarget",  src = Effects.IsExperienceBuff                 },
+        { key = "IgnoreAllianceXPTarget",  src = Effects.IsAllianceXPBuff                 }
     }
 
     for _, mapping in ipairs(targetMappings) do

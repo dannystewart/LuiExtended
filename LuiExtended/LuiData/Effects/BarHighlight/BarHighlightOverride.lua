@@ -91,9 +91,9 @@ local barHighlightOverride =
     [36514] = { newId = 61400 },                   -- Soul Harvest --> Damage Taken Increased
 
     -- Shadow
-    [25255] = { newId = 34733 }, -- Veiled Strike --> Off-Balance
-    [25260] = { newId = 34733 }, -- Surprise Attack --> Off-Balance
-    [25267] = { newId = 34736 }, -- Concealed Weapon
+    [25255] = { newId = 34733 },  -- Veiled Strike --> Off-Balance
+    [25260] = { newId = 34733 },  -- Surprise Attack --> Off-Balance
+    [25267] = { newId = 34736 },  -- Concealed Weapon
     [25375] = { newId = 234617 }, -- Shadow Cloak
     [25380] = { newId = 234617 }, -- Shadowy Disguise
     -- [25352] = { }, -- Aspect of Terror -- TODO: Disabled because API won't return correct duration for Fear

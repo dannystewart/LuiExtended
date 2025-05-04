@@ -3695,8 +3695,8 @@ end
 
 function UnitFrames.OnGroupMemberChange(eventCode, memberName)
     LUIE_CallLater(function ()
-        UnitFrames.CustomFramesApplyColors(false)
-    end, 200)
+                       UnitFrames.CustomFramesApplyColors(false)
+                   end, 200)
 end
 
 -- Runs on the EVENT_UNIT_DEATH_STATE_CHANGED listener.

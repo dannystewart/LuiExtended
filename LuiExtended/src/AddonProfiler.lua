@@ -205,11 +205,11 @@ function AddonProfiler:OutputDetailedProfilingResults(results)
             local delta = data.after - data.before
             if math.abs(delta) > 0.001 then
                 table.insert(memSorted,
-                    {
-                        tag = tag,
-                        delta = delta,
-                        cpuTime = os_rawclock() - data.cpuTime
-                    })
+                             {
+                                 tag = tag,
+                                 delta = delta,
+                                 cpuTime = os_rawclock() - data.cpuTime
+                             })
             end
         end
     end
@@ -244,11 +244,11 @@ function AddonProfiler:OutputMemoryBreakdown()
         local delta = data.after - data.before
         if data.after > 0 and math.abs(delta) > 0.001 then
             table.insert(sortedChanges,
-                {
-                    tag = tag,
-                    data = data,
-                    delta = delta
-                })
+                         {
+                             tag = tag,
+                             data = data,
+                             delta = delta
+                         })
         end
     end
 

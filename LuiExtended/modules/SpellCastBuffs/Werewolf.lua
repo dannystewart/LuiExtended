@@ -81,8 +81,8 @@ function SpellCastBuffs.WerewolfState(eventCode, werewolf, onActivation)
         g_werewolfCounter = 0
         -- Delay resetting this value - as the quest werewolf transform event causes werewolf true, false, true in succession.
         LUIE_CallLater(function ()
-            g_werewolfQuest = 0
-        end, 5000)
+                           g_werewolfQuest = 0
+                       end, 5000)
     end
 end
 
@@ -102,7 +102,7 @@ function SpellCastBuffs.OnPowerUpdate(eventCode, unitTag, powerIndex, powerType,
         g_werewolfCounter = 0
         -- Delay resetting this value - as the quest werewolf transform event causes werewolf true, false, true in succession.
         LUIE_CallLater(function ()
-            g_werewolfQuest = 0
-        end, 5000)
+                           g_werewolfQuest = 0
+                       end, 5000)
     end
 end

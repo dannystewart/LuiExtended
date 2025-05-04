@@ -100,31 +100,31 @@ local collectibleTables = {}
 -- Convert the ID lists to tables with ID-to-name mappings
 for category, ids in pairs(collectibleIds) do
     collectibleTables[category] = setmetatable({},
-        {
-            __index = function (t, k)
-                -- Only process numeric keys (collectible IDs)
-                if type(k) == "number" then
-                    -- Check if this ID belongs in this category
-                    local belongs = false
-                    for _, id in ipairs(ids) do
-                        if id == k then
-                            belongs = true
-                            break
-                        end
-                    end
+                                               {
+                                                   __index = function (t, k)
+                                                       -- Only process numeric keys (collectible IDs)
+                                                       if type(k) == "number" then
+                                                           -- Check if this ID belongs in this category
+                                                           local belongs = false
+                                                           for _, id in ipairs(ids) do
+                                                               if id == k then
+                                                                   belongs = true
+                                                                   break
+                                                               end
+                                                           end
 
-                    if belongs then
-                        local name = GetFormattedCollectibleShortName(k)
-                        if name then
-                            -- Cache the result
-                            t[k] = name
-                            return name
-                        end
-                    end
-                end
-                return nil
-            end
-        })
+                                                           if belongs then
+                                                               local name = GetFormattedCollectibleShortName(k)
+                                                               if name then
+                                                                   -- Cache the result
+                                                                   t[k] = name
+                                                                   return name
+                                                               end
+                                                           end
+                                                       end
+                                                       return nil
+                                                   end
+                                               })
 
     -- Pre-populate with known values to avoid initial delay
     for _, id in ipairs(ids) do
@@ -134,28 +134,28 @@ end
 
 -- Create the All table as a combination of all other tables
 collectibleTables.All = setmetatable({},
-    {
-        __index = function (t, k)
-            if type(k) == "number" then
-                -- Check all categories
-                for category, _ in pairs(collectibleIds) do
-                    if collectibleTables[category][k] then
-                        local name = collectibleTables[category][k]
-                        t[k] = name -- Cache result
-                        return name
-                    end
-                end
+                                     {
+                                         __index = function (t, k)
+                                             if type(k) == "number" then
+                                                 -- Check all categories
+                                                 for category, _ in pairs(collectibleIds) do
+                                                     if collectibleTables[category][k] then
+                                                         local name = collectibleTables[category][k]
+                                                         t[k] = name -- Cache result
+                                                         return name
+                                                     end
+                                                 end
 
-                -- Not found in predefined categories, try direct lookup
-                local name = GetFormattedCollectibleShortName(k)
-                if name then
-                    t[k] = name
-                    return name
-                end
-            end
-            return nil
-        end
-    })
+                                                 -- Not found in predefined categories, try direct lookup
+                                                 local name = GetFormattedCollectibleShortName(k)
+                                                 if name then
+                                                     t[k] = name
+                                                     return name
+                                                 end
+                                             end
+                                             return nil
+                                         end
+                                     })
 
 -- Pre-populate All table with known values
 for category, ids in pairs(collectibleIds) do

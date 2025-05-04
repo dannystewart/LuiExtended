@@ -14,19 +14,19 @@ local Effects = LuiData.Data.Effects
 local CombatTextConstants = LuiData.Data.CombatTextConstants
 
 CombatTextEventViewer.resourceNames = setmetatable({},
-    {
-        __index = function (t, k)
-            t[k] = GetString("SI_COMBATMECHANICTYPE", k)
-            return t[k]
-        end,
-    })
+                                                   {
+                                                       __index = function (t, k)
+                                                           t[k] = GetString("SI_COMBATMECHANICTYPE", k)
+                                                           return t[k]
+                                                       end,
+                                                   })
 CombatTextEventViewer.damageTypes = setmetatable({},
-    {
-        __index = function (t, k)
-            t[k] = GetString("SI_DAMAGETYPE", k)
-            return t[k]
-        end,
-    })
+                                                 {
+                                                     __index = function (t, k)
+                                                         t[k] = GetString("SI_DAMAGETYPE", k)
+                                                         return t[k]
+                                                     end,
+                                                 })
 
 function CombatTextEventViewer:New(poolManager, LMP)
     local obj = setmetatable({}, self)

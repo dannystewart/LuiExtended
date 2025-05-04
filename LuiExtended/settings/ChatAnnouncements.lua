@@ -37,7 +37,8 @@ local duelStartOptionsKeys = { ["Message + Icon"] = 1, ["Message Only"] = 2, ["I
 --- @param topLevelIndex integer
 --- @return string name
 local function GetCollectibleCategoryInfoName(topLevelIndex)
-    local name, numSubCatgories, numCollectibles, unlockedCollectibles, totalCollectibles, hidesLocked = GetCollectibleCategoryInfo(topLevelIndex)
+    local CollectibleCategoryInfo = { GetCollectibleCategoryInfo(topLevelIndex) }
+    local name = CollectibleCategoryInfo[1]
     return name
 end
 
@@ -45,7 +46,8 @@ end
 --- @param topLevelIndex integer
 --- @return string name
 local function GetAchievementCategoryInfoName(topLevelIndex)
-    local name, numSubCatgories, numAchievements, earnedPoints, totalPoints, hidesPoints = GetAchievementCategoryInfo(topLevelIndex)
+    local AchievementCategoryInfo = { GetAchievementCategoryInfo(topLevelIndex) }
+    local name = AchievementCategoryInfo[1]
     return name
 end
 

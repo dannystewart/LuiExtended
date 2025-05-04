@@ -78,11 +78,11 @@ function CombatTextPointEventViewer:OnEvent(pointType, value)
 
     -- Add items back into pool after animation
     LUIE_CallLater(function ()
-        self.poolManager:ReleasePoolObject(poolTypes.CONTROL, controlPoolKey)
-        self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
-        self.activePoints = self.activePoints - 1
-        if self.activePoints == 0 then
-            self.locationOffset = 0
-        end
-    end, animation:GetDuration())
+                       self.poolManager:ReleasePoolObject(poolTypes.CONTROL, controlPoolKey)
+                       self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
+                       self.activePoints = self.activePoints - 1
+                       if self.activePoints == 0 then
+                           self.locationOffset = 0
+                       end
+                   end, animation:GetDuration())
 end

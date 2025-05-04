@@ -99,7 +99,7 @@ local function MillisecondTimestampDebug(message)
     -- Remove unnecessary parts from timestamp
     local replacements =
     {
-        { "HH", "" }, { "H ", ":" }, { "hh", "" }, { "h ", ":" },
+        { "HH", ""  }, { "H ", ":" }, { "hh", "" }, { "h ", ":" },
         { "m ", ":" }, { "s ", ":" }, { "A", "" }, { "a", "" }, { "ms", "" }
     }
 
@@ -198,8 +198,8 @@ local function GenerateCombatDebugMessage(abilityId, source, target, duration, c
     end
 
     return string_format("%s [%d] %s: [S] %s --> [T] %s [D] %s%s%s [R] %s",
-        iconFormatted, abilityId, nameFormatted, source, target, duration,
-        channelTimeText, castTimeText, formattedResult)
+                         iconFormatted, abilityId, nameFormatted, source, target, duration,
+                         channelTimeText, castTimeText, formattedResult)
 end
 
 --- Generates a formatted effect debug message
@@ -219,23 +219,23 @@ local function GenerateEffectDebugMessage(changeType, abilityId, unitName, unitT
     -- Handle hidden effects
     if isHidden then
         return string_format("%s%s [%d] %s: HIDDEN LUI%s: [Tag] %s%s",
-            iconFormatted, DebugFormatConfig.hiddenColor, abilityId, nameFormatted,
-            cmxHiddenStatus, formattedUnitName, "|r")
+                             iconFormatted, DebugFormatConfig.hiddenColor, abilityId, nameFormatted,
+                             cmxHiddenStatus, formattedUnitName, "|r")
     end
 
     -- Format message based on change type
     if changeType == 1 then
         return string_format("%sGained:%s %s%s [%d] %s: [Tag] %s [Dur] %s",
-            DebugFormatConfig.gainedColor, "|r", refreshOnly, iconFormatted,
-            abilityId, nameFormatted, formattedUnitName, duration)
+                             DebugFormatConfig.gainedColor, "|r", refreshOnly, iconFormatted,
+                             abilityId, nameFormatted, formattedUnitName, duration)
     elseif changeType == 2 then
         return string_format("%sFaded:%s %s [%d] %s: [Tag] %s",
-            DebugFormatConfig.gainedColor, "|r", iconFormatted,
-            abilityId, nameFormatted, formattedUnitName)
+                             DebugFormatConfig.gainedColor, "|r", iconFormatted,
+                             abilityId, nameFormatted, formattedUnitName)
     else
         return string_format("%sRefreshed:%s %s (%d) [%d] %s: [Tag] %s [Dur] %s",
-            DebugFormatConfig.gainedColor, "|r", iconFormatted, changeType,
-            abilityId, nameFormatted, formattedUnitName, duration)
+                             DebugFormatConfig.gainedColor, "|r", iconFormatted, changeType,
+                             abilityId, nameFormatted, formattedUnitName, duration)
     end
 end
 
@@ -387,7 +387,7 @@ function SpellCastBuffs.AuthorCombatDebug(eventCode, result, isError, abilityNam
 
     -- Generate debug message
     local message = string_format("%s[%d] %s: HIDDEN LUI%s: [S] %s --> [T] %s [R] %s",
-        iconFormatted, abilityId, nameFormatted, cmxHiddenStatus, source, target, formattedResult)
+                                  iconFormatted, abilityId, nameFormatted, cmxHiddenStatus, source, target, formattedResult)
 
     -- Send to system chat windows
     SendDebugMessage(message, true)
@@ -428,8 +428,8 @@ function SpellCastBuffs.AuthorEffectDebug(eventCode, changeType, effectSlot, eff
 
     -- Generate debug message
     local message = string_format("%s%s%s [%d] %s: HIDDEN LUI%s: [Tag] %s%s",
-        iconFormatted, refreshOnly, DebugFormatConfig.hiddenColor, abilityId,
-        nameFormatted, cmxHiddenStatus, formattedUnitName, "|r")
+                                  iconFormatted, refreshOnly, DebugFormatConfig.hiddenColor, abilityId,
+                                  nameFormatted, cmxHiddenStatus, formattedUnitName, "|r")
 
     -- Send to system chat windows
     SendDebugMessage(message, true)
@@ -511,7 +511,7 @@ end
 function SpellCastBuffs.TempSlashFilter()
     SpellCastBuffs.SV.ShowDebugFilter = not SpellCastBuffs.SV.ShowDebugFilter
     AddSystemMessage(string_format("LUIE --- Ability Debug Filter %s ---",
-        SpellCastBuffs.SV.ShowDebugFilter and "Enabled" or "Disabled"))
+                                   SpellCastBuffs.SV.ShowDebugFilter and "Enabled" or "Disabled"))
 end
 
 --- Toggles ground damage aura visualization on/off.
@@ -520,7 +520,7 @@ end
 function SpellCastBuffs.TempSlashGround()
     SpellCastBuffs.SV.GroundDamageAura = not SpellCastBuffs.SV.GroundDamageAura
     AddSystemMessage(string_format("LUIE --- Ground Damage Auras %s ---",
-        SpellCastBuffs.SV.GroundDamageAura and "Enabled" or "Disabled"))
+                                   SpellCastBuffs.SV.GroundDamageAura and "Enabled" or "Disabled"))
     LUIE.SpellCastBuffs.ReloadEffects("player")
 end
 
@@ -536,26 +536,26 @@ function SpellCastBuffs.TempSlashZoneCheck()
 
     local displayInfo =
     {
-        { "--------------------" },
-        { "ZONE & MAP INFO:" },
-        { "--------------------" },
-        { "Zone Id:",            info.zoneid },
-        { "Location Name:",      info.locName },
-        { "--------------------" },
-        { "Map Id:",             info.mapid },
-        { "Map Index:",          info.mapindex or "nil" },
-        { "--------------------" },
-        { "GPS Coordinates:" },
-        { "Map:",                string_format("%s: %s" .. LUIE_TINY_X_FORMATTER .. "%s", info.mapName, FormatCoords(info.mapX), FormatCoords(info.mapY)) },
+        { "--------------------"                                                                                                                             },
+        { "ZONE & MAP INFO:"                                                                                                                                 },
+        { "--------------------"                                                                                                                             },
+        { "Zone Id:",            info.zoneid                                                                                                                 },
+        { "Location Name:",      info.locName                                                                                                                },
+        { "--------------------"                                                                                                                             },
+        { "Map Id:",             info.mapid                                                                                                                  },
+        { "Map Index:",          info.mapindex or "nil"                                                                                                      },
+        { "--------------------"                                                                                                                             },
+        { "GPS Coordinates:"                                                                                                                                 },
+        { "Map:",                string_format("%s: %s" .. LUIE_TINY_X_FORMATTER .. "%s", info.mapName, FormatCoords(info.mapX), FormatCoords(info.mapY))    },
         { "Zone:",               string_format("%s: %s" .. LUIE_TINY_X_FORMATTER .. "%s", info.zoneName, FormatCoords(info.zoneX), FormatCoords(info.zoneY)) },
-        { "World:",              string_format("Tamriel: %s" .. LUIE_TINY_X_FORMATTER .. "%s", FormatCoords(info.worldX), FormatCoords(info.worldY)) },
-        { "--------------------" },
-        { "Map Name:",           info.name },
-        { "Map Type:",           info.mapType },
-        { "Map Content Type:",   info.mapContentType },
-        { "Zone Index:",         info.zoneIndex },
-        { "Description:",        info.description },
-        { "--------------------" },
+        { "World:",              string_format("Tamriel: %s" .. LUIE_TINY_X_FORMATTER .. "%s", FormatCoords(info.worldX), FormatCoords(info.worldY))         },
+        { "--------------------"                                                                                                                             },
+        { "Map Name:",           info.name                                                                                                                   },
+        { "Map Type:",           info.mapType                                                                                                                },
+        { "Map Content Type:",   info.mapContentType                                                                                                         },
+        { "Zone Index:",         info.zoneIndex                                                                                                              },
+        { "Description:",        info.description                                                                                                            },
+        { "--------------------"                                                                                                                             },
     }
 
     for _, v in ipairs(displayInfo) do

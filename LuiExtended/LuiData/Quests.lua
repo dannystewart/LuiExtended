@@ -361,13 +361,13 @@ quests.QuestItemModifyOnRemove =
     end, -- Crystal (Preventative Measure)
     [4492] = function ()
         zo_callLater(function ()
-            quests.QuestItemHideRemove[4485] = nil
-        end, 2000)
+                         quests.QuestItemHideRemove[4485] = nil
+                     end, 2000)
     end, -- Rajhin's Mantle (A Lasting Winter)
     [4645] = function ()
         zo_callLater(function ()
-            quests.QuestItemHideRemove[4596] = nil
-        end, 2000)
+                         quests.QuestItemHideRemove[4596] = nil
+                     end, 2000)
     end, -- Rahjin's Mantle (The Orrery of Elden Root)
     [4411] = function ()
         quests.QuestItemHideRemove[4411] = nil

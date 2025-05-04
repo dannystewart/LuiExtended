@@ -54,8 +54,8 @@ function CombatTextCombatCloudEventViewer:OnEvent(combatType, powerType, value, 
                 throttleTime = Settings.throttles.hotcritical
             end
             LUIE_CallLater(function ()
-                self:ViewFromEventBuffer(combatType, powerType, eventKey, abilityName, abilityId, damageType, sourceName, isDamage, isDamageCritical, isHealing, isHealingCritical, isEnergize, isDrain, isDot, isDotCritical, isHot, isHotCritical, isMiss, isImmune, isParried, isReflected, isDamageShield, isDodged, isBlocked, isInterrupted)
-            end, throttleTime)
+                               self:ViewFromEventBuffer(combatType, powerType, eventKey, abilityName, abilityId, damageType, sourceName, isDamage, isDamageCritical, isHealing, isHealingCritical, isEnergize, isDrain, isDot, isDotCritical, isHot, isHotCritical, isMiss, isImmune, isParried, isReflected, isDamageShield, isDodged, isBlocked, isInterrupted)
+                           end, throttleTime)
         else
             self.eventBuffer[eventKey].value = self.eventBuffer[eventKey].value + value
             self.eventBuffer[eventKey].hits = self.eventBuffer[eventKey].hits + 1
@@ -138,7 +138,7 @@ function CombatTextCombatCloudEventViewer:View(combatType, powerType, value, abi
 
     -- Add items back into pool after use
     LUIE_CallLater(function ()
-        self.poolManager:ReleasePoolObject(CombatTextConstants.poolType.CONTROL, controlPoolKey)
-        self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
-    end, animation:GetDuration())
+                       self.poolManager:ReleasePoolObject(CombatTextConstants.poolType.CONTROL, controlPoolKey)
+                       self.poolManager:ReleasePoolObject(animationPoolType, animationPoolKey)
+                   end, animation:GetDuration())
 end

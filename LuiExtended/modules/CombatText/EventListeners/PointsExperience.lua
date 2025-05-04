@@ -14,8 +14,8 @@ local pointType = LuiData.Data.CombatTextConstants.pointType
 function CombatTextPointsExperienceEventListener:New()
     local obj = LUIE.CombatTextEventListener:New()
     obj:RegisterForEvent(EVENT_EXPERIENCE_UPDATE, function (...)
-        self:OnEvent(...)
-    end, REGISTER_FILTER_UNIT_TAG, "player")
+                             self:OnEvent(...)
+                         end, REGISTER_FILTER_UNIT_TAG, "player")
     self.gain = 0
     self.timeoutActive = false
     self.isChampion = IsUnitChampion("player")
@@ -59,10 +59,10 @@ function CombatTextPointsExperienceEventListener:OnEvent(unit, currentXp, maxXp)
         if self.gain > 0 and not self.timeoutActive then
             self.timeoutActive = true
             LUIE_CallLater(function ()
-                self:TriggerEvent(eventType.POINT, pointType.EXPERIENCE_POINTS, self.gain)
-                self.gain = 0
-                self.timeoutActive = false
-            end, 500)
+                               self:TriggerEvent(eventType.POINT, pointType.EXPERIENCE_POINTS, self.gain)
+                               self.gain = 0
+                               self.timeoutActive = false
+                           end, 500)
         end
     end
 end
