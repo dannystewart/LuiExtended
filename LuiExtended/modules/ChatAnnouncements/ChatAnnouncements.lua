@@ -2101,8 +2101,8 @@ function ChatAnnouncements.ReadyCheckUpdate(eventCode)
 
         local message, alertText
         if playerRole ~= 0 then
-            local roleIconSmall = zo_strformat("<<1>> ", zo_iconFormat(ZO_GetRoleIcon(playerRole), 16, 16)) or ""
-            local roleIconLarge = zo_strformat("<<1>> ", zo_iconFormat(ZO_GetRoleIcon(playerRole), "100%", "100%")) or ""
+            local roleIconSmall = zo_strformat("<<1>> ", zo_iconFormat(LUIE.GetRoleIcon(playerRole), 16, 16)) or ""
+            local roleIconLarge = zo_strformat("<<1>> ", zo_iconFormat(LUIE.GetRoleIcon(playerRole), "100%", "100%")) or ""
             local roleString = GetString("SI_LFGROLE", playerRole)
 
             message = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_READY_CHECK_ACTIVITY_ROLE), activityName, roleIconSmall, roleString)

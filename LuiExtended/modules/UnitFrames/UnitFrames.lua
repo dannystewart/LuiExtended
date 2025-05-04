@@ -209,8 +209,6 @@ UnitFrames.Defaults =
     CustomTargetMarker = false,
 }
 
-
---- @class (partial) LUIE_UnitFrames_SV
 UnitFrames.SV = {}
 
 --- @class LUIE_ChampionXP
@@ -224,7 +222,7 @@ UnitFrames.SV = {}
 --- @field control Control
 --- @field name LabelControl
 --- @field dead LabelControl
---- @field tld TopLevelWindow
+--- @field tlw TopLevelWindow
 --- @field unitTag string
 
 --- @class LUIE_Boss_Group_Health
@@ -468,8 +466,8 @@ local function CreateRegenAnimation(parent, anchors, dims, alpha, number)
     end
 
     control:SetHidden(true)
-    control:SetAlpha(0)
-    control:SetDrawLayer(1)
+    control:SetAlpha(alpha or 0)
+    control:SetDrawLayer(DL_CONTROLS)
 
     for i = 0, MAX_ANCHORS - 1 do
         local isValid, _, _, _, _, offsetY = control:GetAnchor(i)
@@ -2944,7 +2942,7 @@ function UnitFrames.UpdateStaticControls(unitFrame)
     if unitFrame.roleIcon ~= nil then
         local role = GetGroupMemberSelectedRole(unitFrame.unitTag)
         -- d (unitFrame.unitTag.." - "..role)
-        local unitRole = roleIcons[role]
+        local unitRole = LUIE.GetRoleIcon(role)
         unitFrame.roleIcon:SetTexture(unitRole)
     end
     -- If unitFrame has difficulty stars
