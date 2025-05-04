@@ -50,7 +50,6 @@ local string_format = string.format
 local table = table
 local table_concat = table.concat
 local table_insert = table.insert
-local table_move = table.move
 local table_remove = table.remove
 local table_sort = table.sort
 
@@ -3707,7 +3706,7 @@ function ChatAnnouncements.OnAchievementUpdated(eventId, id)
             ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
             {
                 message = finalString,
-                mssageType = "ACHIEVEMENT"
+                messageType = "ACHIEVEMENT"
             }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
@@ -7438,7 +7437,7 @@ function ChatAnnouncements.DisguiseState(eventId, unitTag, disguiseState)
             ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
             {
                 message = message,
-                essageType = "MESSAGE"
+                messageType = "MESSAGE"
             }
             ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
             eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
@@ -7575,7 +7574,7 @@ function ChatAnnouncements.OnPlayerActivated(eventId, initial)
                     ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
                     {
                         message = message,
-                        essageType = "MESSAGE"
+                        messageType = "MESSAGE"
                     }
                     ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
                     eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
@@ -11825,6 +11824,7 @@ function ChatAnnouncements.HookFunction()
         local originalShowPlayerInteractMenu = ZO_PlayerToPlayer.ShowPlayerInteractMenu
         --- @param self ZO_PlayerToPlayer
         --- @param isIgnored boolean
+        --- @diagnostic disable-next-line: duplicate-set-field
         function ZO_PlayerToPlayer:ShowPlayerInteractMenu(isIgnored)
             -- Call the original function to maintain base behavior
             originalShowPlayerInteractMenu(self, isIgnored)
@@ -12056,6 +12056,7 @@ function ChatAnnouncements.HookFunction()
 
     -- Hook Gamepad mail name function
     local orgIsMailValid = ZO_MailSend_Gamepad.IsMailValid
+    --- @diagnostic disable-next-line: duplicate-set-field
     function ZO_MailSend_Gamepad:IsMailValid(...)
         orgIsMailValid(self, ...)
         local to = self.mailView:GetAddress()
