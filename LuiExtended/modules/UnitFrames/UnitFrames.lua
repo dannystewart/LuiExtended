@@ -445,9 +445,10 @@ local function CreateRegenAnimation(parent, anchors, dims, alpha, number)
     local updateDims = { dims[2] * 1.9, dims[2] * 0.85 }
 
     -- Create regen control
-    local control
-    local offsetX
-    local distance
+    local control = {}
+    local offsetX = 0.00000000000000
+    local distance = 0.00000000000000
+
     if number == "degen1" then
         control = UI:Texture(parent, anchors, updateDims, "LuiExtended/media/unitframes/regenleft.dds", 2, true)
         distance = -dims[1] * 0.35
