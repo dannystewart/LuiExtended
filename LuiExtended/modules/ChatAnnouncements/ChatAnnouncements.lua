@@ -499,7 +499,7 @@ local ChatAnnouncements =
         {
             Loot = true,
             LootLogOverride = false,
-            LootIgnoreFiltering = false,
+            -- LootIgnoreFiltering = false,
             LootBank = true,
             LootBlacklist = false,
             LootTotal = false,
@@ -4690,32 +4690,21 @@ function ChatAnnouncements.OnInventoryItemUsed(eventId, itemSoundCategory)
 end
 
 -- If filter is true, we run the item through this function to determine if we should display it. Filter only gets set to true for group loot and relevant loot functions. Mail, trade, stores, etc don't apply the filter.
----
---- @param itemType ItemType
---- @param itemId integer
---- @param itemLink string
---- @param groupLoot boolean
---- @return boolean
 function ChatAnnouncements.ItemFilter(itemType, itemId, itemLink, groupLoot)
-    -- If LootIgnoreFiltering is enabled and this is group loot, bypass filtering
-    if groupLoot and ChatAnnouncements.SV.Inventory.LootIgnoreFiltering then
-        return true
-    end
-
     if ChatAnnouncements.SV.Inventory.LootBlacklist and g_blacklistIDs[itemId] or (ChatAnnouncements.SV.Inventory.LootLogOverride and LootLog) then
         return false
     end
-    local specializedItemType
-    itemType, specializedItemType = GetItemLinkItemType(itemLink)
+
+    local specializedItemType = select(2, GetItemLinkItemType(itemLink))
     local itemQuality = GetItemLinkFunctionalQuality(itemLink)
-    local hasSet, setName, numBonuses, numNormalEquipped, maxEquipped, setId, numPerfectedEquipped = GetItemLinkSetInfo(itemLink, false)
+    local itemIsSet = GetItemLinkSetInfo(itemLink, false)
 
     local itemIsKeyFragment = (itemType == ITEMTYPE_TROPHY) and (specializedItemType == SPECIALIZED_ITEMTYPE_TROPHY_KEY_FRAGMENT)
     local itemIsSpecial = (itemType == ITEMTYPE_TROPHY and not itemIsKeyFragment) or (itemType == ITEMTYPE_COLLECTIBLE) or IsItemLinkConsumable(itemLink)
 
     if ChatAnnouncements.SV.Inventory.LootOnlyNotable or groupLoot then
         -- Notable items are: any set items, any purple+ items, blue+ special items (e.g., treasure maps)
-        if hasSet or (itemQuality >= ITEM_FUNCTIONAL_QUALITY_ARCANE and itemIsSpecial) or (itemQuality >= ITEM_FUNCTIONAL_QUALITY_ARTIFACT and not itemIsKeyFragment) or (itemType == ITEMTYPE_COSTUME) or (itemType == ITEMTYPE_DISGUISE) or g_notableIDs[itemId] then
+        if itemIsSet or (itemQuality >= ITEM_FUNCTIONAL_QUALITY_ARCANE and itemIsSpecial) or (itemQuality >= ITEM_FUNCTIONAL_QUALITY_ARTIFACT and not itemIsKeyFragment) or (itemType == ITEMTYPE_COSTUME) or (itemType == ITEMTYPE_DISGUISE) or g_notableIDs[itemId] then
             return true
         end
     elseif ChatAnnouncements.SV.Inventory.LootNotTrash and (itemQuality == ITEM_FUNCTIONAL_QUALITY_TRASH) and not ((itemType == ITEMTYPE_ARMOR) or (itemType == ITEMTYPE_COSTUME) or (itemType == ITEMTYPE_DISGUISE)) then
@@ -4723,7 +4712,6 @@ function ChatAnnouncements.ItemFilter(itemType, itemId, itemLink, groupLoot)
     else
         return true
     end
-    return true -- Technically, we shouldn't reach here.
 end
 
 local function CheckLibLazyCraftingActive()

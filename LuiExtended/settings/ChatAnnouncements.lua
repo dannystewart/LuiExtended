@@ -1794,23 +1794,23 @@ function ChatAnnouncements.CreateSettings()
                 end,
                 default = Defaults.Inventory.LootGroup,
             },
-            {
-                -- Ignore filtering for group loot
-                type = "checkbox",
-                name = zo_strformat("\t\t\t\t\t<<1>>", "Show All Group Member Loot"),
-                tooltip = "Show all loot received by group members, bypassing the normal filtering rules.",
-                getFunc = function ()
-                    return Settings.Inventory.LootIgnoreFiltering
-                end,
-                setFunc = function (value)
-                    Settings.Inventory.LootIgnoreFiltering = value
-                end,
-                width = "full",
-                disabled = function ()
-                    return not (Settings.Inventory.Loot and Settings.Inventory.LootGroup and LUIE.SV.ChatAnnouncements_Enable)
-                end,
-                default = Defaults.Inventory.LootIgnoreFiltering,
-            },
+            -- {
+            --     -- Ignore filtering for group loot
+            --     type = "checkbox",
+            --     name = zo_strformat("\t\t\t\t\t<<1>>", "Show All Group Member Loot"),
+            --     tooltip = "Show all loot received by group members, bypassing the normal filtering rules.",
+            --     getFunc = function ()
+            --         return Settings.Inventory.LootIgnoreFiltering
+            --     end,
+            --     setFunc = function (value)
+            --         Settings.Inventory.LootIgnoreFiltering = value
+            --     end,
+            --     width = "full",
+            --     disabled = function ()
+            --         return not (Settings.Inventory.Loot and Settings.Inventory.LootGroup and LUIE.SV.ChatAnnouncements_Enable)
+            --     end,
+            --     default = Defaults.Inventory.LootIgnoreFiltering,
+            -- },
             {
                 -- Hide annoying items
                 type = "checkbox",
