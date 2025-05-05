@@ -10,22 +10,20 @@ local LUIE = LUIE
 -- Lua Locals.
 -- -----------------------------------------------------------------------------
 
---- @type _G
-local _G = getfenv(0)
-local pairs = _G.pairs
-local ipairs = _G.ipairs
-local select = _G.select
-local tonumber = _G.tonumber
-local unpack = _G.unpack
-local type = _G.type
-local string = _G.string
+local pairs = pairs
+local ipairs = ipairs
+local select = select
+local tonumber = tonumber
+local unpack = unpack
+local type = type
+local string = string
 local string_find = string.find
 local string_gmatch = string.gmatch
 local string_gsub = string.gsub
 local string_match = string.match
 local string_rep = string.rep
 local string_format = string.format
-local table = _G.table
+local table = table
 local table_concat = table.concat
 local table_insert = table.insert
 local table_remove = table.remove
@@ -35,12 +33,12 @@ local table_sort = table.sort
 -- ESO API Locals.
 -- -----------------------------------------------------------------------------
 
-local animationManager = _G.GetAnimationManager()
-local eventManager = _G.GetEventManager()
-local windowManager = _G.GetWindowManager()
+local animationManager = GetAnimationManager()
+local eventManager = GetEventManager()
+local windowManager = GetWindowManager()
 
-local GetString = _G.GetString
-local zo_strformat = _G.zo_strformat
+local GetString = GetString
+local zo_strformat = zo_strformat
 
 -- -----------------------------------------------------------------------------
 -- LFG Role --
