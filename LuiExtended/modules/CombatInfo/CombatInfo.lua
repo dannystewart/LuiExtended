@@ -986,22 +986,26 @@ function CombatInfo.RemoveFromCustomList(list, input)
 end
 
 function CombatInfo.OnPlayerActivatedMarker(eventCode)
-    CombatInfo.SetMarker()
+    if IsPlayerActivated() then
+        CombatInfo.SetMarker()
+    end
 end
 
 -- Used to populate abilities icons after the user has logged on
 function CombatInfo.OnPlayerActivated(eventCode)
-    -- do not call this function for the second time
-    eventManager:UnregisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED)
+    if IsPlayerActivated() then
+        -- do not call this function for the second time
+        eventManager:UnregisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED)
 
-    -- Manually trigger event to update stats
-    g_hotbarCategory = GetActiveHotbarCategory()
-    CombatInfo.OnSlotsFullUpdate()
-    for i = (BAR_INDEX_START + BACKBAR_INDEX_OFFSET), (BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET) do
-        -- Update Bar Slots on initial load (don't want to do it normally when we do a slot update)
-        CombatInfo.BarSlotUpdate(i, true, false)
+        -- Manually trigger event to update stats
+        g_hotbarCategory = GetActiveHotbarCategory()
+        CombatInfo.OnSlotsFullUpdate()
+        for i = (BAR_INDEX_START + BACKBAR_INDEX_OFFSET), (BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET) do
+            -- Update Bar Slots on initial load (don't want to do it normally when we do a slot update)
+            CombatInfo.BarSlotUpdate(i, true, false)
+        end
+        CombatInfo.OnPowerUpdatePlayer(EVENT_POWER_UPDATE, "player", nil, COMBAT_MECHANIC_FLAGS_ULTIMATE, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_ULTIMATE))
     end
-    CombatInfo.OnPowerUpdatePlayer(EVENT_POWER_UPDATE, "player", nil, COMBAT_MECHANIC_FLAGS_ULTIMATE, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_ULTIMATE))
 end
 
 local savedPlayerX = 0.00000000000000

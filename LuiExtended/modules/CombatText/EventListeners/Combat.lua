@@ -47,8 +47,10 @@ function CombatTextCombatEventListener:New()
 end
 
 function CombatTextCombatEventListener:OnPlayerActivated()
-    if IsUnitInCombat("player") then
-        isWarned.combat = true
+    if IsPlayerActivated() then
+        if IsUnitInCombat("player") then
+            isWarned.combat = true
+        end
     end
 end
 

@@ -3882,8 +3882,10 @@ function SpellCastBuffs.ReloadEffects(unitTag)
         local buffName, timeStarted, timeEnding, buffSlot, stackCount, iconFilename, buffType, effectType, abilityType, statusEffectType, abilityId, canClickOff, castByPlayer = GetUnitBuffInfo(unitTag, i)
         -- Fudge this value to send to SpellCastBuffs.OnEffectChanged if this is a debuff
         if castByPlayer == true then
+            --- @diagnostic disable-next-line: cast-local-type
             castByPlayer = COMBAT_UNIT_TYPE_PLAYER
         else
+            --- @diagnostic disable-next-line: cast-local-type
             castByPlayer = COMBAT_UNIT_TYPE_OTHER
         end
         SpellCastBuffs.OnEffectChanged(0, 3, buffSlot, buffName, unitTag, timeStarted, timeEnding, stackCount, iconFilename, buffType, effectType, abilityType, statusEffectType, unitName, 0, --[[unitId]] abilityId, castByPlayer)
@@ -4139,8 +4141,8 @@ function SpellCastBuffs.OnUpdate(currentTime)
                     else
                         return (xDuration == 0)
                     end
-                    -- Sort permanent/ground effects
-                elseif xDuration == 0 and yDuration == 0 then
+                    -- Sort permanent/ground effects (might separate these at some point but for now want the sorting function simplified)
+                elseif (xDuration == 0 and yDuration == 0) then
                     return (x.name < y.name)
                     -- Both non-permanent
                 elseif xDuration ~= 0 and yDuration ~= 0 then
@@ -4451,50 +4453,52 @@ end
 
 -- Runs on EVENT_PLAYER_ACTIVATED listener
 function SpellCastBuffs.OnPlayerActivated(eventCode)
-    g_playerActive = true
-    g_playerResurrectStage = nil
+    if IsPlayerActivated() then
+        g_playerActive = true
+        g_playerResurrectStage = nil
 
-    -- Reload Effects
-    SpellCastBuffs.ReloadEffects("player")
-    SpellCastBuffs.AddNameOnBossEngaged()
+        -- Reload Effects
+        SpellCastBuffs.ReloadEffects("player")
+        SpellCastBuffs.AddNameOnBossEngaged()
 
-    -- Load Zone Specific Buffs
-    if not SpellCastBuffs.SV.HidePlayerBuffs then
-        SpellCastBuffs.AddZoneBuffs()
-    end
+        -- Load Zone Specific Buffs
+        if not SpellCastBuffs.SV.HidePlayerBuffs then
+            SpellCastBuffs.AddZoneBuffs()
+        end
 
-    -- Resolve Duel Target
-    SpellCastBuffs.DuelStart()
+        -- Resolve Duel Target
+        SpellCastBuffs.DuelStart()
 
-    -- Resolve Mounted icon
-    if not SpellCastBuffs.SV.IgnoreMountPlayer and IsMounted() then
-        LUIE_CallLater(function ()
-                           SpellCastBuffs.MountStatus("", true)
-                       end, 50)
-    end
+        -- Resolve Mounted icon
+        if not SpellCastBuffs.SV.IgnoreMountPlayer and IsMounted() then
+            LUIE_CallLater(function ()
+                               SpellCastBuffs.MountStatus("", true)
+                           end, 50)
+        end
 
-    -- Resolve Disguise Icon
-    if not SpellCastBuffs.SV.IgnoreDisguise then
-        LUIE_CallLater(function ()
-                           SpellCastBuffs.DisguiseItem(nil, BAG_WORN, 10)
-                       end, 50)
-    end
+        -- Resolve Disguise Icon
+        if not SpellCastBuffs.SV.IgnoreDisguise then
+            LUIE_CallLater(function ()
+                               SpellCastBuffs.DisguiseItem(nil, BAG_WORN, 10)
+                           end, 50)
+        end
 
-    -- Resolve Assistant Icon
-    if not SpellCastBuffs.SV.IgnorePet or not SpellCastBuffs.SV.IgnoreAssistant then
-        LUIE_CallLater(function ()
-                           SpellCastBuffs.CollectibleBuff()
-                       end, 50)
-    end
+        -- Resolve Assistant Icon
+        if not SpellCastBuffs.SV.IgnorePet or not SpellCastBuffs.SV.IgnoreAssistant then
+            LUIE_CallLater(function ()
+                               SpellCastBuffs.CollectibleBuff()
+                           end, 50)
+        end
 
-    -- Resolve Werewolf
-    if SpellCastBuffs.SV.ShowWerewolf and IsPlayerInWerewolfForm() then
-        SpellCastBuffs.WerewolfState(nil, true, true)
-    end
+        -- Resolve Werewolf
+        if SpellCastBuffs.SV.ShowWerewolf and IsPlayerInWerewolfForm() then
+            SpellCastBuffs.WerewolfState(nil, true, true)
+        end
 
-    -- Sets the player to dead if reloading UI or loading in while dead.
-    if IsUnitDead("player") then
-        g_playerDead = true
+        -- Sets the player to dead if reloading UI or loading in while dead.
+        if IsUnitDead("player") then
+            g_playerDead = true
+        end
     end
 end
 

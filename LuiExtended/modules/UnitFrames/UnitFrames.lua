@@ -2298,47 +2298,49 @@ end
 -- Runs on the EVENT_PLAYER_ACTIVATED listener.
 -- This handler fires every time the player is loaded. Used to set initial values.
 function UnitFrames.OnPlayerActivated(eventCode)
-    -- Reload values for player frames
-    UnitFrames.ReloadValues("player")
-    UnitFrames.UpdateRegen("player", STAT_MAGICKA_REGEN_COMBAT, ATTRIBUTE_MAGICKA, COMBAT_MECHANIC_FLAGS_MAGICKA)
-    UnitFrames.UpdateRegen("player", STAT_STAMINA_REGEN_COMBAT, ATTRIBUTE_STAMINA, COMBAT_MECHANIC_FLAGS_STAMINA)
+    if IsPlayerActivated() then
+        -- Reload values for player frames
+        UnitFrames.ReloadValues("player")
+        UnitFrames.UpdateRegen("player", STAT_MAGICKA_REGEN_COMBAT, ATTRIBUTE_MAGICKA, COMBAT_MECHANIC_FLAGS_MAGICKA)
+        UnitFrames.UpdateRegen("player", STAT_STAMINA_REGEN_COMBAT, ATTRIBUTE_STAMINA, COMBAT_MECHANIC_FLAGS_STAMINA)
 
-    -- Create UI elements for default group members frames
-    if g_DefaultFrames.SmallGroup then
-        for i = 1, 12 do
-            local unitTag = "group" .. i
-            if DoesUnitExist(unitTag) then
-                UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
+        -- Create UI elements for default group members frames
+        if g_DefaultFrames.SmallGroup then
+            for i = 1, 12 do
+                local unitTag = "group" .. i
+                if DoesUnitExist(unitTag) then
+                    UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
+                end
             end
         end
-    end
 
-    -- If CustomFrames are used then values will be reloaded in following function
-    if UnitFrames.CustomFrames["SmallGroup1"] ~= nil or UnitFrames.CustomFrames["RaidGroup1"] ~= nil then
-        UnitFrames.CustomFramesGroupUpdate()
+        -- If CustomFrames are used then values will be reloaded in following function
+        if UnitFrames.CustomFrames["SmallGroup1"] ~= nil or UnitFrames.CustomFrames["RaidGroup1"] ~= nil then
+            UnitFrames.CustomFramesGroupUpdate()
 
-        -- Else we need to manually scan and update DefaultFrames
-    elseif g_DefaultFrames.SmallGroup then
-        for i = 1, 12 do
-            local unitTag = "group" .. i
-            if DoesUnitExist(unitTag) then
-                UnitFrames.ReloadValues(unitTag)
+            -- Else we need to manually scan and update DefaultFrames
+        elseif g_DefaultFrames.SmallGroup then
+            for i = 1, 12 do
+                local unitTag = "group" .. i
+                if DoesUnitExist(unitTag) then
+                    UnitFrames.ReloadValues(unitTag)
+                end
             end
         end
+
+        UnitFrames.OnReticleTargetChanged(eventCode)
+        UnitFrames.OnBossesChanged()
+        UnitFrames.OnPlayerCombatState(EVENT_PLAYER_COMBAT_STATE, IsUnitInCombat("player"))
+        UnitFrames.CustomFramesGroupAlpha()
+        UnitFrames.CustomFramesSetupAlternative()
+
+        -- Apply bar colors here, has to be after player init to get group roles
+        UnitFrames.CustomFramesApplyColors(false)
+
+        -- We need to call this here to clear companion/pet unit frames when entering houses/instances as they are not destroyed
+        UnitFrames.CompanionUpdate()
+        UnitFrames.CustomPetUpdate()
     end
-
-    UnitFrames.OnReticleTargetChanged(eventCode)
-    UnitFrames.OnBossesChanged()
-    UnitFrames.OnPlayerCombatState(EVENT_PLAYER_COMBAT_STATE, IsUnitInCombat("player"))
-    UnitFrames.CustomFramesGroupAlpha()
-    UnitFrames.CustomFramesSetupAlternative()
-
-    -- Apply bar colors here, has to be after player init to get group roles
-    UnitFrames.CustomFramesApplyColors(false)
-
-    -- We need to call this here to clear companion/pet unit frames when entering houses/instances as they are not destroyed
-    UnitFrames.CompanionUpdate()
-    UnitFrames.CustomPetUpdate()
 end
 
 -- Runs on the EVENT_POWER_UPDATE listener.
