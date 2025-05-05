@@ -501,14 +501,14 @@ end
 -- Decreased armour overlay visuals
 local function CreateDecreasedArmorOverlay(parent, small)
     local control = UI:Control(parent, { CENTER, CENTER }, { 512, 32 }, false)
-    control.smallTex = UI:Texture(control, { CENTER, CENTER }, { 512, 32 }, "/EsoUI/Art/UnitAttributeVisualizer/attributeBar_dynamic_decreasedArmor_small.dds", 2, false)
+    control.smallTex = UI:Texture(control, { CENTER, CENTER }, { 512, 32 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedarmor_small.dds", 2, false)
     control.smallTex:SetDrawTier(DT_HIGH)
-    -- control.smallTexGlow = UI:Texture(control, {CENTER,CENTER}, {512,32}, "/EsoUI/Art/UnitAttributeVisualizer/attributeBar_dynamic_decreasedArmor_small_glow.dds", 2, false)
+    -- control.smallTexGlow = UI:Texture(control, {CENTER,CENTER}, {512,32}, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedarmor_small_glow.dds", 2, false)
     -- control.smallTexGlow:SetDrawTier(HIGH)
     if not small then
-        control.normalTex = UI:Texture(control, { CENTER, CENTER }, { 512, 32 }, "/EsoUI/Art/UnitAttributeVisualizer/attributeBar_dynamic_decreasedArmor_standard.dds", 2, false)
+        control.normalTex = UI:Texture(control, { CENTER, CENTER }, { 512, 32 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedarmor_standard.dds", 2, false)
         control.normalTex:SetDrawTier(DT_HIGH)
-        -- control.normalTexGlow = UI:Texture(control, {CENTER,CENTER}, {512,32}, "/EsoUI/Art/UnitAttributeVisualizer/attributeBar_dynamic_decreasedArmor_standard_glow.dds", 2, false)
+        -- control.normalTexGlow = UI:Texture(control, {CENTER,CENTER}, {512,32}, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedarmor_standard_glow.dds", 2, false)
         -- control.normalTexGlow:SetDrawTier(HIGH)
     end
 
@@ -1664,8 +1664,8 @@ local function CreateCustomFrames()
                     local backdrop = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
                     UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER] =
                     {
-                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "/esoui/art/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
-                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "/esoui/art/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
+                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
+                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
                     }
                 end
             end
@@ -1689,8 +1689,8 @@ local function CreateCustomFrames()
                     local backdrop = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
                     UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER] =
                     {
-                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "/esoui/art/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
-                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "/esoui/art/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
+                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
+                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
                     }
                 end
             end
@@ -1711,8 +1711,8 @@ local function CreateCustomFrames()
                     local backdrop = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
                     UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER] =
                     {
-                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "/esoui/art/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
-                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "/esoui/art/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
+                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
+                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
                     }
                 end
             end
@@ -1733,8 +1733,8 @@ local function CreateCustomFrames()
                     local backdrop = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
                     UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER] =
                     {
-                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "/esoui/art/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
-                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "/esoui/art/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
+                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
+                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
                     }
                 end
             end
