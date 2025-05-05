@@ -120,6 +120,10 @@ local LUIE_CC_TYPE_UNBREAKABLE = LUIE_CC_TYPE_UNBREAKABLE
 --- @field hideIfNoSource? boolean     -- (Other Modifiers) Hide alerts when source name is missing
 --- @field noDirect? boolean
 --- @field spreadOut? boolean
+--- @field hiddenDuration? integer
+--- @field postCast? integer
+--- @field sound? integer
+--- @field shouldusecc? boolean
 
 --- @class (partial) AlertTable
 --- @field [integer] AlertTableItem
