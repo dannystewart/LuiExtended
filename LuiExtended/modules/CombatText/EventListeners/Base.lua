@@ -6,8 +6,8 @@
 --- @class (partial) LuiExtended
 local LUIE = LUIE
 
---- @class (partial) CombatTextEventListener : ZO_InitializingObject
-local CombatTextEventListener = ZO_InitializingObject:Subclass()
+--- @class (partial) CombatTextEventListener : ZO_CallbackObject
+local CombatTextEventListener = ZO_CallbackObject:Subclass()
 
 local eventManager = GetEventManager()
 
@@ -26,17 +26,16 @@ end
 --- @param func fun(...)
 --- @param ... any
 function CombatTextEventListener:RegisterForEvent(event, func, ...)
-    eventManager:RegisterForEvent(moduleName .. "Event" .. event .. "_" .. eventPostfix, event, function (eventCode, ...)
+    eventManager:RegisterForEvent("LUIE_CombatText_EVENT_" .. event .. "_" .. eventPostfix, event, function (eventCode, ...)
         func(...)
     end)
 
-    --- @type any[]
-    local filters = { ... }
+    -- vararg ... is a list of event filters in format filterType1, filterArg1, filterType2, filterArg2, etc.
+    -- example: obj:RegisterForEvent(EVENT_POWER_UPDATE, func, REGISTER_FILTER_UNIT_TAG, 'player', REGISTER_FILTER_POWER_TYPE, POWERTYPE_ULTIMATE)
     local filtersCount = select("#", ...)
-    if filtersCount > 0 then
-        for i = 1, filtersCount, 2 do
-            eventManager:AddFilterForEvent(moduleName .. "Event" .. event .. "_" .. eventPostfix, event, filters[i], filters[i + 1])
-        end
+    local filters = filtersCount > 0 and { ... }
+    for i = 1, filtersCount, 2 do
+        eventManager:AddFilterForEvent("LUIE_CombatText_EVENT_" .. event .. "_" .. eventPostfix, event, filters[i], filters[i + 1])
     end
 
     eventPostfix = eventPostfix + 1
@@ -47,7 +46,7 @@ end
 --- @param func fun(...)
 --- @param ... any
 function CombatTextEventListener:RegisterForUpdate(name, timer, func, ...)
-    eventManager:RegisterForUpdate(moduleName .. "Event" .. name .. "_" .. eventPostfix, timer, func)
+    eventManager:RegisterForUpdate("LUIE_CombatText_EVENT_" .. name .. "_" .. eventPostfix, timer, func)
 end
 
 --- @param ... any
