@@ -6,7 +6,10 @@
 
 --- @class (partial) LuiExtended
 local LUIE = LUIE
+
 local printToChat = LUIE.PrintToChat
+local Debug = LUIE.Debug
+
 local LuiData = LuiData
 --- @type Data
 local Data = LuiData.Data
@@ -2087,66 +2090,71 @@ local function GetActivityName(activityType)
     end
 end
 
-function ChatAnnouncements.ReadyCheckUpdate(eventCode)
-    local activityType, playerRole, timeRemainingSeconds = GetLFGReadyCheckNotificationInfo()
-    local tanksAccepted, tanksPending, healersAccepted, healersPending, dpsAccepted, dpsPending = GetLFGReadyCheckCounts()
+--- - **EVENT_GROUPING_TOOLS_READY_CHECK_UPDATED**
+---
+--- @param eventId integer
+function ChatAnnouncements.ReadyCheckUpdate(eventId)
+    if HasLFGReadyCheckNotification() then
+        local activityType, playerRole, timeRemainingSeconds = GetLFGReadyCheckNotificationInfo()
+        local tanksAccepted, tanksPending, healersAccepted, healersPending, dpsAccepted, dpsPending = GetLFGReadyCheckCounts()
 
-    if g_showRCUpdates then
-        -- Return early if invalid activity type
-        if activityType == LFG_ACTIVITY_INVALID then return end
+        if g_showRCUpdates then
+            -- Return early if invalid activity type
+            if activityType == LFG_ACTIVITY_INVALID then return end
 
-        local activityName = GetActivityName(activityType)
-        if not activityName then return end
+            local activityName = GetString("SI_LFGACTIVITY", activityType)
+            if not activityName then return end
 
-        local message, alertText
-        if playerRole ~= 0 then
-            local roleIconSmall = zo_strformat("<<1>> ", zo_iconFormat(LUIE.GetRoleIcon(playerRole), 16, 16)) or ""
-            local roleIconLarge = zo_strformat("<<1>> ", zo_iconFormat(LUIE.GetRoleIcon(playerRole), "100%", "100%")) or ""
-            local roleString = GetString("SI_LFGROLE", playerRole)
+            local message, alertText
+            if playerRole ~= 0 then
+                local roleIconSmall = zo_strformat("<<1>> ", zo_iconFormat(LUIE.GetRoleIcon(playerRole), 16, 16)) or ""
+                local roleIconLarge = zo_strformat("<<1>> ", zo_iconFormat(LUIE.GetRoleIcon(playerRole), "100%", "100%")) or ""
+                local roleString = GetString("SI_LFGROLE", playerRole)
 
-            message = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_READY_CHECK_ACTIVITY_ROLE), activityName, roleIconSmall, roleString)
-            alertText = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_READY_CHECK_ACTIVITY_ROLE), activityName, roleIconLarge, roleString)
-        else
-            message = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_READY_CHECK_ACTIVITY), activityName)
-            alertText = message
+                message = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_READY_CHECK_ACTIVITY_ROLE), activityName, roleIconSmall, roleString)
+                alertText = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_READY_CHECK_ACTIVITY_ROLE), activityName, roleIconLarge, roleString)
+            else
+                message = zo_strformat(GetString(LUIE_STRING_CA_GROUPFINDER_READY_CHECK_ACTIVITY), activityName)
+                alertText = message
+            end
+
+            if ChatAnnouncements.SV.Group.GroupLFGCA then
+                printToChat(message, true)
+            end
+            if ChatAnnouncements.SV.Group.GroupLFGAlert then
+                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertText)
+            end
         end
 
-        if ChatAnnouncements.SV.Group.GroupLFGCA then
-            printToChat(message, true)
+        g_showRCUpdates = false
+
+        -- Handle ready check completion or cancellation
+        local allCountsZero = tanksAccepted == 0 and tanksPending == 0 and
+            healersAccepted == 0 and healersPending == 0 and
+            dpsAccepted == 0 and dpsPending == 0
+
+        if not g_showRCUpdates and allCountsZero and not g_rcSpamPrevention then
+            g_rcSpamPrevention = true
+
+            -- Reset spam prevention after 1 second
+            LUIE_CallLater(function ()
+                               g_rcSpamPrevention = false
+                           end, 1000)
+
+            -- Reset activity status after 1 second
+            g_showActivityStatus = false
+            LUIE_CallLater(function ()
+                               g_showActivityStatus = true
+                           end, 1000)
+
+            -- Reset group leave queue after 1 second
+            g_stopGroupLeaveQueue = true
+            LUIE_CallLater(function ()
+                               g_stopGroupLeaveQueue = false
+                           end, 1000)
+
+            g_showRCUpdates = true
         end
-        if ChatAnnouncements.SV.Group.GroupLFGAlert then
-            ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, alertText)
-        end
-    end
-
-    g_showRCUpdates = false
-
-    -- Handle ready check completion or cancellation
-    local allCountsZero = tanksAccepted == 0 and tanksPending == 0 and
-        healersAccepted == 0 and healersPending == 0 and
-        dpsAccepted == 0 and dpsPending == 0
-
-    if not g_showRCUpdates and allCountsZero and not g_rcSpamPrevention then
-        g_rcSpamPrevention = true
-
-        -- Reset spam prevention after 1 second
-        LUIE_CallLater(function ()
-                           g_rcSpamPrevention = false
-                       end, 1000)
-
-        -- Reset activity status after 1 second
-        g_showActivityStatus = false
-        LUIE_CallLater(function ()
-                           g_showActivityStatus = true
-                       end, 1000)
-
-        -- Reset group leave queue after 1 second
-        g_stopGroupLeaveQueue = true
-        LUIE_CallLater(function ()
-                           g_stopGroupLeaveQueue = false
-                       end, 1000)
-
-        g_showRCUpdates = true
     end
 end
 
@@ -2271,6 +2279,8 @@ local LUIE_AttributeDisplayType =
 }
 
 -- Called by various functions to display a respec message, type serves as the message type, delay allows the message to sync timing with the chat printer based on source.
+---
+--- @param respecType RespecType
 function ChatAnnouncements.PointRespecDisplay(respecType)
     local message = LUIE_AttributeDisplayType[respecType] .. "."
     local messageCSA = LUIE_AttributeDisplayType[respecType]
@@ -2299,7 +2309,10 @@ function ChatAnnouncements.PointRespecDisplay(respecType)
     end
 end
 
-function ChatAnnouncements.OnLootUpdated(eventCode)
+--- - **EVENT_LOOT_UPDATED**
+---
+--- @param eventId integer
+function ChatAnnouncements.OnLootUpdated(eventId)
     g_containerRecentlyOpened = true
     local function ResetContainerRecentlyOpened()
         g_containerRecentlyOpened = false
@@ -2309,43 +2322,59 @@ function ChatAnnouncements.OnLootUpdated(eventCode)
     eventManager:RegisterForUpdate(moduleName .. "ResetContainer", 150, ResetContainerRecentlyOpened)
 end
 
---- @param eventCode integer
---- @param currency CurrencyType
+--- - **EVENT_CURRENCY_UPDATE **
+---
+--- @param eventId integer
+--- @param currencyType CurrencyType
 --- @param currencyLocation CurrencyLocation
---- @param newValue integer
---- @param oldValue integer
+--- @param newAmount integer
+--- @param oldAmount integer
 --- @param reason CurrencyChangeReason
 --- @param reasonSupplementaryInfo integer
-function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocation, newValue, oldValue, reason, reasonSupplementaryInfo)
+function ChatAnnouncements.OnCurrencyUpdate(eventId, currencyType, currencyLocation, newAmount, oldAmount, reason, reasonSupplementaryInfo)
+    -- DEBUG
+    -- if LUIE.IsDevDebugEnabled() then
+    --     local traceback = "Currency Update:\n" ..
+    --         "--> currencyType: " .. tostring(currencyType) .. "\n" ..
+    --         "--> currencyLocation: " .. tostring(currencyLocation) .. "\n" ..
+    --         "--> newAmount: " .. tostring(newAmount) .. "\n" ..
+    --         "--> oldAmount: " .. tostring(oldAmount) .. "\n" ..
+    --         "--> reason: " .. tostring(reason) .. "\n" ..
+    --         "--> reasonSupplementaryInfo: " .. tostring(reasonSupplementaryInfo)
+    --     Debug(traceback)
+    -- end
+
     if currencyLocation ~= CURRENCY_LOCATION_CHARACTER and currencyLocation ~= CURRENCY_LOCATION_ACCOUNT then
         return
     end
 
-    local UpOrDown = newValue - oldValue
-
-    -- DEBUG
-    -- d("currency: " .. currency)
-    -- d("NV: " .. newValue)
-    -- d("OV: " .. oldValue)
-    -- d("reason: " .. reason)
+    local UpOrDown = newAmount - oldAmount
 
     -- If the total gold change was 0 or (Reason 7 = Command) or (Reason 28 = Mount Feed) or (Reason 35 = Player Init) or (Reason 81 = Expiration) - End Now
     if UpOrDown == 0 or reason == CURRENCY_CHANGE_REASON_COMMAND or reason == CURRENCY_CHANGE_REASON_FEED_MOUNT or reason == CURRENCY_CHANGE_REASON_PLAYER_INIT or reason == CURRENCY_CHANGE_REASON_EXPIRATION then
         return
     end
 
-    local formattedValue = ZO_CommaDelimitDecimalNumber(newValue)
-    local changeColor       -- Gets the value from ColorizeColors.CurrencyUpColorize or ColorizeColors.CurrencyDownColorize to color strings
-    local changeType        -- Amount of currency gained or lost
-    local currencyTypeColor -- Determines color to use for colorization of currency based off currency type.
-    local currencyIcon      -- Determines icon to use for currency based off currency type.
-    local currencyName      -- Determines name to use for currency based off type.
-    local currencyTotal     -- Determines if the total should be displayed based off type.
-    local messageChange     -- Set to a string value based on the reason code.
-    local messageTotal      -- Set to a string value based on the currency type.
+    local formattedValue = ZO_CommaDelimitDecimalNumber(newAmount)
+    -- Gets the value from ColorizeColors.CurrencyUpColorize or ColorizeColors.CurrencyDownColorize to color strings.
+    local changeColor       --- @type string
+    -- Amount of currency gained or lost.
+    local changeType        --- @type string
+    -- Determines color to use for colorization of currency based off currency type.
+    local currencyTypeColor --- @type string
+    -- Determines icon to use for currency based off currency type.
+    local currencyIcon      --- @type string
+    -- Determines name to use for currency based off type.
+    local currencyName      --- @type string
+    -- Determines if the total should be displayed based off type.
+    local currencyTotal     --- @type boolean
+    -- Set to a string value based on the reason code.
+    local messageChange     --- @type string
+    -- Set to a string value based on the currency type.
+    local messageTotal      --- @type string
     local messageType
 
-    if currency == CURT_MONEY then -- Gold
+    if currencyType == CURT_MONEY then -- Gold
         -- Send change info to the throttle printer and end function now if we throttle gold from loot.
         if not ChatAnnouncements.SV.Currency.CurrencyGoldChange then
             return
@@ -2371,7 +2400,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyGoldName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyGoldShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalGold
-    elseif currency == CURT_ALLIANCE_POINTS then -- Alliance Points
+    elseif currencyType == CURT_ALLIANCE_POINTS then -- Alliance Points
         if not ChatAnnouncements.SV.Currency.CurrencyAPShowChange then
             return
         end
@@ -2401,7 +2430,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyAPName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyAPShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalAP
-    elseif currency == CURT_TELVAR_STONES then -- TelVar Stones
+    elseif currencyType == CURT_TELVAR_STONES then -- TelVar Stones
         if not ChatAnnouncements.SV.Currency.CurrencyTVChange then
             return
         end
@@ -2432,7 +2461,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyTVName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyTVShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalTV
-    elseif currency == CURT_WRIT_VOUCHERS then -- Writ Vouchers
+    elseif currencyType == CURT_WRIT_VOUCHERS then -- Writ Vouchers
         if not ChatAnnouncements.SV.Currency.CurrencyWVChange then
             return
         end
@@ -2441,7 +2470,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyWVName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyWVShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalWV
-    elseif currency == CURT_STYLE_STONES then -- Outfit Tokens
+    elseif currencyType == CURT_STYLE_STONES then -- Outfit Tokens
         if not ChatAnnouncements.SV.Currency.CurrencyOutfitTokenChange then
             return
         end
@@ -2450,7 +2479,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyOutfitTokenName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyOutfitTokenShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalOutfitToken
-    elseif currency == CURT_CHAOTIC_CREATIA then -- Transmute Crystals
+    elseif currencyType == CURT_CHAOTIC_CREATIA then -- Transmute Crystals
         if not ChatAnnouncements.SV.Currency.CurrencyTransmuteChange then
             return
         end
@@ -2459,7 +2488,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyTransmuteName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyTransmuteShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalTransmute
-    elseif currency == CURT_EVENT_TICKETS then -- Event Tickets
+    elseif currencyType == CURT_EVENT_TICKETS then -- Event Tickets
         if not ChatAnnouncements.SV.Currency.CurrencyEventChange then
             return
         end
@@ -2468,7 +2497,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyEventName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyEventShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalEvent
-    elseif currency == CURT_UNDAUNTED_KEYS then -- Undaunted Keys
+    elseif currencyType == CURT_UNDAUNTED_KEYS then -- Undaunted Keys
         if not ChatAnnouncements.SV.Currency.CurrencyUndauntedChange then
             return
         end
@@ -2477,7 +2506,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyUndauntedName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyUndauntedShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalUndaunted
-    elseif currency == CURT_CROWNS then -- Crowns
+    elseif currencyType == CURT_CROWNS then -- Crowns
         if not ChatAnnouncements.SV.Currency.CurrencyCrownsChange then
             return
         end
@@ -2486,7 +2515,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyCrownsName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyCrownsShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalCrowns
-    elseif currency == CURT_CROWN_GEMS then -- Crown Gems
+    elseif currencyType == CURT_CROWN_GEMS then -- Crown Gems
         if not ChatAnnouncements.SV.Currency.CurrencyCrownGemsChange then
             return
         end
@@ -2495,7 +2524,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyCrownGemsName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyCrownGemsShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalCrownGems
-    elseif currency == CURT_ENDEAVOR_SEALS then -- Seals of Endeavor
+    elseif currencyType == CURT_ENDEAVOR_SEALS then -- Seals of Endeavor
         if not ChatAnnouncements.SV.Currency.CurrencyEndeavorsChange then
             return
         end
@@ -2504,7 +2533,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyEndeavorsName, UpOrDown)
         currencyTotal = ChatAnnouncements.SV.Currency.CurrencyEndeavorsShowTotal
         messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalEndeavors
-    elseif currency == CURT_ENDLESS_DUNGEON then -- Archival Fortunes
+    elseif currencyType == CURT_ENDLESS_DUNGEON then -- Archival Fortunes
         if not ChatAnnouncements.SV.Currency.CurrencyEndlessChange then
             return
         end
@@ -2524,14 +2553,14 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         else
             changeColor = ColorizeColors.CurrencyColorize:ToHex()
         end
-        changeType = ZO_CommaDelimitDecimalNumber(newValue - oldValue)
+        changeType = ZO_CommaDelimitDecimalNumber(newAmount - oldAmount)
     elseif UpOrDown < 0 then
         if ChatAnnouncements.SV.Currency.CurrencyContextColor then
             changeColor = ColorizeColors.CurrencyDownColorize:ToHex()
         else
             changeColor = ColorizeColors.CurrencyColorize:ToHex()
         end
-        changeType = ZO_CommaDelimitDecimalNumber(oldValue - newValue)
+        changeType = ZO_CommaDelimitDecimalNumber(oldAmount - newAmount)
     end
 
     -- Determine syntax based on reason
@@ -2675,7 +2704,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
         messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageEarn
     elseif reason == CURRENCY_CHANGE_REASON_REWARD then
         -- Display "earn" for Seals of Endeavor
-        if currency == CURT_ENDEAVOR_SEALS then
+        if currencyType == CURT_ENDEAVOR_SEALS then
             messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageEarn
         else
             messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageReceive
@@ -2705,7 +2734,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
     elseif reason == CURRENCY_CHANGE_REASON_LOOT_STOLEN then
         messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageSteal
     elseif reason == CURRENCY_CHANGE_REASON_KILL then
-        if currency == CURT_ALLIANCE_POINTS then
+        if currencyType == CURT_ALLIANCE_POINTS then
             messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageEarn
         else
             messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageLoot
@@ -2715,7 +2744,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
     elseif reason == CURRENCY_CHANGE_REASON_CROWN_CRATE_DUPLICATE or reason == CURRENCY_CHANGE_REASON_ITEM_CONVERTED_TO_GEMS or reason == CURRENCY_CHANGE_REASON_CROWNS_PURCHASED then
         messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageReceive
     elseif reason == CURRENCY_CHANGE_REASON_PURCHASED_WITH_GEMS or reason == CURRENCY_CHANGE_REASON_PURCHASED_WITH_CROWNS then
-        if currency == CURT_STYLE_STONES or currency == CURT_EVENT_TICKETS then
+        if currencyType == CURT_STYLE_STONES or currencyType == CURT_EVENT_TICKETS then
             messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageReceive
         else
             messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageSpend
@@ -2741,7 +2770,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventCode, currency, currencyLocatio
     end
 
     -- Send relevant values over to the currency printer
-    ChatAnnouncements.CurrencyPrinter(currency, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
+    ChatAnnouncements.CurrencyPrinter(currencyType, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
 end
 
 --- @alias LUIE_CURRENCY
@@ -3102,14 +3131,15 @@ end
 --- @param specialCurrencyQuantity2 integer
 --- @param itemSoundCategory ItemUISoundCategory
 function ChatAnnouncements.OnBuyItem(eventId, entryName, entryType, entryQuantity, money, specialCurrencyType1, specialCurrencyInfo1, specialCurrencyQuantity1, specialCurrencyType2, specialCurrencyInfo2, specialCurrencyQuantity2, itemSoundCategory)
-    local itemIcon
+    -- Default the icon to the missing texture path to start with.
+    local itemIcon = ZO_NO_TEXTURE_FILE
     if entryType == STORE_ENTRY_TYPE_COLLECTIBLE then
         if isShopCollectible[entryName] then
             local id = isShopCollectible[entryName]
             entryName = GetCollectibleLink(id, linkBrackets[ChatAnnouncements.SV.BracketOptionItem])
             itemIcon = GetCollectibleIcon(id)
         else
-            itemIcon = GetItemLinkInfo(entryName)
+            itemIcon = GetItemLinkIcon(entryName)
         end
     end
 
@@ -3184,7 +3214,7 @@ function ChatAnnouncements.OnSellItem(eventId, itemName, itemQuantity, money)
     if ChatAnnouncements.SV.Inventory.LootVendorCurrency and ChatAnnouncements.SV.Currency.CurrencyContextMergedColor then
         changeColor = ColorizeColors.CurrencyColorize:ToHex()
     end
-    local itemIcon, _, _, _, _ = GetItemLinkInfo(itemName)
+    local itemIcon = GetItemLinkIcon(itemName)
     local icon = itemIcon
     local formattedIcon = (ChatAnnouncements.SV.Inventory.LootIcons and icon and icon ~= "") and ("|t16:16:" .. icon .. "|t ") or ""
     local messageType = "LUIE_CURRENCY_VENDOR"
@@ -4578,10 +4608,9 @@ function ChatAnnouncements.OnLootReceived(eventId, receivedBy, itemName, quantit
     local itemLink = itemName
 
     if LUIE.IsDevDebugEnabled() then
-        local Debug = LUIE.Debug
         local traceback = "Loot Received:\n" ..
             "--> eventCode: " .. tostring(eventId) .. "\n" ..
-            "--> receivedBy: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, ZO_LinkHandler_CreatePlayerLink(receivedBy)) .. "\n" ..
+            "--> receivedBy: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, receivedBy) .. "\n" ..
             "--> itemLink: " .. tostring(itemLink) .. "\n" ..
             "--> quantity: " .. tostring(quantity) .. "\n" ..
             "--> itemSound: " .. tostring(soundCategory) .. "\n" ..
@@ -4593,6 +4622,7 @@ function ChatAnnouncements.OnLootReceived(eventId, receivedBy, itemName, quantit
             "--> isStolen: " .. tostring(isStolen)
         Debug(traceback)
     end
+
     -- If the player loots an item
     if not isPickpocketLoot and lootedBySelf then
         g_isLooted = true
@@ -9801,42 +9831,43 @@ function ChatAnnouncements.HookFunction()
     -- EVENT_QUEST_CONDITION_COUNTER_CHANGED (CSA Handler)
     -- Note: Used for quest failure and updates
     local function ConditionCounterHook(journalIndex, questName, conditionText, conditionType, currConditionVal, newConditionVal, conditionMax, isFailCondition, stepOverrideText, isPushed, isComplete, isConditionComplete, isStepHidden, isConditionCompleteChanged)
-        -- Check WritCreater settings first
-        if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
-            --             if LUIE.IsDevDebugEnabled() then
-            --                 LUIE.Debug([[Writ Quest Condition Suppressed:
-            -- --> Quest: %s
-            -- --> Index: %d
-            -- --> Condition: %s]],
-            --                     questName,
-            --                     journalIndex,
-            --                     conditionText
-            --                 )
-            --             end
-            return true
-        end
         if isStepHidden or (isPushed and isComplete) or (currConditionVal >= newConditionVal) then
             return true
         end
 
         -- Debug for DEVS
-        --         if LUIE.IsDevDebugEnabled() then
-        --             LUIE.Debug([[Quest Condition Update:
-        -- --> Type: %s (%d)
-        -- --> Quest: %s
-        -- --> Condition: %s
-        -- --> Progress: %d/%d (Previous: %d)
-        -- --> State: %s]],
-        --                 tostring(conditionType),
-        --                 conditionType,
-        --                 questName,
-        --                 conditionText,
-        --                 newConditionVal,
-        --                 conditionMax,
-        --                 currConditionVal,
-        --                 isConditionComplete and "Complete" or "In Progress"
-        --             )
-        --         end
+        if LUIE.IsDevDebugEnabled() then
+            LUIE.Debug([[Quest Condition Update:
+        --> Type: %s (%d)
+        --> Quest: %s
+        --> Condition: %s
+        --> Progress: %d/%d (Previous: %d)
+        --> State: %s]],
+                       tostring(conditionType),
+                       conditionType,
+                       questName,
+                       conditionText,
+                       newConditionVal,
+                       conditionMax,
+                       currConditionVal,
+                       isConditionComplete and "Complete" or "In Progress"
+            )
+        end
+
+        -- Check WritCreater settings first
+        if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
+            if LUIE.IsDevDebugEnabled() then
+                LUIE.Debug([[Writ Quest Condition Suppressed:
+            --> Quest: %s
+            --> Index: %d
+            --> Condition: %s]],
+                           questName,
+                           journalIndex,
+                           conditionText
+                )
+            end
+            return true
+        end
 
         local messageType      -- This variable represents whether this message is an objective update or failure state message (1 = update, 2 = failure) There are too many conditionals to resolve what we need to print inside them so we do it after setting the formatting.
         local alertMessage     -- Variable for alert message
