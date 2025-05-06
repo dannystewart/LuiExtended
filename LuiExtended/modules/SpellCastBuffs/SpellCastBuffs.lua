@@ -675,7 +675,13 @@ function SpellCastBuffs.Initialize(enabled)
     SpellCastBuffs.UpdateDisplayOverrideIdList()
 
     -- Register events
-    eventManager:RegisterForUpdate(moduleName, 100, SpellCastBuffs.OnUpdate)
+    local lastUpdateSeconds = 0
+    eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, function (currentTimeMs)
+        if currentTimeMs - lastUpdateSeconds > 1 then
+            SpellCastBuffs.OnUpdate(currentTimeMs)
+            lastUpdateSeconds = currentTimeMs
+        end
+    end)
     -- Target Events
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, SpellCastBuffs.OnTargetChange)
     eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, SpellCastBuffs.OnReticleTargetChanged)
@@ -4065,9 +4071,34 @@ function SpellCastBuffs.MenuPreview()
     end
 end
 
+-- Helper function to sort buffs
+local function buffSort(x, y)
+    local xDuration = (x.ends == nil or x.dur == 0 or x.groundLabel or x.toggle) and 0 or x.dur
+    local yDuration = (y.ends == nil or y.dur == 0 or y.groundLabel or y.toggle) and 0 or y.dur
+    -- Sort toggle effects
+    if x.toggle or y.toggle then
+        if xDuration == 0 and yDuration == 0 then
+            if x.toggle and y.toggle then
+                return (x.name < y.name)
+            elseif x.toggle and not y.toggle then
+                return (xDuration == 0)
+            end
+        else
+            return (xDuration == 0)
+        end
+        -- Sort permanent/ground effects (might separate these at some point but for now want the sorting function simplified)
+    elseif xDuration == 0 and yDuration == 0 then
+        return (x.name < y.name)
+        -- Both non-permanent
+    elseif xDuration ~= 0 and yDuration ~= 0 then
+        return (x.starts == y.starts) and (x.name < y.name) or (x.ends > y.ends)
+        -- One permanent, one not
+    else
+        return (xDuration == 0)
+    end
+end
+
 -- Runs OnUpdate - 100 ms buffer
----
---- @param currentTime integer
 function SpellCastBuffs.OnUpdate(currentTime)
     local buffsSorted = {}
     local needs_update = {}
@@ -4114,7 +4145,7 @@ function SpellCastBuffs.OnUpdate(currentTime)
                     elseif v.target == "player" and SpellCastBuffs.SV.LongTermEffects_Player then
                         -- Choose container for long-term player buffs
                         if SpellCastBuffs.SV.LongTermEffectsSeparate and not (container == "prominentbuffs" or container == "prominentdebuffs") then
-                            table_insert(buffsSorted.player_long, v)
+                            table_insert(buffsSorted["player_long"], v)
                         else
                             table_insert(buffsSorted[container], v)
                         end
@@ -4127,33 +4158,7 @@ function SpellCastBuffs.OnUpdate(currentTime)
     -- Sort effects in container and draw them on screen
     for _, container in pairs(containerRouting) do
         if needs_update[container] then
-            table_sort(buffsSorted[container], function (x, y)
-                local xDuration = (x.ends == nil or x.dur == 0 or x.groundLabel or x.toggle) and 0 or x.dur
-                local yDuration = (y.ends == nil or y.dur == 0 or y.groundLabel or y.toggle) and 0 or y.dur
-                -- Sort toggle effects
-                if x.toggle or y.toggle then
-                    if xDuration == 0 and yDuration == 0 then
-                        if x.toggle and y.toggle then
-                            return (x.name < y.name)
-                        elseif x.toggle and not y.toggle then
-                            return true  -- Toggle effects should come before non-toggle effects
-                        else             -- x is not toggle but y is toggle
-                            return false -- Non-toggle effects should come after toggle effects
-                        end
-                    else
-                        return (xDuration == 0)
-                    end
-                    -- Sort permanent/ground effects (might separate these at some point but for now want the sorting function simplified)
-                elseif (xDuration == 0 and yDuration == 0) then
-                    return (x.name < y.name)
-                    -- Both non-permanent
-                elseif xDuration ~= 0 and yDuration ~= 0 then
-                    return (x.starts == y.starts) and (x.name < y.name) or (x.ends > y.ends)
-                    -- One permanent, one not
-                else
-                    return (xDuration == 0)
-                end
-            end)
+            table_sort(buffsSorted[container], buffSort)
             SpellCastBuffs.updateIcons(currentTime, buffsSorted[container], container)
         end
         needs_update[container] = false

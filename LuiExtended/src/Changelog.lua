@@ -13,57 +13,24 @@ local GetDisplayName = GetDisplayName
 -- -----------------------------------------------------------------------------
 local changelogMessages =
 { -- Version Header
-    "|cFFA500LuiExtended Version 6.9.3|r",
+    "|cFFA500LuiExtended Version 6.9.4|r",
+    "",
+    -- Revert
+    "|cFFFF00Reverted:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Removed timer code. To many issues with other action bar addons enabled.\nYes that means timers for sorc pets dont show again.",
     "",
     -- Bug Fixes
     "|cFFFF00Bug Fixes:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Timer fix.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Chat announcement fixes. Looking at you guards... if you know you know.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Combat Text resources now warn again if you are low.",
     "",
-    "|cFFA500LuiExtended Version 6.9.2|r",
+    -- Miscellaneous
+    "|cFFFF00Miscellaneous:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Some other things, it's been a long weekend",
     "",
-    -- Bug Fixes
-    "|cFFFF00Bug Fixes:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t hotfix for bar icons with fancyactionbar.",
-    "",
-    -- Version Header
-    "|cFFA500LuiExtended Version 6.9.1|r",
-    "",
-    -- Bug Fixes
-    "|cFFFF00Bug Fixes:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t hotfix for unitframe layout.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t remove left over debug print.",
-    "",
-    -- Version Header
-    "|cFFA500LuiExtended Version 6.9.0|r",
-    "",
-    -- General Changes
-    "|cFFFF00General:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Bug fixes and stability improvements.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Performance optimizations for texture handling.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Major code refactoring and organization improvements.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Localized many global calls in LuiData for better performance.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Our backbar is now hidden if ActionDurationReminder, FancyActionBar, or FancyActionBar\43 is detected. Why have more that one bar?",
-    "",
-    -- Features
-    "|cFFFF00Features:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added support for rounded textures on unitframes. This would be the `Tube` and `Steel` textures in the texture list.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t New tracking system for abilities without existing data.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added conditional checks for displaying the last item count.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Tweaked the fade animation for buff/debuff icons to fade out smoother.",
-    "",
-    -- Improvements
-    "|cFFFF00Improvements:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Refactored CombatInfo.lua with new helper functions for code clarity.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Improved ability ID handling and UI element visibility.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added SetHighDrawPriority, GetCorrectedAbilityId, and UpdateStackText functions.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Implemented changes suggested in issue #328.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Updated anchor logic and annotations.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Gamepad UI experience improvements.",
-    "",
-    -- Bug Fixes
-    "|cFFFF00Bug Fixes:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fixed ultimate event handling.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added nil checks to prevent errors.",
+    -- Notes
+    "|cFFFF00Note:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t As a reminder, the combat text module can be intensive with the amount of animations that go on.",
     "",
 }
 -- -----------------------------------------------------------------------------

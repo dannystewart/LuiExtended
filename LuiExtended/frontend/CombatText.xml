@@ -10,9 +10,7 @@
 		                 movable="false"
 		                 layer="0"
 		                 level="0"
-		                 tier="0"
-		                 flexDirection="FLEX_DIRECTION_COLUMN"
-		                 flexContentAlignment="FLEX_ALIGNMENT_CENTER">
+		                 tier="0">
 			<Anchor point="TOPLEFT"
 			        relativeTo="GuiRoot"
 			        relativePoint="TOPLEFT"
@@ -25,10 +23,12 @@
 			        offsetY="0"/>
 			<Controls>
 				<Control name="$(parent)_Outgoing"
-				         clampedToScreen="true"
-				         flex="1"
-				         flexDirection="FLEX_DIRECTION_COLUMN"
-				         flexContentAlignment="FLEX_ALIGNMENT_CENTER">
+				         clampedToScreen="true">
+					<Anchor point="CENTER"
+					        relativeTo="$(parent)"
+					        relativePoint="CENTER"
+					        offsetX="0"
+					        offsetY="- GuiRoot:GetHeight() / 4"/>
 					<Dimensions x="400"
 					            y="200"/>
 					<DimensionConstraints minX="200"
@@ -54,10 +54,12 @@
 					</Controls>
 				</Control>
 				<Control name="$(parent)_Incoming"
-				         clampedToScreen="true"
-				         flex="1"
-				         flexDirection="FLEX_DIRECTION_COLUMN"
-				         flexContentAlignment="FLEX_ALIGNMENT_CENTER">
+				         clampedToScreen="true">
+					<Anchor point="CENTER"
+					        relativeTo="$(parent)"
+					        relativePoint="CENTER"
+					        offsetX="0"
+					        offsetY="GuiRoot:GetHeight() / 4"/>
 					<Dimensions x="400"
 					            y="100"/>
 					<DimensionConstraints minX="200"
@@ -83,11 +85,12 @@
 					</Controls>
 				</Control>
 				<Control name="$(parent)_Alert"
-				         clampedToScreen="true"
-				         flex="1"
-				         flexDirection="FLEX_DIRECTION_COLUMN"
-				         flexContentAlignment="FLEX_ALIGNMENT_CENTER"
-				         flexSelfAlignment="FLEX_ALIGNMENT_FLEX_END">
+				         clampedToScreen="true">
+					<Anchor point="CENTER"
+					        relativeTo="$(parent)"
+					        relativePoint="CENTER"
+					        offsetX="GuiRoot:GetWidth() / 5"
+					        offsetY="0"/>
 					<Dimensions x="400"
 					            y="100"/>
 					<Controls>
@@ -109,11 +112,12 @@
 					</Controls>
 				</Control>
 				<Control name="$(parent)_Point"
-				         clampedToScreen="true"
-				         flex="1"
-				         flexDirection="FLEX_DIRECTION_COLUMN"
-				         flexContentAlignment="FLEX_ALIGNMENT_CENTER"
-				         flexSelfAlignment="FLEX_ALIGNMENT_FLEX_START">
+				         clampedToScreen="true">
+					<Anchor point="CENTER"
+					        relativeTo="$(parent)"
+					        relativePoint="CENTER"
+					        offsetX="GuiRoot:GetWidth() / 3.2"
+					        offsetY="- GuiRoot:GetHeight() / 2.65"/>
 					<Dimensions x="400"
 					            y="100"/>
 					<Controls>
@@ -135,11 +139,12 @@
 					</Controls>
 				</Control>
 				<Control name="$(parent)_Resource"
-				         clampedToScreen="true"
-				         flex="1"
-				         flexDirection="FLEX_DIRECTION_COLUMN"
-				         flexContentAlignment="FLEX_ALIGNMENT_CENTER"
-				         flexSelfAlignment="FLEX_ALIGNMENT_FLEX_END">
+				         clampedToScreen="true">
+					<Anchor point="CENTER"
+					        relativeTo="$(parent)"
+					        relativePoint="CENTER"
+					        offsetX="GuiRoot:GetWidth() / 5"
+					        offsetY="0"/>
 					<Dimensions x="400"
 					            y="100"/>
 					<Controls>
@@ -170,10 +175,7 @@
 				<Texture name="$(parent)_Icon"
 				         hidden="true"/>
 				<!--Backdrop for debugging purposes-->
-				<!-- <Backdrop name="$(parent)_Backdrop"
-				          inherits="ZO_DefaultBackdrop"
-				          alpha="0.3"
-				          hidden="false"/> -->
+				<!--Backdrop name="$(parent)_Backdrop" inherits="ZO_DefaultBackdrop" alpha="0.3" hidden="false" /-->
 			</Controls>
 		</Control>
 	</Controls>

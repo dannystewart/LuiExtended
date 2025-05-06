@@ -137,11 +137,8 @@ eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, function (eventId,
     LUIE.InitializeHooks()
     LUIE.HookActionButton()
     LUIE.HookSynergy()
-
-    -- Fix power visualizar.
-    if LUIE.SV.UnitFrames_Enabled then
-        LUIE.HookPowerShield()
-    end
+    -- Fix power visualizar. Will be fixed by zos eventually.
+    LUIE.HookPowerShield()
 
     -- Hook Gamepad Skill Advisor for custom icon support
     LUIE.InitializeHooksSkillAdvisor()

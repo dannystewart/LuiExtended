@@ -345,9 +345,6 @@ function LUIE.InitializeHooks()
     --- @return number timeEndingS
     GetArtificialEffectInfo = function (artificialEffectId)
         local displayName, iconFile, effectType, sortOrder, timeStarted, timeEnding = zos_GetArtificialEffectInfo(artificialEffectId)
-        if Effects.ArtificialEffectOverride[artificialEffectId] and Effects.ArtificialEffectOverride[artificialEffectId].icon then
-            iconFile = Effects.ArtificialEffectOverride[artificialEffectId].icon
-        end
         if Effects.ArtificialEffectOverride[artificialEffectId] and Effects.ArtificialEffectOverride[artificialEffectId].name then
             displayName = Effects.ArtificialEffectOverride[artificialEffectId].name
         end

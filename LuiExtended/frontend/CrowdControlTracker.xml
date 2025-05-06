@@ -2,26 +2,22 @@
       LuiExtended
       License: The MIT License (MIT)
 -->
-<GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/DakJaniels/esoui_gui_xsd/main/esoui_gui_xml.xsd">
+<GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/DakJaniels/esoui_gui_xsd/main/esoui_gui_xml.xsd">
 	<Controls>
 		<TopLevelControl name="LUIE_CCTracker"
 		                 mouseEnabled="true"
 		                 movable="true"
 		                 clampedToScreen="true"
-		                 hidden="true"
-		                 flexDirection="FLEX_DIRECTION_COLUMN"
-		                 flexContentAlignment="FLEX_ALIGNMENT_CENTER">
+		                 hidden="true">
 			<Dimensions x="64"
 			            y="64"/>
 			<Anchor point="CENTER"/>
 			<OnMoveStop>
               LUIE.CombatInfo.CrowdControlTracker.SavePosition()
-          </OnMoveStop>
+            </OnMoveStop>
 			<Controls>
-				<Control name="$(parent)_IconFrame"
-					 flex="1"
-					 flexDirection="FLEX_DIRECTION_COLUMN"
-					 flexContentAlignment="FLEX_ALIGNMENT_CENTER">
+				<Control name="$(parent)_IconFrame">
 					<Dimensions x="64"
 					            y="64"/>
 					<Anchor point="CENTER"/>
@@ -102,10 +98,7 @@
 						</Cooldown>
 					</Controls>
 				</Control>
-				<Control name="$(parent)_BreakFreeFrame"
-						 flex="1"
-						 flexDirection="FLEX_DIRECTION_ROW"
-						 flexContentAlignment="FLEX_ALIGNMENT_CENTER">
+				<Control name="$(parent)_BreakFreeFrame">
 					<Dimensions x="64"
 					            y="64"/>
 					<Anchor point="CENTER"/>
@@ -223,10 +216,7 @@
 						</Control>
 					</Controls>
 				</Control>
-				<Control name="$(parent)_TextFrame"
-						 flex="1"
-						 flexDirection="FLEX_DIRECTION_COLUMN"
-						 flexContentAlignment="FLEX_ALIGNMENT_CENTER">
+				<Control name="$(parent)_TextFrame">
 					<Anchor point="BOTTOM"
 					        relativeTo="$(parent)"
 					        relativePoint="TOP"
@@ -248,10 +238,7 @@
 						</Label>
 					</Controls>
 				</Control>
-				<Control name="$(parent)_Timer"
-						 flex="1"
-						 flexDirection="FLEX_DIRECTION_COLUMN"
-						 flexContentAlignment="FLEX_ALIGNMENT_CENTER">
+				<Control name="$(parent)_Timer">
 					<Anchor point="CENTER"
 					        relativeTo="$(parent)"
 					        relativePoint="CENTER"
