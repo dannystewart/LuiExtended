@@ -702,7 +702,7 @@ local ColorizeColors = ChatAnnouncements.Colors
 -- LOCAL (GLOBAL) VARIABLE SETUP ---------------
 ------------------------------------------------
 
-local isWritCreatorEnabled = LUIE.OtherAddonCompatability.isWritCreatorEnabled
+local isWritCreatorEnabled = LUIE.OtherAddonCompatability.isWritCreatorEnabled or false
 
 -- Loot/Currency
 local g_savedPurchase = {}
@@ -1006,7 +1006,7 @@ function ChatAnnouncements.Initialize(enabled)
     end
     ChatAnnouncements.Enabled = true
 
-    -- isWritCreatorEnabled = LUIE.IsItEnabled("DolgubonsLazyWritCreator")
+    isWritCreatorEnabled = LUIE.IsItEnabled("DolgubonsLazyWritCreator")
 
     -- Get current group leader
     g_currentGroupLeaderRawName = GetRawUnitName(GetGroupLeaderUnitTag())
@@ -9631,7 +9631,10 @@ function ChatAnnouncements.HookFunction()
     local function QuestAddedHook(journalIndex, questName, objectiveName)
         eventManager:UnregisterForUpdate(moduleName .. "BufferedXP")
         ChatAnnouncements.PrintBufferedXP()
-
+        -- Check WritCreater settings first
+        if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
+            return true
+        end
         local questType = GetJournalQuestType(journalIndex)
         local zoneDisplayType = GetJournalQuestZoneDisplayType(journalIndex)
         local questJournalObject = SYSTEMS:GetObject("questJournal")
@@ -9831,41 +9834,12 @@ function ChatAnnouncements.HookFunction()
     -- EVENT_QUEST_CONDITION_COUNTER_CHANGED (CSA Handler)
     -- Note: Used for quest failure and updates
     local function ConditionCounterHook(journalIndex, questName, conditionText, conditionType, currConditionVal, newConditionVal, conditionMax, isFailCondition, stepOverrideText, isPushed, isComplete, isConditionComplete, isStepHidden, isConditionCompleteChanged)
-        if isStepHidden or (isPushed and isComplete) or (currConditionVal >= newConditionVal) then
+        -- Check WritCreater settings first
+        if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
             return true
         end
 
-        -- Debug for DEVS
-        if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug([[Quest Condition Update:
-        --> Type: %s (%d)
-        --> Quest: %s
-        --> Condition: %s
-        --> Progress: %d/%d (Previous: %d)
-        --> State: %s]],
-                       tostring(conditionType),
-                       conditionType,
-                       questName,
-                       conditionText,
-                       newConditionVal,
-                       conditionMax,
-                       currConditionVal,
-                       isConditionComplete and "Complete" or "In Progress"
-            )
-        end
-
-        -- Check WritCreater settings first
-        if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(journalIndex) then
-            if LUIE.IsDevDebugEnabled() then
-                LUIE.Debug([[Writ Quest Condition Suppressed:
-            --> Quest: %s
-            --> Index: %d
-            --> Condition: %s]],
-                           questName,
-                           journalIndex,
-                           conditionText
-                )
-            end
+        if isStepHidden or (isPushed and isComplete) or (currConditionVal >= newConditionVal) then
             return true
         end
 
@@ -10105,20 +10079,19 @@ function ChatAnnouncements.HookFunction()
 
     -- EVENT_QUEST_ADVANCED (Registered through CSA_MiscellaneousHandlers)
     -- Note: Quest Advancement displays all the "appropriate" conditions that the player needs to do to advance the current step
+    --- - **EVENT_QUEST_ADVANCED **
+    ---
+    --- @param eventId integer
+    --- @param questIndex luaindex
+    --- @param questName string
+    --- @param isPushed boolean
+    --- @param isComplete boolean
+    --- @param mainStepChanged boolean
+    --- @param soundOverride boolean
     local function OnQuestAdvanced(eventId, questIndex, questName, isPushed, isComplete, mainStepChanged, soundOverride)
         -- Check if WritCreater is enabled & then call a copy of a local function from WritCreater to check if this is a Writ Quest
         if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(questIndex) then
-            --             if LUIE.IsDevDebugEnabled() then
-            --                 LUIE.Debug([[Writ Quest Condition Suppressed:
-            -- --> Quest: %s
-            -- --> Index: %d
-            -- --> Condition: %s]],
-            --                     questName,
-            --                     questIndex,
-            --                     isComplete and "Complete" or "Not Complete"
-            --                 )
-            --             end
-            return true
+            return
         end
 
         if not mainStepChanged then
@@ -10207,8 +10180,9 @@ function ChatAnnouncements.HookFunction()
 
     -- EVENT_QUEST_ADDED (Registered through CSA_MiscellaneousHandlers)
     local function OnQuestAdded(eventId, questIndex)
-        -- Handle WritCrafter integration
-        if isWritCreatorEnabled and WritCreater then
+        -- Suppress announcements for writ quests if configured
+        if isWritCreatorEnabled and WritCreater and WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(questIndex) then
+            -- Handle WritCrafter integration
             -- Auto-abandon quests with disallowed materials
             local rejectedMat = rejectQuest(questIndex)
             if rejectedMat then
@@ -10219,10 +10193,8 @@ function ChatAnnouncements.HookFunction()
                                end, 500)
                 return
             end
-            -- Suppress announcements for writ quests if configured
-            if WritCreater:GetSettings().suppressQuestAnnouncements and isQuestWritQuest(questIndex) then
-                return true
-            end
+
+            return true
         end
 
         OnQuestAdvanced(EVENT_QUEST_ADVANCED, questIndex, nil, nil, nil, true, true)

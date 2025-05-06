@@ -55,7 +55,7 @@ local chatSystem = ZO_GetChatSystem()
 
 -- LUIE utility functions
 local AddSystemMessage = LUIE.AddSystemMessage
-local FormatMessage = LUIE.FormatMessage
+local GetSlotTrueBoundId = LUIE.GetSlotTrueBoundId
 local printToChat = LUIE.PrintToChat
 
 -- -- Add millisecond timestamp to ability debug
@@ -144,8 +144,8 @@ function SpellCastBuffs.EventCombatDebug(eventId, result, isError, abilityName, 
 
     local formattedResult = DebugResults[result]
 
-    local finalString = (iconFormatted .. " [" .. abilityId .. "] " .. ability .. ": [S] " .. source .. " --> [T] " .. target .. " [D] " .. duration .. showachantime .. showacasttime .. " [R] " .. formattedResult)
-    -- finalString = MillisecondTimestampDebug(finalString)
+    local finalString = (iconFormatted .. " [" .. abilityId .. "] " .. nameFormatted .. ": [S] " .. source .. " --> [T] " .. target .. " [D] " .. duration .. showachantime .. showacasttime .. " [R] " .. formattedResult)
+
     printToChat(finalString)
 end
 
@@ -182,18 +182,9 @@ function SpellCastBuffs.EventEffectDebug(eventId, changeType, effectSlot, effect
     end
     unitName = unitName .. " (" .. unitTag .. ")"
 
-    -- local cmxHIDE
-    -- if CMX and CMX.CustomAbilityHide and CMX.CustomAbilityHide[abilityId] then
-    --     cmxHIDE = " + HIDDEN CMX"
-    -- else
-    --     cmxHIDE = ""
-    -- end
-
     local finalString
     if EffectOverride[abilityId] and EffectOverride[abilityId].hide then
-        finalString = (iconFormatted .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. --[[": HIDDEN LUI" .. cmxHIDE ..]] ": [Tag] " .. unitName .. "|r")
-        -- finalString = MillisecondTimestampDebug(finalString)
-        -- Use CHAT_ROUTER to bypass some other addons modifying this string
+        finalString = (iconFormatted .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. "|r")
         AddSystemMessage(finalString)
         return
     end
@@ -237,12 +228,15 @@ end
 --- @param abilityId integer
 --- @param overflow integer
 function SpellCastBuffs.AuthorCombatDebug(eventId, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
+    if DebugAuras[abilityId] and SpellCastBuffs.SV.ShowDebugFilter then
+        return
+    end
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
     local nameFormatted = zo_strformat("<<C:1>>", GetAbilityName(abilityId))
 
     local source = zo_strformat("<<C:1>>", sourceName)
     local target = zo_strformat("<<C:1>>", targetName)
-    local ability = zo_strformat("<<C:1>>", nameFormatted)
+
     if source == LUIE.PlayerNameFormatted then
         source = "Player"
     end
@@ -254,18 +248,10 @@ function SpellCastBuffs.AuthorCombatDebug(eventId, result, isError, abilityName,
         target = "NIL"
     end
 
-    -- local cmxHIDE
-    -- if CMX and CMX.CustomAbilityHide and CMX.CustomAbilityHide[abilityId] then
-    --     cmxHIDE = " + HIDDEN CMX"
-    -- else
-    --     cmxHIDE = ""
-    -- end
-
     local formattedResult = DebugResults[result]
 
     if EffectOverride[abilityId] and EffectOverride[abilityId].hide then
-        local finalString = (iconFormatted .. "[" .. abilityId .. "] " .. nameFormatted .. --[[": HIDDEN LUI" .. cmxHIDE ..]] ": [S] " .. source .. " --> [T] " .. target .. " [R] " .. formattedResult)
-        -- finalString = MillisecondTimestampDebug(finalString)
+        local finalString = (iconFormatted .. "[" .. abilityId .. "] " .. nameFormatted .. ": [S] " .. source .. " --> [T] " .. target .. " [R] " .. formattedResult)
         if chatSystem.primaryContainer then
             for k, cc in ipairs(chatSystem.containers) do
                 local chatContainer = cc
@@ -298,6 +284,9 @@ end
 --- @param abilityId integer
 --- @param sourceType CombatUnitType
 function SpellCastBuffs.AuthorEffectDebug(eventId, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, deprecatedBuffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceType)
+    if DebugAuras[abilityId] and SpellCastBuffs.SV.ShowDebugFilter then
+        return
+    end
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
     local nameFormatted = zo_strformat("<<C:1>>", GetAbilityName(abilityId))
 
@@ -307,21 +296,13 @@ function SpellCastBuffs.AuthorEffectDebug(eventId, changeType, effectSlot, effec
     end
     unitName = unitName .. " (" .. unitTag .. ")"
 
-    -- local cmxHIDE
-    -- if CMX and CMX.CustomAbilityHide and CMX.CustomAbilityHide[abilityId] then
-    --     cmxHIDE = " + HIDDEN CMX"
-    -- else
-    --     cmxHIDE = ""
-    -- end
-
     local refreshOnly = ""
     if EffectOverride[abilityId] and EffectOverride[abilityId].refreshOnly then
         refreshOnly = " |c00E200(Refresh Only - Hidden)|r "
     end
 
     if EffectOverride[abilityId] and EffectOverride[abilityId].hide then
-        local finalString = (iconFormatted .. refreshOnly .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. --[[": HIDDEN LUI" .. cmxHIDE ..]] ": [Tag] " .. unitName .. "|r")
-        -- finalString = MillisecondTimestampDebug(finalString)
+        local finalString = (iconFormatted .. refreshOnly .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. "|r")
         if chatSystem.primaryContainer then
             for k, cc in ipairs(chatSystem.containers) do
                 local chatContainer = cc

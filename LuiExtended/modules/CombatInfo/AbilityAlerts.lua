@@ -264,10 +264,7 @@ function AbilityAlerts.CreateAlertFrame()
         eventManager:AddFilterForEvent(moduleName .. result, EVENT_COMBAT_EVENT, REGISTER_FILTER_COMBAT_RESULT, result, REGISTER_FILTER_IS_ERROR, false)
     end
 
-    eventManager:RegisterForUpdate(moduleName .. "AlertUpdate", 100, function (currentTime)
-        currentTime = GetFrameTimeMilliseconds()
-        AbilityAlerts.AlertUpdate(currentTime)
-    end)
+    eventManager:RegisterForUpdate(moduleName .. "AlertUpdate", 100, AbilityAlerts.AlertUpdate)
 
     eventManager:RegisterForEvent(moduleName, EVENT_DUEL_STARTED, AbilityAlerts.OnDuelStarted)
     eventManager:RegisterForEvent(moduleName, EVENT_DUEL_FINISHED, AbilityAlerts.OnDuelFinished)

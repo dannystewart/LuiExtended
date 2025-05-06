@@ -675,11 +675,7 @@ function SpellCastBuffs.Initialize(enabled)
     SpellCastBuffs.UpdateDisplayOverrideIdList()
 
     -- Register events
-    eventManager:RegisterForPostEffectsUpdate(moduleName, 100, function (currentTime)
-        currentTime = GetFrameTimeMilliseconds()
-        SpellCastBuffs.OnUpdate(currentTime)
-    end)
-
+    eventManager:RegisterForUpdate(moduleName, 100, SpellCastBuffs.OnUpdate)
     -- Target Events
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, SpellCastBuffs.OnTargetChange)
     eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, SpellCastBuffs.OnReticleTargetChanged)
@@ -805,6 +801,8 @@ function SpellCastBuffs.RegisterDebugEvents()
     -- Unregister existing events
     eventManager:UnregisterForEvent(moduleName .. "DebugCombat", EVENT_COMBAT_EVENT)
     eventManager:UnregisterForEvent(moduleName .. "DebugEffect", EVENT_EFFECT_CHANGED)
+    eventManager:UnregisterForEvent(moduleName .. "AuthorDebugEffect", EVENT_COMBAT_EVENT)
+    eventManager:UnregisterForEvent(moduleName .. "AuthorDebugEffect", EVENT_EFFECT_CHANGED)
     -- Register standard debug events if enabled
     if SpellCastBuffs.SV.ShowDebugCombat then
         eventManager:RegisterForEvent(moduleName .. "DebugCombat", EVENT_COMBAT_EVENT, SpellCastBuffs.EventCombatDebug)
@@ -814,9 +812,13 @@ function SpellCastBuffs.RegisterDebugEvents()
     end
 
     -- Author-specific debug events
-    if LUIE.IsDevDebugEnabled() and SpellCastBuffs.SV.ShowDebugEffect and SpellCastBuffs.SV.ShowDebugEffect then
-        eventManager:RegisterForEvent(moduleName .. "AuthorDebugCombat", EVENT_COMBAT_EVENT, SpellCastBuffs.AuthorCombatDebug)
-        eventManager:RegisterForEvent(moduleName .. "AuthorDebugEffect", EVENT_EFFECT_CHANGED, SpellCastBuffs.AuthorEffectDebug)
+    if LUIE.IsDevDebugEnabled() then
+        if SpellCastBuffs.SV.ShowDebugCombat then
+            eventManager:RegisterForEvent(moduleName .. "AuthorDebugCombat", EVENT_COMBAT_EVENT, SpellCastBuffs.AuthorCombatDebug)
+        end
+        if SpellCastBuffs.SV.ShowDebugEffect then
+            eventManager:RegisterForEvent(moduleName .. "AuthorDebugEffect", EVENT_EFFECT_CHANGED, SpellCastBuffs.AuthorEffectDebug)
+        end
     end
 end
 

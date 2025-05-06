@@ -121,7 +121,7 @@ do
     --- @return integer
     local callLater = function (func, ms)
         local id = LUIE_CallLaterId
-        local name = "LUIE_CallLater_PostEffectsUpdate_Function" .. tostring(id)
+        local name = "LUIE_CallLater_PostEffectsUpdate_Function" .. id
         LUIE_CallLaterId = LUIE_CallLaterId + 1
 
         eventManager:RegisterForPostEffectsUpdate(name, ms, function ()
@@ -577,9 +577,7 @@ end
 -- -----------------------------------------------------------------------------
 
 -- Add this if not already.
-if not SLASH_COMMANDS["/rl"] then
-    SLASH_COMMANDS["/rl"] = ReloadUI("ingame")
-end
+SLASH_COMMANDS["/rl"] = ReloadUI("ingame")
 
 -- -----------------------------------------------------------------------------
 do
