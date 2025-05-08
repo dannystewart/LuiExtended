@@ -675,9 +675,7 @@ function SpellCastBuffs.Initialize(enabled)
     SpellCastBuffs.UpdateDisplayOverrideIdList()
 
     -- Register events
-    eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, function (currentTimeMs)
-        SpellCastBuffs.OnUpdate(currentTimeMs)
-    end)
+    eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, SpellCastBuffs.OnUpdate)
     -- Target Events
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, SpellCastBuffs.OnTargetChange)
     eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, SpellCastBuffs.OnReticleTargetChanged)

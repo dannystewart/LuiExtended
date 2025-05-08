@@ -78,6 +78,7 @@ end
 --- @class LUIE_Defaults_SV
 LUIE.Defaults =
 {
+    CustomIcons               = true,
     CharacterSpecificSV       = false,
     StartupInfo               = false,
     HideAlertFrame            = false,
@@ -288,27 +289,27 @@ local DEVS = readonlytable
     {
         ["@ArtOfShred"] =
         {
-            enabled = true,
-            debug = true,
+            enabled = false,
+            debug = false,
         },
         ["@ArtOfShredPTS"] =
         {
-            enabled = true,
-            debug = true,
+            enabled = false,
+            debug = false,
         },
         ["@ArtOfShredLegacy"] =
         {
-            enabled = true,
-            debug = true,
+            enabled = false,
+            debug = false,
         },
         ["@HammerOfGlory"] =
         {
-            enabled = true,
+            enabled = false,
             debug = false,
         },
         ["@dack_janiels"] =
         {
-            enabled = false,
+            enabled = true,
             debug = true,
         },
     }

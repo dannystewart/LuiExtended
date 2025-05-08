@@ -547,6 +547,22 @@ function LUIE.CreateSettings()
         default = Defaults.StartupInfo,
     }
 
+    -- Custom Icons
+    optionsData[#optionsData + 1] =
+    {
+        type = "checkbox",
+        name = "Use Custom Icons",
+        tooltip = "Use Custom Icons",
+        getFunc = function ()
+            return Settings.CustomIcons
+        end,
+        setFunc = function (value)
+            Settings.CustomIcons = value
+        end,
+        width = "full",
+        default = Defaults.CustomIcons,
+    }
+
     -- Missing Base Game Settings
     optionsData[#optionsData + 1] =
     {

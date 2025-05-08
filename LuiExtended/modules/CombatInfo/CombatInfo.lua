@@ -866,9 +866,7 @@ end
 
 -- Clear and then (maybe) re-register event listeners for Combat/Power/Slot Updates
 function CombatInfo.RegisterCombatInfo()
-    eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, function (currentTimeMs)
-        CombatInfo.OnUpdate(currentTimeMs)
-    end)
+    eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, CombatInfo.OnUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, CombatInfo.OnPlayerActivated)
 
     eventManager:UnregisterForEvent(moduleName, EVENT_COMBAT_EVENT)

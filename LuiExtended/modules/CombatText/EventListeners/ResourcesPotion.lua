@@ -15,8 +15,8 @@ local inCooldown = false
 --- @diagnostic disable-next-line: duplicate-set-field
 function CombatTextResourcesPotionEventListener:New()
     local obj = LUIE.CombatTextEventListener:New()
-    obj:RegisterForUpdate("PotionCooldown", 100, function ()
-        self:PotionCooldown()
+    obj:RegisterForUpdate("PotionCooldown", 100, function (slotNum)
+        self:PotionCooldown(slotNum)
     end)
     return obj
 end
