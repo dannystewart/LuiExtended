@@ -675,12 +675,8 @@ function SpellCastBuffs.Initialize(enabled)
     SpellCastBuffs.UpdateDisplayOverrideIdList()
 
     -- Register events
-    local lastUpdateSeconds = 0
     eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, function (currentTimeMs)
-        if currentTimeMs - lastUpdateSeconds > 1 then
-            SpellCastBuffs.OnUpdate(currentTimeMs)
-            lastUpdateSeconds = currentTimeMs
-        end
+        SpellCastBuffs.OnUpdate(currentTimeMs)
     end)
     -- Target Events
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, SpellCastBuffs.OnTargetChange)
@@ -2310,7 +2306,7 @@ end
 --- @param sourceType CombatUnitType
 function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, deprecatedBuffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceType)
     -- Bail out if this is an effect from Oakensoul
-    if IsOakensoul(abilityId) and unitTag == "player" and (SpellCastBuffs.SV.HideOakenSoul == true) then
+    if (SpellCastBuffs.SV.HideOakenSoul == true) and IsOakensoul(abilityId) and unitTag == "player" then
         return
     end
 

@@ -632,6 +632,18 @@ function CombatInfo.handleFlip(slotNum)
     CombatInfo.ToggleBackbarSaturation(slotNum, desaturate)
 end
 
+--- - **EVENT_ACTIVE_WEAPON_PAIR_CHANGED **
+---
+---
+--- @param eventId integer
+--- @param activeWeaponPair ActiveWeaponPair
+--- @param locked boolean
+function CombatInfo.OnActiveWeaponPairChangedCastBar(eventId, activeWeaponPair, locked)
+    if activeWeaponPair ~= g_actionBarActiveWeaponPair then
+        CombatInfo.StopCastBar()
+    end
+end
+
 function CombatInfo.OnActiveWeaponPairChanged(eventCode, activeWeaponPair)
     if activeWeaponPair ~= g_actionBarActiveWeaponPair then
         g_hotbarCategory = GetActiveHotbarCategory()
@@ -854,12 +866,8 @@ end
 
 -- Clear and then (maybe) re-register event listeners for Combat/Power/Slot Updates
 function CombatInfo.RegisterCombatInfo()
-    local lastUpdateSeconds = 0
     eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, function (currentTimeMs)
-        if currentTimeMs - lastUpdateSeconds > 1 then
-            CombatInfo.OnUpdate(currentTimeMs)
-            lastUpdateSeconds = currentTimeMs
-        end
+        CombatInfo.OnUpdate(currentTimeMs)
     end)
     eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, CombatInfo.OnPlayerActivated)
 
@@ -896,6 +904,7 @@ function CombatInfo.RegisterCombatInfo()
         eventManager:RegisterForEvent(moduleName, EVENT_GAME_CAMERA_UI_MODE_CHANGED, CombatInfo.OnGameCameraUIModeChanged)
         eventManager:RegisterForEvent(moduleName, EVENT_END_SIEGE_CONTROL, CombatInfo.OnSiegeEnd)
         eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_ABILITY_USED, CombatInfo.OnAbilityUsed)
+        eventManager:RegisterForEvent(moduleName .. "Cast Bar", EVENT_ACTIVE_WEAPON_PAIR_CHANGED, CombatInfo.OnActiveWeaponPairChangedCastBar)
         -- eventManager:RegisterForEvent(moduleName, EVENT_CLIENT_INTERACT_RESULT, CombatInfo.ClientInteractResult)
         --[[counter = 0
         for id, _ in pairs (Effects.CastBreakOnRemoveEvent) do
@@ -1022,10 +1031,10 @@ local function FormatDurationSeconds(remain)
     return string_format((CombatInfo.SV.BarMillis and ((remain < CombatInfo.SV.BarMillisThreshold * 1000) or CombatInfo.SV.BarMillisAboveTen)) and "%.1f" or "%.1d", remain / 1000)
 end
 
-local savedPlayerX = 0
-local savedPlayerZ = 0
-local playerX
-local playerZ
+local savedPlayerX = 0.00000000000000
+local savedPlayerZ = 0.00000000000000
+local playerX = 0.00000000000000
+local playerZ = 0.00000000000000
 
 -- Hide duration label if the ability is Grim Focus or one of its morphs
 ---
@@ -1040,8 +1049,9 @@ local function SetBarRemainLabel(remain, abilityId)
     end
 end
 
--- Procs
-local doProcs = function (currentTime)
+-- Updates all floating labels. Called every 100ms
+function CombatInfo.OnUpdate(currentTime)
+    -- Procs
     for k, v in pairs(g_triggeredSlotsRemain) do
         local remain = v - currentTime
         local front = g_triggeredSlotsFront[k]
@@ -1068,10 +1078,8 @@ local doProcs = function (currentTime)
             end
         end
     end
-end
 
--- Ability Highlight
-local doHighlights = function (currentTime)
+    -- Ability Highlight
     for k, v in pairs(g_toggledSlotsRemain) do
         local remain = v - currentTime
         local front = g_toggledSlotsFront[k]
@@ -1099,10 +1107,8 @@ local doHighlights = function (currentTime)
             end
         end
     end
-end
 
--- Quickslot cooldown
-local doQuickslot = function ()
+    -- Quickslot cooldown
     if CombatInfo.SV.PotionTimerShow then
         local slotIndex = GetCurrentQuickslot()
         local remain, duration, _ = GetSlotCooldownInfo(slotIndex, HOTBAR_CATEGORY_QUICKSLOT_WHEEL)
@@ -1141,40 +1147,6 @@ local doQuickslot = function ()
             label:SetHidden(true)
         end
     end
-end
-
--- Break castbar when movement interrupt is detected for certain effects.
-local doBreakCast = function ()
-    savedPlayerX = playerX
-    savedPlayerZ = playerZ
-    playerX, playerZ = GetMapPlayerPosition("player")
-    if savedPlayerX == playerX and savedPlayerZ == playerZ then
-        return
-    else
-        -- Fix if the player clicks on a Wayshrine in the World Map
-        if g_castbarWorldMapFix == false then
-            if Castbar.BreakCastOnMove[castbar.id] then
-                CombatInfo.StopCastBar()
-                -- TODO: Note probably should make StopCastBar event clear the id on it too. Not doing this right now due to not wanting to troubleshoot possible issues before update release.
-            end
-        end
-        -- Only have this enabled for 1 tick max (the players coordinates only update 1 time after the World Map is closed so if the player moves before 500 ms we want to cancel the cast bar still)
-        if g_castbarWorldMapFix == true then
-            g_castbarWorldMapFix = false
-        end
-    end
-end
-
--- Updates all floating labels. Called every 100ms
-function CombatInfo.OnUpdate(currentTime)
-    -- Procs
-    doProcs(currentTime)
-
-    -- Ability Highlight
-    doHighlights(currentTime)
-
-    -- Quickslot cooldown
-    doQuickslot()
 
     -- Hide Ultimate generation texture if it is time to do so
     if CombatInfo.SV.UltimateGeneration then
@@ -1194,7 +1166,24 @@ function CombatInfo.OnUpdate(currentTime)
     end
 
     -- Break castbar when movement interrupt is detected for certain effects.
-    doBreakCast()
+    savedPlayerX = playerX
+    savedPlayerZ = playerZ
+    playerX, playerZ = GetMapPlayerPosition("player")
+    if savedPlayerX == playerX and savedPlayerZ == playerZ then
+        return
+    else
+        -- Fix if the player clicks on a Wayshrine in the World Map
+        if g_castbarWorldMapFix == false then
+            if Castbar.BreakCastOnMove[castbar.id] then
+                CombatInfo.StopCastBar()
+                -- TODO: Note probably should make StopCastBar event clear the id on it too. Not doing this right now due to not wanting to troubleshoot possible issues before update release.
+            end
+        end
+        -- Only have this enabled for 1 tick max (the players coordinates only update 1 time after the World Map is closed so if the player moves before 500 ms we want to cancel the cast bar still)
+        if g_castbarWorldMapFix == true then
+            g_castbarWorldMapFix = false
+        end
+    end
 end
 
 local function CastBarWorldMapFix()
@@ -1399,7 +1388,6 @@ end
 -- This handler fires every time the player's reticle target changes.
 --- @param eventCode integer
 function CombatInfo.OnReticleTargetChanged(eventCode)
-    if not eventCode then return end
     -- Clear existing toggles that should be removed on target change
     for k, _ in pairs(g_toggledSlotsRemain) do
         local frontSlot = g_toggledSlotsFront[k]
@@ -1482,7 +1470,7 @@ function CombatInfo.BarHighlightSwap(abilityId)
         end
 
         if duration > 0 then
-            duration = ((GetAbilityDuration(duration) or 0) - (GetAbilityDuration(durationMod) or 0))
+            duration = ((GetUpdatedAbilityDuration(duration) or 0) - (GetUpdatedAbilityDuration(durationMod) or 0))
             local timeStarted = GetGameTimeSeconds()
             local timeEnding = timeStarted + (duration / 1000)
             CombatInfo.OnEffectChanged(nil, EFFECT_RESULT_GAINED, nil, nil, unitTag, timeStarted, timeEnding, 0, nil, nil, 1, ABILITY_TYPE_BONUS, 0, nil, nil, abilityId, 1, true, abilityId)
