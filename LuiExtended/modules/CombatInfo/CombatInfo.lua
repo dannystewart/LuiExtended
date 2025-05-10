@@ -450,6 +450,217 @@ local function SetupSwapAnimation(button)
     button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
 end
 
+--- Handles updates to action slot effects like timers and stack counts.
+--- @param eventCode integer
+--- @param hotbarCategory number
+--- @param actionSlotIndex number
+function CombatInfo.OnActionSlotEffectUpdate(eventCode, hotbarCategory, actionSlotIndex)
+    local timeRemainingMS = GetActionSlotEffectTimeRemaining(actionSlotIndex, hotbarCategory)
+
+    local slotNum = actionSlotIndex
+
+    -- Get ability ID for the slot
+    local abilityId = GetSlotTrueBoundId(actionSlotIndex, hotbarCategory)
+    if not abilityId or abilityId == 0 then
+        return
+    end
+
+    -- CRITICAL: Show the timer on the ACTIVE hotbar if the effect is triggered on that bar
+    -- This is the key change to fix the issue where timers show on backbar instead of frontbar
+    local currentTime = GetFrameTimeMilliseconds()
+    local stackCount = GetActionSlotEffectStackCount(actionSlotIndex, hotbarCategory)
+    local endTime = currentTime + timeRemainingMS
+
+    -- If this is the active hotbar category, show the effect on the active bar
+    if hotbarCategory == g_hotbarCategory then
+        g_toggledSlotsFront[abilityId] = slotNum
+        g_toggledSlotsRemain[abilityId] = endTime
+        g_toggledSlotsStack[abilityId] = stackCount
+        g_toggledSlotsPlayer[abilityId] = true
+
+        if timeRemainingMS > 0 then
+            -- Create UI elements if they don't exist yet
+            if not g_uiCustomToggle[slotNum] then
+                CombatInfo.ShowCustomToggle(slotNum)
+            end
+
+            CombatInfo.ShowSlot(slotNum, abilityId, currentTime, false)
+        else
+            if g_uiCustomToggle[slotNum] then
+                CombatInfo.HideSlot(slotNum, abilityId)
+            end
+        end
+    elseif hotbarCategory == (g_hotbarCategory == HOTBAR_CATEGORY_PRIMARY and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY) then
+        -- This is the inactive bar, track for when we swap
+        local backbarSlot = slotNum + BACKBAR_INDEX_OFFSET
+        g_toggledSlotsBack[abilityId] = backbarSlot
+        g_toggledSlotsRemain[abilityId] = endTime
+        g_toggledSlotsStack[abilityId] = stackCount
+        g_toggledSlotsPlayer[abilityId] = true
+
+        if timeRemainingMS > 0 then
+            -- Create UI elements if they don't exist yet
+            if not g_uiCustomToggle[backbarSlot] then
+                CombatInfo.ShowCustomToggle(backbarSlot)
+            end
+
+            CombatInfo.ShowSlot(backbarSlot, abilityId, currentTime, false)
+        else
+            if g_uiCustomToggle[backbarSlot] then
+                CombatInfo.HideSlot(backbarSlot, abilityId)
+            end
+        end
+    end
+
+    -- Apply any needed weapon swap effects
+    for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
+        CombatInfo.handleFlip(i)
+    end
+
+    -- Ensure timer labels are visible
+    CombatInfo.EnsureBackbarTimerVisibility()
+end
+
+--- Ensure that backbar custom toggles (timers) are properly visible
+function CombatInfo.EnsureBackbarTimerVisibility()
+    -- Iterate through all backbar slots
+    for slotNum = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
+        if g_uiCustomToggle[slotNum] then
+            -- Ensure the parent frame is visible if it should be
+            if g_backbarButtons[slotNum] and not g_backbarButtons[slotNum].icon:IsHidden() then
+                local abilityId = nil
+
+                -- Find the associated ability ID for this slot
+                for id, slot in pairs(g_toggledSlotsBack) do
+                    if slot == slotNum then
+                        abilityId = id
+                        break
+                    end
+                end
+
+                if abilityId and g_toggledSlotsRemain[abilityId] then
+                    local currentTime = GetFrameTimeMilliseconds()
+                    if g_toggledSlotsRemain[abilityId] > currentTime then
+                        g_uiCustomToggle[slotNum]:SetHidden(false)
+                    end
+                end
+            end
+        end
+    end
+end
+
+--- Handler for when action slot effects are cleared
+--- @param eventCode integer
+function CombatInfo.OnActionSlotEffectsCleared(eventCode)
+    -- Clear all active timers
+    for abilityId, _ in pairs(g_toggledSlotsFront) do
+        local slotNum = g_toggledSlotsFront[abilityId]
+        if slotNum and g_uiCustomToggle[slotNum] then
+            CombatInfo.HideSlot(slotNum, abilityId)
+        end
+    end
+
+    for abilityId, _ in pairs(g_toggledSlotsBack) do
+        local slotNum = g_toggledSlotsBack[abilityId]
+        if slotNum and g_uiCustomToggle[slotNum] then
+            CombatInfo.HideSlot(slotNum, abilityId)
+        end
+    end
+
+    -- Clear all stacks
+    for slotNum, control in pairs(g_uiCustomToggle) do
+        if control.stack then
+            control.stack:SetText("")
+        end
+    end
+end
+
+--- Disables base game timer display elements to prevent conflicts with our custom UI
+function CombatInfo.DisableBaseGameTimerDisplay()
+    local currentHotbarCategory = GetActiveHotbarCategory()
+
+    -- Handle ultimate button
+    local ultButton = ZO_ActionBar_GetButton(ACTION_BAR_ULTIMATE_SLOT_INDEX + 1)
+    if ultButton then
+        ultButton.showTimer = false
+    end
+
+    -- Handle regular ability buttons
+    for i = BAR_INDEX_START, BAR_INDEX_END do
+        local button = ZO_ActionBar_GetButton(i)
+        if button then
+            -- button.hotbarSwapAnimation = nil
+            button.noUpdates = true
+            -- Keep animations but disable built-in timer display
+            button.showTimer = false
+
+            -- Hide built-in stack count and timer displays
+            if button.stackCountText then
+                button.stackCountText:SetHidden(true)
+            end
+            if button.timerText then
+                button.timerText:SetHidden(true)
+            end
+            if button.timerOverlay then
+                button.timerOverlay:SetHidden(true)
+            end
+            button:HandleSlotChanged()
+        end
+
+        -- Handle backbar buttons
+        if (currentHotbarCategory == HOTBAR_CATEGORY_PRIMARY or currentHotbarCategory == HOTBAR_CATEGORY_BACKUP) then
+            local altCategory = (currentHotbarCategory == HOTBAR_CATEGORY_PRIMARY) and HOTBAR_CATEGORY_BACKUP or HOTBAR_CATEGORY_PRIMARY
+            local altButton = ZO_ActionBar_GetButton(i, altCategory)
+            if altButton then
+                altButton.noUpdates = true
+                altButton.showTimer = false
+                altButton.showBackRowSlot = false
+            end
+        end
+    end
+end
+
+--- Registers event handlers for action bar effects
+function CombatInfo.RegisterActionSlotEvents()
+    -- Clear any existing registrations
+    eventManager:UnregisterForEvent(moduleName .. "ActionSlotEffect", EVENT_ACTION_SLOT_EFFECT_UPDATE)
+    eventManager:UnregisterForEvent(moduleName .. "ActionSlotEffectsCleared", EVENT_ACTION_SLOT_EFFECTS_CLEARED)
+    -- Slot ability changed, e.g. summoned a pet, procced crystal, etc.
+    local function OnSlotChanged(_, n)
+        local btn = ZO_ActionBar_GetButton(n)
+        if btn then
+            btn:HandleSlotChanged()
+        end
+    end
+
+    -- Button (usable) state changed.
+    local function OnSlotStateChanged(_, n)
+        local btn = ZO_ActionBar_GetButton(n)
+        if btn then btn:UpdateState() end
+    end
+    eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_UPDATED, OnSlotChanged)
+    eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_STATE_UPDATED, OnSlotStateChanged)
+    -- Register for action slot effect updates to handle custom effects
+    eventManager:RegisterForEvent(moduleName .. "ActionSlotEffect", EVENT_ACTION_SLOT_EFFECT_UPDATE, CombatInfo.OnActionSlotEffectUpdate)
+
+    -- Register for effect clear events
+    eventManager:RegisterForEvent(moduleName .. "ActionSlotEffectsCleared", EVENT_ACTION_SLOT_EFFECTS_CLEARED, CombatInfo.OnActionSlotEffectsCleared)
+
+    eventManager:RegisterForEvent(moduleName .. "DisableBaseGameTimerDisplay", EVENT_ACTIVE_WEAPON_PAIR_CHANGED, CombatInfo.DisableBaseGameTimerDisplay)
+    -- Unregister some default stuff from action buttons.
+    eventManager:UnregisterForEvent("ZO_ActionBar", EVENT_ACTION_SLOT_EFFECT_UPDATE)
+    for i = 3, 7 + 1 do
+        eventManager:UnregisterForEvent("ActionButton" .. i, EVENT_INTERFACE_SETTING_CHANGED)
+        eventManager:UnregisterForEvent("ActionBarTimer" .. i, EVENT_INTERFACE_SETTING_CHANGED)
+    end
+end
+
+local function SetAbilityBarTimersEnabled()
+    if tonumber(GetSetting(SETTING_TYPE_UI, UI_SETTING_SHOW_ACTION_BAR_TIMERS)) == 0 then
+        SetSetting(SETTING_TYPE_UI, UI_SETTING_SHOW_ACTION_BAR_TIMERS, "true")
+    end
+end
+
 -- Module initialization
 function CombatInfo.Initialize(enabled)
     -- Load settings
@@ -465,7 +676,7 @@ function CombatInfo.Initialize(enabled)
         return
     end
     CombatInfo.Enabled = true
-    isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar")
+    isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar\43")
     CombatInfo.ApplyFont()
     CombatInfo.ApplyProcSound()
     local QSB = _G["QuickslotButton"]
@@ -478,8 +689,8 @@ function CombatInfo.Initialize(enabled)
     end
     uiQuickSlot.label:SetDrawLayer(DL_OVERLAY)
     uiQuickSlot.label:SetDrawTier(DT_HIGH)
-    CombatInfo.ResetPotionTimerLabel() -- Set the label position
-
+    CombatInfo.ResetPotionTimerLabel()
+    -- Set the label position
     -- Create Ultimate overlay labels
     local AB8 = _G["ActionButton8"]
     uiUltimate.LabelVal = UI:Label(AB8, { BOTTOM, TOP, 0, -3 }, nil, { 1, 2 }, "$(BOLD_FONT)|16|soft-shadow-thick", nil, true)
@@ -487,51 +698,27 @@ function CombatInfo.Initialize(enabled)
     local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot, g_hotbarCategory)
     uiUltimate.LabelPct:SetAnchor(TOPLEFT, actionButton.slot, nil, 0, 0)
     uiUltimate.LabelPct:SetAnchor(BOTTOMRIGHT, actionButton.slot, nil, 0, -CombatInfo.SV.UltimateLabelPosition)
-
     uiUltimate.LabelPct:SetColor(unpack(uiUltimate.color))
     -- And buff texture
     uiUltimate.Texture = UI:Texture(AB8, { CENTER, CENTER }, { 160, 160 }, "/esoui/art/crafting/white_burst.dds", DL_BACKGROUND, true)
-
-    -- -- Create a top level window for backbar buttons using UI:Control
-    -- local tlw = UI:Control(
-    --     ACTION_BAR,    -- parent
-    --     "fill",        -- anchors
-    --     "inherit",     -- dims
-    --     false,         -- hidden
-    --     "LUIE_Backbar" -- name
-    -- )
-
-
-    -- for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-    --     local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, tlw, "ZO_ActionButton")
-    --     SetupSwapAnimation(button)
-    --     button:SetupBounceAnimation()
-    --     g_backbarButtons[i] = button
-    -- end
-
     CombatInfo.BackbarSetupTemplate()
     CombatInfo.BackbarToggleSettings()
     -------------------------------------------------------------------------------------
-
     CombatInfo.RegisterCombatInfo()
 
     if CombatInfo.SV.GlobalShowGCD then
         CombatInfo.HookGCD()
     end
-
     -- Setup Floating Marker
     CombatInfo.SetMarker()
-
     -- Create and update Cast Bar
     CombatInfo.CreateCastBar()
     CombatInfo.UpdateCastBar()
     CombatInfo.SetCastBarPosition()
-
     -- Setup Alerts
     CombatInfo.AbilityAlerts.CreateAlertFrame()
     CombatInfo.AbilityAlerts.SetAlertFramePosition()
     CombatInfo.AbilityAlerts.SetAlertColors()
-
     -- Setup CCT
     CombatInfo.CrowdControlTracker.UpdateAOEList()
     CombatInfo.CrowdControlTracker.Initialize()
@@ -1013,7 +1200,11 @@ function CombatInfo.OnPlayerActivated(eventCode)
     if IsPlayerActivated() then
         -- do not call this function for the second time
         eventManager:UnregisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED)
-
+        if CombatInfo.SV.BarShowLabel then
+            SetAbilityBarTimersEnabled()
+            -- Register event handlers for action slot effects.
+            CombatInfo.RegisterActionSlotEvents()
+        end
         -- Manually trigger event to update stats
         g_hotbarCategory = GetActiveHotbarCategory()
         CombatInfo.OnSlotsFullUpdate()
@@ -2141,8 +2332,8 @@ function CombatInfo.CreateCastBar()
         CombatInfo.SV.CastBarCustomPosition = { self:GetLeft(), self:GetTop() }
     end
 
-    uiTlw.castBar:SetHandler("OnMoveStart", tlwOnMoveStart)
-    uiTlw.castBar:SetHandler("OnMoveStop", tlwOnMoveStop)
+    uiTlw.castBar:SetHandler("OnMoveStart", tlwOnMoveStart, "OnMoveStart")
+    uiTlw.castBar:SetHandler("OnMoveStop", tlwOnMoveStop, "OnMoveStop")
 
     uiTlw.castBar.preview.anchorTexture = UI:Texture(uiTlw.castBar.preview, { TOPLEFT, TOPLEFT }, { 16, 16 }, "/esoui/art/reticle/border_topleft.dds", DL_OVERLAY, false)
     uiTlw.castBar.preview.anchorTexture:SetColor(1, 1, 0, 0.9)
@@ -3108,8 +3299,8 @@ function CombatInfo.PlayProcAnimations(slotNum)
             self.procLoopTexture:SetHidden(true)
         end
 
-        procLoopTimeline:SetHandler("OnPlay", procLoopTimeline.onPlay)
-        procLoopTimeline:SetHandler("OnStop", procLoopTimeline.onStop)
+        procLoopTimeline:SetHandler("OnPlay", procLoopTimeline.onPlay, "OnPlay")
+        procLoopTimeline:SetHandler("OnStop", procLoopTimeline.onStop, "OnStop")
 
         g_uiProcAnimation[slotNum] = procLoopTimeline
     end
@@ -3312,5 +3503,7 @@ function CombatInfo.OnActionBarInitialized(control)
         g_backbarButtons[i] = button
     end
 end
+
+--- Handler for effect updates on action slot buttons using the new API--- @param eventCode integer--- @param hotbarCategory integer--- @param actionSlotIndex integerfunction CombatInfo.OnActionSlotEffectUpdated(eventCode, hotbarCategory, actionSlotIndex)    -- Get physical slot button    local physicalSlot        -- Handle backbar slots differently    if hotbarCategory == HOTBAR_CATEGORY_BACKUP then        physicalSlot = g_backbarButtons[actionSlotIndex + BACKBAR_INDEX_OFFSET]    else        physicalSlot = ZO_ActionBar_GetButton(actionSlotIndex, hotbarCategory)    end        if not physicalSlot then return end        -- Get ability ID for this slot    local abilityId = GetSlotTrueBoundId(actionSlotIndex, hotbarCategory)        -- Skip if this is an ability we already have hardcoded data for    -- This allows our custom handling to take precedence    if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then        return    end        -- Get remaining time and stack count from the API    local timeRemainingMS = GetActionSlotEffectTimeRemaining(actionSlotIndex, hotbarCategory)    local stackCount = GetActionSlotEffectStackCount(actionSlotIndex, hotbarCategory)        -- Get slot number for our toggle system    local slotNum = (hotbarCategory == HOTBAR_CATEGORY_BACKUP) and (actionSlotIndex + BACKBAR_INDEX_OFFSET) or actionSlotIndex        -- Only show effects with some time remaining    if timeRemainingMS > 1000 then        -- Make sure we have the UI toggle for this slot        CombatInfo.ShowCustomToggle(slotNum)                if g_uiCustomToggle[slotNum] then            -- Set the remaining time            local timeStr = ""            if CombatInfo.SV.BarMillis then                if timeRemainingMS >= 10000 and not CombatInfo.SV.BarMillisAboveTen then                    timeStr = string_format("%d", timeRemainingMS / 1000)                else                    timeStr = string_format("%.1f", timeRemainingMS / 1000)                end            else                timeStr = string_format("%d", zo_ceil(timeRemainingMS / 1000))            end                        g_uiCustomToggle[slotNum]:SetHidden(false)            g_uiCustomToggle[slotNum].label:SetText(timeStr)                        -- Set stack count if available            if stackCount > 0 then                g_uiCustomToggle[slotNum].stack:SetText(stackCount)            else                g_uiCustomToggle[slotNum].stack:SetText("")            end        end    elseif timeRemainingMS == 0 and g_uiCustomToggle[slotNum] then        -- Hide the toggle when the effect expires        g_uiCustomToggle[slotNum]:SetHidden(true)    endend--- Handler for when action slot effects are cleared--- @param eventCode integerfunction CombatInfo.OnActionSlotEffectsCleared(eventCode)    -- Hide all toggles when effects are cleared    for slotNum = BAR_INDEX_START, BAR_INDEX_END do        if g_uiCustomToggle[slotNum] then            g_uiCustomToggle[slotNum]:SetHidden(true)        end    end        for slotNum = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do        if g_uiCustomToggle[slotNum] then            g_uiCustomToggle[slotNum]:SetHidden(true)        end    endend--- Registers event handlers for action bar effectsfunction CombatInfo.RegisterActionSlotEvents()    -- Register for action slot effect updates to handle custom effects    eventManager:RegisterForEvent(moduleName .. "ActionSlotEffect", EVENT_ACTION_SLOT_EFFECT_UPDATE, CombatInfo.OnActionSlotEffectUpdated)        -- Register for effect clear events    eventManager:RegisterForEvent(moduleName .. "ActionSlotEffectsCleared", EVENT_ACTION_SLOT_EFFECTS_CLEARED, CombatInfo.OnActionSlotEffectsCleared) end
 
 LUIE.CombatInfo = CombatInfo

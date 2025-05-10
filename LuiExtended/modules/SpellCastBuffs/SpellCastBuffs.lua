@@ -416,23 +416,22 @@ function SpellCastBuffs.ClearPlayerBuff(abilityId)
     end
 end
 
--- Callback to update coordinates while moving
-local function OnMoveStart(self)
-    eventManager:RegisterForUpdate(moduleName .. "PreviewMove", 200, function ()
-        if self.preview and self.preview.anchorLabel then
-            self.preview.anchorLabel:SetText(string.format("%d, %d", self:GetLeft(), self:GetTop()))
-        end
-    end)
-end
-
--- Callback to stop updating coordinates when movement ends
-local function OnMoveStop(self)
-    eventManager:UnregisterForUpdate(moduleName .. "PreviewMove")
-end
-
-
 -- Initialize preview labels for all frames
 local function InitializePreviewLabels()
+    -- Callback to update coordinates while moving
+    local function OnMoveStart(self)
+        eventManager:RegisterForUpdate(moduleName .. "PreviewMove", 200, function ()
+            if self.preview and self.preview.anchorLabel then
+                self.preview.anchorLabel:SetText(string.format("%d, %d", self:GetLeft(), self:GetTop()))
+            end
+        end)
+    end
+
+    -- Callback to stop updating coordinates when movement ends
+    local function OnMoveStop(self)
+        eventManager:UnregisterForUpdate(moduleName .. "PreviewMove")
+    end
+
     local frames =
     {
         { frame = uiTlw.playerb,          name = "playerb"          },
@@ -513,15 +512,17 @@ function SpellCastBuffs.Initialize(enabled)
         containerRouting.player2 = "player2"
     else
         uiTlw.playerb = UI:TopLevel(nil, nil)
-        uiTlw.playerb:SetHandler("OnMoveStop", function (self)
+        local playerb_OnMoveStop = function (self)
             SpellCastBuffs.SV.playerbOffsetX = self:GetLeft()
             SpellCastBuffs.SV.playerbOffsetY = self:GetTop()
-        end)
+        end
+        uiTlw.playerb:SetHandler("OnMoveStop", playerb_OnMoveStop)
         uiTlw.playerd = UI:TopLevel(nil, nil)
-        uiTlw.playerd:SetHandler("OnMoveStop", function (self)
+        local playerd_OnMoveStop = function (self)
             SpellCastBuffs.SV.playerdOffsetX = self:GetLeft()
             SpellCastBuffs.SV.playerdOffsetY = self:GetTop()
-        end)
+        end
+        uiTlw.playerd:SetHandler("OnMoveStop", playerd_OnMoveStop)
         containerRouting.player1 = "playerb"
         containerRouting.player2 = "playerd"
 
@@ -540,15 +541,17 @@ function SpellCastBuffs.Initialize(enabled)
         containerRouting.ground = "target2"
     else
         uiTlw.targetb = UI:TopLevel(nil, nil)
-        uiTlw.targetb:SetHandler("OnMoveStop", function (self)
+        local targetb_OnMoveStop = function (self)
             SpellCastBuffs.SV.targetbOffsetX = self:GetLeft()
             SpellCastBuffs.SV.targetbOffsetY = self:GetTop()
-        end)
+        end
+        uiTlw.targetb:SetHandler("OnMoveStop", targetb_OnMoveStop)
         uiTlw.targetd = UI:TopLevel(nil, nil)
-        uiTlw.targetd:SetHandler("OnMoveStop", function (self)
+        local targetd_OnMoveStop = function (self)
             SpellCastBuffs.SV.targetdOffsetX = self:GetLeft()
             SpellCastBuffs.SV.targetdOffsetY = self:GetTop()
-        end)
+        end
+        uiTlw.targetd:SetHandler("OnMoveStop", targetd_OnMoveStop)
         containerRouting.reticleover1 = "targetb"
         containerRouting.reticleover2 = "targetd"
         containerRouting.ground = "targetd"
@@ -689,12 +692,12 @@ function SpellCastBuffs.Initialize(enabled)
     eventManager:AddFilterForEvent(moduleName .. "Target", EVENT_EFFECT_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
     -- GROUND & MINE EFFECTS - add a filtered event for each AbilityId
     for k, v in pairs(Effects.EffectGroundDisplay) do
-        eventManager:RegisterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
-        eventManager:AddFilterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
+        eventManager:RegisterForEvent(moduleName .. "Ground1" .. k, EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
+        eventManager:AddFilterForEvent(moduleName .. "Ground1" .. k, EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
     end
     for k, v in pairs(Effects.LinkedGroundMine) do
-        eventManager:RegisterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
-        eventManager:AddFilterForEvent(moduleName .. "Ground" .. k, EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
+        eventManager:RegisterForEvent(moduleName .. "Ground2" .. k, EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
+        eventManager:AddFilterForEvent(moduleName .. "Ground2" .. k, EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
     end
 
     -- Combat Events
@@ -893,8 +896,9 @@ function SpellCastBuffs.RemoveFromCustomList(list, input)
 end
 
 function SpellCastBuffs.ResetContainerOrientation()
-    -- Create TopLevelWindows for Prominent Buffs
-    uiTlw.prominentbuffs:SetHandler("OnMoveStop", function (self)
+    ---
+    --- @param self TopLevelWindow|table
+    local prominentbuffs_OnMoveStop = function (self)
         if self.alignVertical then
             SpellCastBuffs.SV.prominentbVOffsetX = self:GetLeft()
             SpellCastBuffs.SV.prominentbVOffsetY = self:GetTop()
@@ -902,8 +906,12 @@ function SpellCastBuffs.ResetContainerOrientation()
             SpellCastBuffs.SV.prominentbHOffsetX = self:GetLeft()
             SpellCastBuffs.SV.prominentbHOffsetY = self:GetTop()
         end
-    end)
-    uiTlw.prominentdebuffs:SetHandler("OnMoveStop", function (self)
+    end
+    -- Create TopLevelWindows for Prominent Buffs
+    uiTlw.prominentbuffs:SetHandler("OnMoveStop", prominentbuffs_OnMoveStop)
+    ---
+    --- @param self TopLevelWindow|table
+    local prominentdebuffs_OnMoveStop = function (self)
         if self.alignVertical then
             SpellCastBuffs.SV.prominentdVOffsetX = self:GetLeft()
             SpellCastBuffs.SV.prominentdVOffsetY = self:GetTop()
@@ -911,7 +919,8 @@ function SpellCastBuffs.ResetContainerOrientation()
             SpellCastBuffs.SV.prominentdHOffsetX = self:GetLeft()
             SpellCastBuffs.SV.prominentdHOffsetY = self:GetTop()
         end
-    end)
+    end
+    uiTlw.prominentdebuffs:SetHandler("OnMoveStop", prominentdebuffs_OnMoveStop)
 
     if SpellCastBuffs.SV.ProminentBuffContainerAlignment == 1 then
         uiTlw.prominentbuffs.alignVertical = false
@@ -931,8 +940,9 @@ function SpellCastBuffs.ResetContainerOrientation()
     containerRouting.promd_target = "prominentdebuffs"
     containerRouting.promd_player = "prominentdebuffs"
 
-    -- Separate container for players long term buffs
-    uiTlw.player_long:SetHandler("OnMoveStop", function (self)
+    ---
+    --- @param self TopLevelWindow|table
+    local player_long_OnMoveStop = function (self)
         if self.alignVertical then
             SpellCastBuffs.SV.playerVOffsetX = self:GetLeft()
             SpellCastBuffs.SV.playerVOffsetY = self:GetTop()
@@ -940,7 +950,9 @@ function SpellCastBuffs.ResetContainerOrientation()
             SpellCastBuffs.SV.playerHOffsetX = self:GetLeft()
             SpellCastBuffs.SV.playerHOffsetY = self:GetTop()
         end
-    end)
+    end
+    -- Separate container for players long term buffs
+    uiTlw.player_long:SetHandler("OnMoveStop", player_long_OnMoveStop)
 
     if SpellCastBuffs.SV.LongTermEffectsSeparateAlignment == 1 then
         uiTlw.player_long.alignVertical = false

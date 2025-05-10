@@ -15,6 +15,10 @@ local changelogMessages =
 { -- Version Header
     "|cFFA500LuiExtended Version 6.9.5|r",
     "",
+    -- New
+    "|cFFFF00New:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Re-Enabled using the games api, if you have a conflict, turn off luie backbar and label timer.",
+    "",
     -- Bug Fixes
     "|cFFFF00Bug Fixes:|r",
     "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Resolved an issue with Off-Balance tracking in the Prominent Debuff container.",
