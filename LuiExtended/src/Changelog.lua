@@ -13,24 +13,16 @@ local GetDisplayName = GetDisplayName
 -- -----------------------------------------------------------------------------
 local changelogMessages =
 { -- Version Header
-    "|cFFA500LuiExtended Version 6.9.4|r",
-    "",
-    -- Revert
-    "|cFFFF00Reverted:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Removed timer code. To many issues with other action bar addons enabled.\nYes that means timers for sorc pets dont show again.",
+    "|cFFA500LuiExtended Version 6.9.5|r",
     "",
     -- Bug Fixes
     "|cFFFF00Bug Fixes:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Chat announcement fixes. Looking at you guards... if you know you know.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Combat Text resources now warn again if you are low.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Resolved an issue with Off-Balance tracking in the Prominent Debuff container.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fixed missing icon chat message when purchasing items from vendors.",
     "",
     -- Miscellaneous
     "|cFFFF00Miscellaneous:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Some other things, it's been a long weekend",
-    "",
-    -- Notes
-    "|cFFFF00Note:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t As a reminder, the combat text module can be intensive with the amount of animations that go on.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added an option to hide the bracing buff (block). This setting can be found in Buffs & Debuffs -> Long & Short-Term Effect Options -> Short-Term Effect Filters -> Show Block - Player. Default is \"ON\".",
     "",
 }
 -- -----------------------------------------------------------------------------

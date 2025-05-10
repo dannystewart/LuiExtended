@@ -2479,8 +2479,8 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
     local context = unitTag .. effectType
 
     -- Override for Off-Balance Immunity to show it as a prominent debuff for tracking.
-    if abilityId == 134599 then
-        if context == "reticleover1" then
+    if abilityId == 134599 or abilityId == 120014 then
+        if context == "reticleover1" or context == "reticleover2" then
             if SpellCastBuffs.SV.PromDebuffTable[abilityId] or SpellCastBuffs.SV.PromDebuffTable[effectName] then
                 context = "promd_target"
             end

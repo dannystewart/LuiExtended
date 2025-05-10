@@ -219,7 +219,7 @@ UnitFrames.SV = {}
 --- @field icon TextureControl
 
 --- @class LUIE_Boss_Group
---- @field [32] LUIE_Boss_Group_Health
+--- @field [`COMBAT_MECHANIC_FLAGS_HEALTH`] LUIE_Boss_Group_Health
 --- @field control Control
 --- @field name LabelControl
 --- @field dead LabelControl
@@ -248,7 +248,7 @@ UnitFrames.SV = {}
 --- @field name LabelControl
 --- @field dead LabelControl
 --- @field control Control
---- @field [32] LUIE_PetGroup_Health
+--- @field [`COMBAT_MECHANIC_FLAGS_HEALTH`] LUIE_PetGroup_Health
 
 --- @class LUIE_RaidGroup_Health
 --- @field backdrop BackdropControl
@@ -260,7 +260,7 @@ UnitFrames.SV = {}
 --- @field trauma StatusBarControl
 
 --- @class LUIE_RaidGroup
---- @field [32] LUIE_RaidGroup_Health
+--- @field [`COMBAT_MECHANIC_FLAGS_HEALTH`] LUIE_RaidGroup_Health
 --- @field tlw TopLevelWindow
 --- @field control Control
 --- @field name LabelControl
@@ -270,7 +270,7 @@ UnitFrames.SV = {}
 --- @field unitTag string
 
 --- @class LUIE_SmallGroup
---- @field [32] LUIE_SmallGroup_Health
+--- @field [`COMBAT_MECHANIC_FLAGS_HEALTH`] LUIE_SmallGroup_Health
 --- @field tlw TopLevelWindow
 --- @field name LabelControl
 --- @field dead LabelControl
@@ -303,9 +303,9 @@ UnitFrames.SV = {}
 --- @field threshold integer
 
 --- @class LUIE_Player
---- @field [32] LUIE_Player_Health
---- @field [1] LUIE_Player_Resource
---- @field [4] LUIE_Player_Resource
+--- @field [`COMBAT_MECHANIC_FLAGS_HEALTH`] LUIE_Player_Health
+--- @field [`COMBAT_MECHANIC_FLAGS_MAGICKA`] LUIE_Player_Resource
+--- @field [`COMBAT_MECHANIC_FLAGS_STAMINA`] LUIE_Player_Resource
 --- @field control Control
 --- @field tlw TopLevelWindow
 --- @field name LabelControl

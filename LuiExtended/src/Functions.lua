@@ -96,7 +96,7 @@ do
         if not addonManager:WasAddOnDetected(addOnName) then
             return false
         end
-        for i = 0, numAddOns do
+        for i = 1, numAddOns do
             local name, _, _, _, _, state, _, _ = addonManager:GetAddOnInfo(i)
 
             if name == addOnName and state == ADDON_STATE_ENABLED then

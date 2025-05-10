@@ -957,7 +957,33 @@ local g_blacklistIDs =
     [140222] = true, -- 200 Transmute Crystals (This is probably just a test item)
 }
 
+---
+--- @param topLevelIndex integer
+--- @return string name
+local function GetAchievementCategoryInfoName(topLevelIndex)
+    local AchievementCategoryInfo = { GetAchievementCategoryInfo(topLevelIndex) }
+    local name = AchievementCategoryInfo[1]
+    return name
+end
 
+---
+--- @param topLevelIndex luaindex
+--- @param subCategoryIndex luaindex
+--- @return string name
+local function GetAchievementSubCategoryInfoName(topLevelIndex, subCategoryIndex)
+    local AchievementSubCategoryInfo = { GetAchievementSubCategoryInfo(topLevelIndex, subCategoryIndex) }
+    local name = AchievementSubCategoryInfo[1]
+    return name
+end
+
+---
+--- @param achievementId integer
+--- @return textureName icon
+local function GetAchievementInfoIcon(achievementId)
+    local AchievementInfo = { GetAchievementInfo(achievementId) }
+    local icon = AchievementInfo[4]
+    return icon
+end
 
 local g_firstLoad = true
 
@@ -3060,7 +3086,7 @@ function ChatAnnouncements.OnBuybackItem(eventId, itemLink, itemQuantity, money,
         changeColor = ColorizeColors.CurrencyColorize:ToHex()
     end
     local itemName = GetItemLinkName(itemLink)
-    local itemIcon, _, _, _, _ = GetItemLinkInfo(itemLink)
+    local itemIcon = GetItemLinkIcon(itemLink)
     local icon = itemIcon
     local formattedIcon = (ChatAnnouncements.SV.Inventory.LootIcons and icon and icon ~= "") and ("|t16:16:" .. icon .. "|t ") or ""
     local messageType = "LUIE_CURRENCY_VENDOR"
@@ -3137,10 +3163,13 @@ function ChatAnnouncements.OnBuyItem(eventId, entryName, entryType, entryQuantit
         if isShopCollectible[entryName] then
             local id = isShopCollectible[entryName]
             entryName = GetCollectibleLink(id, linkBrackets[ChatAnnouncements.SV.BracketOptionItem])
-            itemIcon = GetCollectibleIcon(id)
+            itemIcon = GetCollectibleIcon(id) or ZO_NO_TEXTURE_FILE
         else
-            itemIcon = GetItemLinkIcon(entryName)
+            itemIcon = GetItemLinkIcon(entryName) or ZO_NO_TEXTURE_FILE
         end
+    else
+        -- Try to get an icon for non-collectibles, or set a different default
+        itemIcon = GetItemLinkIcon(entryName) or ZO_NO_TEXTURE_FILE
     end
 
     local changeColor = ChatAnnouncements.SV.Currency.CurrencyContextColor and ColorizeColors.CurrencyDownColorize:ToHex() or ColorizeColors.CurrencyColorize:ToHex()
@@ -3693,9 +3722,9 @@ function ChatAnnouncements.OnAchievementUpdated(eventId, id)
         local name = zo_strformat(GetAchievementNameFromLink(link))
 
         if ChatAnnouncements.SV.Achievement.AchievementUpdateCA then
-            local catName, _, _, _, _, _ = GetAchievementCategoryInfo(topLevelIndex)
-            local subcatName = categoryIndex ~= nil and GetAchievementSubCategoryInfo(topLevelIndex, categoryIndex) or "General"
-            local _, _, _, icon, _, _, _ = GetAchievementInfo(id)
+            local catName = GetAchievementCategoryInfoName(topLevelIndex)
+            local subcatName = categoryIndex ~= nil and GetAchievementSubCategoryInfoName(topLevelIndex, categoryIndex) or "General"
+            local icon = GetAchievementInfoIcon(id)
             icon = ChatAnnouncements.SV.Achievement.AchievementIcon and ("|t16:16:" .. icon .. "|t ") or ""
 
             local stringpart1 = ColorizeColors.AchievementColorize1:Colorize(string_format("%s%s%s %s%s", bracket1[ChatAnnouncements.SV.Achievement.AchievementBracketOptions], ChatAnnouncements.SV.Achievement.AchievementProgressMsg, bracket2[ChatAnnouncements.SV.Achievement.AchievementBracketOptions], icon, link))
@@ -7576,7 +7605,7 @@ end
 function ChatAnnouncements.OnPlayerActivated(eventId, initial)
     if IsPlayerActivated() then
         -- Get current trades if UI is reloaded
-        local characterName, _, displayName = GetTradeInviteInfo()
+        local characterName, millisecondsSinceRequest, displayName = GetTradeInviteInfo()
 
         if characterName ~= "" and displayName ~= "" then
             local tradeName = ChatAnnouncements.ResolveNameLink(characterName, displayName)
@@ -7856,7 +7885,9 @@ function ChatAnnouncements.HookFunction()
     end
 
     -- EVENT_MULTIPLE_RECIPES_LEARNED (Alert Handler)
-    local function MultipleRecipeLearnedHook(numLearned)
+    --- @param numRecipesUnlocked integer
+    --- @return boolean|nil
+    local function MultipleRecipeLearnedHook(numRecipesUnlocked)
         local flag
         if ChatAnnouncements.SV.Inventory.LootShowRecipe and ChatAnnouncements.SV.Inventory.LootRecipeHideAlert then
             flag = true
@@ -7865,7 +7896,7 @@ function ChatAnnouncements.HookFunction()
         end
 
         if not flag then
-            local text = zo_strformat(SI_NEW_RECIPES_LEARNED, numLearned)
+            local text = zo_strformat(SI_NEW_RECIPES_LEARNED, numRecipesUnlocked)
             ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.RECIPE_LEARNED, text)
         end
         return true
@@ -7873,22 +7904,29 @@ function ChatAnnouncements.HookFunction()
 
     -- EVENT_LORE_BOOK_ALREADY_KNOWN (Alert Handler)
     -- Note: We just hide this alert because it is pointless pretty much (only ever seen in trigger from server lag)
+    --- @param bookTitle string
+    --- @return boolean|nil
     local function AlreadyKnowBookHook(bookTitle)
         return true
     end
 
     -- EVENT_RIDING_SKILL_IMPROVEMENT (Alert Handler)
     -- Note: We allow the CSA handler to handle any changes made from skill books in order to properly throttle all messages, and use the alert handler for stables upgrades.
-    local function RidingSkillImprovementAlertHook(ridingSkill, previous, current, source)
+    --- @param ridingSkillType RidingTrainType
+    --- @param previous integer
+    --- @param current integer
+    --- @param source RidingTrainSource
+    --- @return boolean|nil
+    local function RidingSkillImprovementAlertHook(ridingSkillType, previous, current, source)
         if source == RIDING_TRAIN_SOURCE_STABLES then
             -- If we purchased from the stables, display a currency announcement if relevant
             if ChatAnnouncements.SV.Currency.CurrencyGoldChange then
                 local messageType
-                if ridingSkill == 1 then
+                if ridingSkillType == RIDING_TRAIN_SPEED then
                     messageType = "LUIE_CURRENCY_RIDING_SPEED"
-                elseif ridingSkill == 2 then
+                elseif ridingSkillType == RIDING_TRAIN_CARRYING_CAPACITY then
                     messageType = "LUIE_CURRENCY_RIDING_CAPACITY"
-                elseif ridingSkill == 3 then
+                elseif ridingSkillType == RIDING_TRAIN_STAMINA then
                     messageType = "LUIE_CURRENCY_RIDING_STAMINA"
                 end
                 local formattedValue = ZO_CommaDelimitDecimalNumber(GetCurrencyAmount(CURT_MONEY, CURRENCY_LOCATION_CHARACTER) + 250)
@@ -7904,7 +7942,7 @@ function ChatAnnouncements.HookFunction()
             end
 
             if ChatAnnouncements.SV.Notify.StorageRidingCA then
-                local formattedString = ColorizeColors.StorageRidingColorize:Colorize(zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkill), previous, current))
+                local formattedString = ColorizeColors.StorageRidingColorize:Colorize(zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkillType), previous, current))
                 ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
                 {
                     message = formattedString,
@@ -7915,13 +7953,13 @@ function ChatAnnouncements.HookFunction()
             end
 
             if ChatAnnouncements.SV.Notify.StorageRidingAlert then
-                local text = zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkill), previous, current)
+                local text = zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkillType), previous, current)
                 ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
             end
 
             if ChatAnnouncements.SV.Notify.StorageRidingCSA then
                 local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_LARGE_TEXT, SOUNDS.NONE)
-                messageParams:SetText(GetString(SI_RIDING_SKILL_ANNOUCEMENT_BANNER), zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkill), previous, current))
+                messageParams:SetText(GetString(SI_RIDING_SKILL_ANNOUCEMENT_BANNER), zo_strformat(SI_RIDING_SKILL_ANNOUCEMENT_SKILL_INCREASE, GetString("SI_RIDINGTRAINTYPE", ridingSkillType), previous, current))
                 messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_RIDING_SKILL_IMPROVEMENT)
                 CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
             end
@@ -11438,7 +11476,7 @@ function ChatAnnouncements.HookFunction()
         -- Display CSA
         if ChatAnnouncements.SV.Achievement.AchievementCompleteCSA then
             local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_LARGE_TEXT, SOUNDS.ACHIEVEMENT_AWARDED)
-            local icon = select(4, GetAchievementInfo(id))
+            local icon = GetAchievementInfoIcon(id)
             messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_ACHIEVEMENT_AWARDED)
             messageParams:SetText(ChatAnnouncements.SV.Achievement.AchievementCompleteMsg, zo_strformat(name))
             messageParams:SetIconData(icon, "EsoUI/Art/Achievements/achievements_iconBG.dds")
@@ -11452,9 +11490,9 @@ function ChatAnnouncements.HookFunction()
 
         if ChatAnnouncements.SV.Achievement.AchievementCompleteCA then
             local link = zo_strformat(GetAchievementLink(id, linkBrackets[ChatAnnouncements.SV.BracketOptionAchievement]))
-            local catName = GetAchievementCategoryInfo(topLevelIndex)
-            local subcatName = categoryIndex ~= nil and GetAchievementSubCategoryInfo(topLevelIndex, categoryIndex) or "General"
-            local _, _, _, icon = GetAchievementInfo(id)
+            local catName = GetAchievementCategoryInfoName(topLevelIndex)
+            local subcatName = categoryIndex ~= nil and GetAchievementSubCategoryInfoName(topLevelIndex, categoryIndex) or "General"
+            local icon = GetAchievementInfoIcon(id)
             icon = ChatAnnouncements.SV.Achievement.AchievementIcon and ("|t16:16:" .. icon .. "|t ") or ""
 
             -- Build string parts without using string_format on pre-formatted strings

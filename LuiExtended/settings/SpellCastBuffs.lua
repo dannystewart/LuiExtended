@@ -735,19 +735,21 @@ function SpellCastBuffs.CreateSettings()
                     return not LUIE.SV.SpellCastBuff_Enable
                 end,
             },
-            --[[ TODO: Reimplement if possible
             {
                 -- Show Block Player Icon
                 type = "checkbox",
                 name = GetString(LUIE_STRING_LAM_BUFF_MISC_SHOWBLOCKPLAYER),
                 tooltip = GetString(LUIE_STRING_LAM_BUFF_MISC_SHOWBLOCKPLAYER_TP),
-                getFunc = function() return Settings.ShowBlockPlayer end,
-                setFunc = function(value) Settings.ShowBlockPlayer = value SpellCastBuffs.UpdateContextHideList() SpellCastBuffs.ReloadEffects("player") end,
+                getFunc = function () return Settings.ShowBlockPlayer end,
+                setFunc = function (value)
+                    Settings.ShowBlockPlayer = value
+                    SpellCastBuffs.UpdateContextHideList()
+                    SpellCastBuffs.ReloadEffects("player")
+                end,
                 width = "full",
                 default = Defaults.ShowBlockPlayer,
-                disabled = function() return not LUIE.SV.SpellCastBuff_Enable end,
+                disabled = function () return not LUIE.SV.SpellCastBuff_Enable end,
             },
-            ]]
             --
             {
                 -- Show Block Target Icon
