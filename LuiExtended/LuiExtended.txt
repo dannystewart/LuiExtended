@@ -28,7 +28,6 @@ src/Hooks.lua
 
 shared/actionbutton.lua
 shared/synergy.lua
-shared/powershield.lua
 
 gamepad/HooksSkillsAdvisor.lua
 gamepad/hooks.lua
