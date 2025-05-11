@@ -12,7 +12,15 @@ local table_concat = table.concat
 local GetDisplayName = GetDisplayName
 -- -----------------------------------------------------------------------------
 local changelogMessages =
-{ -- Version Header
+{
+    -- Version Header
+    "|cFFA500LuiExtended Version 6.9.5.1|r",
+    "",
+    -- Fix
+    "|cFFFF00Fix:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Some timer fixes. Feedback needed!",
+    "",
+    -- Version Header
     "|cFFA500LuiExtended Version 6.9.5|r",
     "",
     -- New
