@@ -18,13 +18,13 @@ local ipairs = ipairs
 local printToChat = LUIE.PrintToChat
 local GetSlotTrueBoundId = LUIE.GetSlotTrueBoundId
 local GetAbilityDuration = GetAbilityDuration
-local time = GetFrameTimeMilliseconds
+local timeMs = GetFrameTimeMilliseconds
 local zo_strformat = zo_strformat
 local string_format = string.format
 local eventManager = GetEventManager()
 local sceneManager = SCENE_MANAGER
 local windowManager = GetWindowManager()
-local ANIMATION_MANAGER = GetAnimationManager()
+local animationManager = GetAnimationManager()
 local ACTION_RESULT_AREA_EFFECT = 669966
 
 local moduleName = LUIE.name .. "CombatInfo"
@@ -1371,7 +1371,7 @@ function CombatInfo.BarHighlightSwap(abilityId)
 
         if duration > 0 then
             duration = GetUpdatedAbilityDuration(duration) - GetUpdatedAbilityDuration(durationMod)
-            local timeStarted = GetFrameTimeMilliseconds() / 1000
+            local timeStarted = timeMs() / 1000
             local timeEnding = timeStarted + (duration / 1000)
             CombatInfo.OnEffectChanged(nil, EFFECT_RESULT_GAINED, nil, nil, unitTag, timeStarted, timeEnding, 0, nil, nil, 1, ABILITY_TYPE_BONUS, 0, nil, nil, abilityId, 1, true, abilityId)
             return
@@ -2047,7 +2047,7 @@ end
 function CombatInfo.ClientInteractResult(eventCode, result, interactTargetName)
 
     local function DisplayInteractCast(icon, name, duration)
-        local currentTimeMs = GetFrameTimeMilliseconds()
+        local currentTimeMs = timeMs()
         local endTime = currentTimeMs + duration
         local remain = endTime - currentTimeMs
 
@@ -2106,7 +2106,7 @@ function CombatInfo.SoulGemResurrectionStart(eventCode, durationMs)
     local name = Abilities.Innate_Soul_Gem_Resurrection
     local duration = durationMs
 
-    local currentTimeMs = GetFrameTimeMilliseconds()
+    local currentTimeMs = timeMs()
     local endTime = currentTimeMs + duration
     local remain = endTime - currentTimeMs
 
@@ -2191,7 +2191,7 @@ function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abili
     -- Track ultimate generation when we block an attack or hit a target with a light/medium/heavy attack.
     if CombatInfo.SV.UltimateGeneration and uiUltimate.NotFull and ((result == ACTION_RESULT_BLOCKED_DAMAGE and targetType == COMBAT_UNIT_TYPE_PLAYER) or (Effects.IsWeaponAttack[abilityName] and sourceType == COMBAT_UNIT_TYPE_PLAYER and targetName ~= "")) then
         uiUltimate.Texture:SetHidden(false)
-        uiUltimate.FadeTime = GetFrameTimeMilliseconds() + 8000
+        uiUltimate.FadeTime = timeMs() + 8000
     end
 
     -- Trap Beast aura removal helper function since there is no aura for it
@@ -2300,7 +2300,7 @@ function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abili
     if duration > 0 and not g_casting then
         -- If action result is BEGIN and not channeled then start, otherwise only use GAINED
         if (not forceChanneled and (((result == ACTION_RESULT_BEGIN or result == ACTION_RESULT_BEGIN_CHANNEL) and not channeled) or (result == ACTION_RESULT_EFFECT_GAINED and (Castbar.CastDurationFix[abilityId] or channeled)) or (result == ACTION_RESULT_EFFECT_GAINED_DURATION and (Castbar.CastDurationFix[abilityId] or channeled)))) or (forceChanneled and result == ACTION_RESULT_BEGIN) then
-            local currentTimeMs = GetFrameTimeMilliseconds()
+            local currentTimeMs = timeMs()
             local endTime = currentTimeMs + duration
             local remain = endTime - currentTimeMs
 
@@ -2591,7 +2591,7 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
     local abilityName = Effects.EffectOverride[ability_id] and Effects.EffectOverride[ability_id].name or cachedName
     local duration = GetUpdatedAbilityDuration(ability_id) or 0
 
-    local currentTimeMs = GetFrameTimeMilliseconds()
+    local currentTimeMs = timeMs()
 
     local triggeredSlots = slotNum > BACKBAR_INDEX_OFFSET and g_triggeredSlotsBack or g_triggeredSlotsFront
     local proc = Effects.HasAbilityProc[abilityName]
@@ -2731,7 +2731,7 @@ function CombatInfo.PlayProcAnimations(slotNum)
         label:SetHidden(false)
         procLoopTexture.label = label
 
-        local procLoopTimeline = ANIMATION_MANAGER:CreateTimelineFromVirtual("UltimateReadyLoop", procLoopTexture)
+        local procLoopTimeline = animationManager:CreateTimelineFromVirtual("UltimateReadyLoop", procLoopTexture)
         procLoopTimeline.procLoopTexture = procLoopTexture
 
         procLoopTimeline.onPlay = function (self)
