@@ -135,16 +135,16 @@ local barHighlightOverride =
     [24834] = { newId = 25158 },  -- Daedric Minefield --> Daedric Mines
 
     -- Daedric Summoning
-    [23492] = { newId = 80463 },                                        -- greater storm atronarch
-    [23495] = { newId = 23668 },                                        -- Summon Charged Atronach
-    [23634] = { newId = 80459 },                                        -- Summon Storm Atronach
-    [24165] = { newId = 203447 },                                       -- bound armaments
-    [77140] = { newId = 77354, showFakeAura = true, noRemove = true },  -- twilight tormentor enrage
-    [77182] = { newId = 77187, showFakeAura = true, noRemove = true },  -- volatile pulse
-    [108840] = { newId = 108842 },                                      -- summon unstable familiar
-    [23304] = { newId = 108844, showFakeAura = true, noRemove = true }, -- unstable pulse
-    [24636] = { newId = 77354 },                                        -- summon twilight tormentor
-    [23316] = { newId = 77187 },                                        -- summon volatile familiar
+    [23492] = { newId = 80463 },                                          -- greater storm atronarch
+    [23495] = { newId = 23668 },                                          -- Summon Charged Atronach
+    [23634] = { newId = 80459 },                                          -- Summon Storm Atronach
+    [24165] = { newId = 203447 },                                         -- bound armaments
+    [77140] = { newId = 77354, showFakeAura = true, noRemove = true },    -- twilight tormentor enrage
+    [77182] = { newId = 77187, showFakeAura = true, noRemove = true },    -- volatile pulse
+    [108840] = { newId = 108842, showFakeAura = true, noRemove = true },  -- summon unstable familiar
+    [23304] = { newId = 108844, showFakeAura = true, noRemove = true },   -- unstable pulse
+    [24636] = { newId = 77354, showFakeAura = true, noRemove = true },    -- summon twilight tormentor
+    [23316] = { newId = 77187, showFakeAura = true, noRemove = true },    -- summon volatile familiar
 
     -- Storm Calling
     [18718] = { newId = 18746 },  -- mages' fury
