@@ -516,44 +516,12 @@ function CombatInfo.SetMarker(removeMarker)
     eventManager:RegisterForEvent(moduleName .. "Marker", EVENT_PLAYER_ACTIVATED, CombatInfo.OnPlayerActivatedMarker)
 end
 
-local slotsUpdated = {}
-
-local function OnSwapAnimationHalfDone(animation, button, isBackBarSlot)
-    for i = BAR_INDEX_START, BAR_INDEX_END do
-        if not slotsUpdated[i] then
-            local targetButton = g_backbarButtons[i + BACKBAR_INDEX_OFFSET]
-            CombatInfo.BarSlotUpdate(i, false, false)
-            CombatInfo.BarSlotUpdate(i + BACKBAR_INDEX_OFFSET, false, false)
-            -- Don't try to setup back bar ultimate
-            if i < 8 then
-                CombatInfo.SetupBackBarIcons(targetButton, true)
-            end
-            if i == 8 then
-                CombatInfo.UpdateUltimateLabel()
-            end
-            slotsUpdated[i] = true
-        end
-    end
-end
-
-local function OnSwapAnimationDone(animation, button)
-    button.noUpdates = false
-    if button:GetSlot() == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
-        g_activeWeaponSwapInProgress = false
-    end
-    slotsUpdated = {}
-end
-
-local function SetupSwapAnimation(button)
-    button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
-end
-
 -- Called on initialization and on full update to swap icons on backbar
 function CombatInfo.SetupBackBarIcons(button, flip)
     -- Setup icons for backbar
     local hotbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP
     local slotNum = button.slot.slotNum
-    local slotId = LUIE.GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, hotbarCategory)
+    local slotId = GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, hotbarCategory)
 
     -- Check backbar weapon type
     local weaponSlot = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and 4 or 20
@@ -833,8 +801,8 @@ function CombatInfo.RegisterCombatInfo()
     if CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled then
         eventManager:RegisterForEvent(moduleName .. "CombatEvent1", EVENT_COMBAT_EVENT, CombatInfo.OnCombatEvent)
         eventManager:AddFilterForEvent(moduleName .. "CombatEvent1", EVENT_COMBAT_EVENT, REGISTER_FILTER_TARGET_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_IS_ERROR, false, REGISTER_FILTER_COMBAT_RESULT, ACTION_RESULT_BLOCKED_DAMAGE)
-        eventManager:RegisterForEvent(moduleName .. "PowerUpdate", EVENT_POWER_UPDATE, CombatInfo.OnPowerUpdatePlayer)
-        eventManager:AddFilterForEvent(moduleName .. "PowerUpdate", EVENT_POWER_UPDATE, REGISTER_FILTER_UNIT_TAG, "player")
+        eventManager:RegisterForEvent(moduleName .. "PowerUpdatePlayer", EVENT_POWER_UPDATE, CombatInfo.OnPowerUpdatePlayer)
+        eventManager:AddFilterForEvent(moduleName .. "PowerUpdatePlayer", EVENT_POWER_UPDATE, REGISTER_FILTER_POWER_TYPE, COMBAT_MECHANIC_FLAGS_ULTIMATE, REGISTER_FILTER_UNIT_TAG, "player")
         eventManager:RegisterForEvent(moduleName .. "InventoryUpdate", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, CombatInfo.OnInventorySlotUpdate)
         eventManager:AddFilterForEvent(moduleName .. "InventoryUpdate", EVENT_INVENTORY_SINGLE_SLOT_UPDATE, REGISTER_FILTER_BAG_ID, BAG_WORN, REGISTER_FILTER_INVENTORY_UPDATE_REASON, INVENTORY_UPDATE_REASON_DEFAULT, REGISTER_FILTER_IS_NEW_ITEM, false)
         eventManager:RegisterForEvent(moduleName .. "PowerUpdate2", EVENT_ULTIMATE_ABILITY_COST_CHANGED, CombatInfo.UpdateUltimateLabel)
@@ -911,8 +879,8 @@ function CombatInfo.AddToCustomList(list, input)
     local id = tonumber(input)
     local listRef = list == CombatInfo.SV.blacklist and GetString(LUIE_STRING_CUSTOM_LIST_CASTBAR_BLACKLIST) or ""
     if id and id > 0 then
-        local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, GetAbilityName(id))
-        local name = cachedName -- zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetAbilityName(id))
+        local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, getAbilityName(id))
+        local name = cachedName -- zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, getAbilityName(id))
         if name ~= nil and name ~= "" then
             local icon = zo_iconFormat(GetAbilityIcon(id), 16, 16)
             list[id] = true
@@ -939,8 +907,8 @@ function CombatInfo.RemoveFromCustomList(list, input)
     local id = tonumber(input)
     local listRef = list == CombatInfo.SV.blacklist and GetString(LUIE_STRING_CUSTOM_LIST_CASTBAR_BLACKLIST) or ""
     if id and id > 0 then
-        local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, GetAbilityName(id))
-        local name = cachedName -- zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetAbilityName(id))
+        local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, getAbilityName(id))
+        local name = cachedName -- zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, getAbilityName(id))
         local icon = zo_iconFormat(GetAbilityIcon(id), 16, 16)
         list[id] = nil
         ZO_GetChatSystem():Maximize()
@@ -1045,7 +1013,7 @@ function CombatInfo.OnUpdate(currentTimeMs)
         local remain, duration, global, globalSlotType = GetSlotCooldownInfo(slotIndex, HOTBAR_CATEGORY_QUICKSLOT_WHEEL)
         local label = uiQuickSlot.label
         local timeColors = uiQuickSlot.timeColors
-        if duration > 1 then
+        if duration > 1000 then
             label:SetHidden(false)
             if not CombatInfo.SV.PotionTimerColor then
                 label:SetColor(1, 1, 1, 1)
@@ -2263,8 +2231,8 @@ function CombatInfo.OnCombatEvent(eventCode, result, isError, abilityName, abili
     end
 
     local icon = GetAbilityIcon(abilityId)
-    local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, GetAbilityName(abilityId))
-    local name = cachedName -- zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetAbilityName(abilityId))
+    local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, getAbilityName(abilityId))
+    local name = cachedName -- zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, getAbilityName(abilityId))
 
     -- Return if ability not marked as cast or ability is blacklisted
     if not Castbar.IsCast[abilityId] or CombatInfo.SV.blacklist[abilityId] or CombatInfo.SV.blacklist[name] then
@@ -2509,17 +2477,6 @@ function CombatInfo.OnSlotUpdated(eventCode, slotNum)
 end
 
 ---
---- @param table table<integer, integer>
---- @param slotNum integer
-local function removeSlotFromTable(table, slotNum)
-    for abilityId, slot in pairs(table) do
-        if slot == slotNum then
-            table[abilityId] = nil
-        end
-    end
-end
-
----
 --- @param slotNum integer
 --- @param wasfullUpdate boolean
 --- @param onlyProc boolean
@@ -2528,6 +2485,12 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
         return
     end
 
+    -- Handle slot update for action bars
+    -- if LUIE.IsDevDebugEnabled() then
+    --     LUIE.Debug(string.format("%d: %s(%d)", slotNum, GetSlotName(slotNum), GetSlotTrueBoundId(slotNum)))
+    -- end
+
+    -- Look only for action bar slots
     if slotNum < BACKBAR_INDEX_OFFSET then
         if CombatInfo.SV.ShowToggledUltimate then
             if slotNum < BAR_INDEX_START or slotNum > BAR_INDEX_END then
@@ -2540,18 +2503,39 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
         end
     end
 
-    removeSlotFromTable(g_triggeredSlotsFront, slotNum)
-    removeSlotFromTable(g_triggeredSlotsBack, slotNum)
+    -- Remove saved triggered proc information
+    for abilityId, slot in pairs(g_triggeredSlotsFront) do
+        if (slot == slotNum) then
+            g_triggeredSlotsFront[abilityId] = nil
+        end
+    end
+    for abilityId, slot in pairs(g_triggeredSlotsBack) do
+        if (slot == slotNum) then
+            g_triggeredSlotsBack[abilityId] = nil
+        end
+    end
 
+    -- Stop possible proc animation
     if g_uiProcAnimation[slotNum] and g_uiProcAnimation[slotNum]:IsPlaying() then
+        -- g_uiProcAnimation[slotNum].procLoopTexture.label:SetText("")
         g_uiProcAnimation[slotNum]:Stop()
     end
 
     if onlyProc == false then
-        removeSlotFromTable(g_toggledSlotsFront, slotNum)
-        removeSlotFromTable(g_toggledSlotsBack, slotNum)
+        -- Remove custom toggle information and custom highlight
+        for abilityId, slot in pairs(g_toggledSlotsFront) do
+            if (slot == slotNum) then
+                g_toggledSlotsFront[abilityId] = nil
+            end
+        end
+        for abilityId, slot in pairs(g_toggledSlotsBack) do
+            if (slot == slotNum) then
+                g_toggledSlotsBack[abilityId] = nil
+            end
+        end
 
         if g_uiCustomToggle[slotNum] then
+            -- g_uiCustomToggle[slotNum].label:SetText("")
             g_uiCustomToggle[slotNum]:SetHidden(true)
         end
     end
@@ -2603,7 +2587,7 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
         end
     end
 
-    local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, GetAbilityName(ability_id))
+    local cachedName = ZO_CachedStrFormat(SI_ABILITY_NAME, getAbilityName(ability_id))
     local abilityName = Effects.EffectOverride[ability_id] and Effects.EffectOverride[ability_id].name or cachedName
     local duration = GetUpdatedAbilityDuration(ability_id) or 0
 
@@ -2678,6 +2662,7 @@ end
 --- @param shouldUpdateAbilityAssignments boolean
 --- @param activeHotbarCategory HotBarCategory
 function CombatInfo.OnActiveHotbarUpdate(eventCode, didActiveHotbarChange, shouldUpdateAbilityAssignments, activeHotbarCategory)
+    g_hotbarCategory = GetActiveHotbarCategory()
     if didActiveHotbarChange == true or shouldUpdateAbilityAssignments == true then
         for _, physicalSlot in pairs(g_backbarButtons) do
             if physicalSlot.hotbarSwapAnimation then
@@ -2742,7 +2727,7 @@ function CombatInfo.PlayProcAnimations(slotNum)
         label:SetDrawLayer(DL_CONTROLS)
         label:SetDrawLayer(DL_OVERLAY)
         label:SetDrawTier(DT_HIGH)
-        label:SetColor(unpack(CombatInfo.SV.RemainingTextColoured and color or { 1, 1, 1, 1 }))
+        label:SetColor(unpack(color or { 1, 1, 1, 1 }))
         label:SetHidden(false)
         procLoopTexture.label = label
 
@@ -2984,7 +2969,7 @@ function CombatInfo.Initialize(enabled)
     CombatInfo.ResetPotionTimerLabel() -- Set the label position
 
     -- Set ultimate label
-    local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot)
+    local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot, g_hotbarCategory)
 
     -- Create Ultimate overlay labels
     local AB8 = _G["ActionButton8"]
@@ -2997,22 +2982,89 @@ function CombatInfo.Initialize(enabled)
     -- And buff texture
     uiUltimate.Texture = UI:Texture(AB8, { CENTER, CENTER }, { 160, 160 }, "/esoui/art/crafting/white_burst.dds", DL_BACKGROUND, true)
 
-    -- Create a top level window for backbar buttons using UI:Control
-    local LUIE_Backbar = UI:Control(
-        ACTION_BAR,    -- parent
-        "fill",        -- anchors
-        "inherit",     -- dims
-        false,         -- hidden
-        "LUIE_Backbar" -- name
-    )
+    do
+        local slotsUpdated = {}
 
+        local function UpdateState(button)
+            local slotNum = button:GetSlot()
+            local hotbarCategory = button:GetHotbarCategory()
+            local slotType = GetSlotType(slotNum, hotbarCategory)
+            local slotIsEmpty = (slotType == ACTION_TYPE_NOTHING)
 
-    for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-        local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, LUIE_Backbar, "ZO_ActionButton", HOTBAR_CATEGORY_BACKUP)
-        SetupSwapAnimation(button)
-        button.icon:SetHidden(true)
-        button:SetupBounceAnimation()
-        g_backbarButtons[i] = button
+            button.button.actionId = GetSlotTrueBoundId(slotNum, hotbarCategory)
+
+            button:UpdateUseFailure()
+
+            button.status:SetHidden(slotIsEmpty or IsSlotToggled(slotNum, hotbarCategory) == false)
+
+            button:UpdateActivationHighlight()
+            button:UpdateCooldown(true)
+        end
+
+        local function OnSwapAnimationHalfDone(animation, button, isBackBarSlot)
+            for i = BAR_INDEX_START, BAR_INDEX_END do
+                if not slotsUpdated[i] then
+                    local targetButton = g_backbarButtons[i + BACKBAR_INDEX_OFFSET]
+                    CombatInfo.BarSlotUpdate(i, false, false)
+                    CombatInfo.BarSlotUpdate(i + BACKBAR_INDEX_OFFSET, false, false)
+                    -- Don't try to setup back bar ultimate
+                    if i < 8 then
+                        CombatInfo.SetupBackBarIcons(targetButton, true)
+                    end
+                    if i == 8 then
+                        CombatInfo.UpdateUltimateLabel()
+                    end
+                    slotsUpdated[i] = true
+                end
+            end
+        end
+
+        local function OnSwapAnimationDone(animation, button)
+            button.noUpdates = false
+            if button:GetSlot() == ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 then
+                g_activeWeaponSwapInProgress = false
+            end
+            slotsUpdated = {}
+        end
+
+        local function SetupSwapAnimation(button)
+            button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
+        end
+        local function HandleSlotStateChanged(slotNum, hotbarCategory)
+            if hotbarCategory ~= HOTBAR_CATEGORY_BACKUP then
+                local btn = ZO_ActionBar_GetButton(slotNum, hotbarCategory)
+                if btn and not btn.noUpdates then
+                    UpdateState(btn)
+                end
+            end
+        end
+
+        local function HandleAbilityUsed(slotNum)
+            -- Grab the button for the currently active hotbar
+            local btn = ZO_ActionBar_GetButton(slotNum)
+            if btn and IsInGamepadPreferredMode() then
+                btn:PlayAbilityUsedBounce()
+            end
+        end
+        local LUIE_Backbar = windowManager:CreateControl("LUIE_Backbar", ACTION_BAR, CT_CONTROL)
+        LUIE_Backbar:SetParent(ACTION_BAR)
+
+        for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
+            local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, LUIE_Backbar, "ZO_ActionButton", HOTBAR_CATEGORY_BACKUP)
+            button.icon:SetHidden(true)
+            SetupSwapAnimation(button)
+            button:SetupBounceAnimation()
+            UpdateState(button)
+            g_backbarButtons[i] = button
+        end
+        local function OnHotbarSlotStateUpdated(_, actionSlotIndex, hotbarCategory)
+            HandleSlotStateChanged(actionSlotIndex, hotbarCategory)
+        end
+        eventManager:RegisterForEvent(moduleName .. "OnHotbarSlotStateUpdated", EVENT_HOTBAR_SLOT_STATE_UPDATED, OnHotbarSlotStateUpdated)
+        local function OnActionSlotAbilityUsed(_, actionSlotIndex)
+            HandleAbilityUsed(actionSlotIndex)
+        end
+        eventManager:RegisterForEvent(moduleName .. "OnActionSlotAbilityUsed", EVENT_ACTION_SLOT_ABILITY_USED, OnActionSlotAbilityUsed)
     end
 
     CombatInfo.BackbarSetupTemplate()
