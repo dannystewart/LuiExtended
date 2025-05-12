@@ -1453,7 +1453,7 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
             if abilityId == 32958 then
                 return
             end -- Ignore Shifting Standard
-            local currentTimeMs = GetGameTimeMilliseconds()
+            local currentTimeMs = timeMs()
             if not g_protectAbilityRemoval[abilityId] or g_protectAbilityRemoval[abilityId] < currentTimeMs then
                 if Effects.IsGroundMineAura[abilityId] or Effects.IsGroundMineStack[abilityId] then
                     if g_mineStacks[abilityId] then
@@ -1531,7 +1531,7 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
                 g_mineNoTurnOff[abilityId] = nil
             end
 
-            local currentTimeMs = GetGameTimeMilliseconds()
+            local currentTimeMs = timeMs()
             g_protectAbilityRemoval[abilityId] = currentTimeMs + 150
 
             if Effects.IsGroundMineAura[abilityId] then
@@ -1554,7 +1554,7 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
             if CombatInfo.SV.ShowToggled then
                 -- We set this to true but never set remove it, this is effectively an on the fly way to create an indentifier for ground effects that shouldn't be removed on reticle target change, only on fade.
                 g_toggledSlotsPlayer[abilityId] = true
-                local currentTimeST = GetGameTimeMilliseconds()
+                local currentTimeST = timeMs()
                 if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then
                     g_toggledSlotsRemain[abilityId] = 1000 * endTime
                     g_toggledSlotsStack[abilityId] = stackCount
@@ -1641,7 +1641,7 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
         end
         -- start any proc animation associated with this effect
         if g_triggeredSlotsFront[abilityId] or g_triggeredSlotsBack[abilityId] then
-            local currentTimeMs = GetGameTimeMilliseconds()
+            local currentTimeMs = timeMs()
             if CombatInfo.SV.ShowTriggered then
                 -- Play sound twice so its a little louder.
                 if CombatInfo.SV.ProcEnableSound and unitTag == "player" and g_triggeredSlotsFront[abilityId] then
@@ -1675,7 +1675,7 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
         end
         -- Display active effects
         if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then
-            local currentTimeMs = GetGameTimeMilliseconds()
+            local currentTimeMs = timeMs()
             if CombatInfo.SV.ShowToggled then
                 -- Add fake duration to Grim Focus so the highlight stays
                 if Effects.IsGrimFocus[abilityId] or Effects.IsBloodFrenzy[abilityId] then
@@ -1765,12 +1765,6 @@ function CombatInfo.BackbarShowSlot(slotNum)
     if CombatInfo.SV.BarShowBack then
         if g_backbarButtons[slotNum] then
             g_backbarButtons[slotNum].slot:SetHidden(false)
-        end
-
-
-        -- Show the custom toggle UI if it exists
-        if g_uiCustomToggle[slotNum] then
-            g_uiCustomToggle[slotNum]:SetHidden(false)
         end
     end
 end
@@ -2414,7 +2408,7 @@ function CombatInfo.OnCombatEventBar(eventCode, result, isError, abilityName, ab
     end
 
     if result == ACTION_RESULT_BEGIN or result == ACTION_RESULT_EFFECT_GAINED or result == ACTION_RESULT_EFFECT_GAINED_DURATION then
-        local currentTimeMs = GetGameTimeMilliseconds()
+        local currentTimeMs = timeMs()
         if g_toggledSlotsFront[abilityId] or g_toggledSlotsBack[abilityId] then
             if CombatInfo.SV.ShowToggled then
                 local duration = GetUpdatedAbilityDuration(abilityId)
