@@ -2985,22 +2985,6 @@ function CombatInfo.Initialize(enabled)
     do
         local slotsUpdated = {}
 
-        local function UpdateState(button)
-            local slotNum = button:GetSlot()
-            local hotbarCategory = button:GetHotbarCategory()
-            local slotType = GetSlotType(slotNum, hotbarCategory)
-            local slotIsEmpty = (slotType == ACTION_TYPE_NOTHING)
-
-            button.button.actionId = GetSlotTrueBoundId(slotNum, hotbarCategory)
-
-            button:UpdateUseFailure()
-
-            button.status:SetHidden(slotIsEmpty or IsSlotToggled(slotNum, hotbarCategory) == false)
-
-            button:UpdateActivationHighlight()
-            button:UpdateCooldown(true)
-        end
-
         local function OnSwapAnimationHalfDone(animation, button, isBackBarSlot)
             for i = BAR_INDEX_START, BAR_INDEX_END do
                 if not slotsUpdated[i] then
@@ -3030,41 +3014,16 @@ function CombatInfo.Initialize(enabled)
         local function SetupSwapAnimation(button)
             button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
         end
-        local function HandleSlotStateChanged(slotNum, hotbarCategory)
-            if hotbarCategory ~= HOTBAR_CATEGORY_BACKUP then
-                local btn = ZO_ActionBar_GetButton(slotNum, hotbarCategory)
-                if btn and not btn.noUpdates then
-                    UpdateState(btn)
-                end
-            end
-        end
 
-        local function HandleAbilityUsed(slotNum)
-            -- Grab the button for the currently active hotbar
-            local btn = ZO_ActionBar_GetButton(slotNum)
-            if btn and IsInGamepadPreferredMode() then
-                btn:PlayAbilityUsedBounce()
-            end
-        end
         local LUIE_Backbar = windowManager:CreateControl("LUIE_Backbar", ACTION_BAR, CT_CONTROL)
         LUIE_Backbar:SetParent(ACTION_BAR)
 
         for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
             local button = ActionButton:New(i, ACTION_BUTTON_TYPE_VISIBLE, LUIE_Backbar, "ZO_ActionButton", HOTBAR_CATEGORY_BACKUP)
-            button.icon:SetHidden(true)
             SetupSwapAnimation(button)
             button:SetupBounceAnimation()
-            UpdateState(button)
             g_backbarButtons[i] = button
         end
-        local function OnHotbarSlotStateUpdated(_, actionSlotIndex, hotbarCategory)
-            HandleSlotStateChanged(actionSlotIndex, hotbarCategory)
-        end
-        eventManager:RegisterForEvent(moduleName .. "OnHotbarSlotStateUpdated", EVENT_HOTBAR_SLOT_STATE_UPDATED, OnHotbarSlotStateUpdated)
-        local function OnActionSlotAbilityUsed(_, actionSlotIndex)
-            HandleAbilityUsed(actionSlotIndex)
-        end
-        eventManager:RegisterForEvent(moduleName .. "OnActionSlotAbilityUsed", EVENT_ACTION_SLOT_ABILITY_USED, OnActionSlotAbilityUsed)
     end
 
     CombatInfo.BackbarSetupTemplate()
