@@ -13,6 +13,13 @@ local GetDisplayName = GetDisplayName
 -- -----------------------------------------------------------------------------
 local changelogMessages =
 {
+        -- Version Header
+    "|cFFA500LuiExtended Version 6.9.5.4|r",
+    "",
+    -- Fix
+    "|cFFFF00Fixes:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t More tweaks. We should now be in a stable state.",
+    "",
     -- Version Header
     "|cFFA500LuiExtended Version 6.9.5.1-3|r",
     "",

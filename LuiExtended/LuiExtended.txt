@@ -1,8 +1,8 @@
 ## Title: |c00C000Lui Extended|r
 ## Author: ArtOfShred, DakJaniels, psypanda, Saenic & SpellBuilder
 ## APIVersion: 101045 101046
-## Version: 6.9.5.3
-## AddOnVersion: 6953
+## Version: 6.9.5.4
+## AddOnVersion: 6954
 ## Description: Provides UnitFrames, InfoPanel, Combat Text & Info, Buff & Debuff Tracking, Chat Announcements and Slash Commands.
 ## DependsOn: LuiData>=695 LibAddonMenu-2.0>=39 LibMediaProvider-1.0>=33
 ## OptionalDependsOn: LibChatMessage>=118 pChat>=10006040 CombatMetrics>=10704
