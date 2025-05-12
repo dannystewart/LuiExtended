@@ -124,31 +124,37 @@ local barHighlightOverride =
     ---------------------------
 
     -- Dark Magic
-    [24371] = { newId = 24559 },  -- Rune Prison
-    [24578] = { newId = 24581 },  -- Rune Cage
+    [24371] = { newId = 24559 },  -- rune prison
+    [24578] = { newId = 24581 },  -- shattering prison
     [24584] = { newId = 114903 }, -- Dark Exchange
-    [24595] = { newId = 114908 }, -- Dark Deal
-    [24589] = { newId = 114909 }, -- Dark Conversion
+    [24589] = { newId = 114909 }, -- dark conversion
+    [24595] = { newId = 114908 }, -- dark deal
     [24828] = { newId = 24830 },  -- Daedric Mines
-    [24842] = { newId = 24847 },  -- Daedric Tomb --> Daedric Mines
+    [24842] = { newId = 24844 },  -- daedric tomb (first mine) 24846; 24847
     [24834] = { newId = 25158 },  -- Daedric Minefield --> Daedric Mines
 
     -- Daedric Summoning
-    [23492] = { newId = 80463 },   -- Greater Storm Atronach
-    [23495] = { newId = 80468 },   -- Summon Charged Atronach
-    [23634] = { newId = 80459 },   -- Summon Storm Atronach
-    [24165] = { newId = 203447 },  -- Bound Armaments
-    [77140] = { newId = 88937 },   -- Summon Twilight Tormentor --> Twilight Tormentor
-    [77182] = { newId = 88933 },   -- Summon Volatile Familiar --> Volatile Familiar
-    [108840] = { newId = 108843 }, -- Summon Unstable Familiar --> Volatile Familiar
+    [23492] = { newId = 80463 },                                        -- greater storm atronarch
+    [23495] = { newId = 23668 },                                        -- Summon Charged Atronach
+    [23634] = { newId = 80459 },                                        -- Summon Storm Atronach
+    [24165] = { newId = 203447 },                                       -- bound armaments
+    [77140] = { newId = 77354, showFakeAura = true, noRemove = true },  -- twilight tormentor enrage
+    [77182] = { newId = 77187, showFakeAura = true, noRemove = true },  -- volatile pulse
+    [108840] = { newId = 108842 },                                      -- summon unstable familiar
+    [23304] = { newId = 108844, showFakeAura = true, noRemove = true }, -- unstable pulse
+    [24636] = { newId = 77354 },                                        -- summon twilight tormentor
+    [23316] = { newId = 77187 },                                        -- summon volatile familiar
 
     -- Storm Calling
-    [18718] = { newId = 18746 },  -- Mages' Fury
-    [19123] = { newId = 19125 },  -- Mages' Wrath
-    [19109] = { newId = 19118 },  -- Endless Fury
-    [23234] = { newId = 23235 },  -- Bolt Escape
-    [23236] = { newId = 28482 },  -- Streak
-    [23277] = { newId = 131383 }, -- Ball of Lightning
+    [18718] = { newId = 18746 },  -- mages' fury
+    [19109] = { newId = 19118 },  -- endless fury
+    [19123] = { newId = 19125 },  -- mages' wrath
+    [23182] = { newId = 157462 }, -- lightning splash
+    [23205] = { newId = 157537 }, -- lightning flood
+    [23200] = { newId = 157535 }, -- liquid lightning
+    [23234] = { newId = 51392 },  -- bolt escape fatigue
+    [23236] = { newId = 51392 },  -- streak fatigue
+    [23277] = { newId = 51392 },  -- ball of lightning fatigue
 
     ---------------------------
     -- Templar ----------------
