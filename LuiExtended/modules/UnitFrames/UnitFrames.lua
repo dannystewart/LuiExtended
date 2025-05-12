@@ -1,4 +1,4 @@
---- @diagnostic disable: undefined-field
+--- @diagnostic disable: undefined-field, missing-fields
 -- -----------------------------------------------------------------------------
 --  LuiExtended                                                               --
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
@@ -3704,9 +3704,9 @@ function UnitFrames.OnGroupMemberRoleChange(eventCode, unitTag, dps, healer, tan
 end
 
 function UnitFrames.OnGroupMemberChange(eventCode, memberName)
-    LUIE_CallLater(function ()
-                       UnitFrames.CustomFramesApplyColors(false)
-                   end, 200)
+    zo_callLater(function ()
+                     UnitFrames.CustomFramesApplyColors(false)
+                 end, 200)
 end
 
 -- Runs on the EVENT_UNIT_DEATH_STATE_CHANGED listener.

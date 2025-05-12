@@ -1,4 +1,4 @@
---- @diagnostic disable: missing-global-doc
+--- @diagnostic disable: missing-global-doc, duplicate-set-field
 -- -----------------------------------------------------------------------------
 --  LuiExtended                                                               --
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
@@ -252,7 +252,8 @@ LUIE.HookKeyboardMap = function ()
         self.masterList = {}
 
         for bonusType, info in ipairs(BONUS_SECTION_DATA) do
-            local infoData = info.infoData
+            local infoData
+            infoData = info.infoData
             if type(info.infoData) == "function" then
                 infoData = info.infoData(self.campaignId)
             end
@@ -286,7 +287,8 @@ LUIE.HookKeyboardMap = function ()
             local count = type(info.count) == "function" and info.count(self.campaignId) or info.count
             index = zo_min(index, count)
             local scoreIndex = index - startIndex + 1
-            local countText = scoreIndex
+            local countText
+            countText = scoreIndex
             --- @diagnostic disable-next-line: redundant-parameter
             local abilityId = info.abilityFunction(index, self.campaignId)
             local name = GetAbilityName(abilityId)

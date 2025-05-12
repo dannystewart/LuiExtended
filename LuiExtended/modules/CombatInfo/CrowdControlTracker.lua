@@ -246,9 +246,9 @@ function CrowdControlTracker:OnProc(ccDuration, interval)
         if CombatInfo.SV.cct.showGCD and LUIE.ResolvePVPZone() then
             LUIE_CCTracker_IconFrame_GlobalCooldown:SetHidden(false)
             LUIE_CCTracker_IconFrame_GlobalCooldown:StartCooldown(remaining, remaining, CD_TYPE_RADIAL, CD_TIME_TYPE_TIME_UNTIL, false)
-            LUIE_CallLater(function ()
-                               LUIE_CCTracker_IconFrame_GlobalCooldown:SetHidden(true)
-                           end, remaining)
+            zo_callLater(function ()
+                             LUIE_CCTracker_IconFrame_GlobalCooldown:SetHidden(true)
+                         end, remaining)
         end
     end
 
@@ -456,9 +456,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
         PrioritySeven = { endTime = currentEndTimeArea, abilityId = abilityId, abilityIcon = abilityIcon, hitValue = hitValue, result = ACTION_RESULT_AREA_EFFECT, abilityName = abilityName }
         if PriorityOne.endTime == 0 and PriorityTwo.endTime == 0 and PriorityThree.endTime == 0 and PriorityFour.endTime == 0 and PrioritySix.endTime == 0 then
             self.currentCC = 7
-            LUIE_CallLater(function ()
-                               self:RemoveCC(7, currentEndTimeArea)
-                           end, areaDuration + graceTime)
+            zo_callLater(function ()
+                             self:RemoveCC(7, currentEndTimeArea)
+                         end, areaDuration + graceTime)
             self:OnDraw(abilityId, abilityIcon, areaDuration, ACTION_RESULT_AREA_EFFECT, abilityName, areaDuration)
         end
     end
@@ -496,9 +496,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
 
     -------------STAGGERED EVENT TRIGGER--------------------
     if CombatInfo.SV.cct.showStaggered and result == ACTION_RESULT_STAGGERED and self.currentCC == 0 then
-        LUIE_CallLater(function ()
-                           self:RemoveCC(5, GetFrameTimeMilliseconds())
-                       end, staggerDuration)
+        zo_callLater(function ()
+                         self:RemoveCC(5, GetFrameTimeMilliseconds())
+                     end, staggerDuration)
         self:OnDraw(abilityId, abilityIcon, staggerDuration, result, abilityName, staggerDuration)
     end
     --------------------------------------------------------
@@ -533,9 +533,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
             }
             if PriorityOne.endTime == 0 and PriorityTwo.endTime == 0 and PriorityThree.endTime == 0 then
                 self.currentCC = 4
-                LUIE_CallLater(function ()
-                                   self:RemoveCC(4, currentEndTimeSilence)
-                               end, hitValue + graceTime)
+                zo_callLater(function ()
+                                 self:RemoveCC(4, currentEndTimeSilence)
+                             end, hitValue + graceTime)
                 self:OnDraw(abilityId, abilityIcon, hitValue, ACTION_RESULT_SILENCED, abilityName, hitValue)
             end
         else
@@ -564,12 +564,12 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
                     abilityName = abilityName,
                 }
                 self.currentCC = 1
-                LUIE_CallLater(function ()
-                                   self:RemoveCC(1, currentEndTime)
-                               end, hitValue + graceTime + 1000)
+                zo_callLater(function ()
+                                 self:RemoveCC(1, currentEndTime)
+                             end, hitValue + graceTime + 1000)
                 self:OnDraw(abilityId, abilityIcon, hitValue, ACTION_RESULT_STUNNED, abilityName, hitValue)
                 -- end)
-                -- LUIE_CallLater(function() callbackManager:UnregisterAllCallbacks("OnIncomingStun") end, 1)
+                -- zo_callLater(function() callbackManager:UnregisterAllCallbacks("OnIncomingStun") end, 1)
                 self.incomingCC = {}
             elseif abilityId == self.incomingCC[ACTION_RESULT_FEARED] and (currentEndTime + 200) > PriorityOne.endTime and (currentEndTime + 200) > PriorityTwo.endTime then
                 table_insert(self.fearsQueue, abilityId)
@@ -584,9 +584,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
                 }
                 if PriorityOne.endTime == 0 then
                     self.currentCC = 2
-                    LUIE_CallLater(function ()
-                                       self:RemoveCC(2, currentEndTime)
-                                   end, hitValue + graceTime)
+                    zo_callLater(function ()
+                                     self:RemoveCC(2, currentEndTime)
+                                 end, hitValue + graceTime)
                     self:OnDraw(abilityId, abilityIcon, hitValue, ACTION_RESULT_FEARED, abilityName, hitValue)
                 end
                 self.incomingCC = {}
@@ -603,9 +603,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
                 }
                 if PriorityOne.endTime == 0 then
                     self.currentCC = 2
-                    LUIE_CallLater(function ()
-                                       self:RemoveCC(2, currentEndTime)
-                                   end, hitValue + graceTime)
+                    zo_callLater(function ()
+                                     self:RemoveCC(2, currentEndTime)
+                                 end, hitValue + graceTime)
                     self:OnDraw(abilityId, abilityIcon, hitValue, ACTION_RESULT_CHARMED, abilityName, hitValue)
                 end
                 self.incomingCC = {}
@@ -623,9 +623,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
                 }
                 if PriorityOne.endTime == 0 and PriorityTwo.endTime == 0 then
                     self.currentCC = 3
-                    LUIE_CallLater(function ()
-                                       self:RemoveCC(3, currentEndTime)
-                                   end, hitValue + graceTime)
+                    zo_callLater(function ()
+                                     self:RemoveCC(3, currentEndTime)
+                                 end, hitValue + graceTime)
                     self:OnDraw(abilityId, abilityIcon, hitValue, ACTION_RESULT_DISORIENTED, abilityName, hitValue)
                 end
                 self.incomingCC = {}
@@ -635,9 +635,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
                 if PriorityOne.endTime == 0 and PriorityTwo.endTime == 0 and PriorityThree.endTime == 0 and PriorityFour.endTime == 0 then
                     self.currentCC = 6
                     rootEndTime = currentEndTime
-                    LUIE_CallLater(function ()
-                                       self:RemoveCC(6, currentEndTime)
-                                   end, hitValue + graceTime)
+                    zo_callLater(function ()
+                                     self:RemoveCC(6, currentEndTime)
+                                 end, hitValue + graceTime)
                     self:OnDraw(abilityId, abilityIcon, hitValue, ACTION_RESULT_ROOTED, abilityName, hitValue)
                 end
                 self.incomingCC = {}
@@ -646,9 +646,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
                 PriorityEight = { endTime = currentEndTime, abilityId = abilityId, abilityIcon = abilityIcon, hitValue = hitValue, result = result, abilityName = abilityName }
                 if PriorityOne.endTime == 0 and PriorityTwo.endTime == 0 and PriorityThree.endTime == 0 and PriorityFour.endTime == 0 and PrioritySeven.endTime == 0 then
                     self.currentCC = 8
-                    LUIE_CallLater(function ()
-                                       self:RemoveCC(8, currentEndTime)
-                                   end, hitValue + graceTime)
+                    zo_callLater(function ()
+                                     self:RemoveCC(8, currentEndTime)
+                                 end, hitValue + graceTime)
                     self:OnDraw(abilityId, abilityIcon, hitValue, ACTION_RESULT_SNARED, abilityName, hitValue)
                 end
                 self.incomingCC = {}
@@ -683,9 +683,9 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
                 }
                 if PriorityOne.endTime == 0 then
                     self.currentCC = 2
-                    LUIE_CallLater(function ()
-                                       self:RemoveCC(2, currentEndTime)
-                                   end, foundValue.hitValue + graceTime)
+                    zo_callLater(function ()
+                                     self:RemoveCC(2, currentEndTime)
+                                 end, foundValue.hitValue + graceTime)
                     self:OnDraw(abilityId, abilityIcon, foundValue.hitValue, result, abilityName, foundValue.hitValue)
                 end
             end
@@ -715,18 +715,18 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
     -- if self.breakFreePlaying then return end
     -- PriorityOne = {endTime=(GetFrameTimeMilliseconds()+foundValue.hitValue), abilityId=abilityId, hitValue=foundValue.hitValue, result=result, abilityName=abilityName}
     -- self.currentCC = 1
-    -- LUIE_CallLater(function() self:RemoveCC(1, currentEndTime) end, foundValue.hitValue+graceTime+1000)
+    -- zo_callLater(function() self:RemoveCC(1, currentEndTime) end, foundValue.hitValue+graceTime+1000)
     -- d('draw stun')
     -- self:OnDraw(abilityId, abilityIcon, foundValue.hitValue, result, abilityName, foundValue.hitValue)
     -- end)
-    -- LUIE_CallLater(function() callbackManager:UnregisterAllCallbacks("OnIncomingStun") end, 1)
+    -- zo_callLater(function() callbackManager:UnregisterAllCallbacks("OnIncomingStun") end, 1)
 
     -- elseif result==ACTION_RESULT_FEARED and (currentEndTime+200)>PriorityOne.endTime and (currentEndTime+200)>PriorityTwo.endTime then
     -- table_insert(self.fearsQueue, abilityId)
     -- PriorityTwo = {endTime=currentEndTime, abilityId=abilityId, hitValue=foundValue.hitValue, result=result, abilityName=abilityName}
     -- if PriorityOne.endTime==0 then
     -- self.currentCC=2
-    -- LUIE_CallLater(function() self:RemoveCC(2, currentEndTime) end, foundValue.hitValue+graceTime)
+    -- zo_callLater(function() self:RemoveCC(2, currentEndTime) end, foundValue.hitValue+graceTime)
     -- self:OnDraw(abilityId, abilityIcon, foundValue.hitValue, result, abilityName, foundValue.hitValue)
     -- end
 
@@ -735,7 +735,7 @@ function CrowdControlTracker:OnCombat(eventCode, result, isError, abilityName, a
     -- PriorityThree = {endTime=currentEndTime, abilityId=abilityId, hitValue=foundValue.hitValue, result=result, abilityName=abilityName}
     -- if PriorityOne.endTime==0 and PriorityTwo.endTime==0 then
     -- self.currentCC=3
-    -- LUIE_CallLater(function() self:RemoveCC(3, currentEndTime) end, foundValue.hitValue+graceTime)
+    -- zo_callLater(function() self:RemoveCC(3, currentEndTime) end, foundValue.hitValue+graceTime)
     -- self:OnDraw(abilityId, abilityIcon, foundValue.hitValue, result, abilityName, foundValue.hitValue)
     -- end
     -- end
@@ -752,9 +752,9 @@ end
 -- Helper that schedules the next CC removal and triggers a redraw.
 local function removeCCAndCallLater(tracker, nextCCType, nextCCInterval, nextCCPriority)
     tracker.currentCC = nextCCType
-    LUIE_CallLater(function ()
-                       tracker:RemoveCC(nextCCType, nextCCPriority.endTime)
-                   end, nextCCInterval)
+    zo_callLater(function ()
+                     tracker:RemoveCC(nextCCType, nextCCPriority.endTime)
+                 end, nextCCInterval)
     tracker:OnDraw(nextCCPriority.abilityId, nextCCPriority.abilityIcon, nextCCPriority.hitValue, nextCCPriority.result, nextCCPriority.abilityName, nextCCInterval)
 end
 
@@ -930,9 +930,9 @@ function CrowdControlTracker:OnCombatTipAdded(eventCode, combatTipID)
     damageType, combat_log, sourceUnitId, targetUnitId, abilityId)]]
     self:OnCombat(eventCode, ACTION_RESULT_EFFECT_GAINED_DURATION, nil, "Rooted", LUIE_CC_ICON_ROOT, nil, "CombatTip", "CombatTip", LUIE.PlayerNameRaw, 1, rootDuration, nil, nil, nil, 1, nil, GENERIC_ROOT_ABILITY_ID)
     if isRooted then
-        LUIE_CallLater(function ()
-                           self:PopRootAlert(eventCode, combatTipID)
-                       end, rootDuration + graceTime)
+        zo_callLater(function ()
+                         self:PopRootAlert(eventCode, combatTipID)
+                     end, rootDuration + graceTime)
     end
 end
 
@@ -945,9 +945,9 @@ function CrowdControlTracker:PopRootAlert(eventCode, combatTipID)
     damageType, combat_log, sourceUnitId, targetUnitId, abilityId)]]
     self:OnCombat(eventCode, ACTION_RESULT_EFFECT_GAINED_DURATION, nil, "Rooted", LUIE_CC_ICON_ROOT, nil, "CombatTip", "CombatTip", LUIE.PlayerNameRaw, 1, rootDuration, nil, nil, nil, 1, nil, GENERIC_ROOT_ABILITY_ID)
     if isRooted then
-        LUIE_CallLater(function ()
-                           self:PopRootAlert(eventCode, combatTipID)
-                       end, rootDuration + graceTime)
+        zo_callLater(function ()
+                         self:PopRootAlert(eventCode, combatTipID)
+                     end, rootDuration + graceTime)
     end
 end
 
@@ -1244,10 +1244,10 @@ function CrowdControlTracker:StopDrawBreakFree()
         self:VarReset()
         self.breakFreePlaying = true
         self.breakFreePlayingDraw = true
-        LUIE_CallLater(function ()
-                           self.breakFreePlayingDraw = nil
-                           self.breakFreePlaying = nil
-                       end, 450)
+        zo_callLater(function ()
+                         self.breakFreePlayingDraw = nil
+                         self.breakFreePlaying = nil
+                     end, 450)
         LUIE_CCTracker:SetHidden(true)
         return
     end

@@ -16980,6 +16980,10 @@ local debugAuras =
 
     -- Misc
     [172621] = true, -- Pearlescent Ward
+    [177885] = true, -- Major Slayer
+    [177886] = true, -- Major Slayer
+    [239734] = true, -- Three Queens Wellspring (SET)
+    [240156] = true, -- Death-Dancer (SET)
 }
 
 --- @type DebugAuras

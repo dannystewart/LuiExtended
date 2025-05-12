@@ -111,34 +111,6 @@ do
 end
 
 -- -----------------------------------------------------------------------------
--- This is needed due to LibDebugLogger hooking zo_callLater.
--- -----------------------------------------------------------------------------
-do
-    local LUIE_CallLaterId = 1
-    ---
-    --- @param func function
-    --- @param ms integer
-    --- @return integer
-    local callLater = function (func, ms)
-        local id = LUIE_CallLaterId
-        local name = "LUIE_CallLater_PostEffectsUpdate_Function" .. id
-        LUIE_CallLaterId = LUIE_CallLaterId + 1
-
-        eventManager:RegisterForPostEffectsUpdate(name, ms, function ()
-            eventManager:UnregisterForPostEffectsUpdate(name)
-            func(id)
-        end)
-        return id
-    end
-
-    if LibDebugLogger and LUIE.IsDevDebugEnabled() then
-        LUIE_CallLater = callLater
-    else
-        LUIE_CallLater = zo_callLater
-    end
-end
-
--- -----------------------------------------------------------------------------
 --- Called from the menu and on initialization to update the timestamp color when changed.
 LUIE.TimeStampColorize = nil
 

@@ -1,3 +1,4 @@
+---@diagnostic disable: duplicate-set-field
 -- -----------------------------------------------------------------------------
 --  LuiExtended                                                               --
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
@@ -343,7 +344,8 @@ LUIE.HookGamePadStats = function ()
         if LUIE.SpellCastBuffs.SV.TooltipAbilityId or LUIE.SpellCastBuffs.SV.TooltipBuffType then
             -- Add Ability ID Line
             if LUIE.SpellCastBuffs.SV.TooltipAbilityId then
-                local labelAbilityId = abilityId or "None"
+                local labelAbilityId
+                labelAbilityId = abilityId or "None"
                 if labelAbilityId == "Fake" then
                     selectedData.isArtificial = true
                 end

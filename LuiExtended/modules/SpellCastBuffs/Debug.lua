@@ -89,6 +89,18 @@ local function FormatCoords(number)
     return ("%05.02f"):format(FormatGPSCoords(number) / 100)
 end
 
+local function getAbilityName(abilityId, casterUnitTag)
+    return GetAbilityName(abilityId, casterUnitTag)
+end
+
+local function getAbilityDuration(abilityId, overrideActiveRank, overrideCasterUnitTag)
+    return GetAbilityDuration(abilityId, overrideActiveRank, overrideCasterUnitTag)
+end
+
+local function getAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
+    return GetAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
+end
+
 -- Debug Display for Combat Events
 ---
 --- @param eventId integer
@@ -116,13 +128,12 @@ function SpellCastBuffs.EventCombatDebug(eventId, result, isError, abilityName, 
     end
 
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
-    local nameFormatted = zo_strformat("<<C:1>>", GetAbilityName(abilityId))
 
     local source = zo_strformat("<<C:1>>", sourceName)
     local target = zo_strformat("<<C:1>>", targetName)
-    local ability = zo_strformat("<<C:1>>", nameFormatted)
-    local duration = GetAbilityDuration(abilityId) or 0
-    local channeled, durationValue = GetAbilityCastInfo(abilityId)
+    local ability = zo_strformat("<<C:1>>", getAbilityName(abilityId))
+    local duration = getAbilityDuration(abilityId) or 0
+    local channeled, durationValue = getAbilityCastInfo(abilityId)
     local showacasttime = "" or GetString(SI_ABILITY_TOOLTIP_CHANNEL_TIME_LABEL)
     local showachantime = "" or GetString(SI_ABILITY_TOOLTIP_CAST_TIME_LABEL)
     if channeled then
@@ -144,7 +155,7 @@ function SpellCastBuffs.EventCombatDebug(eventId, result, isError, abilityName, 
 
     local formattedResult = DebugResults[result]
 
-    local finalString = (iconFormatted .. " [" .. abilityId .. "] " .. nameFormatted .. ": [S] " .. source .. " --> [T] " .. target .. " [D] " .. duration .. showachantime .. showacasttime .. " [R] " .. formattedResult)
+    local finalString = (iconFormatted .. " [" .. abilityId .. "] " .. ability .. ": [S] " .. source .. " --> [T] " .. target .. " [D] " .. duration .. showachantime .. showacasttime .. " [R] " .. formattedResult)
 
     printToChat(finalString)
 end
@@ -174,7 +185,7 @@ function SpellCastBuffs.EventEffectDebug(eventId, changeType, effectSlot, effect
     end
 
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
-    local nameFormatted = zo_strformat("<<C:1>>", GetAbilityName(abilityId))
+    local nameFormatted = zo_strformat("<<C:1>>", getAbilityName(abilityId))
 
     unitName = zo_strformat("<<C:1>>", unitName)
     if unitName == LUIE.PlayerNameFormatted then
@@ -232,7 +243,7 @@ function SpellCastBuffs.AuthorCombatDebug(eventId, result, isError, abilityName,
         return
     end
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
-    local nameFormatted = zo_strformat("<<C:1>>", GetAbilityName(abilityId))
+    local nameFormatted = zo_strformat("<<C:1>>", getAbilityName(abilityId))
 
     local source = zo_strformat("<<C:1>>", sourceName)
     local target = zo_strformat("<<C:1>>", targetName)
@@ -288,7 +299,7 @@ function SpellCastBuffs.AuthorEffectDebug(eventId, changeType, effectSlot, effec
         return
     end
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
-    local nameFormatted = zo_strformat("<<C:1>>", GetAbilityName(abilityId))
+    local nameFormatted = zo_strformat("<<C:1>>", getAbilityName(abilityId))
 
     unitName = zo_strformat("<<C:1>>", unitName)
     if unitName == LUIE.PlayerNameFormatted then
