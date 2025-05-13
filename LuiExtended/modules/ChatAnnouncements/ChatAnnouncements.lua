@@ -4351,30 +4351,37 @@ local questItemIndex = {}
 
 function ChatAnnouncements.AddQuestItemsToIndex()
     questItemIndex = {}
-    ---
-    --- @param questIndex integer
-    local function AddQuests(questIndex)
-        local inventory = PLAYER_INVENTORY.inventories[INVENTORY_QUEST_ITEM]
-        local itemTable = inventory.slots[questIndex]
-        --- @cast itemTable questItem_itemTable
-        if itemTable then
-            -- remove all quest items from search
-            for i = 1, #itemTable do
-                local itemId = itemTable[i].questItemId
-                local stackCount = itemTable[i].stackCount
-                local icon = itemTable[i].iconFile
-                questItemIndex[itemId] =
-                {
-                    stack = stackCount,
-                    counter = 0,
-                    icon = icon
-                }
-            end
-        end
-    end
 
     for questIndex = 1, MAX_JOURNAL_QUESTS do
-        AddQuests(questIndex)
+        if IsValidQuestIndex(questIndex) then
+            -- Get quest tools
+            for toolIndex = 1, GetQuestToolCount(questIndex) do
+                local icon, stackCount, _, _, questItemId = GetQuestToolInfo(questIndex, toolIndex)
+                if questItemId ~= 0 then
+                    questItemIndex[questItemId] =
+                    {
+                        stack = stackCount,
+                        counter = 0,
+                        icon = icon
+                    }
+                end
+            end
+
+            -- Get quest items from each step and condition
+            for stepIndex = QUEST_MAIN_STEP_INDEX, GetJournalQuestNumSteps(questIndex) do
+                for conditionIndex = 1, GetJournalQuestNumConditions(questIndex, stepIndex) do
+                    local icon, stackCount, name, questItemId = GetQuestItemInfo(questIndex, stepIndex, conditionIndex)
+                    if questItemId ~= 0 then
+                        questItemIndex[questItemId] =
+                        {
+                            stack = stackCount,
+                            counter = 0,
+                            icon = icon
+                        }
+                    end
+                end
+            end
+        end
     end
 end
 
@@ -4636,21 +4643,21 @@ end
 function ChatAnnouncements.OnLootReceived(eventId, receivedBy, itemName, quantity, soundCategory, lootType, lootedBySelf, isPickpocketLoot, questItemIcon, itemId, isStolen)
     local itemLink = itemName
 
-    if LUIE.IsDevDebugEnabled() then
-        local traceback = "Loot Received:\n" ..
-            "--> eventCode: " .. tostring(eventId) .. "\n" ..
-            "--> receivedBy: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, receivedBy) .. "\n" ..
-            "--> itemLink: " .. tostring(itemLink) .. "\n" ..
-            "--> quantity: " .. tostring(quantity) .. "\n" ..
-            "--> itemSound: " .. tostring(soundCategory) .. "\n" ..
-            "--> lootType: " .. tostring(lootType) .. "\n" ..
-            "--> lootedBySelf: " .. tostring(lootedBySelf) .. "\n" ..
-            "--> isPickpocketLoot: " .. tostring(isPickpocketLoot) .. "\n" ..
-            "--> questItemIcon: " .. tostring(questItemIcon) .. "\n" ..
-            "--> itemId: " .. tostring(itemId) .. "\n" ..
-            "--> isStolen: " .. tostring(isStolen)
-        Debug(traceback)
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     local traceback = "Loot Received:\n" ..
+    --         "--> eventCode: " .. tostring(eventId) .. "\n" ..
+    --         "--> receivedBy: " .. zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, receivedBy) .. "\n" ..
+    --         "--> itemLink: " .. tostring(itemLink) .. "\n" ..
+    --         "--> quantity: " .. tostring(quantity) .. "\n" ..
+    --         "--> itemSound: " .. tostring(soundCategory) .. "\n" ..
+    --         "--> lootType: " .. tostring(lootType) .. "\n" ..
+    --         "--> lootedBySelf: " .. tostring(lootedBySelf) .. "\n" ..
+    --         "--> isPickpocketLoot: " .. tostring(isPickpocketLoot) .. "\n" ..
+    --         "--> questItemIcon: " .. tostring(questItemIcon) .. "\n" ..
+    --         "--> itemId: " .. tostring(itemId) .. "\n" ..
+    --         "--> isStolen: " .. tostring(isStolen)
+    --     Debug(traceback)
+    -- end
 
     -- If the player loots an item
     if not isPickpocketLoot and lootedBySelf then
