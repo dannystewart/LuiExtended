@@ -31,6 +31,7 @@ local moduleName = LUIE.name .. "UnitFrames"
 UnitFrames.Enabled = false
 UnitFrames.Defaults =
 {
+    QuickHideDead = false,
     ShortenNumbers = false,
     RepositionFrames = true,
     DefaultOocTransparency = 85,
@@ -2028,6 +2029,7 @@ function UnitFrames.Initialize(enabled)
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_ATTRIBUTE_VISUAL_REMOVED, UnitFrames.OnVisualizationRemoved)
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_ATTRIBUTE_VISUAL_UPDATED, UnitFrames.OnVisualizationUpdated)
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, UnitFrames.OnTargetChange)
+    eventManager:AddFilterForEvent(moduleName, EVENT_TARGET_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
     eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, UnitFrames.OnReticleTargetChanged)
     eventManager:RegisterForEvent(moduleName, EVENT_DISPOSITION_UPDATE, UnitFrames.OnDispositionUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_CREATED, UnitFrames.OnUnitCreated)
@@ -2329,7 +2331,7 @@ function UnitFrames.OnPlayerActivated(eventCode)
             end
         end
 
-        UnitFrames.OnReticleTargetChanged(eventCode)
+        UnitFrames.OnReticleTargetChanged(nil)
         UnitFrames.OnBossesChanged()
         UnitFrames.OnPlayerCombatState(EVENT_PLAYER_COMBAT_STATE, IsUnitInCombat("player"))
         UnitFrames.CustomFramesGroupAlpha()
@@ -2654,9 +2656,6 @@ end
 -- This handler fires every time the someone target changes.
 -- This function is needed in case the player teleports via Way Shrine
 function UnitFrames.OnTargetChange(eventCode, unitTag)
-    if unitTag ~= "player" then
-        return
-    end
     UnitFrames.OnReticleTargetChanged(eventCode)
 end
 
@@ -2775,6 +2774,11 @@ function UnitFrames.OnReticleTargetChanged(eventCode)
 
             -- Finally show custom target frame
             UnitFrames.CustomFrames["reticleover"].control:SetHidden(false)
+            if UnitFrames.SV.QuickHideDead then
+                -- Check if target is a dead NPC before showing frame
+                local shouldHide = IsUnitDead("reticleover") and (reactionType == UNIT_REACTION_NEUTRAL or reactionType == UNIT_REACTION_HOSTILE)
+                UnitFrames.CustomFrames["reticleover"].control:SetHidden(shouldHide)
+            end
         end
 
         -- Unhide second target frame only for player enemies
@@ -3781,9 +3785,6 @@ end
 -- Runs on the EVENT_TARGET_MARKER_UPDATE listener.
 --- @param eventId integer
 function UnitFrames.OnTargetMarkerUpdate(eventId)
-    -- Only process for target marker updates
-    if eventId ~= EVENT_TARGET_MARKER_UPDATE then return end
-
     -- Define unit frame types to check
     local unitTypes =
     {

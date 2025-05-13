@@ -208,7 +208,6 @@ end
 
 function UnitFrames.CreateSettings()
     local Defaults = UnitFrames.Defaults
-    --- @class (partial) LUIE_UnitFrames_SV
     local Settings = UnitFrames.SV
 
     -- Load Dialog Buttons
@@ -910,6 +909,23 @@ function UnitFrames.CreateSettings()
                 end,
                 width = "full",
                 default = Defaults.CustomTargetMarker,
+                disabled = function ()
+                    return not LUIE.SV.UnitFrames_Enabled
+                end,
+            },
+            {
+                -- Target Quick Hide Dead Enemy/Neutral
+                type = "checkbox",
+                name = "Target Frame Quick Hide Dead Enemy/Neutral",
+                tooltip = "Target Frame Quick Hide Dead Enemy/Neutral",
+                getFunc = function ()
+                    return Settings.QuickHideDead
+                end,
+                setFunc = function (value)
+                    Settings.QuickHideDead = value
+                end,
+                width = "full",
+                default = Defaults.QuickHideDead,
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
                 end,
