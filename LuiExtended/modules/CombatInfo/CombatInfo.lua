@@ -310,42 +310,42 @@ CombatInfo.AlertFrameUnlocked = false
 
 
 local isFancyActionBarEnabled = OtherAddonCompatability.isFancyActionBarPlusEnabled or false
-local uiTlw = {}                                              -- GUI
-local castbar = {}                                            -- castbar
-local g_casting = false                                       -- Toggled when casting - prevents additional events from creating a cast bar until finished
-local g_ultimateCost = 0                                      -- Cost of ultimate Ability in Slot
-local g_ultimateCurrent = 0                                   -- Current ultimate value
-local g_ultimateSlot = ACTION_BAR_ULTIMATE_SLOT_INDEX + 1     -- Ultimate slot number
-local g_uiProcAnimation = {}                                  -- Animation for bar slots
-local g_uiCustomToggle = {}                                   -- Toggle slots for bar Slots
-local g_triggeredSlotsFront = {}                              -- Triggered bar highlight slots
-local g_triggeredSlotsBack = {}                               -- Triggered bar highlight slots
-local g_triggeredSlotsRemain = {}                             -- Table of remaining durations on proc abilities
-local g_toggledSlotsBack = {}                                 -- Toggled bar highlight slots
-local g_toggledSlotsFront = {}                                -- Toggled bar highlight slots
-local g_toggledSlotsRemain = {}                               -- Table of remaining durations on active abilities
-local g_toggledSlotsStack = {}                                -- Table of stacks for active abilities
-local g_toggledSlotsPlayer = {}                               -- Table of abilities that target the player (bar highlight doesn't fade on reticleover change)
-local g_potionUsed = false                                    -- Toggled on when a potion is used to prevent OnSlotsFullUpdate from updating timers.
-local g_barOverrideCI = {}                                    -- Table for storing abilityId's from Effects.BarHighlightOverride that should show as an aura
-local g_barFakeAura = {}                                      -- Table for storing abilityId's that only display a fake aura
-local g_barDurationOverride = {}                              -- Table for storing abilityId's that ignore ending event
-local g_barNoRemove = {}                                      -- Table of abilities we don't remove from bar highlight
-local g_protectAbilityRemoval = {}                            -- AbilityId's set to a timestamp here to prevent removal of bar highlight when refreshing ground auras from causing the highlight to fade.
-local g_mineStacks = {}                                       -- Individual AbilityId ground mine stack information
-local g_mineNoTurnOff = {}                                    -- When this variable is true for an abilityId - don't remove the bar highlight for a mine (We we have reticleover target and the mine effect applies on the enemy)
-local g_barFont                                               -- Font for Ability Highlight Label
-local g_potionFont                                            -- Font for Potion Timer Label
-local g_ultimateFont                                          -- Font for Ultimate Percentage Label
-local g_castbarFont                                           -- Font for Castbar Label & Timer
-local g_ProcSound                                             -- Proc Sound
-local g_boundArmamentsPlayed = false                          -- Specific variable to lockout Bound Armaments/Grim Focus from playing a proc sound at 5 stacks to only once per 5 seconds.
-local g_disableProcSound = {}                                 -- When we play a proc sound from a bar ability changing (like power lash) we put a 3 sec ICD on it so it doesn't spam when mousing on/off a target, etc
-local g_hotbarCategory = GetActiveHotbarCategory()            -- Set on initialization and when we swap weapons to determine the current hotbar category
-local g_actionBarActiveWeaponPair = GetActiveWeaponPairInfo() -- Toggled on when weapon swapping, TODO: maybe not needed
-local g_backbarButtons = {}                                   -- Table to hold backbar buttons
-local g_activeWeaponSwapInProgress = false                    -- Toggled on when weapon swapping, TODO: maybe not needed
-local g_castbarWorldMapFix = false                            -- Fix for viewing the World Map changing the player coordinates for some reason
+local uiTlw = {}                                          -- GUI
+local castbar = {}                                        -- castbar
+local g_casting = false                                   -- Toggled when casting - prevents additional events from creating a cast bar until finished
+local g_ultimateCost = 0                                  -- Cost of ultimate Ability in Slot
+local g_ultimateCurrent = 0                               -- Current ultimate value
+local g_ultimateSlot = ACTION_BAR_ULTIMATE_SLOT_INDEX + 1 -- Ultimate slot number
+local g_uiProcAnimation = {}                              -- Animation for bar slots
+local g_uiCustomToggle = {}                               -- Toggle slots for bar Slots
+local g_triggeredSlotsFront = {}                          -- Triggered bar highlight slots
+local g_triggeredSlotsBack = {}                           -- Triggered bar highlight slots
+local g_triggeredSlotsRemain = {}                         -- Table of remaining durations on proc abilities
+local g_toggledSlotsBack = {}                             -- Toggled bar highlight slots
+local g_toggledSlotsFront = {}                            -- Toggled bar highlight slots
+local g_toggledSlotsRemain = {}                           -- Table of remaining durations on active abilities
+local g_toggledSlotsStack = {}                            -- Table of stacks for active abilities
+local g_toggledSlotsPlayer = {}                           -- Table of abilities that target the player (bar highlight doesn't fade on reticleover change)
+local g_potionUsed = false                                -- Toggled on when a potion is used to prevent OnSlotsFullUpdate from updating timers.
+local g_barOverrideCI = {}                                -- Table for storing abilityId's from Effects.BarHighlightOverride that should show as an aura
+local g_barFakeAura = {}                                  -- Table for storing abilityId's that only display a fake aura
+local g_barDurationOverride = {}                          -- Table for storing abilityId's that ignore ending event
+local g_barNoRemove = {}                                  -- Table of abilities we don't remove from bar highlight
+local g_protectAbilityRemoval = {}                        -- AbilityId's set to a timestamp here to prevent removal of bar highlight when refreshing ground auras from causing the highlight to fade.
+local g_mineStacks = {}                                   -- Individual AbilityId ground mine stack information
+local g_mineNoTurnOff = {}                                -- When this variable is true for an abilityId - don't remove the bar highlight for a mine (We we have reticleover target and the mine effect applies on the enemy)
+local g_barFont                                           -- Font for Ability Highlight Label
+local g_potionFont                                        -- Font for Potion Timer Label
+local g_ultimateFont                                      -- Font for Ultimate Percentage Label
+local g_castbarFont                                       -- Font for Castbar Label & Timer
+local g_ProcSound                                         -- Proc Sound
+local g_boundArmamentsPlayed = false                      -- Specific variable to lockout Bound Armaments/Grim Focus from playing a proc sound at 5 stacks to only once per 5 seconds.
+local g_disableProcSound = {}                             -- When we play a proc sound from a bar ability changing (like power lash) we put a 3 sec ICD on it so it doesn't spam when mousing on/off a target, etc
+local g_hotbarCategory = GetActiveHotbarCategory()        -- Set on initialization and when we swap weapons to determine the current hotbar category
+local g_actionBarActiveWeaponPair = GetHeldWeaponPair()   -- Toggled on when weapon swapping, TODO: maybe not needed
+local g_backbarButtons = {}                               -- Table to hold backbar buttons
+local g_activeWeaponSwapInProgress = false                -- Toggled on when weapon swapping, TODO: maybe not needed
+local g_castbarWorldMapFix = false                        -- Fix for viewing the World Map changing the player coordinates for some reason
 local ACTION_BAR_META = ZO_ActionBar1
 local ACTION_BAR = ACTION_BAR_META
 local BAR_INDEX_START = ACTION_BAR_FIRST_NORMAL_SLOT_INDEX + 1
@@ -564,7 +564,7 @@ function CombatInfo.OnActiveWeaponPairChanged(eventCode, activeWeaponPair)
     if activeWeaponPair ~= g_actionBarActiveWeaponPair then
         g_activeWeaponSwapInProgress = true
         g_hotbarCategory = GetActiveHotbarCategory()
-        g_actionBarActiveWeaponPair = activeWeaponPair
+        g_actionBarActiveWeaponPair = GetHeldWeaponPair()
     end
 end
 
