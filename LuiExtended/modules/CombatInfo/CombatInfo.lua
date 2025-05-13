@@ -419,19 +419,6 @@ local function HandleAbilityIdOverrides(abilityId, unitTag)
     return abilityId
 end
 
---- Updates the stack count text on slot UI elements
---- @param slotNum integer Slot number
---- @param stackCount integer? Stack count (nil to clear)
-local function UpdateStackText(slotNum, stackCount)
-    if g_uiCustomToggle[slotNum] then
-        if stackCount and stackCount > 0 then
-            g_uiCustomToggle[slotNum].stack:SetText(stackCount)
-        else
-            g_uiCustomToggle[slotNum].stack:SetText("")
-        end
-    end
-end
-
 --- Formats duration in seconds for display
 --- @param remain number Remaining time in milliseconds
 --- @return string Formatted duration
@@ -518,6 +505,14 @@ end
 
 -- Called on initialization and on full update to swap icons on backbar
 function CombatInfo.SetupBackBarIcons(button, flip)
+    -- Special case for certain skills, so the proc icon doesn't get stuck.
+    local specialCases =
+    {
+        [114716] = 46324, -- Crystal Fragments --> Crystal Fragments
+        [20824] = 20816,  -- Power Lash --> Flame Lash
+        [35445] = 35441,  -- Shadow Image Teleport --> Shadow Image
+        [126659] = 38910, -- Flying Blade --> Flying Blade
+    }
     -- Setup icons for backbar
     local hotbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP
     local slotNum = button.slot.slotNum
@@ -534,15 +529,6 @@ function CombatInfo.SetupBackBarIcons(button, flip)
         end
     end
 
-    -- Special case for certain skills, so the proc icon doesn't get stuck.
-    local specialCases =
-    {
-        [114716] = 46324, -- Crystal Fragments --> Crystal Fragments
-        [20824] = 20816,  -- Power Lash --> Flame Lash
-        [35445] = 35441,  -- Shadow Image Teleport --> Shadow Image
-        [126659] = 38910, -- Flying Blade --> Flying Blade
-    }
-
     if specialCases[slotId] then
         slotId = specialCases[slotId]
     end
@@ -556,23 +542,19 @@ function CombatInfo.SetupBackBarIcons(button, flip)
     end
 
     if flip then
-        CombatInfo.handleFlip(slotNum)
-    end
-end
+        local desaturate = true
 
-function CombatInfo.handleFlip(slotNum)
-    local desaturate = true
+        if g_uiCustomToggle and g_uiCustomToggle[slotNum] then
+            desaturate = false
 
-    if g_uiCustomToggle and g_uiCustomToggle[slotNum] then
-        desaturate = false
-
-        if g_uiCustomToggle[slotNum]:IsHidden() then
-            CombatInfo.BackbarHideSlot(slotNum)
-            desaturate = true
+            if g_uiCustomToggle[slotNum]:IsHidden() then
+                CombatInfo.BackbarHideSlot(slotNum)
+                desaturate = true
+            end
         end
-    end
 
-    CombatInfo.ToggleBackbarSaturation(slotNum, desaturate)
+        CombatInfo.ToggleBackbarSaturation(slotNum, desaturate)
+    end
 end
 
 --- Handles active weapon pair changes
@@ -1744,7 +1726,14 @@ function CombatInfo.ShowSlot(slotNum, abilityId, currentTimeMs, desaturate)
             stackCount = g_mineStacks[abilityId]
         end
 
-        UpdateStackText(slotNum, stackCount)
+        -- Updates the stack count text on slot UI elements
+        if g_uiCustomToggle[slotNum] then
+            if stackCount and stackCount > 0 then
+                g_uiCustomToggle[slotNum].stack:SetText(stackCount)
+            else
+                g_uiCustomToggle[slotNum].stack:SetText("")
+            end
+        end
     end
 end
 
@@ -2671,13 +2660,13 @@ end
 
 ---
 function CombatInfo.OnSlotsFullUpdate()
+    -- Handle ultimate label first
+    CombatInfo.UpdateUltimateLabel()
+
     -- Don't update bars if this full update event was from using an inventory item
     if g_potionUsed == true then
         return
     end
-
-    -- Handle ultimate label first
-    CombatInfo.UpdateUltimateLabel()
 
     -- Update action bar skills
     for i = BAR_INDEX_START, BAR_INDEX_END do
@@ -2686,7 +2675,7 @@ function CombatInfo.OnSlotsFullUpdate()
 
     for i = (BAR_INDEX_START + BACKBAR_INDEX_OFFSET), (BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET) do
         local button = g_backbarButtons[i]
-        CombatInfo.SetupBackBarIcons(button)
+        CombatInfo.SetupBackBarIcons(button, false)
         CombatInfo.BarSlotUpdate(i, true, false)
     end
 end
