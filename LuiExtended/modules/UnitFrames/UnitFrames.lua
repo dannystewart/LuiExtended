@@ -13,10 +13,16 @@ local UI = LUIE.UI
 local UnitFrames = {}
 UnitFrames.__index = UnitFrames
 
+--- @class (partial) UnitFrames
+LUIE.UnitFrames = UnitFrames
+
 local AbbreviateNumber = LUIE.AbbreviateNumber
 local printToChat = LUIE.PrintToChat
 
-local type, pairs, ipairs = type, pairs, ipairs
+local type = type
+local pairs = pairs
+local ipairs = ipairs
+local table = table
 local table_insert = table.insert
 local table_sort = table.sort
 local table_remove = table.remove
@@ -6889,17 +6895,11 @@ end
 
 -- Updates group frames when a relevant social change event happens
 function UnitFrames.SocialUpdateFrames()
-    -- Update all group frames
-    for i = 1, UNIT_FRAMES.RAID_GROUP.size do
+    for i = 1, 12 do
         local unitTag = "group" .. i
         if DoesUnitExist(unitTag) then
             UnitFrames.ReloadValues(unitTag)
         end
     end
-
-    -- Update target frame
-    UnitFrames.ReloadValues(UNIT_FRAMES.SINGLE.TARGET)
+    UnitFrames.ReloadValues("reticleover")
 end
-
---- @class (partial) UnitFrames
-LUIE.UnitFrames = UnitFrames
