@@ -602,15 +602,17 @@ function UnitFrames.GetDefaultFramesSetting(frame, default)
     return g_DefaultFramesOptions[value]
 end
 
--- Right Click function for group frames - basically just a copy of the ZOS group frame menu options
+-- Right Click function for group frames - updated to match ZOS implementation
 function UnitFrames.GroupFrames_OnMouseUp(self, button, upInside)
     local unitTag = self.defaultUnitTag
     if button == MOUSE_BUTTON_INDEX_RIGHT and upInside then
         ClearMenu()
-        local isPlayer = AreUnitsEqual(unitTag, "player") -- Flag Player
-        local isLFG = DoesGroupModificationRequireVote()  -- Flag if we're in an LFG Group
-        local accountName = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetUnitDisplayName(unitTag))
+        local isPlayer = AreUnitsEqual(unitTag, "player")
+        local isLFG = DoesGroupModificationRequireVote()
+        local displayName = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetUnitDisplayName(unitTag))
+        local characterName = GetUnitName(unitTag)
         local isOnline = IsUnitOnline(unitTag)
+        local playerIsLeader = IsUnitGroupLeader("player")
 
         if isPlayer then
             AddMenuItem(GetString(SI_GROUP_LIST_MENU_LEAVE_GROUP), function ()
@@ -619,30 +621,30 @@ function UnitFrames.GroupFrames_OnMouseUp(self, button, upInside)
         elseif isOnline then
             if IsChatSystemAvailableForCurrentPlatform() then
                 AddMenuItem(GetString(SI_SOCIAL_LIST_PANEL_WHISPER), function ()
-                    StartChatInput("", CHAT_CHANNEL_WHISPER, accountName)
+                    StartChatInput("", CHAT_CHANNEL_WHISPER, characterName)
                 end)
             end
             AddMenuItem(GetString(SI_SOCIAL_MENU_VISIT_HOUSE), function ()
-                JumpToHouse(accountName)
+                JumpToHouse(displayName)
             end)
             if not ZO_IsTributeLocked() then
                 AddMenuItem(GetString(SI_SOCIAL_MENU_TRIBUTE_INVITE), function ()
-                    InviteToTributeByDisplayName(accountName)
+                    InviteToTributeByDisplayName(displayName)
                 end)
             end
             AddMenuItem(GetString(SI_SOCIAL_MENU_JUMP_TO_PLAYER), function ()
-                JumpToGroupMember(accountName)
+                JumpToGroupMember(characterName)
             end)
         end
 
-        if not isPlayer and not IsFriend(accountName) and not IsIgnored(accountName) then
+        if not isPlayer and not IsFriend(displayName) and not IsIgnored(displayName) then
             AddMenuItem(GetString(SI_SOCIAL_MENU_ADD_FRIEND), function ()
-                ZO_Dialogs_ShowDialog("REQUEST_FRIEND", { name = accountName })
+                ZO_Dialogs_ShowDialog("REQUEST_FRIEND", { name = displayName })
             end)
         end
 
         if IsGroupModificationAvailable() then
-            if IsUnitGroupLeader("player") then
+            if playerIsLeader then
                 if isPlayer then
                     if not isLFG then
                         AddMenuItem(GetString(SI_GROUP_LIST_MENU_DISBAND_GROUP), function ()
@@ -668,7 +670,7 @@ function UnitFrames.GroupFrames_OnMouseUp(self, button, upInside)
         end
 
         -- Per design, promoting doesn't expressly fall under the mantle of "group modification"
-        if IsUnitGroupLeader("player") and not isPlayer and isOnline then
+        if playerIsLeader and not isPlayer and isOnline then
             AddMenuItem(GetString(SI_GROUP_LIST_MENU_PROMOTE_TO_LEADER), function ()
                 GroupPromote(unitTag)
             end)
