@@ -7,32 +7,32 @@
 --- @class (partial) LuiData
 local LuiData = LuiData
 local Data = LuiData.Data
--- For debug function - convert result reason codes to string value
+-- For debug function - convert statusEffectType codes to string value
 --- @class DebugStatus
 local DebugStatus =
 {
-    [STATUS_EFFECT_TYPE_BLEED] = "BLEED",
-    [STATUS_EFFECT_TYPE_BLIND] = "BLIND",
-    [STATUS_EFFECT_TYPE_CHARM] = "CHARM",
-    [STATUS_EFFECT_TYPE_DAZED] = "DAZED",
-    [STATUS_EFFECT_TYPE_DISEASE] = "DISEASE",
-    [STATUS_EFFECT_TYPE_ENVIRONMENT] = "ENVIRONMENT",
-    [STATUS_EFFECT_TYPE_FEAR] = "FEAR",
-    [STATUS_EFFECT_TYPE_LEVITATE] = "LEVITATE",
-    [STATUS_EFFECT_TYPE_MAGIC] = "MAGIC",
-    [STATUS_EFFECT_TYPE_MESMERIZE] = "MESMERIZE",
-    [STATUS_EFFECT_TYPE_NEARSIGHT] = "NEARSIGHT",
-    [STATUS_EFFECT_TYPE_NONE] = "NONE",
-    [STATUS_EFFECT_TYPE_PACIFY] = "PACIFY",
-    [STATUS_EFFECT_TYPE_POISON] = "POISON",
-    [STATUS_EFFECT_TYPE_PUNCTURE] = "PUNCTURE",
-    [STATUS_EFFECT_TYPE_ROOT] = "ROOT",
-    [STATUS_EFFECT_TYPE_SILENCE] = "SILENCE",
-    [STATUS_EFFECT_TYPE_SNARE] = "SNARE",
-    [STATUS_EFFECT_TYPE_STUN] = "STUN",
-    [STATUS_EFFECT_TYPE_TRAUMA] = "TRAUMA",
-    [STATUS_EFFECT_TYPE_WEAKNESS] = "WEAKNESS",
-    [STATUS_EFFECT_TYPE_WOUND] = "WOUND",
+    [0] = "NONE",
+    [1] = "ROOT",
+    [2] = "SNARE",
+    [3] = "BLEED",
+    [4] = "POISON",
+    [5] = "WEAKNESS",
+    [6] = "BLIND",
+    [7] = "NEARSIGHT",
+    [8] = "DISEASE",
+    [9] = "TRAUMA",
+    [10] = "PUNCTURE",
+    [11] = "WOUND",
+    [12] = "DAZED",
+    [13] = "SILENCE",
+    [14] = "PACIFY",
+    [15] = "FEAR",
+    [16] = "MESMERIZE",
+    [17] = "CHARM",
+    [18] = "LEVITATE",
+    [19] = "STUN",
+    [20] = "ENVIRONMENT",
+    [21] = "MAGIC",
 }
 
 --- @type DebugStatus
