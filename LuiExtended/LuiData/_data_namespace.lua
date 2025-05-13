@@ -79,6 +79,7 @@
 --- @field CrowdControl CrowdControl
 --- @field DebugResults DebugResults
 --- @field DebugAuras DebugAuras
+--- @field DebugStatus DebugStatus
 --- @field Effects Effects
 --- @field PetNames PetNames
 --- @field Quests Quests
@@ -133,6 +134,7 @@ local CrowdControl =
 
 local DebugResults = {}
 local DebugAuras = {}
+local DebugStatus = {}
 
 local Effects =
 {
@@ -260,6 +262,7 @@ LuiData.Data =
     CrowdControl = CrowdControl,
     DebugResults = DebugResults,
     DebugAuras = DebugAuras,
+    DebugStatus = DebugStatus,
     Effects = Effects,
     PetNames = PetNames,
     Quests = Quests,

@@ -112,3 +112,4 @@ CrownStoreCollectibles.lua
 # Debug
 Debug/DebugAuras.lua
 Debug/DebugResults.lua
+Debug/DebugStatus.lua

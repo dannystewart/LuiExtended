@@ -13,6 +13,7 @@ local Effects = Data.Effects
 local EffectOverride = Effects.EffectOverride
 local DebugAuras = Data.DebugAuras
 local DebugResults = Data.DebugResults
+local DebugStatus = Data.DebugStatus
 local Tooltips = Data.Tooltips
 local AssistantIcons = Effects.AssistantIcons
 
@@ -193,9 +194,12 @@ function SpellCastBuffs.EventEffectDebug(eventId, changeType, effectSlot, effect
     end
     unitName = unitName .. " (" .. unitTag .. ")"
 
+    -- Get status effect string if available
+    local statusEffect = DebugStatus[statusEffectType]
+
     local finalString
     if EffectOverride[abilityId] and EffectOverride[abilityId].hide then
-        finalString = (iconFormatted .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. "|r")
+        finalString = (iconFormatted .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. " [Status] " .. statusEffect .. "|r")
         AddSystemMessage(finalString)
         return
     end
@@ -208,11 +212,11 @@ function SpellCastBuffs.EventEffectDebug(eventId, changeType, effectSlot, effect
     end
 
     if changeType == 1 then
-        finalString = ("|c00E200Gained:|r " .. refreshOnly .. iconFormatted .. " [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. " [Dur] " .. duration)
+        finalString = ("|c00E200Gained:|r " .. refreshOnly .. iconFormatted .. " [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. " [Dur] " .. duration .. " [Status] " .. statusEffect)
     elseif changeType == 2 then
-        finalString = ("|c00E200Faded:|r " .. iconFormatted .. " [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName)
+        finalString = ("|c00E200Faded:|r " .. iconFormatted .. " [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. " [Status] " .. statusEffect)
     else
-        finalString = ("|c00E200Refreshed:|r " .. iconFormatted .. " (" .. changeType .. ") [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. " [Dur] " .. duration)
+        finalString = ("|c00E200Refreshed:|r " .. iconFormatted .. " (" .. changeType .. ") [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. " [Dur] " .. duration .. " [Status] " .. statusEffect)
     end
     -- finalString = MillisecondTimestampDebug(finalString)
     printToChat(finalString)
@@ -307,13 +311,16 @@ function SpellCastBuffs.AuthorEffectDebug(eventId, changeType, effectSlot, effec
     end
     unitName = unitName .. " (" .. unitTag .. ")"
 
+    -- Get status effect string if available
+    local statusEffect = DebugStatus[statusEffectType]
+
     local refreshOnly = ""
     if EffectOverride[abilityId] and EffectOverride[abilityId].refreshOnly then
         refreshOnly = " |c00E200(Refresh Only - Hidden)|r "
     end
 
     if EffectOverride[abilityId] and EffectOverride[abilityId].hide then
-        local finalString = (iconFormatted .. refreshOnly .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. "|r")
+        local finalString = (iconFormatted .. refreshOnly .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. ": [Tag] " .. unitName .. " [Status] " .. statusEffect .. "|r")
         if chatSystem.primaryContainer then
             for k, cc in ipairs(chatSystem.containers) do
                 local chatContainer = cc

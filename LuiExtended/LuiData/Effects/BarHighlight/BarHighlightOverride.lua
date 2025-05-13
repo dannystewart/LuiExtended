@@ -92,11 +92,11 @@ local barHighlightOverride =
     [36514] = { newId = 61400 },                   -- Soul Harvest --> Damage Taken Increased
 
     -- Shadow
-    [25255] = { newId = 34733 },  -- Veiled Strike --> Off-Balance
-    [25260] = { newId = 34733 },  -- Surprise Attack --> Off-Balance
-    [25267] = { newId = 34736 },  -- Concealed Weapon
-    [25375] = { newId = 234617 }, -- Shadow Cloak
-    [25380] = { newId = 234617 }, -- Shadowy Disguise
+    [25255] = { newId = 34733 },                                        -- Veiled Strike --> Off-Balance
+    [25260] = { newId = 34733 },                                        -- Surprise Attack --> Off-Balance
+    [25267] = { newId = 34736 },                                        -- Concealed Weapon
+    [25375] = { newId = 229837, showFakeAura = true, noRemove = true }, -- Shadow Cloak
+    [25380] = { newId = 234617 },                                       -- Shadowy Disguise
     -- [25352] = { }, -- Aspect of Terror -- TODO: Disabled because API won't return correct duration for Fear
     -- [37470] = { }, -- Mass Hysteria -- TODO: Disabled because API won't return correct duration for Fear
     [33211] = { showFakeAura = true, noRemove = true },                -- Summon Shade
@@ -135,16 +135,16 @@ local barHighlightOverride =
     [24834] = { newId = 25158 },  -- Daedric Minefield --> Daedric Mines
 
     -- Daedric Summoning
-    [23492] = { newId = 80463 },                                          -- greater storm atronarch
-    [23495] = { newId = 23668 },                                          -- Summon Charged Atronach
-    [23634] = { newId = 80459 },                                          -- Summon Storm Atronach
-    [24165] = { newId = 203447 },                                         -- bound armaments
-    [77140] = { newId = 77354, showFakeAura = true, noRemove = true },    -- twilight tormentor enrage
-    [77182] = { newId = 77187, showFakeAura = true, noRemove = true },    -- volatile pulse
-    [108840] = { newId = 108842, showFakeAura = true, noRemove = true },  -- summon unstable familiar
-    [23304] = { newId = 108844, showFakeAura = true, noRemove = true },   -- unstable pulse
-    [24636] = { newId = 77354, showFakeAura = true, noRemove = true },    -- summon twilight tormentor
-    [23316] = { newId = 77187, showFakeAura = true, noRemove = true },    -- summon volatile familiar
+    [23492] = { newId = 80463 },                                         -- greater storm atronarch
+    [23495] = { newId = 23668 },                                         -- Summon Charged Atronach
+    [23634] = { newId = 80459 },                                         -- Summon Storm Atronach
+    [24165] = { newId = 203447 },                                        -- bound armaments
+    [77140] = { newId = 77354, showFakeAura = true, noRemove = true },   -- twilight tormentor enrage
+    [77182] = { newId = 77187, showFakeAura = true, noRemove = true },   -- volatile pulse
+    [108840] = { newId = 108842, showFakeAura = true, noRemove = true }, -- summon unstable familiar
+    [23304] = { newId = 108844, showFakeAura = true, noRemove = true },  -- unstable pulse
+    [24636] = { newId = 77354, showFakeAura = true, noRemove = true },   -- summon twilight tormentor
+    [23316] = { newId = 77187, showFakeAura = true, noRemove = true },   -- summon volatile familiar
 
     -- Storm Calling
     [18718] = { newId = 18746 },  -- mages' fury
@@ -162,21 +162,22 @@ local barHighlightOverride =
     ---------------------------
 
     -- Aedric Spear
-    [26158] = { newId = 37409 }, -- Piercing Javelin
-    [26800] = { newId = 37414 }, -- Aurora Javelin
-    [26804] = { newId = 32099 }, -- Binding Javelin
-    [22149] = { newId = 49205 }, -- Focused Charge
-    [22161] = { newId = 49213 }, -- Explosive Charge
-    [15540] = { newId = 15546 }, -- Toppling Charge
-    [26188] = { newId = 95933 }, -- Spear Shards (Spear Shards)
-    [26858] = { newId = 95957 }, -- Luminous Shards (Luminous Shards)
-    [26869] = { newId = 26880 }, -- Blazing Spear (Blazing Spear)
-    [22178] = { newId = 22179 }, -- Sun Shield
-    [22182] = { newId = 22183 }, -- Radiant Ward
-    [22180] = { newId = 49091 }, -- Blazing Shield
-    [22138] = { newId = 62593 }, -- Radial Sweep
-    [22144] = { newId = 62599 }, -- Empowering Sweep
-    [22139] = { newId = 62607 }, -- Crescent Sweep
+    [26792] = { showFakeAura = true, noRemove = true, duration = 10000 }, -- Biting Jabs
+    [26158] = { newId = 37409 },   -- Piercing Javelin
+    [26800] = { newId = 37414 },   -- Aurora Javelin
+    [26804] = { newId = 32099 },   -- Binding Javelin
+    [22149] = { newId = 49205 },   -- Focused Charge
+    [22161] = { newId = 49213 },   -- Explosive Charge
+    [15540] = { newId = 15546 },   -- Toppling Charge
+    [26188] = { newId = 95933 },   -- Spear Shards (Spear Shards)
+    [26858] = { newId = 95957 },   -- Luminous Shards (Luminous Shards)
+    [26869] = { newId = 26880 },   -- Blazing Spear (Blazing Spear)
+    [22178] = { newId = 22179 },   -- Sun Shield
+    [22182] = { newId = 22183 },   -- Radiant Ward
+    [22180] = { newId = 49091 },   -- Blazing Shield
+    [22138] = { newId = 62593 },   -- Radial Sweep
+    [22144] = { newId = 62599 },   -- Empowering Sweep
+    [22139] = { newId = 62607 },   -- Crescent Sweep
 
     -- Dawn's Wrath
     [21726] = { newId = 21728 }, -- Sun Fire
@@ -195,7 +196,7 @@ local barHighlightOverride =
     [22265] = { showFakeAura = true }, -- Cleansing Ritual (Cleansing Ritual)
     [22259] = { showFakeAura = true }, -- Ritual of Retribution (Ritual of Retribution)
     [22262] = { showFakeAura = true }, -- Extended Ritual (Extended Ritual)
-
+    [22314] = { newId = 61735 },       -- Hasty Prayer (Healing Ritual Morph)
     [22240] = { newId = 37009 },       -- Channeled Focus
     [22237] = { newId = 114842 },      -- Restoring Focus
 
