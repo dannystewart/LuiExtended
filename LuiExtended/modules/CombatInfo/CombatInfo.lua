@@ -505,14 +505,6 @@ end
 
 -- Called on initialization and on full update to swap icons on backbar
 function CombatInfo.SetupBackBarIcons(button, flip)
-    -- Special case for certain skills, so the proc icon doesn't get stuck.
-    local specialCases =
-    {
-        [114716] = 46324, -- Crystal Fragments --> Crystal Fragments
-        [20824] = 20816,  -- Power Lash --> Flame Lash
-        [35445] = 35441,  -- Shadow Image Teleport --> Shadow Image
-        [126659] = 38910, -- Flying Blade --> Flying Blade
-    }
     -- Setup icons for backbar
     local hotbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP
     local slotNum = button.slot.slotNum
@@ -529,6 +521,15 @@ function CombatInfo.SetupBackBarIcons(button, flip)
         end
     end
 
+    -- Special case for certain skills, so the proc icon doesn't get stuck.
+    local specialCases =
+    {
+        [114716] = 46324, -- Crystal Fragments --> Crystal Fragments
+        [20824] = 20816,  -- Power Lash --> Flame Lash
+        [35445] = 35441,  -- Shadow Image Teleport --> Shadow Image
+        [126659] = 38910, -- Flying Blade --> Flying Blade
+    }
+
     if specialCases[slotId] then
         slotId = specialCases[slotId]
     end
@@ -542,19 +543,23 @@ function CombatInfo.SetupBackBarIcons(button, flip)
     end
 
     if flip then
-        local desaturate = true
-
-        if g_uiCustomToggle and g_uiCustomToggle[slotNum] then
-            desaturate = false
-
-            if g_uiCustomToggle[slotNum]:IsHidden() then
-                CombatInfo.BackbarHideSlot(slotNum)
-                desaturate = true
-            end
-        end
-
-        CombatInfo.ToggleBackbarSaturation(slotNum, desaturate)
+        CombatInfo.handleFlip(slotNum)
     end
+end
+
+function CombatInfo.handleFlip(slotNum)
+    local desaturate = true
+
+    if g_uiCustomToggle and g_uiCustomToggle[slotNum] then
+        desaturate = false
+
+        if g_uiCustomToggle[slotNum]:IsHidden() then
+            CombatInfo.BackbarHideSlot(slotNum)
+            desaturate = true
+        end
+    end
+
+    CombatInfo.ToggleBackbarSaturation(slotNum, desaturate)
 end
 
 --- Handles active weapon pair changes
@@ -756,10 +761,10 @@ function CombatInfo.UpdateBarHighlightTables()
                 end
             end
         end
-        local counter = 0
+        local nextEventHandleNr = 0
         for abilityId, _ in pairs(g_barOverrideCI) do
-            counter = counter + 1
-            local eventName = (moduleName .. "CombatEventBar" .. counter)
+            local eventName = moduleName .. "CombatEventBar" .. tostring(nextEventHandleNr) -- This is needed in order to generate a new unique eventNameSpace for each filterType added!
+            nextEventHandleNr = nextEventHandleNr + 1
             eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, CombatInfo.OnCombatEventBar)
             -- Register filter for specific abilityId's in table only, and filter for source = player, no errors
             eventManager:AddFilterForEvent(eventName, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, abilityId, REGISTER_FILTER_IS_ERROR, false)
@@ -796,8 +801,8 @@ function CombatInfo.RegisterCombatInfo()
     if CombatInfo.SV.CastBarEnable then
         local counter = 0
         for result, _ in pairs(Castbar.CastBreakingStatus) do
+            local eventName = moduleName .. "CombatEventCC" .. tostring(counter)
             counter = counter + 1
-            local eventName = (moduleName .. "CombatEventCC" .. counter)
             eventManager:RegisterForEvent(eventName, EVENT_COMBAT_EVENT, CombatInfo.OnCombatEventBreakCast)
             eventManager:AddFilterForEvent(eventName, EVENT_COMBAT_EVENT, REGISTER_FILTER_TARGET_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_IS_ERROR, false, REGISTER_FILTER_COMBAT_RESULT, result)
         end
@@ -817,7 +822,10 @@ function CombatInfo.RegisterCombatInfo()
         --
     end
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled or CombatInfo.SV.UltimateLabelEnabled or CombatInfo.SV.UltimatePctEnabled then
-        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOTS_ACTIVE_HOTBAR_UPDATED, CombatInfo.OnActiveHotbarUpdate)
+        local function OnActiveHotbarUpdated(event, didActiveHotbarChange)
+            CombatInfo.UpdateAllSlotsForActiveHotbar(didActiveHotbarChange)
+        end
+        eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOTS_ACTIVE_HOTBAR_UPDATED, OnActiveHotbarUpdated)
         eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOTS_ALL_HOTBARS_UPDATED, CombatInfo.OnSlotsFullUpdate)
         eventManager:RegisterForEvent(moduleName, EVENT_ACTION_SLOT_UPDATED, CombatInfo.OnSlotUpdated)
         eventManager:RegisterForEvent(moduleName, EVENT_ACTIVE_WEAPON_PAIR_CHANGED, CombatInfo.OnActiveWeaponPairChanged)
@@ -825,6 +833,7 @@ function CombatInfo.RegisterCombatInfo()
     end
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled then
         eventManager:RegisterForEvent(moduleName, EVENT_UNIT_DEATH_STATE_CHANGED, CombatInfo.OnDeath)
+        eventManager:AddFilterForEvent(moduleName, EVENT_UNIT_DEATH_STATE_CHANGED, REGISTER_FILTER_UNIT_TAG, "player")
         eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, CombatInfo.OnTargetChange)
         eventManager:AddFilterForEvent(moduleName, EVENT_TARGET_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
         eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, CombatInfo.OnReticleTargetChanged)
@@ -2468,7 +2477,24 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
 
     -- Handle slot update for action bars
     -- if LUIE.IsDevDebugEnabled() then
-    --     LUIE.Debug(string.format("%d: %s(%d)", slotNum, GetSlotName(slotNum), GetSlotTrueBoundId(slotNum)))
+    --     local debugAbilityId, debugName
+    --     if slotNum < 50 then
+    --         debugAbilityId = GetSlotBoundId(slotNum, g_hotbarCategory)
+    --         local actionType = GetSlotType(slotNum, g_hotbarCategory)
+    --         if actionType == ACTION_TYPE_CRAFTED_ABILITY then
+    --             debugAbilityId = GetAbilityIdForCraftedAbilityId(debugAbilityId)
+    --         end
+    --         debugName = GetSlotName(slotNum, g_hotbarCategory)
+    --     else
+    --         local backbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP
+    --         debugAbilityId = GetSlotBoundId(slotNum - BACKBAR_INDEX_OFFSET, backbarCategory)
+    --         local actionType = GetSlotType(slotNum, g_hotbarCategory)
+    --         if actionType == ACTION_TYPE_CRAFTED_ABILITY then
+    --             debugAbilityId = GetAbilityIdForCraftedAbilityId(debugAbilityId)
+    --         end
+    --         debugName = GetSlotName(slotNum - BACKBAR_INDEX_OFFSET, backbarCategory)
+    --     end
+    --     LUIE.Debug(string.format("%d: %s(%d)", slotNum, debugName, debugAbilityId))
     -- end
 
     -- Look only for action bar slots
@@ -2602,11 +2628,11 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
                 if CombatInfo.SV.ShowToggled then
                     local slotNumST = toggledSlots[ability_id]
                     local desaturate
-                    local math = slotNumST > BACKBAR_INDEX_OFFSET and slotNumST - BACKBAR_INDEX_OFFSET or nil
-                    if math then
-                        if g_uiCustomToggle[math] then
+                    local mainBarSlotIndex = slotNumST > BACKBAR_INDEX_OFFSET and slotNumST - BACKBAR_INDEX_OFFSET or nil
+                    if mainBarSlotIndex then
+                        if g_uiCustomToggle[mainBarSlotIndex] then
                             desaturate = false
-                            if g_uiCustomToggle[math]:IsHidden() then
+                            if g_uiCustomToggle[mainBarSlotIndex]:IsHidden() then
                                 CombatInfo.BackbarHideSlot(slotNumST)
                                 desaturate = true
                             end
@@ -2638,13 +2664,12 @@ function CombatInfo.InventoryItemUsed()
 end
 
 ---
---- @param eventCode integer
 --- @param didActiveHotbarChange boolean
---- @param shouldUpdateAbilityAssignments boolean
---- @param activeHotbarCategory HotBarCategory
-function CombatInfo.OnActiveHotbarUpdate(eventCode, didActiveHotbarChange, shouldUpdateAbilityAssignments, activeHotbarCategory)
+function CombatInfo.UpdateAllSlotsForActiveHotbar(didActiveHotbarChange)
+    -- update bar category
     g_hotbarCategory = GetActiveHotbarCategory()
-    if didActiveHotbarChange == true or shouldUpdateAbilityAssignments == true then
+    -- update bar slots
+    if didActiveHotbarChange then
         for _, physicalSlot in pairs(g_backbarButtons) do
             if physicalSlot.hotbarSwapAnimation then
                 physicalSlot.noUpdates = true
@@ -2658,13 +2683,13 @@ end
 
 ---
 function CombatInfo.OnSlotsFullUpdate()
-    -- Handle ultimate label first
-    CombatInfo.UpdateUltimateLabel()
-
     -- Don't update bars if this full update event was from using an inventory item
     if g_potionUsed == true then
         return
     end
+
+    -- Handle ultimate label first
+    CombatInfo.UpdateUltimateLabel()
 
     -- Update action bar skills
     for i = BAR_INDEX_START, BAR_INDEX_END do
@@ -2673,7 +2698,7 @@ function CombatInfo.OnSlotsFullUpdate()
 
     for i = (BAR_INDEX_START + BACKBAR_INDEX_OFFSET), (BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET) do
         local button = g_backbarButtons[i]
-        CombatInfo.SetupBackBarIcons(button, false)
+        CombatInfo.SetupBackBarIcons(button)
         CombatInfo.BarSlotUpdate(i, true, false)
     end
 end
@@ -2694,7 +2719,7 @@ function CombatInfo.PlayProcAnimations(slotNum)
         else
             actionButton = g_backbarButtons[slotNum]
         end
-        local procLoopTexture = windowManager:CreateControl("$(parent)Loop_LUIE", actionButton.slot, CT_TEXTURE)
+        local procLoopTexture = UI:ControlWithType(actionButton.slot, "fill", nil, false, "$(parent)Loop_LUIE", CT_TEXTURE)
         procLoopTexture:SetAnchor(TOPLEFT, actionButton.slot:GetNamedChild("FlipCard"))
         procLoopTexture:SetAnchor(BOTTOMRIGHT, actionButton.slot:GetNamedChild("FlipCard"))
         procLoopTexture:SetTexture("/esoui/art/actionbar/abilityhighlight_mage_med.dds")
@@ -2740,20 +2765,18 @@ end
 --- @param isDead boolean
 function CombatInfo.OnDeath(eventCode, unitTag, isDead)
     -- And toggle buttons
-    if unitTag == "player" then
-        for slotNum = BAR_INDEX_START, BAR_INDEX_END do
-            if g_uiCustomToggle[slotNum] then
-                g_uiCustomToggle[slotNum]:SetHidden(true)
-                --[[if slotNum == 8 and CombatInfo.SV.UltimatePctEnabled and IsSlotUsed(g_ultimateSlot) then
+    for slotNum = BAR_INDEX_START, BAR_INDEX_END do
+        if g_uiCustomToggle[slotNum] then
+            g_uiCustomToggle[slotNum]:SetHidden(true)
+            --[[if slotNum == 8 and CombatInfo.SV.UltimatePctEnabled and IsSlotUsed(g_ultimateSlot) then
                     uiUltimate.LabelPct:SetHidden(false)
                 end]]
-                --
-            end
+            --
         end
-        for slotNum = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
-            if g_uiCustomToggle[slotNum] then
-                g_uiCustomToggle[slotNum]:SetHidden(true)
-            end
+    end
+    for slotNum = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do
+        if g_uiCustomToggle[slotNum] then
+            g_uiCustomToggle[slotNum]:SetHidden(true)
         end
     end
 end
@@ -2784,7 +2807,7 @@ function CombatInfo.ShowCustomToggle(slotNum)
         local name = "ActionButton" .. slotNum
         local window = windowManager:GetControlByName(name, "Toggle_LUIE") -- Check to see if this frame already exists, don't create it if it does.
         if window == nil then
-            local toggleFrame = windowManager:CreateControl("$(parent)Toggle_LUIE", actionButton.slot, CT_TEXTURE)
+            local toggleFrame = UI:ControlWithType(actionButton.slot, "fill", nil, false, "$(parent)Toggle_LUIE", CT_TEXTURE)
             -- toggleFrame.back = UI:Texture(toggleFrame, nil, nil, "/esoui/art/actionbar/actionslot_toggledon.dds")
             toggleFrame:SetAnchor(TOPLEFT, actionButton.slot:GetNamedChild("FlipCard"))
             toggleFrame:SetAnchor(BOTTOMRIGHT, actionButton.slot:GetNamedChild("FlipCard"))
@@ -2834,13 +2857,6 @@ end
 --- @param powerMax integer
 --- @param powerEffectiveMax integer
 function CombatInfo.OnPowerUpdatePlayer(eventCode, unitTag, powerIndex, powerType, powerValue, powerMax, powerEffectiveMax)
-    if unitTag ~= "player" then
-        return
-    end
-    if powerType ~= COMBAT_MECHANIC_FLAGS_ULTIMATE then
-        return
-    end
-
     -- flag if ultimate is full - we"ll need it for ultimate generation texture
     uiUltimate.NotFull = (powerValue < powerMax)
     -- Calculate the percentage to activation old one and current
@@ -2996,7 +3012,7 @@ function CombatInfo.Initialize(enabled)
             button:SetupSwapAnimation(OnSwapAnimationHalfDone, OnSwapAnimationDone)
         end
 
-        local LUIE_Backbar = windowManager:CreateControl("LUIE_Backbar", ACTION_BAR, CT_CONTROL)
+        local LUIE_Backbar = UI:ControlWithType(ACTION_BAR, nil, nil, false, "LUIE_Backbar", CT_CONTROL)
         LUIE_Backbar:SetParent(ACTION_BAR)
 
         for i = BAR_INDEX_START + BACKBAR_INDEX_OFFSET, BACKBAR_INDEX_END + BACKBAR_INDEX_OFFSET do

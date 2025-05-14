@@ -1788,7 +1788,7 @@ local function CreateCustomFrames()
     -- Set positions of tlws using saved values or default ones
     UnitFrames.CustomFramesSetPositions()
     -- Apply formatting for labels
-    UnitFrames.CustomFramesFormatLabels()
+    UnitFrames.CustomFramesFormatLabels(true)
     -- Apply bar textures
     UnitFrames.CustomFramesApplyTexture()
     -- Apply fonts
@@ -2001,7 +2001,7 @@ function UnitFrames.Initialize(enabled)
     CreateDefaultFrames()
     CreateCustomFrames()
 
-    BOSS_BAR.RefreshBossHealthBar = function (self, smoothAnimate)
+    function BOSS_BAR:RefreshBossHealthBar(smoothAnimate)
         local totalHealth = 0
         local totalMaxHealth = 0
 
@@ -2177,16 +2177,6 @@ function UnitFrames.FormatSimpleLabel(label, format)
     label.format = format
 end
 
--- Helper function to reload unit values if needed
----
---- @param unitTag string
---- @param menu boolean
-function UnitFrames.ReloadIfExists(unitTag, menu)
-    if menu and DoesUnitExist(unitTag) then
-        UnitFrames.ReloadValues(unitTag)
-    end
-end
-
 -- Update format for labels on CustomFrames
 ---
 --- @param menu boolean
@@ -2223,7 +2213,9 @@ function UnitFrames.CustomFramesFormatLabels(menu)
             end
         end
     end
-    UnitFrames.ReloadIfExists("player", menu)
+    if menu and DoesUnitExist("player") then
+        UnitFrames.ReloadValues("player")
+    end
 
     -- Format Target Labels
     if UnitFrames.CustomFrames["reticleover"] and UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH] then
@@ -2248,8 +2240,9 @@ function UnitFrames.CustomFramesFormatLabels(menu)
             )
         end
     end
-    UnitFrames.ReloadIfExists("reticleover", menu)
-
+    if menu and DoesUnitExist("reticleover") then
+        UnitFrames.ReloadValues("reticleover")
+    end
     -- Format Companion Labels
     if UnitFrames.CustomFrames["companion"] and
     UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH] and
@@ -2259,8 +2252,9 @@ function UnitFrames.CustomFramesFormatLabels(menu)
             UnitFrames.SV.CustomFormatCompanion
         )
     end
-    UnitFrames.ReloadIfExists("companion", menu)
-
+    if menu and DoesUnitExist("companion") then
+        UnitFrames.ReloadValues("companion")
+    end
     -- Format Small Group Labels
     for i = 1, 4 do
         local unitTag = "SmallGroup" .. i
@@ -2276,7 +2270,9 @@ function UnitFrames.CustomFramesFormatLabels(menu)
                 UnitFrames.FormatSimpleLabel(frame.labelTwo, UnitFrames.SV.CustomFormatTwoGroup)
             end
         end
-        UnitFrames.ReloadIfExists(unitTag, menu)
+        if menu and DoesUnitExist(unitTag) then
+            UnitFrames.ReloadValues(unitTag)
+        end
     end
 
     -- Format Raid Labels
@@ -2291,7 +2287,9 @@ function UnitFrames.CustomFramesFormatLabels(menu)
             )
         end
         local baseTag = GetGroupUnitTagByIndex(i)
-        UnitFrames.ReloadIfExists(baseTag, menu)
+        if menu and DoesUnitExist(baseTag) then
+            UnitFrames.ReloadValues(baseTag)
+        end
     end
 
     -- Format Boss Labels
@@ -2305,7 +2303,9 @@ function UnitFrames.CustomFramesFormatLabels(menu)
                 UnitFrames.SV.CustomFormatBoss
             )
         end
-        UnitFrames.ReloadIfExists(unitTag, menu)
+        if menu and DoesUnitExist(unitTag) then
+            UnitFrames.ReloadValues(unitTag)
+        end
     end
 
     -- Format Pet Labels
@@ -2320,7 +2320,9 @@ function UnitFrames.CustomFramesFormatLabels(menu)
             )
         end
         local baseTag = "playerpet" .. i
-        UnitFrames.ReloadIfExists(baseTag, menu)
+        if menu and DoesUnitExist(baseTag) then
+            UnitFrames.ReloadValues(baseTag)
+        end
     end
 end
 
