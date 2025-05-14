@@ -1972,7 +1972,7 @@ function SpellCastBuffs.CreateSingleIcon(container, AnchorItem, effectType)
     buff.stack:SetAnchor(CENTER, buff, TOPRIGHT, -g_padding * 3, g_padding * 3)
 
     if buff.iconbg then
-        buff.cd = windowManager:CreateControl(nil, buff, CT_COOLDOWN)
+        buff.cd = UI:ControlWithType(buff, "fill", nil, false, nil, CT_COOLDOWN)
         buff.cd:SetAnchor(TOPLEFT, buff, TOPLEFT, 1, 1)
         buff.cd:SetAnchor(BOTTOMRIGHT, buff, BOTTOMRIGHT, -1, -1)
         buff.cd:SetDrawLayer(DL_BACKGROUND)

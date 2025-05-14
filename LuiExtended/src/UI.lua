@@ -31,6 +31,7 @@ end
 -- Local control counters
 local controlCounters =
 {
+    ControlWithType = 0,
     TopLevel = 0,
     Control = 0,
     Texture = 0,
@@ -87,6 +88,38 @@ function UI:Control(parent, anchors, dims, hidden, name)
     local controlName = name or GetUniqueControlName("Control")
     --- @type Control
     local c = windowManager:CreateControl(controlName, parent, CT_CONTROL)
+    if anchors == "fill" then
+        c:SetAnchorFill()
+    elseif anchors ~= nil and #anchors >= 2 and #anchors <= 5 then
+        c:SetAnchor(anchors[1], anchors[5] or parent, anchors[2], anchors[3] or 0, anchors[4] or 0)
+    end
+    if dims == "inherit" then
+        c:SetDimensions(parent:GetWidth(), parent:GetHeight())
+    elseif dims ~= nil and #dims == 2 then
+        c:SetDimensions(dims[1], dims[2])
+    end
+    if hidden then
+        c:SetHidden(hidden)
+    end
+    return c
+end
+
+-- -----------------------------------------------------------------------------
+--- Creates a basic UI control element
+--- @param parent userdata The parent control
+--- @param anchors? table|"fill" Array of anchor points or "fill" to fill parent
+--- @param dims? table|"inherit" Array of dimensions or "inherit" to match parent
+--- @param hidden? boolean Whether the control starts hidden
+--- @param name? string Optional custom control name
+--- @param controlType ControlType
+--- @return Control|nil c The created control, or nil if parent is invalid
+function UI:ControlWithType(parent, anchors, dims, hidden, name, controlType)
+    if not parent then
+        return nil
+    end
+    local controlName = name or GetUniqueControlName("ControlWithType")
+    --- @type Control
+    local c = windowManager:CreateControl(controlName, parent, controlType)
     if anchors == "fill" then
         c:SetAnchorFill()
     elseif anchors ~= nil and #anchors >= 2 and #anchors <= 5 then
