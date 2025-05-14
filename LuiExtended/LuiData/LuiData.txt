@@ -19,6 +19,7 @@ UnitNamesTable.lua
 ZoneNamesTable.lua
 
 # Effects - Core
+Effects/IsFoodBuff.lua
 Effects/KeepUpgradeOverride.lua
 Effects/KeepUpgradeTooltip.lua
 Effects/MapDataOverride.lua
