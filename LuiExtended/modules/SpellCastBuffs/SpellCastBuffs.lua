@@ -4596,79 +4596,122 @@ function SpellCastBuffs.OnVibration(eventCode, duration, coarseMotor, fineMotor,
     end
 end
 
--- Refactored version of SpellCastBuffs.UpdateContextHideList
+-- Called from the menu and on initialize to build the table of hidden effects.
 function SpellCastBuffs.UpdateContextHideList()
-    -- Initialize hidden effects tables
     hidePlayerEffects = {}
     hideTargetEffects = {}
 
-    -- Hard-coded player-specific effect IDs
-    local hardCodedPlayerIds = { 86135, 86139, 86143 }
-    for _, id in ipairs(hardCodedPlayerIds) do
-        hidePlayerEffects[id] = true
-    end
+    -- Hide Warden Crystallized Shield & morphs from effects on the player (we use fake buffs to track this so that the stack count can be displayed)
+    hidePlayerEffects[86135] = true
+    hidePlayerEffects[86139] = true
+    hidePlayerEffects[86143] = true
 
-    -- Helper to merge effects into a target table.
-    -- If the setting is enabled in SpellCastBuffs.SV, then for either:
-    --   - a provided effect table, merge its key/values into the target
-    --   - a constant ID via 'defaultValue'
-    --- @param targetTable table The table to merge effects into
-    --- @param settingKey string The setting key to check
-    --- @param effectSource table|nil The effect source table, or nil if using a constant ID
-    --- @param defaultValue integer|nil The constant ID to use if effectSource is nil
-    local function mergeEffects(targetTable, settingKey, effectSource, defaultValue)
-        if SpellCastBuffs.SV[settingKey] then
-            if effectSource and type(effectSource) == "table" then
-                for k, v in pairs(effectSource) do
-                    targetTable[k] = v
-                end
-            elseif defaultValue then
-                targetTable[defaultValue] = true
-            end
+    if SpellCastBuffs.SV.IgnoreMundusPlayer then
+        for k, v in pairs(Effects.IsBoon) do
+            hidePlayerEffects[k] = v
         end
     end
-
-    -- List of player settings mappings
-    local playerMappings =
-    {
-        { key = "IgnoreMundusPlayer",      src = Effects.IsBoon                           },
-        { key = "IgnoreVampPlayer",        src = Effects.IsVamp                           },
-        { key = "IgnoreLycanPlayer",       src = Effects.IsLycan                          },
-        { key = "IgnoreDiseasePlayer",     src = Effects.IsVampLycanDisease               },
-        { key = "IgnoreBitePlayer",        src = Effects.IsVampLycanBite                  },
-        { key = "IgnoreCyrodiilPlayer",    src = Effects.IsCyrodiil                       },
-        { key = "IgnoreEsoPlusPlayer",     src = nil,                       value = 63601 },
-        { key = "IgnoreSoulSummonsPlayer", src = Effects.IsSoulSummons                    },
-        { key = "IgnoreFoodPlayer",        src = Effects.IsFoodBuff                       },
-        { key = "IgnoreExperiencePlayer",  src = Effects.IsExperienceBuff                 },
-        { key = "IgnoreAllianceXPPlayer",  src = Effects.IsAllianceXPBuff                 }
-    }
-
-    for _, mapping in ipairs(playerMappings) do
-        mergeEffects(hidePlayerEffects, mapping.key, mapping.src, mapping.value)
+    if SpellCastBuffs.SV.IgnoreMundusTarget then
+        for k, v in pairs(Effects.IsBoon) do
+            hideTargetEffects[k] = v
+        end
     end
-
-    -- List of target settings mappings
-    local targetMappings =
-    {
-        { key = "IgnoreMundusTarget",      src = Effects.IsBoon                           },
-        { key = "IgnoreVampTarget",        src = Effects.IsVamp                           },
-        { key = "IgnoreLycanTarget",       src = Effects.IsLycan                          },
-        { key = "IgnoreDiseaseTarget",     src = Effects.IsVampLycanDisease               },
-        { key = "IgnoreBiteTarget",        src = Effects.IsVampLycanBite                  },
-        { key = "IgnoreCyrodiilTarget",    src = Effects.IsCyrodiil                       },
-        { key = "IgnoreEsoPlusTarget",     src = nil,                       value = 63601 },
-        { key = "IgnoreSoulSummonsTarget", src = Effects.IsSoulSummons                    },
-        { key = "IgnoreFoodTarget",        src = Effects.IsFoodBuff                       },
-        { key = "IgnoreExperienceTarget",  src = Effects.IsExperienceBuff                 },
-        { key = "IgnoreAllianceXPTarget",  src = Effects.IsAllianceXPBuff                 }
-    }
-
-    for _, mapping in ipairs(targetMappings) do
-        mergeEffects(hideTargetEffects, mapping.key, mapping.src, mapping.value)
+    if SpellCastBuffs.SV.IgnoreVampPlayer then
+        for k, v in pairs(Effects.IsVamp) do
+            hidePlayerEffects[k] = v
+        end
     end
-
-    -- Handle block effects based on ShowBlock toggles
+    if SpellCastBuffs.SV.IgnoreVampTarget then
+        for k, v in pairs(Effects.IsVamp) do
+            hideTargetEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreLycanPlayer then
+        for k, v in pairs(Effects.IsLycan) do
+            hidePlayerEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreLycanTarget then
+        for k, v in pairs(Effects.IsLycan) do
+            hideTargetEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreDiseasePlayer then
+        for k, v in pairs(Effects.IsVampLycanDisease) do
+            hidePlayerEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreDiseaseTarget then
+        for k, v in pairs(Effects.IsVampLycanDisease) do
+            hideTargetEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreBitePlayer then
+        for k, v in pairs(Effects.IsVampLycanBite) do
+            hidePlayerEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreBiteTarget then
+        for k, v in pairs(Effects.IsVampLycanBite) do
+            hideTargetEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreCyrodiilPlayer then
+        for k, v in pairs(Effects.IsCyrodiil) do
+            hidePlayerEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreCyrodiilTarget then
+        for k, v in pairs(Effects.IsCyrodiil) do
+            hideTargetEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreEsoPlusPlayer then
+        hidePlayerEffects[63601] = true
+    end
+    if SpellCastBuffs.SV.IgnoreEsoPlusTarget then
+        hideTargetEffects[63601] = true
+    end
+    if SpellCastBuffs.SV.IgnoreSoulSummonsPlayer then
+        for k, v in pairs(Effects.IsSoulSummons) do
+            hidePlayerEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreSoulSummonsTarget then
+        for k, v in pairs(Effects.IsSoulSummons) do
+            hideTargetEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreFoodPlayer then
+        for k, v in pairs(Effects.IsFoodBuff) do
+            hidePlayerEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreFoodTarget then
+        for k, v in pairs(Effects.IsFoodBuff) do
+            hideTargetEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreExperiencePlayer then
+        for k, v in pairs(Effects.IsExperienceBuff) do
+            hidePlayerEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreExperienceTarget then
+        for k, v in pairs(Effects.IsExperienceBuff) do
+            hideTargetEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreAllianceXPPlayer then
+        for k, v in pairs(Effects.IsAllianceXPBuff) do
+            hidePlayerEffects[k] = v
+        end
+    end
+    if SpellCastBuffs.SV.IgnoreAllianceXPTarget then
+        for k, v in pairs(Effects.IsAllianceXPBuff) do
+            hideTargetEffects[k] = v
+        end
+    end
     if not SpellCastBuffs.SV.ShowBlockPlayer then
         for k, v in pairs(Effects.IsBlock) do
             hidePlayerEffects[k] = v
