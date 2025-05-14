@@ -826,6 +826,7 @@ function CombatInfo.RegisterCombatInfo()
     if CombatInfo.SV.ShowTriggered or CombatInfo.SV.ShowToggled then
         eventManager:RegisterForEvent(moduleName, EVENT_UNIT_DEATH_STATE_CHANGED, CombatInfo.OnDeath)
         eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, CombatInfo.OnTargetChange)
+        eventManager:AddFilterForEvent(moduleName, EVENT_TARGET_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
         eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, CombatInfo.OnReticleTargetChanged)
         eventManager:RegisterForEvent(moduleName, EVENT_GAMEPAD_PREFERRED_MODE_CHANGED, CombatInfo.BackbarSetupTemplate)
 
@@ -1260,9 +1261,6 @@ end
 --- @param eventCode integer
 --- @param unitTag string
 function CombatInfo.OnTargetChange(eventCode, unitTag)
-    if unitTag ~= "player" then
-        return
-    end
     CombatInfo.OnReticleTargetChanged(eventCode)
 end
 
