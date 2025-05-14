@@ -96,173 +96,202 @@ LUIE.HookKeyboardStats = function ()
         return nil
     end
 
+    -- Define comparator function for sorting effects rows
+    local function EffectsRowComparator(left, right)
+        local leftIsArtificial, rightIsArtificial = left.isArtificial, right.isArtificial
+        if leftIsArtificial ~= rightIsArtificial then
+            -- Artificial before real
+            return leftIsArtificial
+        else
+            if leftIsArtificial then
+                -- Both artificial, use def defined sort order
+                return left.sortOrder < right.sortOrder
+            else
+                -- Both real, use time
+                return left.time.endTime < right.time.endTime
+            end
+        end
+    end
+
+    -- Process artificial effects
+    local function ProcessArtificialEffects(effectsRows, effectsRowPool)
+        for effectId in ZO_GetNextActiveArtificialEffectIdIter do
+            -- Skip ESO Plus buff (effectId == 0)
+            if effectId ~= 0 then
+                local displayName, iconFile, effectType, sortOrder, startTime, endTime = GetArtificialEffectInfo(effectId)
+                local effectsRow = effectsRowPool:AcquireObject()
+                effectsRow.name:SetText(zo_strformat(SI_ABILITY_TOOLTIP_NAME, displayName))
+                effectsRow.icon:SetTexture(iconFile)
+                effectsRow.effectType = effectType
+                local duration = startTime - endTime
+                effectsRow.time:SetHidden(duration == 0)
+                effectsRow.time.endTime = endTime
+                effectsRow.sortOrder = sortOrder
+                effectsRow.tooltipTitle = zo_strformat(SI_ABILITY_TOOLTIP_NAME, displayName)
+                effectsRow.effectId = effectId
+                effectsRow.isArtificial = true
+                effectsRow.isArtificialTooltip = true
+
+                -- Special handling for Battleground Deserter Penalty
+                if effectId == 1 then
+                    startTime = GetFrameTimeSeconds()
+                    local cooldown = GetLFGCooldownTimeRemainingSeconds(LFG_COOLDOWN_BATTLEGROUND_DESERTED_QUEUE)
+                    endTime = startTime + cooldown
+                    duration = startTime - endTime
+                    effectsRow.time:SetHidden(duration == 0)
+                    effectsRow.time.endTime = endTime
+                    effectsRow.isArtificial = false -- Sort with normal buffs
+                end
+                table.insert(effectsRows, effectsRow)
+            end
+        end
+        return effectsRows
+    end
+
+    -- Collect player buffs data
+    local function CollectPlayerBuffs()
+        local trackBuffs = {}
+        for i = 1, GetNumBuffs("player") do
+            local buffName, startTime, endTime, buffSlot, stackCount, iconFile, deprecatedBuffType, effectType, abilityType, statusEffectType, abilityId = GetUnitBuffInfo("player", i)
+            trackBuffs[i] = {
+                buffName = buffName,
+                startTime = startTime,
+                endTime = endTime,
+                buffSlot = buffSlot,
+                stackCount = stackCount,
+                iconFile = iconFile,
+                deprecatedBuffType = deprecatedBuffType,
+                effectType = effectType,
+                abilityType = abilityType,
+                statusEffectType = statusEffectType,
+                abilityId = abilityId,
+            }
+        end
+        return trackBuffs
+    end
+
+    -- Handle duplicate abilities
+    local function HandleDuplicateBuffs(trackBuffs)
+        for i = 1, #trackBuffs do
+            local compareId = trackBuffs[i].abilityId
+            local compareTime = trackBuffs[i].endTime
+            if Effects.EffectOverride[compareId] and Effects.EffectOverride[compareId].noDuplicate then
+                for k, v in pairs(trackBuffs) do
+                    if v.abilityId == compareId and v.endTime < compareTime then
+                        v.markForRemove = true
+                    end
+                end
+            end
+        end
+        return trackBuffs
+    end
+
+    -- Process player buffs
+    local function ProcessPlayerBuffs(effectsRows, effectsRowPool, trackBuffs)
+        for i = 1, #trackBuffs do
+            local buff = trackBuffs[i]
+            if buff.buffSlot > 0 and buff.buffName ~= "" and
+            not (Effects.EffectOverride[buff.abilityId] and Effects.EffectOverride[buff.abilityId].hide) and
+            not buff.markForRemove then
+                -- Process tooltip values
+                local timer = buff.endTime - buff.startTime
+                local value2, value3 = 0, 0
+                local effectOverride = Effects.EffectOverride[buff.abilityId]
+
+                if effectOverride then
+                    -- Handle value2
+                    if effectOverride.tooltipValue2 then
+                        value2 = effectOverride.tooltipValue2
+                    elseif effectOverride.tooltipValue2Mod then
+                        value2 = zo_floor(timer + effectOverride.tooltipValue2Mod + 0.5)
+                    elseif effectOverride.tooltipValue2Id then
+                        value2 = zo_floor((GetAbilityDuration(effectOverride.tooltipValue2Id) or 0) + 0.5) / 1000
+                    end
+                    -- Handle value3
+                    value3 = effectOverride.tooltipValue3 or 0
+                end
+
+                timer = zo_floor((timer * 10) + 0.5) / 10
+
+                -- Generate tooltip text
+                local tooltipText = GetTooltipText(buff.abilityId, buff.buffSlot, timer, value2, value3)
+
+                -- Apply effect type override if needed
+                if effectOverride and effectOverride.type then
+                    buff.effectType = effectOverride.type
+                end
+
+                -- Create effects row if conditions are met
+                if ShouldShowEffect(buff.abilityId) then
+                    local effectsRow = effectsRowPool:AcquireObject()
+                    effectsRow.name:SetText(zo_strformat(SI_ABILITY_TOOLTIP_NAME, buff.buffName))
+                    effectsRow.icon:SetTexture(buff.iconFile)
+
+                    -- Always set the stack count text - set to empty string if stack count is 1 or less
+                    -- This ensures stack count is cleared when objects are reused from the pool
+                    if buff.stackCount > 1 then
+                        effectsRow.stackCount:SetText(buff.stackCount)
+                    else
+                        effectsRow.stackCount:SetText("")
+                    end
+
+                    effectsRow.tooltipTitle = zo_strformat(SI_ABILITY_TOOLTIP_NAME, buff.buffName)
+                    effectsRow.tooltipText = tooltipText
+                    effectsRow.thirdLine = GetThirdLine(buff.abilityId, buff.endTime - buff.startTime)
+
+                    local duration = buff.startTime - buff.endTime
+                    effectsRow.time:SetHidden(duration == 0)
+                    effectsRow.time.endTime = buff.endTime
+                    effectsRow.effectType = buff.effectType
+                    effectsRow.buffSlot = buff.buffSlot
+                    effectsRow.isArtificial = false
+                    effectsRow.effectId = buff.abilityId
+
+                    table.insert(effectsRows, effectsRow)
+                end
+            end
+        end
+        return effectsRows
+    end
+
+    -- Position effects rows in the UI
+    local function PositionEffectsRows(effectsRows)
+        local prevRow
+        for i, effectsRow in ipairs(effectsRows) do
+            if prevRow then
+                effectsRow:SetAnchor(TOPLEFT, prevRow, BOTTOMLEFT)
+            else
+                effectsRow:SetAnchor(TOPLEFT, nil, TOPLEFT, 5, 0)
+            end
+            effectsRow:SetHidden(false)
+            prevRow = effectsRow
+        end
+    end
+
     function ZO_Stats:AddLongTermEffects(container, effectsRowPool)
         local function UpdateEffects()
             if not container:IsHidden() then
                 effectsRowPool:ReleaseAllObjects()
-
                 local effectsRows = {}
 
-                -- Artificial effects
-                for effectId in ZO_GetNextActiveArtificialEffectIdIter do
-                    -- Skip ESO Plus buff (effectId == 0)
-                    if effectId ~= 0 then
-                        local displayName, iconFile, effectType, sortOrder, startTime, endTime = GetArtificialEffectInfo(effectId)
-                        local effectsRow = effectsRowPool:AcquireObject()
-                        effectsRow.name:SetText(zo_strformat(SI_ABILITY_TOOLTIP_NAME, displayName))
-                        effectsRow.icon:SetTexture(iconFile)
-                        effectsRow.effectType = effectType
-                        local duration = startTime - endTime
-                        effectsRow.time:SetHidden(duration == 0)
-                        effectsRow.time.endTime = endTime
-                        effectsRow.sortOrder = sortOrder
-                        effectsRow.tooltipTitle = zo_strformat(SI_ABILITY_TOOLTIP_NAME, displayName)
-                        effectsRow.effectId = effectId
-                        effectsRow.isArtificial = true
-                        effectsRow.isArtificialTooltip = true
+                -- Process artificial effects
+                effectsRows = ProcessArtificialEffects(effectsRows, effectsRowPool)
 
-                        -- Special handling for Battleground Deserter Penalty
-                        if effectId == 1 then
-                            startTime = GetFrameTimeSeconds()
-                            local cooldown = GetLFGCooldownTimeRemainingSeconds(LFG_COOLDOWN_BATTLEGROUND_DESERTED_QUEUE)
-                            endTime = startTime + cooldown
-                            duration = startTime - endTime
-                            effectsRow.time:SetHidden(duration == 0)
-                            effectsRow.time.endTime = endTime
-                            effectsRow.isArtificial = false -- Sort with normal buffs
-                        end
-                        table.insert(effectsRows, effectsRow)
-                    end
-                end
-
-                -- Track buffs for duplicate handling
-                local trackBuffs = {}
-                for i = 1, GetNumBuffs("player") do
-                    local buffName, startTime, endTime, buffSlot, stackCount, iconFile, deprecatedBuffType, effectType, abilityType, statusEffectType, abilityId = GetUnitBuffInfo("player", i)
-                    trackBuffs[i] =
-                    {
-                        buffName = buffName,
-                        startTime = startTime,
-                        endTime = endTime,
-                        buffSlot = buffSlot,
-                        stackCount = stackCount,
-                        iconFile = iconFile,
-                        deprecatedBuffType = deprecatedBuffType,
-                        effectType = effectType,
-                        abilityType = abilityType,
-                        statusEffectType = statusEffectType,
-                        abilityId = abilityId,
-                    }
-                end
-
-                -- Handle duplicate abilities
-                for i = 1, #trackBuffs do
-                    local compareId = trackBuffs[i].abilityId
-                    local compareTime = trackBuffs[i].endTime
-                    if Effects.EffectOverride[compareId] and Effects.EffectOverride[compareId].noDuplicate then
-                        for k, v in pairs(trackBuffs) do
-                            if v.abilityId == compareId and v.endTime < compareTime then
-                                v.markForRemove = true
-                            end
-                        end
-                    end
-                end
-
-                -- Process buffs
-                for i = 1, #trackBuffs do
-                    local buff = trackBuffs[i]
-                    if buff.buffSlot > 0 and buff.buffName ~= "" and
-                    not (Effects.EffectOverride[buff.abilityId] and Effects.EffectOverride[buff.abilityId].hide) and
-                    not buff.markForRemove then
-                        -- Process tooltip values
-                        local timer = buff.endTime - buff.startTime
-                        local value2, value3 = 0, 0
-                        local effectOverride = Effects.EffectOverride[buff.abilityId]
-
-                        if effectOverride then
-                            -- Handle value2
-                            if effectOverride.tooltipValue2 then
-                                value2 = effectOverride.tooltipValue2
-                            elseif effectOverride.tooltipValue2Mod then
-                                value2 = zo_floor(timer + effectOverride.tooltipValue2Mod + 0.5)
-                            elseif effectOverride.tooltipValue2Id then
-                                value2 = zo_floor((GetAbilityDuration(effectOverride.tooltipValue2Id) or 0) + 0.5) / 1000
-                            end
-                            -- Handle value3
-                            value3 = effectOverride.tooltipValue3 or 0
-                        end
-
-                        timer = zo_floor((timer * 10) + 0.5) / 10
-
-                        -- Generate tooltip text
-                        local tooltipText = GetTooltipText(buff.abilityId, buff.buffSlot, timer, value2, value3)
-
-                        -- Apply effect type override if needed
-                        if effectOverride and effectOverride.type then
-                            buff.effectType = effectOverride.type
-                        end
-
-                        -- Create effects row if conditions are met
-                        if ShouldShowEffect(buff.abilityId) then
-                            local effectsRow = effectsRowPool:AcquireObject()
-                            effectsRow.name:SetText(zo_strformat(SI_ABILITY_TOOLTIP_NAME, buff.buffName))
-                            effectsRow.icon:SetTexture(buff.iconFile)
-
-                            -- Add stack count display
-                            if buff.stackCount > 1 then
-                                effectsRow.stackCount:SetText(buff.stackCount)
-                            end
-
-                            effectsRow.tooltipTitle = zo_strformat(SI_ABILITY_TOOLTIP_NAME, buff.buffName)
-                            effectsRow.tooltipText = tooltipText
-                            effectsRow.thirdLine = GetThirdLine(buff.abilityId, buff.endTime - buff.startTime)
-
-                            local duration = buff.startTime - buff.endTime
-                            effectsRow.time:SetHidden(duration == 0)
-                            effectsRow.time.endTime = buff.endTime
-                            effectsRow.effectType = buff.effectType
-                            effectsRow.buffSlot = buff.buffSlot
-                            effectsRow.isArtificial = false
-                            effectsRow.effectId = buff.abilityId
-
-                            table.insert(effectsRows, effectsRow)
-                        end
-                    end
-                end
+                -- Collect and process player buffs
+                local trackBuffs = CollectPlayerBuffs()
+                trackBuffs = HandleDuplicateBuffs(trackBuffs)
+                effectsRows = ProcessPlayerBuffs(effectsRows, effectsRowPool, trackBuffs)
 
                 -- Sort and position rows
-                table.sort(effectsRows, function (left, right)
-                    local leftIsArtificial, rightIsArtificial = left.isArtificial, right.isArtificial
-                    if leftIsArtificial ~= rightIsArtificial then
-                        -- Artificial before real
-                        return leftIsArtificial
-                    else
-                        if leftIsArtificial then
-                            -- Both artificial, use def defined sort order
-                            return left.sortOrder < right.sortOrder
-                        else
-                            -- Both real, use time
-                            return left.time.endTime < right.time.endTime
-                        end
-                    end
-                end)
-                local prevRow
-                for i, effectsRow in ipairs(effectsRows) do
-                    if prevRow then
-                        effectsRow:SetAnchor(TOPLEFT, prevRow, BOTTOMLEFT)
-                    else
-                        effectsRow:SetAnchor(TOPLEFT, nil, TOPLEFT, 5, 0)
-                    end
-                    effectsRow:SetHidden(false)
-                    prevRow = effectsRow
-                end
+                table.sort(effectsRows, EffectsRowComparator)
+                PositionEffectsRows(effectsRows)
             end
         end
 
         -- Register events
         local function OnEffectChanged(eventCode, changeType, buffSlot, buffName, unitTag)
             UpdateEffects()
-            self:RefreshAllAttributes()
+            self:RefreshAllAttributes() -- Use the original method
         end
 
         local function HideMundusTooltips()
