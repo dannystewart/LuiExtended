@@ -102,6 +102,26 @@ local function getAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterU
     return GetAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
 end
 
+-- debuffs that the API doesn't show via EVENT_EFFECT_CHANGED and need to be specially tracked via EVENT_COMBAT_EVENT
+local SpecialDebuffs =
+{
+    178118, -- Status Effect Magic (Overcharged)
+    95136,  -- Status Effect Frost (Chill, used for tracking Warden crit damage buff)
+    95134,  -- Status Effect Lightning (Concussion)
+    178123, -- Status Effect Physical (Sundered)
+    178127, -- Status Effect Foulness (Diseased)
+    148801, -- Status Effect Bleeding (Hemorrhaging)
+}
+
+local function IsSpecialStatusEffect(abilityId)
+    for _, id in pairs(SpecialDebuffs) do
+        if id == abilityId then
+            return true
+        end
+    end
+    return false
+end
+
 -- Debug Display for Combat Events
 ---
 --- @param eventId integer
@@ -246,6 +266,53 @@ function SpellCastBuffs.AuthorCombatDebug(eventId, result, isError, abilityName,
     if DebugAuras[abilityId] and SpellCastBuffs.SV.ShowDebugFilter then
         return
     end
+
+    -- Special handling for status effects that don't show up via EVENT_EFFECT_CHANGED
+    if IsSpecialStatusEffect(abilityId) then
+        local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
+
+        local source = zo_strformat("<<C:1>>", sourceName)
+        local target = zo_strformat("<<C:1>>", targetName)
+        local ability = zo_strformat("<<C:1>>", getAbilityName(abilityId))
+
+        if source == LUIE.PlayerNameFormatted then
+            source = "Player"
+        end
+        if target == LUIE.PlayerNameFormatted then
+            target = "Player"
+        end
+        if source == "" and target == "" then
+            source = "NIL"
+            target = "NIL"
+        end
+
+        -- Get appropriate status effect type for this ability ID
+        local statusEffectType
+        if abilityId == 178118 then
+            statusEffectType = 21 -- Magic (Overcharged)
+        elseif abilityId == 95136 then
+            statusEffectType = 2  -- Frost (Chill) - maps to SNARE
+        elseif abilityId == 95134 then
+            statusEffectType = 21 -- Lightning (Concussion) - maps to MAGIC
+        elseif abilityId == 178123 then
+            statusEffectType = 10 -- Physical (Sundered) - maps to PUNCTURE
+        elseif abilityId == 178127 then
+            statusEffectType = 8  -- Foulness (Diseased) - maps to DISEASE
+        elseif abilityId == 148801 then
+            statusEffectType = 3  -- Bleeding (Hemorrhaging) - maps to BLEED
+        end
+
+        local statusEffect = DebugStatus[statusEffectType] or "UNKNOWN"
+        local formattedResult = DebugResults[result]
+
+        -- Format special status effect string differently to make it stand out
+        local finalString = ("|cFF5500SPECIAL STATUS:|r " .. iconFormatted .. " [" .. abilityId .. "] " .. ability ..
+            ": [S] " .. source .. " --> [T] " .. target .. " [Status] " .. statusEffect .. " [R] " .. formattedResult)
+
+        printToChat(finalString, true)
+        return
+    end
+
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
     local nameFormatted = zo_strformat("<<C:1>>", getAbilityName(abilityId))
 

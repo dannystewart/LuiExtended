@@ -14,7 +14,6 @@ local Castbar = Data.CastBarTable
 local OtherAddonCompatability = LUIE.OtherAddonCompatability
 
 local pairs = pairs
-local ipairs = ipairs
 local printToChat = LUIE.PrintToChat
 local GetSlotTrueBoundId = LUIE.GetSlotTrueBoundId
 local GetAbilityDuration = GetAbilityDuration
@@ -309,7 +308,7 @@ CombatInfo.CastBarUnlocked = false
 CombatInfo.AlertFrameUnlocked = false
 
 
-local isFancyActionBarEnabled = OtherAddonCompatability.isFancyActionBarPlusEnabled or false
+local isFancyActionBarEnabled = OtherAddonCompatability.isFancyActionBarPlusEnabled or LUIE.IsItEnabled("FancyActionBar\43") or LUIE.IsItEnabled("FancyActionBar")
 local uiTlw = {}                                          -- GUI
 local castbar = {}                                        -- castbar
 local g_casting = false                                   -- Toggled when casting - prevents additional events from creating a cast bar until finished
@@ -388,35 +387,6 @@ end
 local function GetUpdatedAbilityDuration(abilityId, overrideRank, casterUnitTag)
     local duration = g_barDurationOverride[abilityId] or getAbilityDuration(abilityId, overrideRank, casterUnitTag) or 0
     return duration
-end
-
---- Handles ability ID overrides for bar highlights
---- @param abilityId integer
---- @param unitTag string
---- @return integer
-local function HandleAbilityIdOverrides(abilityId, unitTag)
-    -- Only proceed with ability ID hijacking if FancyActionBar is not active
-    if not isFancyActionBarEnabled then
-        -- Hijack the abilityId here if we have it in the override for extra bar highlights
-        if Effects.BarHighlightExtraId[abilityId] then
-            for k, v in pairs(Effects.BarHighlightExtraId) do
-                if k == abilityId then
-                    local newAbilityId = v
-
-                    if Effects.IsGroundMineAura[newAbilityId] then
-                        -- This prevents debuffs from ground mines from not fading when mouseover is changed
-                        g_toggledSlotsPlayer[newAbilityId] = nil
-                        if unitTag == "reticleover" then
-                            g_mineNoTurnOff[newAbilityId] = true
-                        end
-                    end
-
-                    return newAbilityId
-                end
-            end
-        end
-    end
-    return abilityId
 end
 
 --- Formats duration in seconds for display
@@ -503,23 +473,62 @@ function CombatInfo.SetMarker(removeMarker)
     eventManager:RegisterForEvent(moduleName .. "Marker", EVENT_PLAYER_ACTIVATED, CombatInfo.OnPlayerActivatedMarker)
 end
 
--- Called on initialization and on full update to swap icons on backbar
-function CombatInfo.SetupBackBarIcons(button, flip)
-    -- Setup icons for backbar
-    local hotbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP
-    local slotNum = button.slot.slotNum
-    local slotId = GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, hotbarCategory)
+--- Gets corrected ability ID based on weapon type and special cases
+--- @param abilityId integer Original ability ID
+--- @param hotbarCategory number Hotbar category (HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP)
+--- @return integer Corrected ability ID
+local function GetCorrectedAbilityId(abilityId, hotbarCategory)
+    local correctedAbilityId = abilityId
+    local BarHighlightDestroFix = Effects.BarHighlightDestroFix
 
-    -- Check backbar weapon type
-    local weaponSlot = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and 4 or 20
+    -- Only process abilities that have staff variants defined in the fix table
+    if not BarHighlightDestroFix[abilityId] then
+        return abilityId
+    end
+
+    -- Determine which weapon slot to check based on hotbar category
+    local weaponSlot = (hotbarCategory == HOTBAR_CATEGORY_PRIMARY) and EQUIP_SLOT_MAIN_HAND or EQUIP_SLOT_BACKUP_MAIN
+
+    -- Get the weapon type from the appropriate slot
     local weaponType = GetItemWeaponType(BAG_WORN, weaponSlot)
 
-    -- Fix tracking for Staff Backbar
-    if weaponType == WEAPONTYPE_FIRE_STAFF or weaponType == WEAPONTYPE_FROST_STAFF or weaponType == WEAPONTYPE_LIGHTNING_STAFF then
-        if Effects.BarHighlightDestroFix[slotId] and Effects.BarHighlightDestroFix[slotId][weaponType] then
-            slotId = Effects.BarHighlightDestroFix[slotId][weaponType]
+    -- Only apply correction for staff weapon types
+    if weaponType == WEAPONTYPE_FIRE_STAFF or weaponType == WEAPONTYPE_FROST_STAFF or weaponType == WEAPONTYPE_LIGHTNING_STAFF or weaponType == WEAPONTYPE_NONE then
+        if BarHighlightDestroFix[abilityId] and BarHighlightDestroFix[abilityId][weaponType] then
+            correctedAbilityId = BarHighlightDestroFix[abilityId][weaponType]
+
+            -- -- Debug output if enabled
+            -- if LUIE.IsDevDebugEnabled() then
+            --     local staffType = "unknown"
+            --     if weaponType == WEAPONTYPE_FIRE_STAFF then
+            --         staffType = "fire"
+            --     elseif weaponType == WEAPONTYPE_FROST_STAFF then
+            --         staffType = "frost"
+            --     elseif weaponType == WEAPONTYPE_LIGHTNING_STAFF then
+            --         staffType = "lightning"
+            --     elseif weaponType == WEAPONTYPE_NONE then
+            --         staffType = "none"
+            --     end
+
+            --     LUIE.Debug("Bar: %s, Corrected ability ID from %d to %d for %s staff",
+            --                hotbarCategory == HOTBAR_CATEGORY_PRIMARY and "Primary" or "Backup",
+            --                abilityId, correctedAbilityId, staffType)
+            -- end
         end
     end
+
+    return correctedAbilityId
+end
+
+-- Called on initialization and on full update to swap icons on backbar
+function CombatInfo.SetupBackBarIcons(button, flip)
+    -- Determine which bar to display on the backbar buttons (opposite of current bar)
+    local inactiveHotbarCategory = g_hotbarCategory == HOTBAR_CATEGORY_BACKUP and HOTBAR_CATEGORY_PRIMARY or HOTBAR_CATEGORY_BACKUP
+    local slotNum = button.slot.slotNum
+
+    -- Get the ability ID for the appropriate slot, adjusted for the inactive bar's staff type
+    local slotId = GetSlotTrueBoundId(slotNum - BACKBAR_INDEX_OFFSET, inactiveHotbarCategory)
+    slotId = GetCorrectedAbilityId(slotId, inactiveHotbarCategory)
 
     -- Special case for certain skills, so the proc icon doesn't get stuck.
     local specialCases =
@@ -538,6 +547,10 @@ function CombatInfo.SetupBackBarIcons(button, flip)
     if slotId > 0 then
         button.icon:SetTexture(GetAbilityIcon(slotId))
         button.icon:SetHidden(false)
+
+        -- if LUIE.IsDevDebugEnabled() then
+        --     LUIE.Debug("Setting backbar icon for slot %d to ability %d", slotNum - BACKBAR_INDEX_OFFSET, slotId)
+        -- end
     else
         button.icon:SetHidden(true)
     end
@@ -1352,7 +1365,7 @@ function CombatInfo.BarHighlightSwap(abilityId)
     local duration = effect.duration or 0
     local durationMod = effect.durationMod or 0
 
-    for i, id in ipairs(ids) do
+    for i, id in pairs(ids) do
         local unitTag = tags[i]
         if not DoesUnitExist(unitTag) then
             return
@@ -1569,7 +1582,25 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
     end
 
     -- Hijack the abilityId here if we have it in the override for extra bar highlights
-    abilityId = HandleAbilityIdOverrides(abilityId, unitTag)
+    -- Only proceed with ability ID hijacking if FancyActionBar is not active
+    if not isFancyActionBarEnabled then
+        -- Hijack the abilityId here if we have it in the override for extra bar highlights
+        if Effects.BarHighlightExtraId[abilityId] then
+            for k, v in pairs(Effects.BarHighlightExtraId) do
+                if k == abilityId then
+                    abilityId = v
+                    if Effects.IsGroundMineAura[abilityId] then
+                        -- This prevents debuffs from ground mines from not fading when mouseover is changed.
+                        g_toggledSlotsPlayer[abilityId] = nil
+                        if unitTag == "reticleover" then
+                            g_mineNoTurnOff[abilityId] = true
+                        end
+                    end
+                    break
+                end
+            end
+        end
+    end
 
     if unitTag ~= "player" and unitTag ~= "reticleover" then
         return
@@ -2561,7 +2592,7 @@ function CombatInfo.BarSlotUpdate(slotNum, wasfullUpdate, onlyProc)
         local weaponType = GetItemWeaponType(BAG_WORN, weaponSlot)
 
         -- Fix tracking for Staff Backbar
-        if weaponType == WEAPONTYPE_FIRE_STAFF or weaponType == WEAPONTYPE_FROST_STAFF or weaponType == WEAPONTYPE_LIGHTNING_STAFF then
+        if weaponType == WEAPONTYPE_FIRE_STAFF or weaponType == WEAPONTYPE_FROST_STAFF or weaponType == WEAPONTYPE_LIGHTNING_STAFF or weaponType == WEAPONTYPE_NONE then
             if Effects.BarHighlightDestroFix[ability_id] and Effects.BarHighlightDestroFix[ability_id][weaponType] then
                 ability_id = Effects.BarHighlightDestroFix[ability_id][weaponType]
             end
@@ -2950,9 +2981,10 @@ function CombatInfo.Initialize(enabled)
         return
     end
     CombatInfo.Enabled = true
-    isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar\43")
+
     CombatInfo.ApplyFont()
     CombatInfo.ApplyProcSound()
+
     local QSB = _G["QuickslotButton"]
     uiQuickSlot.label = UI:Label(QSB, { CENTER, CENTER }, nil, nil, g_potionFont, nil, true)
     uiQuickSlot.label:SetFont(g_potionFont)
@@ -2963,7 +2995,9 @@ function CombatInfo.Initialize(enabled)
     end
     uiQuickSlot.label:SetDrawLayer(DL_OVERLAY)
     uiQuickSlot.label:SetDrawTier(DT_HIGH)
-    CombatInfo.ResetPotionTimerLabel() -- Set the label position
+
+    -- Set the label position
+    CombatInfo.ResetPotionTimerLabel()
 
     -- Set ultimate label
     local actionButton = ZO_ActionBar_GetButton(g_ultimateSlot, g_hotbarCategory)
