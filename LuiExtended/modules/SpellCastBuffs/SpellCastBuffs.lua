@@ -681,6 +681,7 @@ function SpellCastBuffs.Initialize(enabled)
     eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, SpellCastBuffs.OnUpdate)
     -- Target Events
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, SpellCastBuffs.OnTargetChange)
+    eventManager:AddFilterForEvent(moduleName, EVENT_TARGET_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
     eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, SpellCastBuffs.OnReticleTargetChanged)
     eventManager:RegisterForEvent(moduleName .. "Disposition", EVENT_DISPOSITION_UPDATE, SpellCastBuffs.OnDispositionUpdate)
     eventManager:AddFilterForEvent(moduleName .. "Disposition", EVENT_DISPOSITION_UPDATE, REGISTER_FILTER_UNIT_TAG, "reticleover")
@@ -2215,8 +2216,8 @@ function SpellCastBuffs.OnEffectChangedGround(eventId, changeType, effectSlot, e
         if Effects.EffectGroundDisplay[abilityId] and Effects.EffectGroundDisplay[abilityId].noRemove then
             return
         end -- Ignore some abilities
-        local currentTime = GetFrameTimeMilliseconds()
-        if not g_protectAbilityRemoval[abilityId] or g_protectAbilityRemoval[abilityId] < currentTime then
+        local currentTimeMs = GetFrameTimeMilliseconds()
+        if not g_protectAbilityRemoval[abilityId] or g_protectAbilityRemoval[abilityId] < currentTimeMs then
             for i = 1, 3 do
                 if groundType[i].info == true then
                     -- Set container context
@@ -2243,8 +2244,8 @@ function SpellCastBuffs.OnEffectChangedGround(eventId, changeType, effectSlot, e
             end
         end
     elseif changeType == EFFECT_RESULT_GAINED then
-        local currentTime = GetFrameTimeMilliseconds()
-        g_protectAbilityRemoval[abilityId] = currentTime + 150
+        local currentTimeMs = GetFrameTimeMilliseconds()
+        g_protectAbilityRemoval[abilityId] = currentTimeMs + 150
 
         local duration = endTime - beginTime
         local groundLabel = Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].groundLabel or false
@@ -3851,9 +3852,6 @@ end
 -- This handler fires every time someone target changes.
 -- This function is needed in case the player teleports via Way Shrine
 function SpellCastBuffs.OnTargetChange(eventCode, unitTag)
-    if unitTag ~= "player" then
-        return
-    end
     SpellCastBuffs.OnReticleTargetChanged(eventCode)
 end
 
@@ -3953,7 +3951,7 @@ end
 function SpellCastBuffs.ShowRecallCooldown()
     local recallRemain, _ = GetRecallCooldown()
     if recallRemain > 0 then
-        local currentTime = GetFrameTimeMilliseconds()
+        local currentTimeMs = GetFrameTimeMilliseconds()
         local abilityId = 999016
         local abilityName = Abilities.Innate_Recall_Penalty
         local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)
@@ -3965,8 +3963,8 @@ function SpellCastBuffs.ShowRecallCooldown()
             name = abilityName,
             icon = "LuiExtended/media/icons/abilities/ability_innate_recall_cooldown.dds",
             dur = 600000,
-            starts = currentTime,
-            ends = currentTime + recallRemain,
+            starts = currentTimeMs,
+            ends = currentTimeMs + recallRemain,
             forced = "long",
             restart = true,
             iconNum = 0,
@@ -4005,7 +4003,7 @@ function SpellCastBuffs.AddNameAura()
     local unitName = GetUnitName("reticleover")
     -- We need to check to make sure the mob is not dead, and also check to make sure the unitTag is not the player (just in case someones name exactly matches that of a boss NPC)
     if Effects.AddNameAura[unitName] and GetUnitReaction("reticleover") == UNIT_REACTION_HOSTILE and not IsUnitPlayer("reticleover") and not IsUnitDead("reticleover") then
-        for k, v in ipairs(Effects.AddNameAura[unitName]) do
+        for k, v in pairs(Effects.AddNameAura[unitName]) do
             local abilityName = GetAbilityName(v.id)
             local abilityIcon = GetAbilityIcon(v.id)
 
@@ -4054,7 +4052,7 @@ end
 
 -- Called by menu to preview icon positions. Simply iterates through all containers other than player_long and adds dummy test buffs into them.
 function SpellCastBuffs.MenuPreview()
-    local currentTime = GetFrameTimeMilliseconds()
+    local currentTimeMs = GetFrameTimeMilliseconds()
     local routing = { "player1", "reticleover1", "promb_player", "player2", "reticleover2", "promd_player" }
     local testEffectDurationList = { 22, 44, 55, 300, 1800000 }
     local abilityId = 999000
@@ -4074,8 +4072,8 @@ function SpellCastBuffs.MenuPreview()
                 name = name,
                 icon = icon,
                 dur = duration * 1000,
-                starts = currentTime,
-                ends = currentTime + (duration * 1000),
+                starts = currentTimeMs,
+                ends = currentTimeMs + (duration * 1000),
                 forced = "short",
                 restart = true,
                 iconNum = 0,
@@ -4085,133 +4083,7 @@ function SpellCastBuffs.MenuPreview()
     end
 end
 
--- Helper function to sort buffs
-local function buffSort(x, y)
-    local xDuration = (x.ends == nil or x.dur == 0 or x.groundLabel or x.toggle) and 0 or x.dur
-    local yDuration = (y.ends == nil or y.dur == 0 or y.groundLabel or y.toggle) and 0 or y.dur
-    -- Sort toggle effects
-    if x.toggle or y.toggle then
-        if xDuration == 0 and yDuration == 0 then
-            if x.toggle and y.toggle then
-                return (x.name < y.name)
-            elseif x.toggle and not y.toggle then
-                return (xDuration == 0)
-            end
-        else
-            return (xDuration == 0)
-        end
-        -- Sort permanent/ground effects (might separate these at some point but for now want the sorting function simplified)
-    elseif xDuration == 0 and yDuration == 0 then
-        return (x.name < y.name)
-        -- Both non-permanent
-    elseif xDuration ~= 0 and yDuration ~= 0 then
-        return (x.starts == y.starts) and (x.name < y.name) or (x.ends > y.ends)
-        -- One permanent, one not
-    else
-        return (xDuration == 0)
-    end
-end
-
--- Runs OnUpdate - 100 ms buffer
-function SpellCastBuffs.OnUpdate(currentTime)
-    local buffsSorted = {}
-    local needs_update = {}
-    local isProminent = {}
-
-    -- And reset sizes of already existing icons
-    for _, container in pairs(containerRouting) do
-        needs_update[container] = true
-        -- Prepare sort container
-        if buffsSorted[container] == nil then
-            buffsSorted[container] = {}
-        end
-        -- Refresh prominent buff labels on each update tick
-        if container == "prominentbuffs" or container == "prominentdebuffs" then
-            isProminent[container] = true
-        end
-    end
-
-    -- Filter expired events and build array for sorting
-    for context, effectsList in pairs(SpellCastBuffs.EffectsList) do
-        local container = containerRouting[context]
-        for k, v in pairs(effectsList) do
-            -- Remove effect (that is not permanent and has duration)
-            if v.ends ~= nil and v.dur > 0 and v.ends < currentTime then
-                effectsList[k] = nil
-            elseif container then
-                -- Add icons to to-be-sorted list only if effect already started
-                if v.starts < currentTime then
-                    -- Filter Effects
-                    -- Always show prominent effects
-                    if v.target == "prominent" then
-                        table_insert(buffsSorted[container], v)
-                        -- If the effect is not flagged as long or 0 duration and flagged to display in short container, then display normally.
-                    elseif v.type == BUFF_EFFECT_TYPE_DEBUFF or v.forced == "short" or not (v.forced == "long" or v.ends == nil or v.dur == 0) then
-                        if v.target == "reticleover" and SpellCastBuffs.SV.ShortTermEffects_Target then
-                            table_insert(buffsSorted[container], v)
-                        elseif v.target == "player" and SpellCastBuffs.SV.ShortTermEffects_Player then
-                            table_insert(buffsSorted[container], v)
-                        end
-                        -- If the effect is a long term effect on the target then use Long Term Target settings.
-                    elseif v.target == "reticleover" and SpellCastBuffs.SV.LongTermEffects_Target then
-                        table_insert(buffsSorted[container], v)
-                        -- If the effect is a long term effect on the player then use Long Term Player settings.
-                    elseif v.target == "player" and SpellCastBuffs.SV.LongTermEffects_Player then
-                        -- Choose container for long-term player buffs
-                        if SpellCastBuffs.SV.LongTermEffectsSeparate and not (container == "prominentbuffs" or container == "prominentdebuffs") then
-                            table_insert(buffsSorted["player_long"], v)
-                        else
-                            table_insert(buffsSorted[container], v)
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    -- Sort effects in container and draw them on screen
-    for _, container in pairs(containerRouting) do
-        if needs_update[container] then
-            table_sort(buffsSorted[container], buffSort)
-            SpellCastBuffs.updateIcons(currentTime, buffsSorted[container], container)
-        end
-        needs_update[container] = false
-    end
-
-    for _, container in pairs(containerRouting) do
-        if isProminent[container] then
-            SpellCastBuffs.updateBar(currentTime, buffsSorted[container], container)
-        end
-    end
-
-    -- Display Block buff for player if enabled
-    if SpellCastBuffs.SV.ShowBlockPlayer and not SpellCastBuffs.SV.HidePlayerBuffs then
-        if IsBlockActive() and not IsPlayerStunned() then -- Is Block Active returns true when the player is stunned currently.
-            local abilityId = 974
-            local abilityName = Abilities.Innate_Brace
-            local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)
-            SpellCastBuffs.EffectsList[context][abilityId] =
-            {
-                target = SpellCastBuffs.DetermineTarget(context),
-                type = 1,
-                id = abilityId,
-                name = abilityName,
-                icon = "LuiExtended/media/icons/abilities/ability_innate_block.dds",
-                dur = 0,
-                starts = currentTime,
-                ends = nil,
-                restart = true,
-                iconNum = 0,
-                forced = "short",
-                toggle = true,
-            }
-        else
-            SpellCastBuffs.ClearPlayerBuff(974)
-        end
-    end
-end
-
-function SpellCastBuffs.updateBar(currentTime, sortedList, container)
+local function updateBar(currentTimeMs, sortedList, container)
     local iconsNum = #sortedList
     local istart, iend, istep
 
@@ -4234,7 +4106,7 @@ function SpellCastBuffs.updateBar(currentTime, sortedList, container)
         local effect = sortedList[i]
 
         local ground = effect.groundLabel
-        local remain = (effect.ends ~= nil) and (effect.ends - currentTime) or nil
+        local remain = (effect.ends ~= nil) and (effect.ends - currentTimeMs) or nil
         local buff = uiTlw[container].icons[index]
         local auraStarts = effect.starts or nil
         local auraEnds = effect.ends or nil
@@ -4246,7 +4118,7 @@ function SpellCastBuffs.updateBar(currentTime, sortedList, container)
         -- If this isn't a permanent duration buff then update the bar on every tick
         if buff and buff.bar and buff.bar.bar then
             if auraStarts and auraEnds and remain > 0 and not ground then
-                buff.bar.bar:SetValue(1 - ((currentTime - auraStarts) / (auraEnds - auraStarts)))
+                buff.bar.bar:SetValue(1 - ((currentTimeMs - auraStarts) / (auraEnds - auraStarts)))
             elseif effect.werewolf then
                 buff.bar.bar:SetValue(effect.werewolf)
             else
@@ -4256,7 +4128,7 @@ function SpellCastBuffs.updateBar(currentTime, sortedList, container)
     end
 end
 
-function SpellCastBuffs.updateIcons(currentTime, sortedList, container)
+local function updateIcons(currentTimeMs, sortedList, container)
     -- Special workaround for container with player long buffs. We do not need to update it every 100ms, but rather 3 times less often
     if uiTlw[container].skipUpdate then
         uiTlw[container].skipUpdate = uiTlw[container].skipUpdate + 1
@@ -4311,7 +4183,7 @@ function SpellCastBuffs.updateIcons(currentTime, sortedList, container)
         end
 
         -- Calculate remaining time
-        local remain = (effect.ends ~= nil) and (effect.ends - currentTime) or nil
+        local remain = (effect.ends ~= nil) and (effect.ends - currentTimeMs) or nil
         local name = (effect.name ~= nil) and effect.name or nil
 
         local buff = uiTlw[container].icons[index]
@@ -4472,6 +4344,132 @@ function SpellCastBuffs.updateIcons(currentTime, sortedList, container)
     uiTlw[container].prevIconsCount = iconsNum
 end
 
+-- Helper function to sort buffs
+local function buffSort(x, y)
+    local xDuration = (x.ends == nil or x.dur == 0 or x.groundLabel or x.toggle) and 0 or x.dur
+    local yDuration = (y.ends == nil or y.dur == 0 or y.groundLabel or y.toggle) and 0 or y.dur
+    -- Sort toggle effects
+    if x.toggle or y.toggle then
+        if xDuration == 0 and yDuration == 0 then
+            if x.toggle and y.toggle then
+                return (x.name < y.name)
+            elseif x.toggle and not y.toggle then
+                return (xDuration == 0)
+            end
+        else
+            return (xDuration == 0)
+        end
+        -- Sort permanent/ground effects (might separate these at some point but for now want the sorting function simplified)
+    elseif xDuration == 0 and yDuration == 0 then
+        return (x.name < y.name)
+        -- Both non-permanent
+    elseif xDuration ~= 0 and yDuration ~= 0 then
+        return (x.starts == y.starts) and (x.name < y.name) or (x.ends > y.ends)
+        -- One permanent, one not
+    else
+        return (xDuration == 0)
+    end
+end
+
+-- Runs OnUpdate - 100 ms buffer
+function SpellCastBuffs.OnUpdate(currentTimeMs)
+    local buffsSorted = {}
+    local needs_update = {}
+    local isProminent = {}
+
+    -- And reset sizes of already existing icons
+    for _, container in pairs(containerRouting) do
+        needs_update[container] = true
+        -- Prepare sort container
+        if buffsSorted[container] == nil then
+            buffsSorted[container] = {}
+        end
+        -- Refresh prominent buff labels on each update tick
+        if container == "prominentbuffs" or container == "prominentdebuffs" then
+            isProminent[container] = true
+        end
+    end
+
+    -- Filter expired events and build array for sorting
+    for context, effectsList in pairs(SpellCastBuffs.EffectsList) do
+        local container = containerRouting[context]
+        for k, v in pairs(effectsList) do
+            -- Remove effect (that is not permanent and has duration)
+            if v.ends ~= nil and v.dur > 0 and v.ends < currentTimeMs then
+                effectsList[k] = nil
+            elseif container then
+                -- Add icons to to-be-sorted list only if effect already started
+                if v.starts < currentTimeMs then
+                    -- Filter Effects
+                    -- Always show prominent effects
+                    if v.target == "prominent" then
+                        table_insert(buffsSorted[container], v)
+                        -- If the effect is not flagged as long or 0 duration and flagged to display in short container, then display normally.
+                    elseif v.type == BUFF_EFFECT_TYPE_DEBUFF or v.forced == "short" or not (v.forced == "long" or v.ends == nil or v.dur == 0) then
+                        if v.target == "reticleover" and SpellCastBuffs.SV.ShortTermEffects_Target then
+                            table_insert(buffsSorted[container], v)
+                        elseif v.target == "player" and SpellCastBuffs.SV.ShortTermEffects_Player then
+                            table_insert(buffsSorted[container], v)
+                        end
+                        -- If the effect is a long term effect on the target then use Long Term Target settings.
+                    elseif v.target == "reticleover" and SpellCastBuffs.SV.LongTermEffects_Target then
+                        table_insert(buffsSorted[container], v)
+                        -- If the effect is a long term effect on the player then use Long Term Player settings.
+                    elseif v.target == "player" and SpellCastBuffs.SV.LongTermEffects_Player then
+                        -- Choose container for long-term player buffs
+                        if SpellCastBuffs.SV.LongTermEffectsSeparate and not (container == "prominentbuffs" or container == "prominentdebuffs") then
+                            table_insert(buffsSorted["player_long"], v)
+                        else
+                            table_insert(buffsSorted[container], v)
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    -- Sort effects in container and draw them on screen
+    for _, container in pairs(containerRouting) do
+        if needs_update[container] then
+            table_sort(buffsSorted[container], buffSort)
+            updateIcons(currentTimeMs, buffsSorted[container], container)
+        end
+        needs_update[container] = false
+    end
+
+    for _, container in pairs(containerRouting) do
+        if isProminent[container] then
+            updateBar(currentTimeMs, buffsSorted[container], container)
+        end
+    end
+
+    -- Display Block buff for player if enabled
+    if SpellCastBuffs.SV.ShowBlockPlayer and not SpellCastBuffs.SV.HidePlayerBuffs then
+        if IsBlockActive() and not IsPlayerStunned() then -- Is Block Active returns true when the player is stunned currently.
+            local abilityId = 974
+            local abilityName = Abilities.Innate_Brace
+            local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)
+            SpellCastBuffs.EffectsList[context][abilityId] =
+            {
+                target = SpellCastBuffs.DetermineTarget(context),
+                type = 1,
+                id = abilityId,
+                name = abilityName,
+                icon = "LuiExtended/media/icons/abilities/ability_innate_block.dds",
+                dur = 0,
+                starts = currentTimeMs,
+                ends = nil,
+                restart = true,
+                iconNum = 0,
+                forced = "short",
+                toggle = true,
+            }
+        else
+            SpellCastBuffs.ClearPlayerBuff(974)
+        end
+    end
+end
+
 -- Runs on EVENT_PLAYER_ACTIVATED listener
 function SpellCastBuffs.OnPlayerActivated(eventCode)
     if IsPlayerActivated() then
@@ -4573,7 +4571,7 @@ function SpellCastBuffs.OnVibration(eventCode, duration, coarseMotor, fineMotor,
     elseif g_playerResurrectStage == 3 and duration == 350 and SpellCastBuffs.SV.ShowResurrectionImmunity then
         -- We got correct sequence, so let us create a buff and reset the g_playerResurrectStage
         g_playerResurrectStage = nil
-        local currentTime = GetFrameTimeMilliseconds()
+        local currentTimeMs = GetFrameTimeMilliseconds()
         local abilityId = 14646
         local abilityName = Abilities.Innate_Resurrection_Immunity
         local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)
@@ -4585,8 +4583,8 @@ function SpellCastBuffs.OnVibration(eventCode, duration, coarseMotor, fineMotor,
             name = abilityName,
             icon = "LuiExtended/media/icons/abilities/ability_innate_resurrection_immunity.dds",
             dur = 10000,
-            starts = currentTime,
-            ends = currentTime + 10000,
+            starts = currentTimeMs,
+            ends = currentTimeMs + 10000,
             restart = true,
             iconNum = 0,
         }
