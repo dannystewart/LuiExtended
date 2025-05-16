@@ -2853,8 +2853,15 @@ function UnitFrames.OnReticleTargetChanged(eventCode)
             -- Finally show custom target frame
             UnitFrames.CustomFrames["reticleover"].control:SetHidden(false)
             if UnitFrames.SV.QuickHideDead then
-                -- Check if target is a dead NPC before showing frame
-                local shouldHide = IsUnitDead("reticleover") and (reactionType == UNIT_REACTION_NEUTRAL or reactionType == UNIT_REACTION_HOSTILE)
+                local isMonster = IsGameCameraInteractableUnitMonster()
+                local isNPC = reactionType == UNIT_REACTION_NEUTRAL
+                    or reactionType == UNIT_REACTION_FRIENDLY
+                    or reactionType == UNIT_REACTION_NPC_ALLY
+                    or (reactionType == UNIT_REACTION_HOSTILE and isMonster)
+                local shouldHide = IsUnitDead("reticleover") and isNPC
+                if LUIE.IsDevDebugEnabled() then
+                    LUIE.Debug("reactionType:%d isMonster:%s isNPC:%s", reactionType, tostring(isMonster), tostring(isNPC))
+                end
                 UnitFrames.CustomFrames["reticleover"].control:SetHidden(shouldHide)
             end
         end
