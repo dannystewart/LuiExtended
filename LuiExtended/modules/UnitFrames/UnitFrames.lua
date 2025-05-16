@@ -2859,9 +2859,9 @@ function UnitFrames.OnReticleTargetChanged(eventCode)
                     or reactionType == UNIT_REACTION_NPC_ALLY
                     or (reactionType == UNIT_REACTION_HOSTILE and isMonster)
                 local shouldHide = IsUnitDead("reticleover") and isNPC
-                if LUIE.IsDevDebugEnabled() then
-                    LUIE.Debug("reactionType:%d isMonster:%s isNPC:%s", reactionType, tostring(isMonster), tostring(isNPC))
-                end
+                -- if LUIE.IsDevDebugEnabled() then
+                --     LUIE.Debug("reactionType:%d isMonster:%s isNPC:%s", reactionType, tostring(isMonster), tostring(isNPC))
+                -- end
                 UnitFrames.CustomFrames["reticleover"].control:SetHidden(shouldHide)
             end
         end
