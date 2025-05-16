@@ -14,14 +14,15 @@ local moduleName = LUIE.name .. "SpellCastBuffs"
 
 local g_werewolfName = ""   -- Name for current Werewolf Transformation morph
 local g_werewolfIcon = ""   -- Icon for current Werewolf Transformation morph
-local g_werewolfId = ""     -- AbilityId for Werewolf Transformation morph
+local g_werewolfId = 0      -- AbilityId for Werewolf Transformation morph
 local g_werewolfCounter = 0 -- Counter for Werewolf transformation events
 local g_werewolfQuest = 0   -- Counter for Werewolf transformation events (Quest)
 
 -- Function to pull Werewolf Cast Bar / Buff Aura Icon based off the players morph choice
 local function SetWerewolfIcon()
     local skillType, skillIndex, abilityIndex, morphChoice, rankIndex = GetSpecificSkillAbilityKeysByAbilityId(32455)
-    g_werewolfName, g_werewolfIcon = GetSkillAbilityInfo(skillType, skillIndex, abilityIndex)
+    local abilityInfo = { GetSkillAbilityInfo(skillType, skillIndex, abilityIndex) }
+    g_werewolfName, g_werewolfIcon = abilityInfo[1], abilityInfo[2]
     g_werewolfId = GetSkillAbilityId(skillType, skillIndex, abilityIndex, false)
 end
 

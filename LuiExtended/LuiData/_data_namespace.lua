@@ -18,7 +18,6 @@
 
 --- @class (partial) Effects
 --- @field AddGroundDamageAura AddGroundDamageAura Table of fake ground damage aura definitions
---- @field AddNameAura AddNameAura Table of effects that need name auras added
 --- @field AddNameOnBossEngaged AddNameOnBossEngaged Table of effects that add names when boss is engaged
 --- @field AddNameOnEvent AddNameOnEvent Table of effects that add names on specific events
 --- @field AddNoDurationBarHighlight table<integer, boolean> Table of effects that should highlight without duration
