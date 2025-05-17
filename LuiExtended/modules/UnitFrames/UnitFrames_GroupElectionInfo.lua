@@ -12,7 +12,7 @@ local UnitFrames = LUIE.UnitFrames
 local eventManager = GetEventManager()
 local windowManager = GetWindowManager()
 
-local SMALL_GROUP_ELECTION_ICON_INFO =
+local GROUP_ELECTION_ICON_INFO =
 {
     [GROUP_VOTE_CHOICE_ABSTAIN] =
     {
@@ -36,29 +36,6 @@ local SMALL_GROUP_ELECTION_ICON_INFO =
     },
 }
 
-local LARGE_GROUP_ELECTION_ICON_INFO =
-{
-    [GROUP_VOTE_CHOICE_ABSTAIN] =
-    {
-        icon = "LuiExtended/media/unitframes/electionInfo/votedicon_notyet.dds",
-        color = ZO_NORMAL_TEXT,
-    },
-    [GROUP_VOTE_CHOICE_FOR] =
-    {
-        icon = "LuiExtended/media/unitframes/electionInfo/votedicon_yes.dds",
-        color = ZO_NORMAL_TEXT,
-    },
-    [GROUP_VOTE_CHOICE_AGAINST] =
-    {
-        icon = "LuiExtended/media/unitframes/electionInfo/votedicon_no.dds",
-        color = ZO_NORMAL_TEXT,
-    },
-    [GROUP_VOTE_CHOICE_INVALID] =
-    {
-        icon = "LuiExtended/media/unitframes/electionInfo/votedicon_notyet.dds",
-        color = ZO_NORMAL_TEXT,
-    },
-}
 -- -----------------------------------------------------------------------------
 local function EnsureElectionIcons()
     -- Small Group
@@ -68,7 +45,7 @@ local function EnsureElectionIcons()
         if frame and not frame.electionIcon then
             local parent = frame.topInfo or frame.control or frame[COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
             local icon = windowManager:CreateControl(nil, parent, CT_TEXTURE)
-            icon:SetDrawTier(DT_MEDIUM)
+            icon:SetDrawTier(DT_HIGH)
             icon:SetDrawLayer(DL_OVERLAY)
             icon:SetDimensions(20, 20)
             if frame.classIcon then
@@ -87,14 +64,10 @@ local function EnsureElectionIcons()
         if frame and not frame.electionIcon then
             local parent = frame.control or frame[COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
             local icon = windowManager:CreateControl(nil, parent, CT_TEXTURE)
-            icon:SetDrawTier(DT_MEDIUM)
+            icon:SetDrawTier(DT_HIGH)
             icon:SetDrawLayer(DL_OVERLAY)
             icon:SetDimensions(18, 18)
-            if frame.classIcon then
-                icon:SetAnchor(RIGHT, frame.classIcon, LEFT, -2, 0)
-            else
-                icon:SetAnchor(RIGHT, parent, RIGHT, -2, 0)
-            end
+            icon:SetAnchor(CENTER, parent, CENTER, 0, 0)
             icon:SetHidden(true)
             frame.electionIcon = icon
         end
@@ -135,8 +108,8 @@ function UnitFrames.RefreshElectionIcon(control, unitTag)
         if not UnitFrames.activeElection and not UnitFrames.endElectionCallback then
             icon:SetHidden(true)
         else
-            local isLarge = UnitFrames:GetCombinedGroupSize() > STANDARD_GROUP_SIZE_THRESHOLD
-            local iconInfo = isLarge and LARGE_GROUP_ELECTION_ICON_INFO or SMALL_GROUP_ELECTION_ICON_INFO
+            -- Use GROUP_ELECTION_ICON_INFO for both small and large groups
+            local iconInfo = GROUP_ELECTION_ICON_INFO
             local vote = GetGroupElectionVoteByUnitTag(unitTag)
             if vote ~= GROUP_VOTE_CHOICE_FOR and not UnitFrames.activeElection then
                 vote = GROUP_VOTE_CHOICE_AGAINST
