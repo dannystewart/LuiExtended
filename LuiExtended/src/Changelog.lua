@@ -13,44 +13,31 @@ local GetDisplayName = GetDisplayName
 -- -----------------------------------------------------------------------------
 local changelogMessages =
 {
-        -- Version Header
-    "|cFFA500LuiExtended Version 6.9.5.4|r",
+    -- Version Header
+    "|cFFA500LuiExtended Version 6.9.6.0|r",
     "",
-    -- Fix
+    -- New Features
+    "|cFFFF00New Features:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Unit Frames now display group election information, including current voting status.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added a setting for custom frames to quickly hide dead enemy or neutral NPCs. This shouldn't be hiding dead players, let me know if it does.",
+    "",
+    -- Fixes
     "|cFFFF00Fixes:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t More tweaks. We should now be in a stable state.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Addressed an issue where target frames could display duplicate icons. (Note: This fix is still under evaluation and may not fully resolve the issue.)",
     "",
-    -- Version Header
-    "|cFFA500LuiExtended Version 6.9.5.1-3|r",
+    -- Improvements
+    "|cFFFF00Improvements:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Enhanced logic for more accurate identification of Destruction Staff spell icons.",
     "",
-    -- Fix
-    "|cFFFF00Fixes:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Some timer fixes. More tweaks will be needed. Feedback needed!",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Resolve error with powershield.",
-    "",
-    -- Version Header
-    "|cFFA500LuiExtended Version 6.9.5.1|r",
-    "",
-    -- Fix
-    "|cFFFF00Fix:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Some timer fixes. Feedback needed!",
-    "",
-    -- Version Header
-    "|cFFA500LuiExtended Version 6.9.5|r",
-    "",
-    -- New
-    "|cFFFF00New:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Re-Enabled using the games api, if you have a conflict, turn off luie backbar and label timer.",
-    "",
-    -- Bug Fixes
-    "|cFFFF00Bug Fixes:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Resolved an issue with Off-Balance tracking in the Prominent Debuff container.",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fixed missing icon chat message when purchasing items from vendors.",
-    "",
-    -- Miscellaneous
-    "|cFFFF00Miscellaneous:|r",
-    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Added an option to hide the bracing buff (block). This setting can be found in Buffs & Debuffs -> Long & Short-Term Effect Options -> Short-Term Effect Filters -> Show Block - Player. Default is \"ON\".",
-    "",
+    -- -- Bug Fixes
+    -- "|cFFFF00Bug Fixes:|r",
+    -- "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t .",
+    -- "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t .",
+    -- "",
+    -- -- Miscellaneous
+    -- "|cFFFF00Miscellaneous:|r",
+    -- "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t .,
+    -- "",
 }
 -- -----------------------------------------------------------------------------
 -- Hide toggle called by the menu or xml button

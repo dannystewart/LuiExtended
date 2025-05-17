@@ -30,15 +30,6 @@ local sceneManager = SCENE_MANAGER
 
 local moduleName = LUIE.name .. "UnitFrames"
 
-
-local roleIcons =
-{
-    [0] = "LuiExtended/media/unitframes/unitframes_class_none.dds",
-    [1] = "/esoui/art/lfg/lfg_icon_dps.dds",
-    [4] = "/esoui/art/lfg/lfg_icon_healer.dds",
-    [2] = "/esoui/art/lfg/lfg_icon_tank.dds",
-}
-
 local leaderIcons =
 {
     [0] = "LuiExtended/media/unitframes/unitframes_class_none.dds",
@@ -176,6 +167,7 @@ local function CreateDecreasedArmorOverlay(parent, small)
 
     return control
 end
+
 
 function UnitFrames.AddCurrentPetsToCustomList(list)
     for i = 1, MAX_PET_UNIT_TAGS do
@@ -821,6 +813,11 @@ local function CreateCustomFrames()
             topInfo.defaultUnitTag = GetGroupUnitTagByIndex(i)
             topInfo:SetMouseEnabled(true)
             topInfo:SetHandler("OnMouseUp", UnitFrames.GroupFrames_OnMouseUp)
+            -- Map by real unitTag as well
+            local realUnitTag = GetGroupUnitTagByIndex(i)
+            if realUnitTag then
+                UnitFrames.CustomFrames[realUnitTag] = UnitFrames.CustomFrames[unitTag]
+            end
         end
     end
 
@@ -875,6 +872,12 @@ local function CreateCustomFrames()
             control:SetHandler("OnMouseUp", UnitFrames.GroupFrames_OnMouseUp)
 
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label.format = "Current (Percentage%)"
+
+            -- Map by real unitTag as well
+            local realUnitTag = GetGroupUnitTagByIndex(i)
+            if realUnitTag then
+                UnitFrames.CustomFrames[realUnitTag] = UnitFrames.CustomFrames[unitTag]
+            end
         end
     end
 
@@ -1741,6 +1744,9 @@ function UnitFrames.Initialize(enabled)
         if UnitFrames.SV.CustomTargetMarker then
             eventManager:RegisterForEvent(moduleName, EVENT_TARGET_MARKER_UPDATE, UnitFrames.OnTargetMarkerUpdate)
         end
+
+        -- Group Election Info
+        UnitFrames.RegisterForGroupElectionEvents()
     end
 
     g_defaultTargetNameLabel = ZO_TargetUnitFramereticleoverName

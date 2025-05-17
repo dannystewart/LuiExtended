@@ -4,6 +4,8 @@
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
 -- -----------------------------------------------------------------------------
 
+local GetString = GetString
+
 --- @class (partial) LuiExtended
 local LUIE = LUIE
 -- Unit Frames namespace
@@ -11,8 +13,9 @@ local LUIE = LUIE
 local UnitFrames = {}
 UnitFrames.__index = UnitFrames
 
-local GetString = GetString
-
+UnitFrames.activeElection = false
+UnitFrames.groupSize = GetGroupSize()
+UnitFrames.companionGroupSize = GetNumCompanionsInGroup()
 UnitFrames.Enabled = false
 UnitFrames.Defaults =
 {
