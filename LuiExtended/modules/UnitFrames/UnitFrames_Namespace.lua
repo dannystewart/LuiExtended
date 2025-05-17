@@ -8,14 +8,30 @@ local GetString = GetString
 
 --- @class (partial) LuiExtended
 local LUIE = LUIE
+
 -- Unit Frames namespace
 --- @class (partial) UnitFrames
-local UnitFrames = {}
-UnitFrames.__index = UnitFrames
+local UnitFrames = ZO_Object:Subclass()
 
+UnitFrames.moduleName = LUIE.name .. "UnitFrames"
+UnitFrames.AvaCustFrames = {}
+UnitFrames.DefaultFrames = {}
+UnitFrames.MaxChampionPoint = 3600
+UnitFrames.defaultTargetNameLabel = nil
+UnitFrames.defaultThreshold = 25
+UnitFrames.isRaid = false
+UnitFrames.powerError = {}
+UnitFrames.savedHealth = {}
+UnitFrames.statFull = {}
 UnitFrames.activeElection = false
 UnitFrames.groupSize = GetGroupSize()
 UnitFrames.companionGroupSize = GetNumCompanionsInGroup()
+UnitFrames.targetThreshold = 20
+UnitFrames.healthThreshold = 25
+UnitFrames.magickaThreshold = 25
+UnitFrames.staminaThreshold = 25
+UnitFrames.targetUnitFrame = nil -- Reference to default UI target unit frame
+UnitFrames.playerDisplayName = GetUnitDisplayName("player")
 UnitFrames.Enabled = false
 UnitFrames.Defaults =
 {

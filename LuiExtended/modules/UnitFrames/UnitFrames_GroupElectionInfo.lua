@@ -117,7 +117,7 @@ end
 
 -- -----------------------------------------------------------------------------
 ---
---- @param control table|{electionIcon:object}
+--- @param control table|{electionIcon:TextureControl}
 --- @param unitTag string
 function UnitFrames.RefreshElectionIcon(control, unitTag)
     local icon = control.electionIcon
@@ -138,7 +138,9 @@ function UnitFrames.RefreshElectionIcon(control, unitTag)
             local isLarge = UnitFrames:GetCombinedGroupSize() > STANDARD_GROUP_SIZE_THRESHOLD
             local iconInfo = isLarge and LARGE_GROUP_ELECTION_ICON_INFO or SMALL_GROUP_ELECTION_ICON_INFO
             local vote = GetGroupElectionVoteByUnitTag(unitTag)
-            -- DO NOT override vote after election ends; just show what they actually voted
+            if vote ~= GROUP_VOTE_CHOICE_FOR and not UnitFrames.activeElection then
+                vote = GROUP_VOTE_CHOICE_AGAINST
+            end
             local voteIconInfo = iconInfo[vote] or iconInfo[GROUP_VOTE_CHOICE_INVALID]
             icon:SetTexture(voteIconInfo.icon)
             icon:SetColor(voteIconInfo.color:UnpackRGBA())
@@ -249,3 +251,4 @@ function UnitFrames.RegisterForGroupElectionEvents()
 end
 
 -- -----------------------------------------------------------------------------
+return UnitFrames

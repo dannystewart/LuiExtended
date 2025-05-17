@@ -105,7 +105,16 @@ modules/SlashCommands/Social.lua
 
 # Modules - Unit Frames
 modules/UnitFrames/UnitFrames_Namespace.lua
+modules/UnitFrames/UnitFrames_CreateCustomFrames.lua
+modules/UnitFrames/UnitFrames_CustomFrames.lua
+modules/UnitFrames/UnitFrames_DefaultFrames.lua
+modules/UnitFrames/UnitFrames_Handlers.lua
 modules/UnitFrames/UnitFrames_GroupElectionInfo.lua
+modules/UnitFrames/UnitFrames_UnitAttributeVisuals.lua
+modules/UnitFrames/UnitFrames_ListFunctions.lua
+modules/UnitFrames/UnitFrames_MenuFunctions.lua
+modules/UnitFrames/UnitFrames_FontFunctions.lua
+modules/UnitFrames/UnitFrames_Debug.lua
 modules/UnitFrames/UnitFrames.lua
 
 # Settings
