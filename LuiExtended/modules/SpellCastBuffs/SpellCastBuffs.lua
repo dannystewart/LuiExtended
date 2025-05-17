@@ -4472,52 +4472,50 @@ end
 
 -- Runs on EVENT_PLAYER_ACTIVATED listener
 function SpellCastBuffs.OnPlayerActivated(eventCode)
-    if IsPlayerActivated() then
-        g_playerActive = true
-        g_playerResurrectStage = nil
+    g_playerActive = true
+    g_playerResurrectStage = nil
 
-        -- Reload Effects
-        SpellCastBuffs.ReloadEffects("player")
-        SpellCastBuffs.AddNameOnBossEngaged()
+    -- Reload Effects
+    SpellCastBuffs.ReloadEffects("player")
+    SpellCastBuffs.AddNameOnBossEngaged()
 
-        -- Load Zone Specific Buffs
-        if not SpellCastBuffs.SV.HidePlayerBuffs then
-            SpellCastBuffs.AddZoneBuffs()
-        end
+    -- Load Zone Specific Buffs
+    if not SpellCastBuffs.SV.HidePlayerBuffs then
+        SpellCastBuffs.AddZoneBuffs()
+    end
 
-        -- Resolve Duel Target
-        SpellCastBuffs.DuelStart()
+    -- Resolve Duel Target
+    SpellCastBuffs.DuelStart()
 
-        -- Resolve Mounted icon
-        if not SpellCastBuffs.SV.IgnoreMountPlayer and IsMounted() then
-            zo_callLater(function ()
-                             SpellCastBuffs.MountStatus("", true)
-                         end, 50)
-        end
+    -- Resolve Mounted icon
+    if not SpellCastBuffs.SV.IgnoreMountPlayer and IsMounted() then
+        zo_callLater(function ()
+                         SpellCastBuffs.MountStatus(nil, true)
+                     end, 50)
+    end
 
-        -- Resolve Disguise Icon
-        if not SpellCastBuffs.SV.IgnoreDisguise then
-            zo_callLater(function ()
-                             SpellCastBuffs.DisguiseItem(nil, BAG_WORN, 10)
-                         end, 50)
-        end
+    -- Resolve Disguise Icon
+    if not SpellCastBuffs.SV.IgnoreDisguise then
+        zo_callLater(function ()
+                         SpellCastBuffs.DisguiseItem(nil, BAG_WORN, 10, nil, nil, nil, nil, nil, nil, nil, nil)
+                     end, 50)
+    end
 
-        -- Resolve Assistant Icon
-        if not SpellCastBuffs.SV.IgnorePet or not SpellCastBuffs.SV.IgnoreAssistant then
-            zo_callLater(function ()
-                             SpellCastBuffs.CollectibleBuff()
-                         end, 50)
-        end
+    -- Resolve Assistant Icon
+    if not SpellCastBuffs.SV.IgnorePet or not SpellCastBuffs.SV.IgnoreAssistant then
+        zo_callLater(function ()
+                         SpellCastBuffs.CollectibleBuff()
+                     end, 50)
+    end
 
-        -- Resolve Werewolf
-        if SpellCastBuffs.SV.ShowWerewolf and IsPlayerInWerewolfForm() then
-            SpellCastBuffs.WerewolfState(nil, true, true)
-        end
+    -- Resolve Werewolf
+    if SpellCastBuffs.SV.ShowWerewolf and IsPlayerInWerewolfForm() then
+        SpellCastBuffs.WerewolfState(nil, true, true)
+    end
 
-        -- Sets the player to dead if reloading UI or loading in while dead.
-        if IsUnitDead("player") then
-            g_playerDead = true
-        end
+    -- Sets the player to dead if reloading UI or loading in while dead.
+    if IsUnitDead("player") then
+        g_playerDead = true
     end
 end
 

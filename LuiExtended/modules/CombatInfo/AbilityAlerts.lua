@@ -292,13 +292,11 @@ end
 --- @param eventId integer
 --- @param initial boolean
 function AbilityAlerts.OnPlayerActivated(eventId, initial)
-    if IsPlayerActivated() then
-        local duelState = GetDuelInfo()
-        if duelState == DUEL_STATE_DUELING then
-            g_inDuel = true
-        end
-        eventManager:UnregisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED)
+    local duelState = GetDuelInfo()
+    if duelState == DUEL_STATE_DUELING then
+        g_inDuel = true
     end
+    eventManager:UnregisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED)
 end
 
 function AbilityAlerts.ResetAlertFramePosition()

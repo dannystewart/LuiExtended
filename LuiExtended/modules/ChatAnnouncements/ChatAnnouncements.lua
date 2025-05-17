@@ -7610,81 +7610,79 @@ end
 --- @param eventId integer
 --- @param initial boolean
 function ChatAnnouncements.OnPlayerActivated(eventId, initial)
-    if IsPlayerActivated() then
-        -- Get current trades if UI is reloaded
-        local characterName, millisecondsSinceRequest, displayName = GetTradeInviteInfo()
+    -- Get current trades if UI is reloaded
+    local characterName, millisecondsSinceRequest, displayName = GetTradeInviteInfo()
 
-        if characterName ~= "" and displayName ~= "" then
-            local tradeName = ChatAnnouncements.ResolveNameLink(characterName, displayName)
-            g_tradeTarget = ZO_SELECTED_TEXT:Colorize(zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, tradeName))
-        end
+    if characterName ~= "" and displayName ~= "" then
+        local tradeName = ChatAnnouncements.ResolveNameLink(characterName, displayName)
+        g_tradeTarget = ZO_SELECTED_TEXT:Colorize(zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, tradeName))
+    end
 
-        if g_firstLoad then
-            ChatAnnouncements.SlayChatHandlers()
-            g_firstLoad = false
-        end
+    if g_firstLoad then
+        ChatAnnouncements.SlayChatHandlers()
+        g_firstLoad = false
+    end
 
-        zo_callLater(function ()
-                         g_loginHideQuestLoot = false
-                     end, 3000)
+    zo_callLater(function ()
+                     g_loginHideQuestLoot = false
+                 end, 3000)
 
-        if ChatAnnouncements.SV.Notify.DisguiseCA or ChatAnnouncements.SV.Notify.DisguiseCSA or ChatAnnouncements.SV.Notify.DisguiseAlert or ChatAnnouncements.SV.Notify.DisguiseWarnCA or ChatAnnouncements.SV.Notify.DisguiseWarnCSA or ChatAnnouncements.SV.Notify.DisguiseWarnAlert then
+    if ChatAnnouncements.SV.Notify.DisguiseCA or ChatAnnouncements.SV.Notify.DisguiseCSA or ChatAnnouncements.SV.Notify.DisguiseAlert or ChatAnnouncements.SV.Notify.DisguiseWarnCA or ChatAnnouncements.SV.Notify.DisguiseWarnCSA or ChatAnnouncements.SV.Notify.DisguiseWarnAlert then
+        if g_disguiseState == 0 then
+            g_disguiseState = GetUnitDisguiseState("player")
             if g_disguiseState == 0 then
-                g_disguiseState = GetUnitDisguiseState("player")
-                if g_disguiseState == 0 then
-                    return
-                elseif g_disguiseState ~= 0 then
-                    g_disguiseState = 1
-                    g_currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0
-                    local message = zo_strformat("<<1>> <<2>>", GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_DISGUISED), Effects.DisguiseIcons[g_currentDisguise].description)
-                    if ChatAnnouncements.SV.Notify.DisguiseCA then
-                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
-                        {
-                            message = message,
-                            messageType = "MESSAGE"
-                        }
-                        ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
-                        eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
-                    end
-                    if ChatAnnouncements.SV.Notify.DisguiseAlert then
-                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
-                    end
-                    if ChatAnnouncements.SV.Notify.DisguiseCSA then
-                        local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
-                        messageParams:SetText(message)
-                        messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_COUNTDOWN)
-                        CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
-                    end
-                    return
+                return
+            elseif g_disguiseState ~= 0 then
+                g_disguiseState = 1
+                g_currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0
+                local message = zo_strformat("<<1>> <<2>>", GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_DISGUISED), Effects.DisguiseIcons[g_currentDisguise].description)
+                if ChatAnnouncements.SV.Notify.DisguiseCA then
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = message,
+                        messageType = "MESSAGE"
+                    }
+                    ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
+                    eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
                 end
-            elseif g_disguiseState == 1 then
-                g_disguiseState = GetUnitDisguiseState("player")
-                if g_disguiseState == 0 then
-                    local message = zo_strformat("<<1>> <<2>>", GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_NONE), Effects.DisguiseIcons[g_currentDisguise].description)
-                    if ChatAnnouncements.SV.Notify.DisguiseCA then
-                        ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
-                        {
-                            message = message,
-                            messageType = "MESSAGE"
-                        }
-                        ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
-                        eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
-                    end
-                    if ChatAnnouncements.SV.Notify.DisguiseAlert then
-                        ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
-                    end
-                    if ChatAnnouncements.SV.Notify.DisguiseCSA then
-                        local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
-                        messageParams:SetText(message)
-                        messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_COUNTDOWN)
-                        CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
-                    end
-                    return
-                elseif g_disguiseState ~= 0 then
-                    g_disguiseState = 1
-                    g_currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0
-                    return
+                if ChatAnnouncements.SV.Notify.DisguiseAlert then
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
                 end
+                if ChatAnnouncements.SV.Notify.DisguiseCSA then
+                    local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
+                    messageParams:SetText(message)
+                    messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_COUNTDOWN)
+                    CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
+                end
+                return
+            end
+        elseif g_disguiseState == 1 then
+            g_disguiseState = GetUnitDisguiseState("player")
+            if g_disguiseState == 0 then
+                local message = zo_strformat("<<1>> <<2>>", GetString(LUIE_STRING_CA_JUSTICE_DISGUISE_STATE_NONE), Effects.DisguiseIcons[g_currentDisguise].description)
+                if ChatAnnouncements.SV.Notify.DisguiseCA then
+                    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
+                    {
+                        message = message,
+                        messageType = "MESSAGE"
+                    }
+                    ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
+                    eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
+                end
+                if ChatAnnouncements.SV.Notify.DisguiseAlert then
+                    ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, message)
+                end
+                if ChatAnnouncements.SV.Notify.DisguiseCSA then
+                    local messageParams = CENTER_SCREEN_ANNOUNCE:CreateMessageParams(CSA_CATEGORY_SMALL_TEXT, SOUNDS.NONE)
+                    messageParams:SetText(message)
+                    messageParams:SetCSAType(CENTER_SCREEN_ANNOUNCE_TYPE_COUNTDOWN)
+                    CENTER_SCREEN_ANNOUNCE:AddMessageWithParams(messageParams)
+                end
+                return
+            elseif g_disguiseState ~= 0 then
+                g_disguiseState = 1
+                g_currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0
+                return
             end
         end
     end
