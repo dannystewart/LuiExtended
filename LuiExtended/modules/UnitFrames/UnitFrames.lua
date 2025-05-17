@@ -2219,9 +2219,9 @@ end
 --- @param eventId integer
 --- @param unitTag string
 function UnitFrames.OnUnitCreated(eventId, unitTag)
-    if LUIE.IsDevDebugEnabled() then
-        LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
-    end
+    -- if LUIE.IsDevDebugEnabled() then
+    --     LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
+    -- end
     -- Create on-fly UI controls for default UI group member and reread his values
     if g_DefaultFrames.SmallGroup then
         UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
@@ -5302,9 +5302,9 @@ local __applyFont = function (unitTag)
     -- First try selecting font face
     local fontName = LUIE.Fonts[UnitFrames.SV.DefaultFontFace]
     if not fontName or fontName == "" then
-        if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
-        end
+        -- if LUIE.IsDevDebugEnabled() then
+        --     LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
+        -- end
         fontName = "$(BOLD_FONT)|16|soft-shadow-thick"
     end
 
@@ -5371,9 +5371,9 @@ function UnitFrames.CustomFramesApplyFont()
     -- First try selecting font face
     local fontName = LUIE.Fonts[UnitFrames.SV.CustomFontFace]
     if not fontName or fontName == "" then
-        if LUIE.IsDevDebugEnabled() then
-            LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
-        end
+        -- if LUIE.IsDevDebugEnabled() then
+        --     LUIE.Debug(GetString(LUIE_STRING_ERROR_FONT))
+        -- end
         fontName = "Univers 67"
     end
 
