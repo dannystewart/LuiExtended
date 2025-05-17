@@ -2324,11 +2324,6 @@ end
 --- @param abilityId integer
 --- @param sourceType CombatUnitType
 function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, deprecatedBuffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceType)
-    -- Bail out if this is an effect from Oakensoul
-    if (SpellCastBuffs.SV.HideOakenSoul == true) and IsOakensoul(abilityId) and unitTag == "player" then
-        return
-    end
-
     -- Change the effect type / name before we determine if we want to filter anything else.
     if Effects.EffectOverride[abilityId] then
         effectName = Effects.EffectOverride[abilityId].name or effectName
@@ -2341,6 +2336,11 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
 
     -- Bail out if the abilityId is on the Blacklist Table
     if SpellCastBuffs.SV.BlacklistTable[abilityId] then
+        return
+    end
+
+    -- Bail out if this is an effect from Oakensoul
+    if (SpellCastBuffs.SV.HideOakenSoul == true) and IsOakensoul(abilityId) and unitTag == "player" then
         return
     end
 
