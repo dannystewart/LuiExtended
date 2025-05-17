@@ -605,7 +605,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.DefaultTextColour)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.DefaultTextColour = { r, g, b }
+                    Settings.DefaultTextColour = { r, g, b, a }
                     UnitFrames.DefaultFramesApplyColor()
                 end,
                 width = "full",
@@ -614,6 +614,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.DefaultTextColour[1],
                     g = Defaults.DefaultTextColour[2],
                     b = Defaults.DefaultTextColour[3],
+                    a = Defaults.DefaultTextColour[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -947,7 +948,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourHealth)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourHealth = { r, g, b }
+                    Settings.CustomColourHealth = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -956,6 +957,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourHealth[1],
                     g = Defaults.CustomColourHealth[2],
                     b = Defaults.CustomColourHealth[3],
+                    a = Defaults.CustomColourHealth[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -969,7 +971,7 @@ function UnitFrames.CreateSettings()
                     return Settings.CustomColourShield[1], Settings.CustomColourShield[2], Settings.CustomColourShield[3]
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourShield = { r, g, b }
+                    Settings.CustomColourShield = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -978,6 +980,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourShield[1],
                     g = Defaults.CustomColourShield[2],
                     b = Defaults.CustomColourShield[3],
+                    a = Defaults.CustomColourShield[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -991,7 +994,7 @@ function UnitFrames.CreateSettings()
                     return Settings.CustomColourTrauma[1], Settings.CustomColourTrauma[2], Settings.CustomColourTrauma[3]
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourTrauma = { r, g, b }
+                    Settings.CustomColourTrauma = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1000,6 +1003,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourTrauma[1],
                     g = Defaults.CustomColourTrauma[2],
                     b = Defaults.CustomColourTrauma[3],
+                    a = Defaults.CustomColourTrauma[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1013,7 +1017,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourMagicka)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourMagicka = { r, g, b }
+                    Settings.CustomColourMagicka = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1022,6 +1026,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourMagicka[1],
                     g = Defaults.CustomColourMagicka[2],
                     b = Defaults.CustomColourMagicka[3],
+                    a = Defaults.CustomColourMagicka[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1035,7 +1040,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourStamina)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourStamina = { r, g, b }
+                    Settings.CustomColourStamina = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1044,6 +1049,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourStamina[1],
                     g = Defaults.CustomColourStamina[2],
                     b = Defaults.CustomColourStamina[3],
+                    a = Defaults.CustomColourStamina[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1057,7 +1063,7 @@ function UnitFrames.CreateSettings()
                     return Settings.CustomColourInvulnerable[1], Settings.CustomColourInvulnerable[2], Settings.CustomColourInvulnerable[3]
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourInvulnerable = { r, g, b }
+                    Settings.CustomColourInvulnerable = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1066,6 +1072,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourInvulnerable[1],
                     g = Defaults.CustomColourInvulnerable[2],
                     b = Defaults.CustomColourInvulnerable[3],
+                    a = Defaults.CustomColourInvulnerable[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1079,7 +1086,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourDPS)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourDPS = { r, g, b }
+                    Settings.CustomColourDPS = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1088,6 +1095,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourDPS[1],
                     g = Defaults.CustomColourDPS[2],
                     b = Defaults.CustomColourDPS[3],
+                    a = Defaults.CustomColourDPS[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1101,7 +1109,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourHealer)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourHealer = { r, g, b }
+                    Settings.CustomColourHealer = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1110,6 +1118,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourHealer[1],
                     g = Defaults.CustomColourHealer[2],
                     b = Defaults.CustomColourHealer[3],
+                    a = Defaults.CustomColourHealer[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1123,7 +1132,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourTank)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourTank = { r, g, b }
+                    Settings.CustomColourTank = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1132,6 +1141,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourTank[1],
                     g = Defaults.CustomColourTank[2],
                     b = Defaults.CustomColourTank[3],
+                    a = Defaults.CustomColourTank[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1145,7 +1155,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourDragonknight)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourDragonknight = { r, g, b }
+                    Settings.CustomColourDragonknight = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1154,6 +1164,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourDragonknight[1],
                     g = Defaults.CustomColourDragonknight[2],
                     b = Defaults.CustomColourDragonknight[3],
+                    a = Defaults.CustomColourDragonknight[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1167,7 +1178,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourNightblade)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourNightblade = { r, g, b }
+                    Settings.CustomColourNightblade = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1176,6 +1187,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourNightblade[1],
                     g = Defaults.CustomColourNightblade[2],
                     b = Defaults.CustomColourNightblade[3],
+                    a = Defaults.CustomColourNightblade[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1189,7 +1201,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourSorcerer)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourSorcerer = { r, g, b }
+                    Settings.CustomColourSorcerer = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1198,6 +1210,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourSorcerer[1],
                     g = Defaults.CustomColourSorcerer[2],
                     b = Defaults.CustomColourSorcerer[3],
+                    a = Defaults.CustomColourSorcerer[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1211,7 +1224,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourTemplar)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourTemplar = { r, g, b }
+                    Settings.CustomColourTemplar = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1220,6 +1233,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourTemplar[1],
                     g = Defaults.CustomColourTemplar[2],
                     b = Defaults.CustomColourTemplar[3],
+                    a = Defaults.CustomColourTemplar[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1233,7 +1247,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourWarden)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourWarden = { r, g, b }
+                    Settings.CustomColourWarden = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1242,6 +1256,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourWarden[1],
                     g = Defaults.CustomColourWarden[2],
                     b = Defaults.CustomColourWarden[3],
+                    a = Defaults.CustomColourWarden[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1255,7 +1270,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourNecromancer)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourNecromancer = { r, g, b }
+                    Settings.CustomColourNecromancer = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1264,6 +1279,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourNecromancer[1],
                     g = Defaults.CustomColourNecromancer[2],
                     b = Defaults.CustomColourNecromancer[3],
+                    a = Defaults.CustomColourNecromancer[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1277,7 +1293,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourArcanist)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourArcanist = { r, g, b }
+                    Settings.CustomColourArcanist = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1286,6 +1302,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourArcanist[1],
                     g = Defaults.CustomColourArcanist[2],
                     b = Defaults.CustomColourArcanist[3],
+                    a = Defaults.CustomColourArcanist[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1300,7 +1317,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourPlayer)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourPlayer = { r, g, b }
+                    Settings.CustomColourPlayer = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1309,6 +1326,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourPlayer[1],
                     g = Defaults.CustomColourPlayer[2],
                     b = Defaults.CustomColourPlayer[3],
+                    a = Defaults.CustomColourPlayer[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1322,7 +1340,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourFriendly)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourFriendly = { r, g, b }
+                    Settings.CustomColourFriendly = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1331,6 +1349,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourFriendly[1],
                     g = Defaults.CustomColourFriendly[2],
                     b = Defaults.CustomColourFriendly[3],
+                    a = Defaults.CustomColourFriendly[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1344,7 +1363,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourCompanion)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourCompanion = { r, g, b }
+                    Settings.CustomColourCompanion = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1353,6 +1372,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourCompanion[1],
                     g = Defaults.CustomColourCompanion[2],
                     b = Defaults.CustomColourCompanion[3],
+                    a = Defaults.CustomColourCompanion[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1366,7 +1386,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourHostile)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourHostile = { r, g, b }
+                    Settings.CustomColourHostile = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1375,6 +1395,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourHostile[1],
                     g = Defaults.CustomColourHostile[2],
                     b = Defaults.CustomColourHostile[3],
+                    a = Defaults.CustomColourHostile[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1388,7 +1409,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourNeutral)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourNeutral = { r, g, b }
+                    Settings.CustomColourNeutral = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1397,6 +1418,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourNeutral[1],
                     g = Defaults.CustomColourNeutral[2],
                     b = Defaults.CustomColourNeutral[3],
+                    a = Defaults.CustomColourNeutral[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1410,7 +1432,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourGuard)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourGuard = { r, g, b }
+                    Settings.CustomColourGuard = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1419,6 +1441,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourGuard[1],
                     g = Defaults.CustomColourGuard[2],
                     b = Defaults.CustomColourGuard[3],
+                    a = Defaults.CustomColourGuard[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1432,7 +1455,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourPet)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourPet = { r, g, b }
+                    Settings.CustomColourPet = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1441,6 +1464,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourPet[1],
                     g = Defaults.CustomColourPet[2],
                     b = Defaults.CustomColourPet[3],
+                    a = Defaults.CustomColourPet[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -1455,7 +1479,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.CustomColourCompanionFrame)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.CustomColourCompanionFrame = { r, g, b }
+                    Settings.CustomColourCompanionFrame = { r, g, b, a }
                     UnitFrames.CustomFramesApplyColors(true)
                 end,
                 width = "full",
@@ -1464,6 +1488,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.CustomColourCompanionFrame[1],
                     g = Defaults.CustomColourCompanionFrame[2],
                     b = Defaults.CustomColourCompanionFrame[3],
+                    a = Defaults.CustomColourCompanionFrame[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -3992,7 +4017,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.Target_FontColour)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.Target_FontColour = { r, g, b }
+                    Settings.Target_FontColour = { r, g, b, a }
                 end,
                 width = "full",
                 default =
@@ -4000,6 +4025,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.Target_FontColour[1],
                     g = Defaults.Target_FontColour[2],
                     b = Defaults.Target_FontColour[3],
+                    a = Defaults.Target_FontColour[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -4013,7 +4039,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.Target_FontColour_FriendlyNPC)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.Target_FontColour_FriendlyNPC = { r, g, b }
+                    Settings.Target_FontColour_FriendlyNPC = { r, g, b, a }
                 end,
                 width = "full",
                 default =
@@ -4021,6 +4047,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.Target_FontColour_FriendlyNPC[1],
                     g = Defaults.Target_FontColour_FriendlyNPC[2],
                     b = Defaults.Target_FontColour_FriendlyNPC[3],
+                    a = Defaults.Target_FontColour_FriendlyNPC[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -4034,7 +4061,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.Target_FontColour_FriendlyPlayer)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.Target_FontColour_FriendlyPlayer = { r, g, b }
+                    Settings.Target_FontColour_FriendlyPlayer = { r, g, b, a }
                 end,
                 width = "full",
                 default =
@@ -4042,6 +4069,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.Target_FontColour_FriendlyPlayer[1],
                     g = Defaults.Target_FontColour_FriendlyPlayer[2],
                     b = Defaults.Target_FontColour_FriendlyPlayer[3],
+                    a = Defaults.Target_FontColour_FriendlyPlayer[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -4055,7 +4083,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.Target_FontColour_Hostile)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.Target_FontColour_Hostile = { r, g, b }
+                    Settings.Target_FontColour_Hostile = { r, g, b, a }
                 end,
                 width = "full",
                 default =
@@ -4063,6 +4091,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.Target_FontColour_Hostile[1],
                     g = Defaults.Target_FontColour_Hostile[2],
                     b = Defaults.Target_FontColour_Hostile[3],
+                    a = Defaults.Target_FontColour_Hostile[4]
                 },
                 disabled = function ()
                     return not LUIE.SV.UnitFrames_Enabled
@@ -4091,7 +4120,7 @@ function UnitFrames.CreateSettings()
                     return unpack(Settings.ReticleColour_Interact)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.ReticleColour_Interact = { r, g, b }
+                    Settings.ReticleColour_Interact = { r, g, b, a }
                 end,
                 width = "full",
                 default =
@@ -4099,6 +4128,7 @@ function UnitFrames.CreateSettings()
                     r = Defaults.ReticleColour_Interact[1],
                     g = Defaults.ReticleColour_Interact[2],
                     b = Defaults.ReticleColour_Interact[3],
+                    a = Defaults.ReticleColour_Interact[4]
                 },
                 disabled = function ()
                     return not (LUIE.SV.UnitFrames_Enabled and Settings.ReticleColourByReaction)
