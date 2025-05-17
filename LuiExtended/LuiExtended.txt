@@ -104,6 +104,7 @@ modules/SlashCommands/Guild.lua
 modules/SlashCommands/Social.lua
 
 # Modules - Unit Frames
+modules/UnitFrames/UnitFrames_Namespace.lua
 modules/UnitFrames/UnitFrames.lua
 
 # Settings
