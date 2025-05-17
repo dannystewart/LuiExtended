@@ -24,19 +24,20 @@ local changelogMessages =
     -- Fixes
     "|cFFFF00Fixes:|r",
     "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Addressed an issue where target frames could display duplicate icons. (Note: This fix is still under evaluation and may not fully resolve the issue.)",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fixed an issue where the chat announcement system could display incorrect information about restricted communication permissions.",
     "",
     -- Improvements
     "|cFFFF00Improvements:|r",
     "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Enhanced logic for more accurate identification of Destruction Staff spell icons.",
     "",
+    -- Miscellaneous
+    "|cFFFF00Miscellaneous:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Started refactoring the codebase to improve readability and maintainability. Started with the Unit Frames module. Report any issues/errors to me in the comments or on Github.",
+    "",
     -- -- Bug Fixes
     -- "|cFFFF00Bug Fixes:|r",
     -- "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t .",
     -- "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t .",
-    -- "",
-    -- -- Miscellaneous
-    -- "|cFFFF00Miscellaneous:|r",
-    -- "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t .,
     -- "",
 }
 -- -----------------------------------------------------------------------------
