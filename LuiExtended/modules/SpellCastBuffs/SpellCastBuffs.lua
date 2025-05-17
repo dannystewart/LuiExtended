@@ -2603,8 +2603,7 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
 
         -- If this effect doesn't properly display stacks - then add them.
         if Effects.EffectOverride[abilityId] and Effects.EffectOverride[abilityId].displayStacks then
-            local list = SpellCastBuffs.EffectsList
-            for _, effectsList in pairs(list) do
+            for _, effectsList in pairs(SpellCastBuffs.EffectsList) do
                 for _, v in pairs(effectsList) do
                     -- Add stacks
                     if v.id == abilityId then
@@ -3908,7 +3907,7 @@ function SpellCastBuffs.ReloadEffects(unitTag)
             --- @diagnostic disable-next-line: cast-local-type
             castByPlayer = COMBAT_UNIT_TYPE_OTHER
         end
-        SpellCastBuffs.OnEffectChanged(0, 3, buffSlot, buffName, unitTag, timeStarted, timeEnding, stackCount, iconFilename, buffType, effectType, abilityType, statusEffectType, unitName, 0, --[[unitId]] abilityId, castByPlayer)
+        SpellCastBuffs.OnEffectChanged(0, EFFECT_RESULT_UPDATED, buffSlot, buffName, unitTag, timeStarted, timeEnding, stackCount, iconFilename, buffType, effectType, abilityType, statusEffectType, unitName, 0, --[[unitId]] abilityId, castByPlayer)
     end
     -- Display Disguise State (note that this function handles filtering player/target buffs if hidden)
     SpellCastBuffs.DisguiseStateChanged(nil, unitTag, GetUnitDisguiseState(unitTag))
