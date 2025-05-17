@@ -82,19 +82,19 @@ Effects.IsVampLycanBite =
 -- Mundus Passives
 Effects.IsBoon =
 {
-    [13940] = true, -- The Warrior
-    [13943] = true, -- The Mage
-    [13974] = true, -- The Serpent
-    [13975] = true, -- The Thief
-    [13976] = true, -- The Lady
-    [13977] = true, -- The Steed
-    [13978] = true, -- The Lord
-    [13979] = true, -- The Apprentice
-    [13980] = true, -- The Ritual
-    [13981] = true, -- The Lover
-    [13982] = true, -- The Atronach
-    [13984] = true, -- The Shadow
-    [13985] = true, -- The Tower
+    [13940] = true, -- Boon: The Warrior
+    [13943] = true, -- Boon: The Mage
+    [13974] = true, -- Boon: The Serpent
+    [13975] = true, -- Boon: The Thief
+    [13976] = true, -- Boon: The Lady
+    [13977] = true, -- Boon: The Steed
+    [13978] = true, -- Boon: The Lord
+    [13979] = true, -- Boon: The Apprentice
+    [13980] = true, -- Boon: The Ritual
+    [13981] = true, -- Boon: The Lover
+    [13982] = true, -- Boon: The Atronach
+    [13984] = true, -- Boon: The Shadow
+    [13985] = true, -- Boon: The Tower
 }
 
 -- Cyrodiil Scrolls
