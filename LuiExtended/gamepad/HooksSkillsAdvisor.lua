@@ -8,9 +8,7 @@
 local LUIE = LUIE
 
 -- Just a copy of esoui/ingame/skillsadvisor/gamepad/skillsadvisor_suggestions_gamepad.lua, this is the easiest way to override for custom ability icons.
---
--- activated is a global @ line 253, i've asked ZOS_Seth about it...
-function LUIE.InitializeHooksSkillAdvisor()
+LUIE.InitializeHooksSkillAdvisor = function ()
     --------------
     -- Initialize--
     --------------
@@ -170,12 +168,12 @@ function LUIE.InitializeHooksSkillAdvisor()
     end
 
     function SkillsAdvisorSuggestions_Gamepad:BuildMasterList()
-        -- intended to be overridden
+        -- intended to be overriden
         -- should build the master list of data that is later filtered by FilterScrollList
     end
 
     function SkillsAdvisorSuggestions_Gamepad:FilterScrollList()
-        -- intended to be overridden
+        -- intended to be overriden
         -- should take the master list data and filter it
     end
 
@@ -249,12 +247,14 @@ function LUIE.InitializeHooksSkillAdvisor()
         end
     end
 
-    function SkillsAdvisorSuggestions_Gamepad:GamepadSingleLineAbilityEntryTemplateSetup(control, data, selected, reselectingDuringRebuild, enabled, active)
-        ZO_SharedGamepadEntry_OnSetup(control, data, selected, reselectingDuringRebuild, enabled, active)
-        ZO_GamepadSkillEntryTemplate_Setup(control, data, selected, active, ZO_SKILL_ABILITY_DISPLAY_VIEW)
+    function SkillsAdvisorSuggestions_Gamepad:GamepadSingleLineAbilityEntryTemplateSetup(control, data, parentControl)
+        local SELECTED = true
+        local ACTIVATED = true
+        ZO_SharedGamepadEntry_OnSetup(control, data, SELECTED)
+        ZO_GamepadSkillEntryTemplate_Setup(control, data, SELECTED, ACTIVATED, ZO_SKILL_ABILITY_DISPLAY_VIEW)
     end
 
-    function SkillsAdvisorSuggestions_Gamepad:SkillsAdvisorSuggestionsTextDisplayTemplateSetup(control, data, selected, reselectingDuringRebuild, enabled, active)
+    function SkillsAdvisorSuggestions_Gamepad:SkillsAdvisorSuggestionsTextDisplayTemplateSetup(control, data, parentControl)
         control.label:SetText(data.text)
     end
 

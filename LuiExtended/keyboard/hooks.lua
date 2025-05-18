@@ -59,17 +59,22 @@ LUIE.HookKeyboardIcons = function ()
 
         -- slot
         local id = skillProgressionData:GetAbilityId()
-        control.slotIcon:SetTexture(GetAbilityIcon(id))
+        local customIcon = GetAbilityIcon and GetAbilityIcon(id)
+        if customIcon then
+            control.slotIcon:SetTexture(customIcon)
+        else
+            control.slotIcon:SetTexture(skillProgressionData.GetIcon and skillProgressionData:GetIcon())
+        end
         ZO_Skills_SetKeyboardAbilityButtonTextures(control.slot)
-        ZO_ActionSlot_SetUnusable(control.slotIcon, not isPurchased, false)
+        ZO_ActionSlot_SetUnusable(control.slotIcon, not isPurchased)
         control.slot:SetEnabled(isPurchased and isActive)
         control.slotLock:SetHidden(isUnlocked)
 
         local hasSlotStatusUpdated = skillData:HasUpdatedStatusByType(ZO_SKILL_DATA_NEW_STATE.MORPHABLE) or skillData:HasUpdatedStatusByType(ZO_SKILL_DATA_NEW_STATE.CRAFTED_ABILITY)
         control.slot.statusIcon:SetHidden(not hasSlotStatusUpdated)
 
-        if skillProgressionData:IsActive() and skillProgressionData:GetNumSkillStyles() > 0 then
-            local collectibleData = skillProgressionData:GetSelectedSkillStyleCollectibleData()
+        if skillProgressionData:IsActive() and skillProgressionData.HasAnyNonHiddenSkillStyles and skillProgressionData:HasAnyNonHiddenSkillStyles() then
+            local collectibleData = skillProgressionData.GetSelectedSkillStyleCollectibleData and skillProgressionData:GetSelectedSkillStyleCollectibleData()
             if collectibleData then
                 control.skillStyleControl.selectedStyleButton.icon:SetTexture(collectibleData:GetIcon())
             end
@@ -98,8 +103,8 @@ LUIE.HookKeyboardIcons = function ()
 
         -- name
         local detailedName = skillProgressionData:GetDetailedName()
-        detailedName = string.gsub(detailedName, "With", "with")               -- Easiest way to fix the capitalization of the skill "Bond With Nature"
-        detailedName = string.gsub(detailedName, "Blessing Of", "Blessing of") -- Easiest way to fix the capitalization of the skill "Blessing of Restoration"
+        detailedName = zo_strgsub(detailedName, "With", "with")               -- Easiest way to fix the capitalization of the skill "Bond With Nature"
+        detailedName = zo_strgsub(detailedName, "Blessing Of", "Blessing of") -- Easiest way to fix the capitalization of the skill "Blessing of Restoration"
         control.nameLabel:SetText(detailedName)
         local offsetY = showXPBar and -10 or 0
         control.nameLabel:SetAnchor(LEFT, control.slot, RIGHT, 10, offsetY)
@@ -124,7 +129,7 @@ LUIE.HookKeyboardIcons = function ()
         local canMorph = skillPointAllocator:CanMorph()
         local skillPointAllocationMode = SKILLS_AND_ACTION_BAR_MANAGER:GetSkillPointAllocationMode()
         if skillPointAllocationMode == SKILL_POINT_ALLOCATION_MODE_PURCHASE_ONLY then
-            local increaseTextures
+            local increaseTextures = nil
             if canMorph then
                 increaseTextures = INCREASE_BUTTON_TEXTURES.MORPH
             elseif canPurchase or canIncreaseRank then
@@ -141,8 +146,7 @@ LUIE.HookKeyboardIcons = function ()
                 hideIncreaseButton = false
             end
         else
-            local isFullRespec = skillPointAllocationMode == SKILL_POINT_ALLOCATION_MODE_FULL
-            if skillData:CanPointAllocationsBeAltered(isFullRespec) then
+            if skillData.CanPointAllocationsBeAltered and skillData:CanPointAllocationsBeAltered(skillPointAllocationMode) then
                 hideIncreaseButton = false
                 hideDecreaseButton = false
 
@@ -183,9 +187,9 @@ LUIE.HookKeyboardIcons = function ()
                 skillStyleControl:SetAnchor(RIGHT, increaseButton, LEFT)
             end
 
-            if isActive and skillProgressionData:GetNumSkillStyles() ~= 0 then
+            if isActive and skillProgressionData.HasAnyNonHiddenSkillStyles and skillProgressionData:HasAnyNonHiddenSkillStyles() then
                 skillStyleControl:SetHidden(false)
-                if skillProgressionData:IsSkillStyleSelected() then
+                if skillProgressionData.IsSkillStyleSelected and skillProgressionData:IsSkillStyleSelected() then
                     skillStyleControl.defaultStyleButton:SetHidden(true)
                     skillStyleControl.selectedStyleButton:SetHidden(false)
                 else
@@ -216,7 +220,7 @@ LUIE.HookKeyboardIcons = function ()
             if skillProgressionData:GetSkillData():GetPointAllocator():CanPurchase() then
                 local dialogAbility = dialog.ability
                 local id = skillProgressionData:GetAbilityId()
-                dialog.abilityName:SetText(zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetAbilityName(id)))
+                dialog.abilityName:SetText(zo_strformat("<<C:1>>", GetAbilityName(id)))
 
                 dialogAbility.skillProgressionData = skillProgressionData
                 dialogAbility.icon:SetTexture(GetAbilityIcon(id))

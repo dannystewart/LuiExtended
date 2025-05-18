@@ -117,6 +117,19 @@ local function RegisterEvents()
     LoadMedia()
 end
 
+function LUIE:InitializeHooks()
+    self.API_Hooks()
+    self.HookActionButton()
+    self.HookSynergy()
+    self.InitializeHooksSkillAdvisor()
+    self.HookGamePadIcons()
+    self.HookGamePadStats()
+    self.HookGamePadMap()
+    self.HookKeyboardIcons()
+    self.HookKeyboardStats()
+    self.HookKeyboardMap()
+end
+
 --- - **EVENT_ADD_ON_LOADED **
 -- LuiExtended Initialization.
 --- @param eventId integer
@@ -134,21 +147,7 @@ eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, function (eventId,
     LUIE.UpdateGuildData(nil, nil, nil, nil)
     -- -----------------------------------------------------------------------------
     -- Initialize Hooks
-    LUIE.InitializeHooks()
-    LUIE.HookActionButton()
-    LUIE.HookSynergy()
-
-    -- Hook Gamepad Skill Advisor for custom icon support
-    LUIE.InitializeHooksSkillAdvisor()
-    -- LUIE.HookGamePadIcons() --Disabled for now until I can dig into gamepad menu more.
-    LUIE.HookGamePadStats()
-    LUIE.HookGamePadMap()
-
-
-    LUIE.HookKeyboardIcons()
-    LUIE.HookKeyboardStats()
-    LUIE.HookKeyboardMap()
-
+    LUIE:InitializeHooks()
     --
     LUIE.OtherAddonCompatability.isActionDurationReminderEnabled = LUIE.IsItEnabled("ActionDurationReminder")
     LUIE.OtherAddonCompatability.isFancyActionBarEnabled = LUIE.IsItEnabled("FancyActionBar")

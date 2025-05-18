@@ -34,7 +34,7 @@ LUIE.buffTypes =
     [LUIE_BUFF_TYPE_NONE] = GetString(LUIE_STRING_BUFF_TYPE_NONE),
 }
 
-function LUIE.InitializeHooks()
+LUIE.API_Hooks = function ()
     local zos_RequestFriend = RequestFriend
     -- Hook for request friend so menu option also displays invite message
     -- Menu is true if this request is sent from the Player to Player interaction menu

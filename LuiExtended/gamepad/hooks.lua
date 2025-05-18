@@ -59,7 +59,8 @@ LUIE.HookGamePadIcons = function ()
 
     local function SetBindingTextForSkill(keybindLabel, skillData, overrideSlotIndex, overrideHotbar)
         ZO_Keybindings_UnregisterLabelForBindingUpdate(keybindLabel)
-
+        local hasBinding = false
+        local keybindWidth = 0
         -- The spot where the keybind goes is occupied by the decrease button in the respec modes
         if SKILLS_AND_ACTION_BAR_MANAGER:GetSkillPointAllocationMode() == SKILL_POINT_ALLOCATION_MODE_PURCHASE_ONLY and skillData:IsActive() then
             local actionSlotIndex = overrideSlotIndex or skillData:GetSlotOnCurrentHotbar()
@@ -69,16 +70,15 @@ LUIE.HookGamePadIcons = function ()
                 local HIDE_UNBOUND = false
                 ZO_Keybindings_RegisterLabelForBindingUpdate(keybindLabel, keyboardActionName, HIDE_UNBOUND, gamepadActionName)
 
-                local keybindWidth = 50 -- width assuming a single keybind
+                keybindWidth = 50     -- width assuming a single keybind
                 if ACTION_BAR_ASSIGNMENT_MANAGER:IsUltimateSlot(actionSlotIndex) then
-                    keybindWidth = 90   -- double keybind width (RB+LB)
+                    keybindWidth = 90 -- double keybind width (RB+LB)
                 end
 
                 keybindLabel:SetHidden(false)
                 return keybindWidth
             end
         end
-
         keybindLabel:SetHidden(true)
         -- other controls depend on the keybind width for layout so let's reset its size too
         keybindLabel:SetText("")
@@ -93,6 +93,11 @@ LUIE.HookGamePadIcons = function ()
             return indicatorRightWidth
         end
         local skillPointAllocator = skillData:GetPointAllocator()
+        local skillProgressionData = skillPointAllocator.GetProgressionData and skillPointAllocator:GetProgressionData() or skillData:GetPointAllocatorProgressionData()
+        local isActive = skillData:IsActive()
+        local isNonCraftedActive = isActive and not (skillData.IsCraftedAbility and skillData:IsCraftedAbility())
+        local isMorph = isNonCraftedActive and skillProgressionData and skillProgressionData.IsMorph and skillProgressionData:IsMorph()
+        local showSkillStyle = not showDecrease and isActive and skillProgressionData and skillProgressionData.HasAnyNonHiddenSkillStyles and skillProgressionData:HasAnyNonHiddenSkillStyles()
 
         local increaseMultiIcon
         local decreaseMultiIcon
@@ -114,7 +119,6 @@ LUIE.HookGamePadIcons = function ()
 
         -- Increase (Morph, Purchase, Increase Rank) Icon
         local increaseAction = ZO_SKILL_POINT_ACTION.NONE
-        local isMorph = ZO_ActiveSkillProgressionData:IsMorph()
         if showIncrease then
             increaseAction = skillPointAllocator:GetIncreaseSkillAction()
         elseif isMorph then
@@ -132,9 +136,15 @@ LUIE.HookGamePadIcons = function ()
             if decreaseAction ~= ZO_SKILL_POINT_ACTION.NONE then
                 decreaseMultiIcon:AddIcon(ZO_Skills_GetGamepadSkillPointActionIcon(decreaseAction))
             end
-
             -- Always carve out space for the decrease icon even if it isn't active so the name doesn't dance around as it appears and disappears
             indicatorRightWidth = 40
+        elseif showSkillStyle then
+            local collectibleData = skillProgressionData and skillProgressionData.GetSelectedSkillStyleCollectibleData and skillProgressionData:GetSelectedSkillStyleCollectibleData()
+            if collectibleData then
+                leftIndicator:AddIcon(collectibleData:GetIcon())
+            else
+                leftIndicator:AddIcon("EsoUI/Art/Progression/Gamepad/gp_skillStyleEmpty.dds")
+            end
         end
 
         -- New Indicator
@@ -157,25 +167,28 @@ LUIE.HookGamePadIcons = function ()
     -- Hook for Gamepad Skills Menu
     function ZO_GamepadSkillEntryTemplate_Setup(control, skillEntry, selected, activated, displayView)
         -- Some skill entries want to target a specific progression data (such as the morph dialog showing two specific morphs). Otherwise they use the skill progression that matches the current point spending.
-        local skillData = skillEntry.skillData or skillEntry.skillProgressionData and skillEntry.skillProgressionData:GetSkillData() or skillEntry.craftedAbilityData and skillEntry.craftedAbilityData:GetSkillData()
+        local skillData = skillEntry.skillData or (skillEntry.skillProgressionData and skillEntry.skillProgressionData:GetSkillData()) or (skillEntry.craftedAbilityData and skillEntry.craftedAbilityData:GetSkillData())
         local skillProgressionData = skillEntry.skillProgressionData or skillData:GetPointAllocatorProgressionData()
         local skillPointAllocator = skillData:GetPointAllocator()
         local isUnlocked = skillProgressionData:IsUnlocked()
         local isActive = skillData:IsActive()
-        local isNonCraftedActive = isActive and not skillData:IsCraftedAbility()
+        local isNonCraftedActive = isActive and not (skillData.IsCraftedAbility and skillData:IsCraftedAbility())
         local isMorph = isNonCraftedActive and skillProgressionData:IsMorph()
         local isPurchased = skillPointAllocator:IsPurchased()
         local isInSkillBuild = skillProgressionData:IsAdvised()
+        local abilityId = skillProgressionData.abilityId
 
         -- Icon
         local iconTexture = control.icon
-        iconTexture:SetTexture(GetAbilityIcon(skillProgressionData.abilityId))
+        iconTexture:SetTexture(GetAbilityIcon and GetAbilityIcon(abilityId) or (skillProgressionData.GetIcon and skillProgressionData:GetIcon()))
         if displayView == ZO_SKILL_ABILITY_DISPLAY_INTERACTIVE then
             if isPurchased then
                 iconTexture:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
             else
                 iconTexture:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
             end
+        else
+            iconTexture:SetColor(ZO_DEFAULT_DISABLED_COLOR:UnpackRGBA())
         end
 
         SetupAbilityIconFrame(control, skillData:IsPassive(), isActive, isInSkillBuild)
@@ -183,8 +196,17 @@ LUIE.HookGamePadIcons = function ()
         -- Label Color
         if displayView == ZO_SKILL_ABILITY_DISPLAY_INTERACTIVE then
             if not skillEntry.isPreview and isPurchased then
-                control.label:SetColor((selected and PURCHASED_COLOR or PURCHASED_UNSELECTED_COLOR):UnpackRGBA())
+                if skillEntry.SetNameColors then
+                    skillEntry:SetNameColors(PURCHASED_COLOR, PURCHASED_UNSELECTED_COLOR)
+                end
             end
+        elseif skillEntry.enabled then
+            if skillEntry.SetNameColors then
+                skillEntry:SetNameColors(PURCHASED_COLOR, PURCHASED_COLOR)
+            end
+        end
+        if skillEntry.GetNameColor then
+            control.label:SetColor(skillEntry:GetNameColor(selected):UnpackRGBA())
         else
             control.label:SetColor(PURCHASED_COLOR:UnpackRGBA())
         end
@@ -197,7 +219,7 @@ LUIE.HookGamePadIcons = function ()
         local labelWidth = SKILL_ENTRY_LABEL_WIDTH
 
         local showIncrease = (displayView == ZO_SKILL_ABILITY_DISPLAY_INTERACTIVE)
-        local showDecrease = SKILLS_AND_ACTION_BAR_MANAGER:DoesSkillPointAllocationModeAllowDecrease()
+        local showDecrease = SKILLS_AND_ACTION_BAR_MANAGER:DoesSkillPointAllocationModeAllowDecrease() and displayView == ZO_SKILL_ABILITY_DISPLAY_INTERACTIVE
         local showNew = (displayView == ZO_SKILL_ABILITY_DISPLAY_INTERACTIVE)
         local indicatorWidth = SetupIndicatorsForSkill(control.leftIndicator, control.rightIndicator, skillData, showIncrease, showDecrease, showNew)
         labelWidth = labelWidth - indicatorWidth
@@ -215,18 +237,18 @@ LUIE.HookGamePadIcons = function ()
     end
 
     -- Hook for Gamepad Skills Preview
-    function ZO_GamepadSkillEntryPreviewRow_Setup(control, skillData, overrideSlotIndex, overrideHotbar)
+    function ZO_GamepadSkillEntryPreviewRow_Setup(control, skillData, overrideSlotIndex, overrideHotbar, isReadOnly)
         local skillProgressionData = skillData:GetPointAllocatorProgressionData()
         local skillPointAllocator = skillData:GetPointAllocator()
         local isUnlocked = skillProgressionData:IsUnlocked()
         local isPurchased = overrideHotbar ~= nil or skillPointAllocator:IsPurchased()
         local isActive = skillData:IsActive()
-        local isNonCraftedActive = isActive and not skillData:IsCraftedAbility()
-        local isMorph = skillData:IsPlayerSkill() and isNonCraftedActive and skillProgressionData:IsMorph()
+        local isNonCraftedActive = isActive and not (skillData.IsCraftedAbility and skillData:IsCraftedAbility())
+        local isMorph = skillData.IsPlayerSkill and skillData:IsPlayerSkill() and isNonCraftedActive and skillProgressionData:IsMorph()
 
         -- Icon
         local iconTexture = control.icon
-        iconTexture:SetTexture(skillProgressionData:GetIcon())
+        iconTexture:SetTexture(GetAbilityIcon and GetAbilityIcon(skillProgressionData.abilityId) or (skillProgressionData.GetIcon and skillProgressionData:GetIcon()))
         if isPurchased then
             iconTexture:SetColor(ZO_DEFAULT_ENABLED_COLOR:UnpackRGBA())
         else
@@ -236,18 +258,20 @@ LUIE.HookGamePadIcons = function ()
         SetupAbilityIconFrame(control, skillData:IsPassive(), isActive, skillProgressionData:IsAdvised())
 
         -- Label
-        control.label:SetText(skillProgressionData:GetDetailedGamepadName())
+        control.label:SetText(skillProgressionData.GetDetailedGamepadName and skillProgressionData:GetDetailedGamepadName() or "")
         local color = isPurchased and ZO_SELECTED_TEXT or ZO_DISABLED_TEXT
         control.label:SetColor(color:UnpackRGBA())
 
         -- Lock Icon
-        control.lock:SetHidden(isUnlocked)
+        if control.lock then
+            control.lock:SetHidden(isUnlocked)
+        end
 
-        -- Indicator
+        -- indicator
         local labelWidth = SKILL_ENTRY_LABEL_WIDTH
         local NO_RIGHT_INDICATOR = nil
-        local SHOW_INCREASE = true
-        local showDecrease = SKILLS_AND_ACTION_BAR_MANAGER:DoesSkillPointAllocationModeAllowDecrease()
+        local SHOW_INCREASE = not isReadOnly
+        local showDecrease = SKILLS_AND_ACTION_BAR_MANAGER:DoesSkillPointAllocationModeAllowDecrease() and not isReadOnly
         local SHOW_NEW = true
         local indicatorWidth = SetupIndicatorsForSkill(control.leftIndicator, NO_RIGHT_INDICATOR, skillData, SHOW_INCREASE, showDecrease, SHOW_NEW)
         labelWidth = labelWidth - indicatorWidth
