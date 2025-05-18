@@ -548,8 +548,12 @@ do
 end
 -- -----------------------------------------------------------------------------
 
--- Add this if not already.
-SLASH_COMMANDS["/rl"] = ReloadUI("ingame")
+do
+    -- Add this if not already.
+    if not SLASH_COMMANDS["/rl"] then
+        SLASH_COMMANDS["/rl"] = ReloadUI("ingame")
+    end
+end
 
 -- -----------------------------------------------------------------------------
 do
