@@ -11902,8 +11902,9 @@ function ChatAnnouncements.HookFunction()
             local DISABLED = false
             local ENABLED_IF_NOT_IGNORED = not isIgnored
             local isInGroup = IsPlayerInGroup(currentTargetCharacterNameRaw)
+            local isRestrictedCommunicationPermitted
             if GetAPIVersion() >= 101046 then
-                local isRestrictedCommunicationPermitted = CanCommunicateWith(currentTargetCharacterNameRaw)
+                isRestrictedCommunicationPermitted = CanCommunicateWith(currentTargetCharacterNameRaw)
             else
                 isRestrictedCommunicationPermitted = true
             end
