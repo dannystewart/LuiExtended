@@ -16984,6 +16984,7 @@ local debugAuras =
     [177886] = true, -- Major Slayer
     [239734] = true, -- Three Queens Wellspring (SET)
     [240156] = true, -- Death-Dancer (SET)
+    [176310] = true, -- Major Expedition path of darkness
 }
 
 --- @type DebugAuras
