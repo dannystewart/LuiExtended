@@ -35,58 +35,77 @@ local playerDisplayName = UnitFrames.playerDisplayName
 
 -- Default Regen/degen animation used on default group frames and custom frames
 local function CreateRegenAnimation(parent, anchors, dims, alpha, number)
+    -- Table of animation configs (because hardcoding is for masochists)
+    local animConfigs =
+    {
+        degen1 =
+        {
+            texture = "LuiExtended/media/unitframes/regenleft.dds",
+            distanceMult = -0.35,
+            offsetXMult = 0.425,
+        },
+        degen2 =
+        {
+            texture = "LuiExtended/media/unitframes/regenright.dds",
+            distanceMult = 0.35,
+            offsetXMult = -0.425,
+        },
+        regen1 =
+        {
+            texture = "LuiExtended/media/unitframes/regenright.dds",
+            distanceMult = 0.35,
+            offsetXMult = 0.075,
+        },
+        regen2 =
+        {
+            texture = "LuiExtended/media/unitframes/regenleft.dds",
+            distanceMult = -0.35,
+            offsetXMult = -0.075,
+        },
+    }
+
+    local config = animConfigs[number]
+    if not config then
+        if LUIE.IsDevDebugEnabled() then
+            -- If you pass in a bad number, you get nothing. (And you deserve it.)
+            LUIE.Error("[LUIE] CreateRegenAnimation: Invalid animation number '" .. tostring(number) .. "'.")
+        end
+        return nil
+    end
+
     if #dims ~= 2 then
         dims = { parent:GetDimensions() }
     end
 
     local updateDims = { dims[2] * 1.9, dims[2] * 0.85 }
-
-    -- Create regen control
-    local control = {}
-    local offsetX = 0.00000000000000
-    local distance = 0.00000000000000
-
-    if number == "degen1" then
-        control = UI:Texture(parent, anchors, updateDims, "LuiExtended/media/unitframes/regenleft.dds", 2, true)
-        distance = -dims[1] * 0.35
-        offsetX = dims[1] * 0.425
-    elseif number == "degen2" then
-        control = UI:Texture(parent, anchors, updateDims, "LuiExtended/media/unitframes/regenright.dds", 2, true)
-        distance = dims[1] * 0.35
-        offsetX = -dims[1] * 0.425
-    elseif number == "regen1" then
-        control = UI:Texture(parent, anchors, updateDims, "LuiExtended/media/unitframes/regenright.dds", 2, true)
-        distance = dims[1] * 0.35
-        offsetX = dims[1] * 0.075
-    elseif number == "regen2" then
-        control = UI:Texture(parent, anchors, updateDims, "LuiExtended/media/unitframes/regenleft.dds", 2, true)
-        distance = -dims[1] * 0.35
-        offsetX = -dims[1] * 0.075
-    end
+    local control = UI:Texture(parent, anchors, updateDims, config.texture, 2, true)
+    local distance = dims[1] * config.distanceMult
+    local offsetX = dims[1] * config.offsetXMult
 
     control:SetHidden(true)
     control:SetAlpha(alpha or 0)
     control:SetDrawLayer(DL_CONTROLS)
 
+    -- Find the first valid anchor and set up the animation (because why would you want more than one?)
     for i = 0, MAX_ANCHORS - 1 do
         local isValid, _, _, _, _, offsetY = control:GetAnchor(i)
         if isValid then
-            -- Create an horizontal sliding animation
+            -- Horizontal sliding animation
             local animation, timeline = CreateSimpleAnimation(ANIMATION_TRANSLATE, control, 0)
             animation:SetTranslateOffsets(offsetX, offsetY, offsetX + distance, offsetY)
             animation:SetDuration(1000)
 
-            -- Fade alpha coming in
+            -- Fade in
             local fadeIn = timeline:InsertAnimation(ANIMATION_ALPHA, control, 0)
             fadeIn:SetAlphaValues(0, 0.75)
             fadeIn:SetDuration(250)
             fadeIn:SetEasingFunction(ZO_EaseOutQuadratic)
 
-            -- Fade alpha going out
+            -- Fade out
             local fadeOut = timeline:InsertAnimation(ANIMATION_ALPHA, control, 750)
             fadeOut:SetAlphaValues(0.75, 0)
             fadeOut:SetDuration(250)
-            fadeIn:SetEasingFunction(ZO_EaseOutQuadratic)
+            fadeOut:SetEasingFunction(ZO_EaseOutQuadratic)
 
             timeline:SetPlaybackType(ANIMATION_PLAYBACK_LOOP, LOOP_INDEFINITELY)
             control.animation = animation
@@ -95,16 +114,43 @@ local function CreateRegenAnimation(parent, anchors, dims, alpha, number)
             return control
         end
     end
+    if LUIE.IsDevDebugEnabled() then
+        -- If you get here, you have no valid anchors. Sucks to be you.
+        LUIE.Error("[LUIE] CreateRegenAnimation: No valid anchors found for animation.")
+    end
+    return nil
 end
 
 -- Decreased armour overlay visuals
 local function CreateDecreasedArmorOverlay(parent, small)
-    local control = UI:Control(parent, { CENTER, CENTER }, { 512, 32 }, false)
-    control.smallTex = UI:Texture(control, { CENTER, CENTER }, { 512, 32 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedarmor_small.dds", 2, false)
-    control.smallTex:SetDrawTier(DT_HIGH)
+    -- Config for overlay textures (because hardcoding is for people who hate themselves)
+    local textureConfig =
+    {
+        small =
+        {
+            file = "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedarmor_small.dds",
+            size = { 512, 32 },
+            tier = DT_HIGH,
+        },
+        normal =
+        {
+            file = "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedarmor_standard.dds",
+            size = { 512, 32 },
+            tier = DT_HIGH,
+        },
+    }
+
+    -- Create the base control (centered, because why not?)
+    local control = UI:Control(parent, { CENTER, CENTER }, textureConfig.small.size, false)
+
+    -- Always add the small texture (because apparently everyone gets to be small)
+    control.smallTex = UI:Texture(control, { CENTER, CENTER }, textureConfig.small.size, textureConfig.small.file, 2, false)
+    control.smallTex:SetDrawTier(textureConfig.small.tier)
+
+    -- Only add the normal texture if 'small' is NOT true (logic, right?)
     if not small then
-        control.normalTex = UI:Texture(control, { CENTER, CENTER }, { 512, 32 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedarmor_standard.dds", 2, false)
-        control.normalTex:SetDrawTier(DT_HIGH)
+        control.normalTex = UI:Texture(control, { CENTER, CENTER }, textureConfig.normal.size, textureConfig.normal.file, 2, false)
+        control.normalTex:SetDrawTier(textureConfig.normal.tier)
     end
 
     return control
