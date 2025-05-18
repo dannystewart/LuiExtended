@@ -11905,7 +11905,7 @@ function ChatAnnouncements.HookFunction()
             local isRestrictedCommunicationPermitted
             if GetAPIVersion() >= 101046 then
                 isRestrictedCommunicationPermitted = CanCommunicateWith(currentTargetCharacterNameRaw)
-            else
+            elseif GetAPIVersion() < 101046 then
                 isRestrictedCommunicationPermitted = true
             end
             self:GetRadialMenu():Clear()
