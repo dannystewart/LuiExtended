@@ -14,6 +14,13 @@ local GetDisplayName = GetDisplayName
 local changelogMessages =
 {
     -- Version Header
+    "|cFFA500LuiExtended Version 6.9.6.1|r",
+    "",
+    -- Fixes
+    "|cFFFF00Fixes:|r",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Fix for error in gamepad skills menu.",
+    "",
+    -- Version Header
     "|cFFA500LuiExtended Version 6.9.6.0|r",
     "",
     -- New Features
