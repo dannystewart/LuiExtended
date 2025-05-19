@@ -205,3 +205,5 @@ function SpellCastBuffs.CollectibleBuff()
         }
     end
 end
+
+return SpellCastBuffs

@@ -1324,10 +1324,64 @@ end
 
 -- Right Click Cancel Buff function
 function SpellCastBuffs.Buff_OnMouseUp(self, button, upInside)
-    --- @diagnostic disable-next-line: undefined-field
-    if upInside and button == MOUSE_BUTTON_INDEX_RIGHT and self.buffSlot then
-        --- @diagnostic disable-next-line: undefined-field
-        CancelBuff(self.buffSlot)
+    if upInside and button == MOUSE_BUTTON_INDEX_RIGHT then
+        ClearMenu()
+        local id, name = self.effectId, self.effectName
+        -- Blacklist
+        local blacklist = SpellCastBuffs.SV.BlacklistTable
+        local isBlacklisted = SpellCastBuffs.IsBuffListed(id, name)
+        AddMenuItem(isBlacklisted and "Remove from Blacklist" or "Add to Blacklist", function ()
+            if isBlacklisted then
+                SpellCastBuffs.RemoveFromCustomList(blacklist, id)
+                SpellCastBuffs.RemoveFromCustomList(blacklist, name)
+            else
+                SpellCastBuffs.AddToCustomList(blacklist, id)
+                SpellCastBuffs.AddToCustomList(blacklist, name)
+            end
+        end)
+        -- -- Whitelist
+        -- local whitelist = SpellCastBuffs.SV.WhitelistTable
+        -- local isWhitelisted = whitelist[id] or whitelist[name]
+        -- AddMenuItem(isWhitelisted and "Remove from Whitelist" or "Add to Whitelist", function ()
+        --     if isWhitelisted then
+        --         SpellCastBuffs.RemoveFromCustomList(whitelist, id)
+        --         SpellCastBuffs.RemoveFromCustomList(whitelist, name)
+        --     else
+        --         SpellCastBuffs.AddToCustomList(whitelist, id)
+        --         SpellCastBuffs.AddToCustomList(whitelist, name)
+        --     end
+        -- end)
+        -- Prominent Buffs
+        local promBuffs = SpellCastBuffs.SV.PromBuffTable
+        local isPromBuff = promBuffs[id] or promBuffs[name]
+        AddMenuItem(isPromBuff and "Remove from Prominent Buffs" or "Add to Prominent Buffs", function ()
+            if isPromBuff then
+                SpellCastBuffs.RemoveFromCustomList(promBuffs, id)
+                SpellCastBuffs.RemoveFromCustomList(promBuffs, name)
+            else
+                SpellCastBuffs.AddToCustomList(promBuffs, id)
+                SpellCastBuffs.AddToCustomList(promBuffs, name)
+            end
+        end)
+        -- Prominent Debuffs
+        local promDebuffs = SpellCastBuffs.SV.PromDebuffTable
+        local isPromDebuff = promDebuffs[id] or promDebuffs[name]
+        AddMenuItem(isPromDebuff and "Remove from Prominent Debuffs" or "Add to Prominent Debuffs", function ()
+            if isPromDebuff then
+                SpellCastBuffs.RemoveFromCustomList(promDebuffs, id)
+                SpellCastBuffs.RemoveFromCustomList(promDebuffs, name)
+            else
+                SpellCastBuffs.AddToCustomList(promDebuffs, id)
+                SpellCastBuffs.AddToCustomList(promDebuffs, name)
+            end
+        end)
+        -- Cancel Buff (if possible)
+        if self.buffSlot then
+            AddMenuItem("Cancel Buff", function ()
+                CancelBuff(self.buffSlot)
+            end)
+        end
+        ShowMenu(self)
     end
 end
 
@@ -4256,25 +4310,3 @@ function SpellCastBuffs.OnVibration(eventCode, duration, coarseMotor, fineMotor,
         g_playerResurrectStage = nil
     end
 end
-
--- Helper to get current list and check if buff is in list
-function SpellCastBuffs.GetCurrentList()
-    if SpellCastBuffs.SV.ListMode == "whitelist" then
-        return SpellCastBuffs.SV.WhitelistTable
-    else
-        return SpellCastBuffs.SV.BlacklistTable
-    end
-end
-
-function SpellCastBuffs.IsBuffListed(abilityId, abilityName)
-    local list = SpellCastBuffs.GetCurrentList()
-    return list[abilityId] or list[abilityName]
-end
-
--- Update filtering logic everywhere that checks BlacklistTable
--- Example for OnEffectChanged (repeat for other relevant places):
--- Replace:
--- if SpellCastBuffs.SV.BlacklistTable[abilityId] then return end
--- With:
--- if SpellCastBuffs.SV.ListMode == "blacklist" and SpellCastBuffs.SV.BlacklistTable[abilityId] then return end
--- if SpellCastBuffs.SV.ListMode == "whitelist" and not SpellCastBuffs.SV.WhitelistTable[abilityId] then return end

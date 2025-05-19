@@ -10,13 +10,13 @@ local SpellCastBuffs = LUIE.SpellCastBuffs
 
 local eventManager = GetEventManager()
 
-local moduleName = LUIE.name .. "SpellCastBuffs"
+local moduleName = SpellCastBuffs.moduleName
 
-local g_werewolfName = ""   -- Name for current Werewolf Transformation morph
-local g_werewolfIcon = ""   -- Icon for current Werewolf Transformation morph
-local g_werewolfId = 0      -- AbilityId for Werewolf Transformation morph
-local g_werewolfCounter = 0 -- Counter for Werewolf transformation events
-local g_werewolfQuest = 0   -- Counter for Werewolf transformation events (Quest)
+local g_werewolfName = SpellCastBuffs.werewolfName       -- Name for current Werewolf Transformation morph
+local g_werewolfIcon = SpellCastBuffs.werewolfIcon       -- Icon for current Werewolf Transformation morph
+local g_werewolfId = SpellCastBuffs.werewolfId           -- AbilityId for Werewolf Transformation morph
+local g_werewolfCounter = SpellCastBuffs.werewolfCounter -- Counter for Werewolf transformation events
+local g_werewolfQuest = SpellCastBuffs.werewolfQuest     -- Counter for Werewolf transformation events (Quest)
 
 -- Function to pull Werewolf Cast Bar / Buff Aura Icon based off the players morph choice
 local function SetWerewolfIcon()
@@ -107,3 +107,5 @@ function SpellCastBuffs.OnPowerUpdate(eventCode, unitTag, powerIndex, powerType,
                      end, 5000)
     end
 end
+
+return SpellCastBuffs

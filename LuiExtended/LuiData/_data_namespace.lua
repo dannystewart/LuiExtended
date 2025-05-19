@@ -30,7 +30,7 @@
 --- @field BarHighlightOverride table<integer, BarHighlightOverrideOptions> Table of highlight override definitions
 --- @field BarHighlightStack BarHighlightStack Table of stack-based highlight effects
 --- @field BarIdOverride BarIdOverride Table of bar ID overrides
---- @field DisguiseIcons DisguiseIcons Table of disguise icon definitions
+--- @field DisguiseIcons EffectsDisguiseIcons Table of disguise icon definitions
 --- @field EffectCreateSkillAura EffectCreateSkillAura Table of skill aura creation definitions
 --- @field EffectGroundDisplay EffectGroundDisplay Table of fake ground effect display definitions
 --- @field EffectHideSCT EffectHideSCT Table of effects to hide from SCT

@@ -89,12 +89,15 @@ modules/CombatInfo/CrowdControlTracker.lua
 modules/InfoPanel/InfoPanel.lua
 
 # Modules - Spell Cast Buffs
+modules/SpellCastBuffs/SpellCastBuffs_Namespace.lua
+modules/SpellCastBuffs/SpellCastBuffs_ContextFunctions.lua
+modules/SpellCastBuffs/SpellCastBuffs_ListFunctions.lua
+modules/SpellCastBuffs/SpellCastBuffs_Collectibles.lua
+modules/SpellCastBuffs/SpellCastBuffs_Cyrodiil.lua
+modules/SpellCastBuffs/SpellCastBuffs_Stealth.lua
+modules/SpellCastBuffs/SpellCastBuffs_Debug.lua
+modules/SpellCastBuffs/SpellCastBuffs_Werewolf.lua
 modules/SpellCastBuffs/SpellCastBuffs.lua
-modules/SpellCastBuffs/Collectibles.lua
-modules/SpellCastBuffs/Cyrodiil.lua
-modules/SpellCastBuffs/Stealth.lua
-modules/SpellCastBuffs/Debug.lua
-modules/SpellCastBuffs/Werewolf.lua
 
 # Modules - Slash Commands
 modules/SlashCommands/SlashCommands.lua

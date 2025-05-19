@@ -5,16 +5,20 @@
 
 --- @class (partial) LuiExtended
 local LUIE = LUIE
--- TODO: Update id's here with fake ids probably, to set different icons etc for Prominent add/remove
+
 --- @class (partial) LUIE.SpellCastBuffs
 local SpellCastBuffs = LUIE.SpellCastBuffs
 
-local Effects = LuiData.Data.Effects
-local Abilities = LuiData.Data.Abilities
-local Tooltips = LuiData.Data.Tooltips
+local LuiData = LuiData
+local Data = LuiData.Data
+local Effects = Data.Effects
+local Abilities = Data.Abilities
+local Tooltips = Data.Tooltips
+
+-- TODO: Update id's here with fake ids probably, to set different icons etc for Prominent add/remove
 
 -- Handles long term Disguise Item Icon (appears when wearing a disguise even if not in a disguised state)
-local g_currentDisguise = 0
+local g_currentDisguise = SpellCastBuffs.currentDisguise
 
 -- Called by SpellCastBuffs.DisguiseItem()
 function SpellCastBuffs.SetDisguiseItem()
@@ -205,3 +209,5 @@ function SpellCastBuffs.StealthStateChanged(eventId, unitTag, stealthState)
         }
     end
 end
+
+return SpellCastBuffs

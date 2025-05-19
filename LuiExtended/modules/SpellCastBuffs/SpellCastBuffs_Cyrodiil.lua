@@ -73,3 +73,5 @@ function SpellCastBuffs.LoadBattleSpiritTarget()
         }
     end
 end
+
+return SpellCastBuffs

@@ -14,20 +14,20 @@ local Effects = Data.Effects
 -- Data for icon & description to show for the fake Disguise buff applied to the player.
 --------------------------------------------------------------------------------------------------------------------------------
 
---- @class DisguiseIconsAttributes
+--- Required:
+--- icon = '' -- Icon to use
+--- description = '' -- String to use for description when equipped (used by Chat Announcements)
+--- id = # -- Ability id to pull a tooltip description from
+--- @class (exact) DisguiseIcons : table
 --- @field icon string Icon to use
 --- @field description string String to use for description when equipped (used by Chat Announcements)
---- @field id number Ability id to pull a tooltip description from
+--- @field id integer|nil Ability id to pull a tooltip description from
 
---- @class (partial) DisguiseIcons
---- @field [number] DisguiseIconsAttributes Table of disguise icon definitions
+
+--- @alias EffectsDisguiseIcons DisguiseIcons[]
 local DisguiseIcons =
 {
-    -- Required:
-    -- icon = '' -- Icon to use
-    -- description = '' -- String to use for description when equipped (used by Chat Announcements)
-    -- id = # -- Ability id to pull a tooltip description from
-
+    [0] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "by the Earring of Disguise.", id = nil }, -- Generic Disguise override - at least the Arenthia quest in Reaper's March applies a disguise without utilizing an item
     [2571] = { icon = "LuiExtended/media/icons/disguises/disguise_midnight_union_disguise.dds", description = "as a Midnight Union thief.", id = 35607 },
     [27266] = { icon = "LuiExtended/media/icons/disguises/disguise_vanguard_uniform.dds", description = "as a soldier in Tanval's Vanguard.", id = 50177 },
     [29536] = { icon = "LuiExtended/media/icons/disguises/disguise_stormfist_disguise.dds", description = "as a Stormfist soldier.", id = 19086 },
@@ -56,17 +56,15 @@ local DisguiseIcons =
     [54483] = { icon = "LuiExtended/media/icons/disguises/disguise_courier_uniform.dds", description = "as a Gold Coast mercenary courier.", id = 48429 },
     [54994] = { icon = "LuiExtended/media/icons/disguises/disguise_shadowsilk_gem.dds", description = "as a Shadowsilk Goblin.", id = 51906 },
     [55014] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "as a member of Wolfbane Watch.", id = nil },            -- (Not sure it exists)
+    [55262] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "by the Earring of Disguise.", id = nil },               -- Compatibility - for Arenthia quest is player is wearing a Guild Tabard
     [64260] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "in colorful Dark Elf clothing.", id = 20175 },          -- NO ICON (Not sure it exists)
     [71090] = { icon = "LuiExtended/media/icons/disguises/disguise_servants_outfit.dds", description = "as a servant of the Iron Wheel.", id = 27649 }, -- TODO: Check this ID is right
     [71541] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "as a Castle Kvatch sentinel.", id = nil },              -- NO ICON (Not sure it exists)
     [71789] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "as a Castle Kvatch sentinel.", id = nil },              -- NO ICON (Not sure it exists)
-    -- [79332] = { icon = 'LuiExtended/media/icons/disguises/disguise_monks_disguise.dds', description = 'as a monk.' }, -- HAS AN AURA SO NOT NECESSARY (Note - we make an exception to HIDE this itemId to prevent errors)
+    -- [79332] = { icon = "LuiExtended/media/icons/disguises/disguise_monks_disguise.dds", description = "as a monk." },                                   -- HAS AN AURA SO NOT NECESSARY (Note - we make an exception to HIDE this itemId to prevent errors)
     [79505] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "as a Sentinel Guard.", id = nil },                      -- NO ICON (Not sure it exists)
     [94209] = { icon = "LuiExtended/media/icons/disguises/disguise_scarlet_judges_regalia.dds", description = "as The Scarlet Judge.", id = 85204 },
-
-    [0] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "by the Earring of Disguise.", id = nil },     -- Generic Disguise override - at least the Arenthia quest in Reaper's March applies a disguise without utilizing an item
-    [55262] = { icon = "LuiExtended/media/icons/disguises/disguise_generic.dds", description = "by the Earring of Disguise.", id = nil }, -- Compatibility - for Arenthia quest is player is wearing a Guild Tabard
 }
 
---- @class (partial) DisguiseIcons
+--- @type EffectsDisguiseIcons
 Effects.DisguiseIcons = DisguiseIcons

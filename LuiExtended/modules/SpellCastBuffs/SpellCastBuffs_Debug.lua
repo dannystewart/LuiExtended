@@ -579,3 +579,4 @@ if LUIE.IsDevDebugEnabled() then
     end
 end
 -- -----------------------------------------------------------------------------
+return SpellCastBuffs
