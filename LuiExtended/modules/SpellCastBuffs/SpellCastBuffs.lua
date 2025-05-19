@@ -8,8 +8,7 @@ local LUIE = LUIE
 
 -- SpellCastBuffs namespace
 --- @class (partial) LUIE.SpellCastBuffs
-local SpellCastBuffs = {}
-SpellCastBuffs.__index = SpellCastBuffs
+local SpellCastBuffs = LUIE.SpellCastBuffs
 
 local UI = LUIE.UI
 local LuiData = LuiData
@@ -29,254 +28,31 @@ local eventManager = GetEventManager()
 local sceneManager = SCENE_MANAGER
 local windowManager = GetWindowManager()
 
-local moduleName = LUIE.name .. "SpellCastBuffs"
+local moduleName = SpellCastBuffs.moduleName
 
+local hidePlayerEffects = SpellCastBuffs.hidePlayerEffects             -- Table of Effects to hide on Player - generated on load or updated from Menu
+local hideTargetEffects = SpellCastBuffs.hideTargetEffects             -- Table of Effects to hide on Target - generated on load or updated from Menu
+local debuffDisplayOverrideId = SpellCastBuffs.debuffDisplayOverrideId -- Table of Effects (by id) that should show on the target regardless of who applied them.
 
-SpellCastBuffs.Enabled = false
-SpellCastBuffs.Defaults =
-{
-    ColorCosmetic = true,
-    ColorUnbreakable = true,
-    ColorCC = false,
-    colors =
-    {
-        buff = { 0, 1, 0, 1 },
-        debuff = { 1, 0, 0, 1 },
-        prioritybuff = { 1, 1, 0, 1 },
-        prioritydebuff = { 1, 1, 0, 1 },
-        unbreakable = { 224 / 255, 224 / 255, 1, 1 },
-        cosmetic = { 0, 100 / 255, 0, 1 },
-        nocc = { 0, 0, 0, 1 },
-        stun = { 1, 0, 0, 1 },
-        knockback = { 1, 0, 0, 1 },
-        levitate = { 1, 0, 0, 1 },
-        disorient = { 0, 127 / 255, 1, 1 },
-        fear = { 143 / 255, 9 / 255, 236 / 255, 1 },
-        charm = { 64 / 255, 255 / 255, 32 / 255, 1 },
-        silence = { 0, 1, 1, 1 },
-        stagger = { 1, 127 / 255, 0, 1 },
-        snare = { 1, 242 / 255, 32 / 255, 1 },
-        root = { 1, 165 / 255, 0, 1 },
-    },
-    IconSize = 40,
-    LabelPosition = 0,
-    BuffFontFace = "Univers 67",
-    BuffFontStyle = "outline",
-    BuffFontSize = 16,
-    BuffShowLabel = true,
-    AlignmentBuffsPlayer = "Centered",
-    SortBuffsPlayer = "Left to Right",
-    AlignmentDebuffsPlayer = "Centered",
-    SortDebuffsPlayer = "Left to Right",
-    AlignmentBuffsTarget = "Centered",
-    SortBuffsTarget = "Left to Right",
-    AlignmentDebuffsTarget = "Centered",
-    SortDebuffsTarget = "Left to Right",
-    AlignmentLongHorz = "Centered",
-    SortLongHorz = "Left to Right",
-    AlignmentLongVert = "Top",
-    SortLongVert = "Top to Bottom",
-    AlignmentPromBuffsHorz = "Centered",
-    SortPromBuffsHorz = "Left to Right",
-    AlignmentPromBuffsVert = "Bottom",
-    SortPromBuffsVert = "Bottom to Top",
-    AlignmentPromDebuffsHorz = "Centered",
-    SortPromDebuffsHorz = "Left to Right",
-    AlignmentPromDebuffsVert = "Bottom",
-    SortPromDebuffsVert = "Bottom to Top",
-    StackPlayerBuffs = "Down",
-    StackPlayerDebuffs = "Up",
-    StackTargetBuffs = "Down",
-    StackTargetDebuffs = "Up",
-    WidthPlayerBuffs = 1920,
-    WidthPlayerDebuffs = 1920,
-    WidthTargetBuffs = 1920,
-    WidthTargetDebuffs = 1920,
-    GlowIcons = false,
-    RemainingText = true,
-    RemainingTextColoured = false,
-    RemainingTextMillis = true,
-    RemainingCooldown = true,
-    FadeOutIcons = false,
-    lockPositionToUnitFrames = true,
-    LongTermEffects_Player = true,
-    LongTermEffects_Target = true,
-    ShortTermEffects_Player = true,
-    ShortTermEffects_Target = true,
-    IgnoreMundusPlayer = false,
-    IgnoreMundusTarget = false,
-    IgnoreVampPlayer = false,
-    IgnoreVampTarget = false,
-    IgnoreLycanPlayer = false,
-    IgnoreLycanTarget = false,
-    IgnoreDiseasePlayer = false,
-    IgnoreDiseaseTarget = false,
-    IgnoreBitePlayer = false,
-    IgnoreBiteTarget = false,
-    IgnoreCyrodiilPlayer = false,
-    IgnoreCyrodiilTarget = false,
-    IgnoreBattleSpiritPlayer = false,
-    IgnoreBattleSpiritTarget = false,
-    IgnoreEsoPlusPlayer = true,
-    IgnoreEsoPlusTarget = true,
-    IgnoreSoulSummonsPlayer = false,
-    IgnoreSoulSummonsTarget = false,
-    IgnoreSetICDPlayer = false,
-    IgnoreAbilityICDPlayer = false,
-    IgnoreFoodPlayer = false,
-    IgnoreFoodTarget = false,
-    IgnoreExperiencePlayer = false,
-    IgnoreExperienceTarget = false,
-    IgnoreAllianceXPPlayer = false,
-    IgnoreAllianceXPTarget = false,
-    IgnoreDisguise = false,
-    IgnoreCostume = true,
-    IgnoreHat = true,
-    IgnoreSkin = true,
-    IgnorePolymorph = true,
-    IgnoreAssistant = true,
-    IgnorePet = true,
-    PetDetail = true,
-    IgnoreMountPlayer = false,
-    IgnoreMountTarget = false,
-    MountDetail = true,
-    LongTermEffectsSeparate = true,
-    LongTermEffectsSeparateAlignment = 2,
-    ShowBlockPlayer = true,
-    ShowBlockTarget = true,
-    StealthStatePlayer = true,
-    StealthStateTarget = true,
-    DisguiseStatePlayer = true,
-    DisguiseStateTarget = true,
-    -- ShowSprint                          = true,
-    -- ShowGallop                          = true,
-    ShowResurrectionImmunity = true,
-    ShowRecall = true,
-    ShowWerewolf = true,
-    HideOakenSoul = false,
-    HidePlayerBuffs = false,
-    HidePlayerDebuffs = false,
-    HideTargetBuffs = false,
-    HideTargetDebuffs = false,
-    HideGroundEffects = false,
-    ExtraBuffs = true,
-    ExtraExpanded = false,
-    ShowDebugCombat = false,
-    ShowDebugEffect = false,
-    ShowDebugFilter = false,
-    ShowDebugAbilityId = false,
-    HideReduce = true,
-    GroundDamageAura = true,
-    ProminentLabel = true,
-    ProminentLabelFontFace = "Univers 67",
-    ProminentLabelFontStyle = "outline",
-    ProminentLabelFontSize = 16,
-    ProminentProgress = true,
-    ProminentProgressTexture = "Plain",
-    ProminentProgressBuffC1 = { 0, 1, 0 },
-    ProminentProgressBuffC2 = { 0, 0.4, 0 },
-    ProminentProgressDebuffC1 = { 1, 0, 0 },
-    ProminentProgressDebuffC2 = { 0.4, 0, 0 },
-    ProminentProgressBuffPriorityC1 = { 1, 1, 0 },
-    ProminentProgressBuffPriorityC2 = { 0.6, 0.6, 0 },
-    ProminentProgressDebuffPriorityC1 = { 1, 1, 0 },
-    ProminentProgressDebuffPriorityC2 = { 0.6, 0.6, 0 },
-    ProminentBuffContainerAlignment = 2,
-    ProminentDebuffContainerAlignment = 2,
-    ProminentBuffLabelDirection = "Left",
-    ProminentDebuffLabelDirection = "Right",
-    PriorityBuffTable = {},
-    PriorityDebuffTable = {},
-    PromBuffTable = {},
-    PromDebuffTable = {},
-    BlacklistTable = {},
-    TooltipEnable = true,
-    TooltipCustom = false,
-    TooltipSticky = 0,
-    TooltipAbilityId = false,
-    TooltipBuffType = false,
-    UseDefaultIcon = false,
-    DefaultIconOptions = 1,
-    ShowSharedEffects = true,
-    ShowSharedMajorMinor = true,
-}
-SpellCastBuffs.SV = {}
+local windowTitles = SpellCastBuffs.windowTitles
 
--- Saved Effects
-SpellCastBuffs.EffectsList =
-{
-    ground = {},
-    player1 = {},
-    player2 = {},
-    promb_ground = {},
-    promb_player = {},
-    promb_target = {},
-    promd_ground = {},
-    promd_player = {},
-    promd_target = {},
-    reticleover1 = {},
-    reticleover2 = {},
-    saved = {},
-}
-
-local hidePlayerEffects = {}       -- Table of Effects to hide on Player - generated on load or updated from Menu
-local hideTargetEffects = {}       -- Table of Effects to hide on Target - generated on load or updated from Menu
-local debuffDisplayOverrideId = {} -- Table of Effects (by id) that should show on the target regardless of who applied them.
-
-local windowTitles =
-{
-    playerb = GetString(LUIE_STRING_SCB_WINDOWTITLE_PLAYERBUFFS),
-    playerd = GetString(LUIE_STRING_SCB_WINDOWTITLE_PLAYERDEBUFFS),
-    player1 = GetString(LUIE_STRING_SCB_WINDOWTITLE_PLAYERBUFFS),
-    player2 = GetString(LUIE_STRING_SCB_WINDOWTITLE_PLAYERDEBUFFS),
-    player_long = GetString(LUIE_STRING_SCB_WINDOWTITLE_PLAYERLONGTERMEFFECTS),
-    targetb = GetString(LUIE_STRING_SCB_WINDOWTITLE_TARGETBUFFS),
-    targetd = GetString(LUIE_STRING_SCB_WINDOWTITLE_TARGETDEBUFFS),
-    target1 = GetString(LUIE_STRING_SCB_WINDOWTITLE_TARGETBUFFS),
-    target2 = GetString(LUIE_STRING_SCB_WINDOWTITLE_TARGETDEBUFFS),
-    prominentbuffs = GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTBUFFS),
-    prominentdebuffs = GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTDEBUFFS),
-}
-
-local uiTlw = {} -- GUI
+local uiTlw = SpellCastBuffs.BuffContainers
 
 -- Routing for Auras
-local containerRouting =
-{
-    player1 = nil,
-    player2 = nil,
-    reticleover1 = nil,
-    reticleover2 = nil,
-    ground = nil,
-    player_long = nil,
-    promb_ground = nil,
-    promb_target = nil,
-    promb_player = nil,
-    promd_ground = nil,
-    promd_target = nil,
-    promd_player = nil,
-}
+local containerRouting = SpellCastBuffs.containerRouting
 
-local g_alignmentDirection = {}      -- Holds alignment direction for all containers
-local g_sortDirection = {}           -- Holds sorting direction for all containers
+local g_alignmentDirection = SpellCastBuffs.alignmentDirection       -- Holds alignment direction for all containers
+local g_sortDirection = SpellCastBuffs.sortDirection                 -- Holds sorting direction for all containers
 
-local g_playerActive = false         -- Player Active State
-local g_playerDead = false           -- Player Dead State
-local g_playerResurrectStage = nil   -- Player resurrection sequence state
+local g_playerActive = SpellCastBuffs.playerActive                   -- Player Active State
+local g_playerDead = SpellCastBuffs.playerDead                       -- Player Dead State
+local g_playerResurrectStage = SpellCastBuffs.playerResurrectStage   -- Player resurrection sequence state
 
-local g_buffsFont                    -- Buff font
-local g_prominentFont                -- Prominent buffs label font
-local g_padding = 0                  -- Padding between icons
-local g_protectAbilityRemoval = {}   -- AbilityId's set to a timestamp here to prevent removal of ground effects when refreshing ground auras from causing the aura to fade.
-local g_ignoreAbilityId = {}         -- Ignored abilityId's on EVENT_COMBAT_EVENT, some events fire twice and we need to ignore every other one.
-
-local TextureCoordsLeft = "0.1875"   -- TextureCoordsLeft
-local TextureCoordsRight = "0.8125"  -- TextureCoordsRight
-local TextureCoordsTop = "0.1875"    -- TextureCoordsTop
-local TextureCoordsBottom = "0.8125" -- TextureCoordsBottom
-
--- Add buff containers into LUIE namespace
-SpellCastBuffs.BuffContainers = uiTlw
+local g_buffsFont = SpellCastBuffs.buffsFont                         -- Buff font
+local g_prominentFont = SpellCastBuffs.prominentFont                 -- Prominent buffs label font
+local g_padding = SpellCastBuffs.padding                             -- Padding between icons
+local g_protectAbilityRemoval = SpellCastBuffs.protectAbilityRemoval -- AbilityId's set to a timestamp here to prevent removal of ground effects when refreshing ground auras from causing the aura to fade.
+local g_ignoreAbilityId = SpellCastBuffs.ignoreAbilityId             -- Ignored abilityId's on EVENT_COMBAT_EVENT, some events fire twice and we need to ignore every other one.
 
 -- Quadratic easing out - decelerating to zero velocity (For buff fade)
 local function EaseOutQuad(t, b, c, d)
@@ -364,48 +140,6 @@ function SpellCastBuffs.GetDefaultIcon(ccType)
     }
 
     return iconMap[ccType]
-end
-
--- Function for determining container context for prominent effects
-function SpellCastBuffs.DetermineContext(context, abilityId, abilityName, castByPlayer)
-    if SpellCastBuffs.SV.PromDebuffTable[abilityId] or SpellCastBuffs.SV.PromDebuffTable[abilityName] then
-        if context == "player1" then
-            context = "promd_player"
-        elseif context == "reticleover2" and castByPlayer == COMBAT_UNIT_TYPE_PLAYER then
-            context = "promd_target"
-        end
-    elseif SpellCastBuffs.SV.PromBuffTable[abilityId] or SpellCastBuffs.SV.PromBuffTable[abilityName] then
-        if context == "player1" then
-            context = "promb_player"
-        elseif context == "reticleover2" and castByPlayer == COMBAT_UNIT_TYPE_PLAYER then
-            context = "promb_target"
-        end
-    end
-    return context
-end
-
--- Function for determining container context for prominent effects (player only)
--- Used in cases where the effect will never be a debuff cast by the player (disguise/stealth state, collectible buffs, etc)
-function SpellCastBuffs.DetermineContextSimple(context, abilityId, abilityName)
-    if context == "player1" then
-        if SpellCastBuffs.SV.PromDebuffTable[abilityId] or SpellCastBuffs.SV.PromDebuffTable[abilityName] then
-            context = "promd_player"
-        elseif SpellCastBuffs.SV.PromBuffTable[abilityId] or SpellCastBuffs.SV.PromBuffTable[abilityName] then
-            context = "promb_player"
-        end
-    end
-    return context
-end
-
--- Function for determining target for buff sorting
-function SpellCastBuffs.DetermineTarget(context)
-    if context == "player1" or context == "player2" then
-        return "player"
-    elseif context == "reticleover1" or context == "reticleover2" or context == "ground" or context == "saved" then
-        return "reticleover"
-    else
-        return "prominent"
-    end
 end
 
 -- Specifically for clearing a player buff, removes this buff from player1, promd_player, and promb_player containers
@@ -832,76 +566,6 @@ function SpellCastBuffs.RegisterDebugEvents()
             end)
         end
     end
-end
-
--- Bulk list add from menu buttons
-function SpellCastBuffs.AddBulkToCustomList(list, table)
-    if table ~= nil then
-        for k, v in pairs(table) do
-            SpellCastBuffs.AddToCustomList(list, k)
-        end
-    end
-end
-
-function SpellCastBuffs.ClearCustomList(list)
-    local listRef = list == SpellCastBuffs.SV.PromBuffTable and GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTBUFFS) or list == SpellCastBuffs.SV.PromDebuffTable and GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTDEBUFFS) or list == SpellCastBuffs.SV.PriorityBuffTable and GetString(LUIE_STRING_CUSTOM_LIST_PRIORITY_BUFFS) or list == SpellCastBuffs.SV.PriorityDebuffTable and GetString(LUIE_STRING_CUSTOM_LIST_PRIORITY_DEBUFFS) or list == SpellCastBuffs.SV.BlacklistTable and GetString(LUIE_STRING_CUSTOM_LIST_AURA_BLACKLIST) or ""
-    for k, v in pairs(list) do
-        list[k] = nil
-    end
-    ZO_GetChatSystem():Maximize()
-    ZO_GetChatSystem().primaryContainer:FadeIn()
-    printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_CLEARED), listRef), true)
-    SpellCastBuffs.ReloadEffects("player")
-end
-
--- List Handling (Add) for Prominent Auras & Blacklist
-function SpellCastBuffs.AddToCustomList(list, input)
-    local id = tonumber(input)
-    local listRef = list == SpellCastBuffs.SV.PromBuffTable and GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTBUFFS) or list == SpellCastBuffs.SV.PromDebuffTable and GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTDEBUFFS) or list == SpellCastBuffs.SV.PriorityBuffTable and GetString(LUIE_STRING_CUSTOM_LIST_PRIORITY_BUFFS) or list == SpellCastBuffs.SV.PriorityDebuffTable and GetString(LUIE_STRING_CUSTOM_LIST_PRIORITY_DEBUFFS) or list == SpellCastBuffs.SV.BlacklistTable and GetString(LUIE_STRING_CUSTOM_LIST_AURA_BLACKLIST) or ""
-    if id and id > 0 then
-        local name = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetAbilityName(id))
-        if name ~= nil and name ~= "" then
-            local icon = zo_iconFormat(GetAbilityIcon(id), 16, 16)
-            list[id] = true
-            ZO_GetChatSystem():Maximize()
-            ZO_GetChatSystem().primaryContainer:FadeIn()
-            printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_ADDED_ID), icon, id, name, listRef), true)
-        else
-            ZO_GetChatSystem():Maximize()
-            ZO_GetChatSystem().primaryContainer:FadeIn()
-            printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_ADDED_FAILED), input, listRef), true)
-        end
-    else
-        if input ~= "" then
-            list[input] = true
-            ZO_GetChatSystem():Maximize()
-            ZO_GetChatSystem().primaryContainer:FadeIn()
-            printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_ADDED_NAME), input, listRef), true)
-        end
-    end
-    SpellCastBuffs.ReloadEffects("player")
-end
-
--- List Handling (Remove) for Prominent Auras & Blacklist
-function SpellCastBuffs.RemoveFromCustomList(list, input)
-    local id = tonumber(input)
-    local listRef = list == SpellCastBuffs.SV.PromBuffTable and GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTBUFFS) or list == SpellCastBuffs.SV.PromDebuffTable and GetString(LUIE_STRING_SCB_WINDOWTITLE_PROMINENTDEBUFFS) or list == SpellCastBuffs.SV.PriorityBuffTable and GetString(LUIE_STRING_CUSTOM_LIST_PRIORITY_BUFFS) or list == SpellCastBuffs.SV.PriorityDebuffTable and GetString(LUIE_STRING_CUSTOM_LIST_PRIORITY_DEBUFFS) or list == SpellCastBuffs.SV.BlacklistTable and GetString(LUIE_STRING_CUSTOM_LIST_AURA_BLACKLIST) or ""
-    if id and id > 0 then
-        local name = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetAbilityName(id))
-        local icon = zo_iconFormat(GetAbilityIcon(id), 16, 16)
-        list[id] = nil
-        ZO_GetChatSystem():Maximize()
-        ZO_GetChatSystem().primaryContainer:FadeIn()
-        printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_REMOVED_ID), icon, id, name, listRef), true)
-    else
-        if input ~= "" then
-            list[input] = nil
-            ZO_GetChatSystem():Maximize()
-            ZO_GetChatSystem().primaryContainer:FadeIn()
-            printToChat(zo_strformat(GetString(LUIE_STRING_CUSTOM_LIST_REMOVED_NAME), input, listRef), true)
-        end
-    end
-    SpellCastBuffs.ReloadEffects("player")
 end
 
 function SpellCastBuffs.ResetContainerOrientation()
@@ -3861,6 +3525,8 @@ function SpellCastBuffs.OnReticleTargetChanged(eventCode)
 end
 
 -- Used to clear existing .effectsList.unitTag and to request game API to fill it again
+---
+--- @param unitTag string
 function SpellCastBuffs.ReloadEffects(unitTag)
     -- Bail if this isn't reticleover or player
     if unitTag ~= "player" and unitTag ~= "reticleover" then
@@ -3868,7 +3534,7 @@ function SpellCastBuffs.ReloadEffects(unitTag)
     end
 
     -- Clear existing base containers
-    for effectType = BUFF_EFFECT_TYPE_BUFF, BUFF_EFFECT_TYPE_DEBUFF do
+    for effectType = BUFF_EFFECT_TYPE_ITERATION_BEGIN, BUFF_EFFECT_TYPE_ITERATION_END do
         SpellCastBuffs.EffectsList[unitTag .. effectType] = {}
     end
     -- Clear prominent containers
@@ -4591,158 +4257,24 @@ function SpellCastBuffs.OnVibration(eventCode, duration, coarseMotor, fineMotor,
     end
 end
 
--- Called from the menu and on initialize to build the table of hidden effects.
-function SpellCastBuffs.UpdateContextHideList()
-    hidePlayerEffects = {}
-    hideTargetEffects = {}
-
-    -- Hide Warden Crystallized Shield & morphs from effects on the player (we use fake buffs to track this so that the stack count can be displayed)
-    hidePlayerEffects[86135] = true
-    hidePlayerEffects[86139] = true
-    hidePlayerEffects[86143] = true
-
-    if SpellCastBuffs.SV.IgnoreMundusPlayer then
-        for k, v in pairs(Effects.IsBoon) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreMundusTarget then
-        for k, v in pairs(Effects.IsBoon) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreVampPlayer then
-        for k, v in pairs(Effects.IsVamp) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreVampTarget then
-        for k, v in pairs(Effects.IsVamp) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreLycanPlayer then
-        for k, v in pairs(Effects.IsLycan) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreLycanTarget then
-        for k, v in pairs(Effects.IsLycan) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreDiseasePlayer then
-        for k, v in pairs(Effects.IsVampLycanDisease) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreDiseaseTarget then
-        for k, v in pairs(Effects.IsVampLycanDisease) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreBitePlayer then
-        for k, v in pairs(Effects.IsVampLycanBite) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreBiteTarget then
-        for k, v in pairs(Effects.IsVampLycanBite) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreCyrodiilPlayer then
-        for k, v in pairs(Effects.IsCyrodiil) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreCyrodiilTarget then
-        for k, v in pairs(Effects.IsCyrodiil) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreEsoPlusPlayer then
-        hidePlayerEffects[63601] = true
-    end
-    if SpellCastBuffs.SV.IgnoreEsoPlusTarget then
-        hideTargetEffects[63601] = true
-    end
-    if SpellCastBuffs.SV.IgnoreSoulSummonsPlayer then
-        for k, v in pairs(Effects.IsSoulSummons) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreSoulSummonsTarget then
-        for k, v in pairs(Effects.IsSoulSummons) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreFoodPlayer then
-        for k, v in pairs(Effects.IsFoodBuff) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreFoodTarget then
-        for k, v in pairs(Effects.IsFoodBuff) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreExperiencePlayer then
-        for k, v in pairs(Effects.IsExperienceBuff) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreExperienceTarget then
-        for k, v in pairs(Effects.IsExperienceBuff) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreAllianceXPPlayer then
-        for k, v in pairs(Effects.IsAllianceXPBuff) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if SpellCastBuffs.SV.IgnoreAllianceXPTarget then
-        for k, v in pairs(Effects.IsAllianceXPBuff) do
-            hideTargetEffects[k] = v
-        end
-    end
-    if not SpellCastBuffs.SV.ShowBlockPlayer then
-        for k, v in pairs(Effects.IsBlock) do
-            hidePlayerEffects[k] = v
-        end
-    end
-    if not SpellCastBuffs.SV.ShowBlockTarget then
-        for k, v in pairs(Effects.IsBlock) do
-            hideTargetEffects[k] = v
-        end
+-- Helper to get current list and check if buff is in list
+function SpellCastBuffs.GetCurrentList()
+    if SpellCastBuffs.SV.ListMode == "whitelist" then
+        return SpellCastBuffs.SV.WhitelistTable
+    else
+        return SpellCastBuffs.SV.BlacklistTable
     end
 end
 
--- Called from the menu and on initialize to build the table of effects we should show regardless of source (by id).
-function SpellCastBuffs.UpdateDisplayOverrideIdList()
-    -- Clear the list
-    debuffDisplayOverrideId = {}
-
-    -- Add effects from table if enabled
-    if SpellCastBuffs.SV.ShowSharedEffects then
-        for k, v in pairs(Effects.DebuffDisplayOverrideId) do
-            debuffDisplayOverrideId[k] = v
-        end
-    end
-
-    -- Always show NPC self applied debuffs
-    for k, v in pairs(Effects.DebuffDisplayOverrideIdAlways) do
-        debuffDisplayOverrideId[k] = v
-    end
-
-    -- Major/Minor
-    if SpellCastBuffs.SV.ShowSharedMajorMinor then
-        for k, v in pairs(Effects.DebuffDisplayOverrideMajorMinor) do
-            debuffDisplayOverrideId[k] = v
-        end
-    end
+function SpellCastBuffs.IsBuffListed(abilityId, abilityName)
+    local list = SpellCastBuffs.GetCurrentList()
+    return list[abilityId] or list[abilityName]
 end
 
---- @class (partial) LUIE.SpellCastBuffs
-LUIE.SpellCastBuffs = SpellCastBuffs
+-- Update filtering logic everywhere that checks BlacklistTable
+-- Example for OnEffectChanged (repeat for other relevant places):
+-- Replace:
+-- if SpellCastBuffs.SV.BlacklistTable[abilityId] then return end
+-- With:
+-- if SpellCastBuffs.SV.ListMode == "blacklist" and SpellCastBuffs.SV.BlacklistTable[abilityId] then return end
+-- if SpellCastBuffs.SV.ListMode == "whitelist" and not SpellCastBuffs.SV.WhitelistTable[abilityId] then return end

@@ -462,7 +462,7 @@ function LUIE.CreateSettings()
         end,
         width = "half",
         warning = GetString(LUIE_STRING_LAM_RELOADUI_WARNING),
-        default = Defaults.SlashCommands_Enable,
+        default = Defaults.InfoPanel_Enabled,
     }
 
     -- InfoPanel Module Description
