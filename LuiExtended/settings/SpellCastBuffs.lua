@@ -1735,7 +1735,13 @@ function SpellCastBuffs.CreateSettings()
                 setFunc = function (r, g, b, a)
                     Settings.colors.buff = { r, g, b, a }
                 end,
-                default = { r = Defaults.colors.buff[1], g = Defaults.colors.buff[2], b = Defaults.colors.buff[3] },
+                default =
+                {
+                    r = Defaults.colors.buff[1],
+                    g = Defaults.colors.buff[2],
+                    b = Defaults.colors.buff[3],
+                    a = Defaults.colors.buff[4]
+                },
                 width = "half",
             },
             {
@@ -1747,13 +1753,20 @@ function SpellCastBuffs.CreateSettings()
                     return unpack(Settings.colors.debuff)
                 end,
                 setFunc = function (r, g, b, a)
-                    Settings.colors.debuff = { r, g, b, a }
+                    Settings.colors.debuff =
+                    {
+                        r,
+                        g,
+                        b,
+                        a
+                    }
                 end,
                 default =
                 {
                     r = Defaults.colors.debuff[1],
                     g = Defaults.colors.debuff[2],
                     b = Defaults.colors.debuff[3],
+                    a = Defaults.colors.debuff[4]
                 },
                 width = "half",
             },
@@ -1773,6 +1786,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.prioritybuff[1],
                     g = Defaults.colors.prioritybuff[2],
                     b = Defaults.colors.prioritybuff[3],
+                    a = Defaults.colors.prioritybuff[4]
                 },
                 width = "half",
             },
@@ -1792,6 +1806,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.prioritydebuff[1],
                     g = Defaults.colors.prioritydebuff[2],
                     b = Defaults.colors.prioritydebuff[3],
+                    a = Defaults.colors.prioritydebuff[4]
                 },
                 width = "half",
             },
@@ -1835,6 +1850,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.unbreakable[1],
                     g = Defaults.colors.unbreakable[2],
                     b = Defaults.colors.unbreakable[3],
+                    a = Defaults.colors.unbreakable[4]
                 },
                 disabled = function ()
                     return not Settings.ColorUnbreakable
@@ -1875,6 +1891,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.cosmetic[1],
                     g = Defaults.colors.cosmetic[2],
                     b = Defaults.colors.cosmetic[3],
+                    a = Defaults.colors.cosmetic[4]
                 },
                 disabled = function ()
                     return not Settings.ColorCosmetic
@@ -1915,7 +1932,13 @@ function SpellCastBuffs.CreateSettings()
                 setFunc = function (r, g, b, a)
                     Settings.colors.nocc = { r, g, b, a }
                 end,
-                default = { r = Defaults.colors.nocc[1], g = Defaults.colors.nocc[2], b = Defaults.colors.nocc[3] },
+                default =
+                {
+                    r = Defaults.colors.nocc[1],
+                    g = Defaults.colors.nocc[2],
+                    b = Defaults.colors.nocc[3],
+                    a = Defaults.colors.nocc[4]
+                },
                 width = "half",
                 disabled = function ()
                     return not Settings.ColorCC
@@ -1932,7 +1955,13 @@ function SpellCastBuffs.CreateSettings()
                 setFunc = function (r, g, b, a)
                     Settings.colors.stun = { r, g, b, a }
                 end,
-                default = { r = Defaults.colors.stun[1], g = Defaults.colors.stun[2], b = Defaults.colors.stun[3] },
+                default =
+                {
+                    r = Defaults.colors.stun[1],
+                    g = Defaults.colors.stun[2],
+                    b = Defaults.colors.stun[3],
+                    a = Defaults.colors.stun[4]
+                },
                 width = "half",
                 disabled = function ()
                     return not Settings.ColorCC
@@ -1954,6 +1983,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.knockback[1],
                     g = Defaults.colors.knockback[2],
                     b = Defaults.colors.knockback[3],
+                    a = Defaults.colors.knockback[4]
                 },
                 width = "half",
                 disabled = function ()
@@ -1976,6 +2006,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.levitate[1],
                     g = Defaults.colors.levitate[2],
                     b = Defaults.colors.levitate[3],
+                    a = Defaults.colors.levitate[4]
                 },
                 width = "half",
                 disabled = function ()
@@ -1998,6 +2029,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.disorient[1],
                     g = Defaults.colors.disorient[2],
                     b = Defaults.colors.disorient[3],
+                    a = Defaults.colors.disorient[4]
                 },
                 width = "half",
                 disabled = function ()
@@ -2015,7 +2047,13 @@ function SpellCastBuffs.CreateSettings()
                 setFunc = function (r, g, b, a)
                     Settings.colors.fear = { r, g, b, a }
                 end,
-                default = { r = Defaults.colors.fear[1], g = Defaults.colors.fear[2], b = Defaults.colors.fear[3] },
+                default =
+                {
+                    r = Defaults.colors.fear[1],
+                    g = Defaults.colors.fear[2],
+                    b = Defaults.colors.fear[3],
+                    a = Defaults.colors.fear[4]
+                },
                 width = "half",
                 disabled = function ()
                     return not Settings.ColorCC
@@ -2032,7 +2070,13 @@ function SpellCastBuffs.CreateSettings()
                 setFunc = function (r, g, b, a)
                     Settings.colors.charm = { r, g, b, a }
                 end,
-                default = { r = Defaults.colors.charm[1], g = Defaults.colors.charm[2], b = Defaults.colors.charm[3] },
+                default =
+                {
+                    r = Defaults.colors.charm[1],
+                    g = Defaults.colors.charm[2],
+                    b = Defaults.colors.charm[3],
+                    a = Defaults.colors.charm[4]
+                },
                 width = "half",
                 disabled = function ()
                     return not Settings.ColorCC
@@ -2054,6 +2098,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.stagger[1],
                     g = Defaults.colors.stagger[2],
                     b = Defaults.colors.stagger[3],
+                    a = Defaults.colors.stagger[4]
                 },
                 width = "half",
                 disabled = function ()
@@ -2076,6 +2121,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Defaults.colors.silence[1],
                     g = Defaults.colors.silence[2],
                     b = Defaults.colors.silence[3],
+                    a = Defaults.colors.silence[4]
                 },
                 width = "half",
                 disabled = function ()
@@ -2093,7 +2139,13 @@ function SpellCastBuffs.CreateSettings()
                 setFunc = function (r, g, b, a)
                     Settings.colors.snare = { r, g, b, a }
                 end,
-                default = { r = Defaults.colors.snare[1], g = Defaults.colors.snare[2], b = Defaults.colors.snare[3] },
+                default =
+                {
+                    r = Defaults.colors.snare[1],
+                    g = Defaults.colors.snare[2],
+                    b = Defaults.colors.snare[3],
+                    a = Defaults.colors.snare[4]
+                },
                 width = "half",
                 disabled = function ()
                     return not Settings.ColorCC
@@ -2110,7 +2162,13 @@ function SpellCastBuffs.CreateSettings()
                 setFunc = function (r, g, b, a)
                     Settings.colors.root = { r, g, b, a }
                 end,
-                default = { r = Defaults.colors.root[1], g = Defaults.colors.root[2], b = Defaults.colors.root[3] },
+                default =
+                {
+                    r = Defaults.colors.root[1],
+                    g = Defaults.colors.root[2],
+                    b = Defaults.colors.root[3],
+                    a = Defaults.colors.root[4]
+                },
                 width = "half",
                 disabled = function ()
                     return not Settings.ColorCC
@@ -3139,6 +3197,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Settings.ProminentProgressBuffC1[1],
                     g = Settings.ProminentProgressBuffC1[2],
                     b = Settings.ProminentProgressBuffC1[3],
+                    a = Settings.ProminentProgressBuffC1[4]
                 },
                 disabled = function ()
                     return not (LUIE.SV.SpellCastBuff_Enable and Settings.ProminentProgress)
@@ -3162,6 +3221,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Settings.ProminentProgressBuffC2[1],
                     g = Settings.ProminentProgressBuffC2[2],
                     b = Settings.ProminentProgressBuffC2[3],
+                    a = Settings.ProminentProgressBuffC2[4]
                 },
                 disabled = function ()
                     return not (LUIE.SV.SpellCastBuff_Enable and Settings.ProminentProgress)
@@ -3186,6 +3246,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Settings.ProminentProgressBuffPriorityC1[1],
                     g = Settings.ProminentProgressBuffPriorityC1[2],
                     b = Settings.ProminentProgressBuffPriorityC1[3],
+                    a = Settings.ProminentProgressBuffPriorityC1[4]
                 },
                 disabled = function ()
                     return not (LUIE.SV.SpellCastBuff_Enable and Settings.ProminentProgress)
@@ -3209,6 +3270,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Settings.ProminentProgressBuffPriorityC2[1],
                     g = Settings.ProminentProgressBuffPriorityC2[2],
                     b = Settings.ProminentProgressBuffPriorityC2[3],
+                    a = Settings.ProminentProgressBuffPriorityC2[4]
                 },
                 disabled = function ()
                     return not (LUIE.SV.SpellCastBuff_Enable and Settings.ProminentProgress)
@@ -3233,6 +3295,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Settings.ProminentProgressDebuffC1[1],
                     g = Settings.ProminentProgressDebuffC1[2],
                     b = Settings.ProminentProgressDebuffC1[3],
+                    a = Settings.ProminentProgressDebuffC1[4],
                 },
                 disabled = function ()
                     return not (LUIE.SV.SpellCastBuff_Enable and Settings.ProminentProgress)
@@ -3256,6 +3319,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Settings.ProminentProgressDebuffC2[1],
                     g = Settings.ProminentProgressDebuffC2[2],
                     b = Settings.ProminentProgressDebuffC2[3],
+                    a = Settings.ProminentProgressDebuffC2[4]
                 },
                 disabled = function ()
                     return not (LUIE.SV.SpellCastBuff_Enable and Settings.ProminentProgress)
@@ -3280,6 +3344,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Settings.ProminentProgressDebuffPriorityC1[1],
                     g = Settings.ProminentProgressDebuffPriorityC1[2],
                     b = Settings.ProminentProgressDebuffPriorityC1[3],
+                    a = Settings.ProminentProgressDebuffPriorityC1[4]
                 },
                 disabled = function ()
                     return not (LUIE.SV.SpellCastBuff_Enable and Settings.ProminentProgress)
@@ -3303,6 +3368,7 @@ function SpellCastBuffs.CreateSettings()
                     r = Settings.ProminentProgressDebuffPriorityC2[1],
                     g = Settings.ProminentProgressDebuffPriorityC2[2],
                     b = Settings.ProminentProgressDebuffPriorityC2[3],
+                    a = Settings.ProminentProgressDebuffPriorityC2[4]
                 },
                 disabled = function ()
                     return not (LUIE.SV.SpellCastBuff_Enable and Settings.ProminentProgress)
