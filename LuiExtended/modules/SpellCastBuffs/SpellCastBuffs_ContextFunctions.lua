@@ -3,10 +3,10 @@
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
 -- -----------------------------------------------------------------------------
 
----@class (partial) LuiExtended
+--- @class (partial) LuiExtended
 local LUIE = LUIE
 
----@class (partial) LUIE.SpellCastBuffs
+--- @class (partial) LUIE.SpellCastBuffs
 local SpellCastBuffs = LUIE.SpellCastBuffs
 
 ---
@@ -53,8 +53,8 @@ end
 
 ---
 --- Determines the target type for buff sorting based on the context string.
---- @param context string The context identifier (e.g., "player1", "reticleover1", "ground").
---- @return string target The resolved target type: "player", "reticleover", or "prominent".
+--- @param context SpellCastBuffsContext The context identifier (e.g., "player1", "reticleover1", "ground").
+--- @return string|"player"|"reticleover"|"prominent" target The resolved target type: "player", "reticleover", or "prominent".
 function SpellCastBuffs.DetermineTarget(context)
     if context == "player1" or context == "player2" then
         return "player"

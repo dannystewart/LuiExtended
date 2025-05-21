@@ -1,4 +1,3 @@
---- @diagnostic disable: missing-parameter
 -- -----------------------------------------------------------------------------
 --  LuiExtended                                                               --
 --  Distributed under The MIT License (MIT) (see LICENSE file)                --
@@ -56,906 +55,192 @@ local table_insert = table.insert
 local table_remove = table.remove
 local table_sort = table.sort
 
--- -----------------------------------------------------------------------------
--- ChatAnnouncements namespace
--- -----------------------------------------------------------------------------
-
-local moduleName = LUIE.name .. "ChatAnnouncements"
-
---- @class QueuedMessage
---- @field message string
---- @field messageType string
---- @field isSystem? boolean
---- @field itemId? any
---- @field formattedRecipient? string
---- @field color? any
---- @field logPrefix? string
---- @field totalString? string
---- @field groupLoot? boolean
-
 --- @class (partial) ChatAnnouncements
-local ChatAnnouncements =
-{
-    -- Queued Messages Storage for CA Modules
-    QueuedMessages = {}, --- @type table<integer,QueuedMessage>
-    QueuedMessagesCounter = 1,
-    -- Setup Color Table
-    Colors = {},
-    ------------------------------------------------
-    -- DEFAULT VARIABLE SETUP ----------------------
-    ------------------------------------------------
-    Enabled = false,
-    Defaults =
-    {
-        -- Chat Message Settings
-        ChatPlayerDisplayOptions = 2,
-        -- NotificationColor             = { .75, .75, .75, 1 },
-        BracketOptionCharacter = 2,
-        BracketOptionItem = 2,
-        BracketOptionLorebook = 2,
-        BracketOptionCollectible = 2,
-        BracketOptionCollectibleUse = 2,
-        BracketOptionAchievement = 2,
-        ChatMethod = "Print to All Tabs",
-        ChatBypassFormat = false,
-        ChatTab = { [1] = true, [2] = true, [3] = true, [4] = true, [5] = true },
-        ChatSystemAll = true,
-        TimeStamp = false,
-        TimeStampFormat = "HH:m:s",
-        TimeStampColor = { 143 / 255, 143 / 255, 143 / 255 },
+local ChatAnnouncements = LUIE.ChatAnnouncements
 
-        -- Achievements
-        Achievement =
-        {
-            AchievementCategoryIgnore = {}, -- Inverted list of achievements to be tracked
-            AchievementProgressMsg = GetString(LUIE_STRING_CA_ACHIEVEMENT_PROGRESS_MSG),
-            AchievementCompleteMsg = GetString(SI_ACHIEVEMENT_AWARDED_CENTER_SCREEN),
-            AchievementColorProgress = true,
-            AchievementColor1 = { 0.75, 0.75, 0.75, 1 },
-            AchievementColor2 = { 1, 1, 1, 1 },
-            AchievementCompPercentage = false,
-            AchievementUpdateCA = false,
-            AchievementUpdateAlert = false,
-            AchievementCompleteCA = true,
-            AchievementCompleteCSA = true,
-            AchievementCompleteAlwaysCSA = true,
-            AchievementCompleteAlert = false,
-            AchievementIcon = true,
-            AchievementCategory = true,
-            AchievementSubcategory = true,
-            AchievementDetails = true,
-            AchievementBracketOptions = 4,
-            AchievementCatBracketOptions = 2,
-            AchievementStep = 10,
-        },
-
-        -- Group
-        Group =
-        {
-            GroupCA = true,
-            GroupAlert = false,
-            GroupLFGCA = true,
-            GroupLFGAlert = false,
-            GroupLFGQueueCA = true,
-            GroupLFGQueueAlert = false,
-            GroupLFGCompleteCA = false,
-            GroupLFGCompleteCSA = true,
-            GroupLFGCompleteAlert = false,
-            GroupVoteCA = true,
-            GroupVoteAlert = true,
-            GroupRaidCA = false,
-            GroupRaidCSA = true,
-            GroupRaidAlert = false,
-            GroupRaidScoreCA = false,
-            GroupRaidScoreCSA = true,
-            GroupRaidScoreAlert = false,
-            GroupRaidBestScoreCA = false,
-            GroupRaidBestScoreCSA = true,
-            GroupRaidBestScoreAlert = false,
-            GroupRaidReviveCA = false,
-            GroupRaidReviveCSA = true,
-            GroupRaidReviveAlert = false,
-        },
-
-        -- Social
-        Social =
-        {
-            -- Guild
-            GuildCA = true,
-            GuildAlert = false,
-            GuildRankCA = true,
-            GuildRankAlert = false,
-            GuildManageCA = false,
-            GuildManageAlert = false,
-            GuildIcon = true,
-            GuildAllianceColor = true,
-            GuildColor = { 1, 1, 1, 1 },
-            GuildRankDisplayOptions = 1,
-
-            -- Friend
-            FriendIgnoreCA = true,
-            FriendIgnoreAlert = false,
-            FriendStatusCA = true,
-            FriendStatusAlert = false,
-
-            -- Duel
-            DuelCA = true,
-            DuelAlert = false,
-            DuelBoundaryCA = false,
-            DuelBoundaryCSA = true,
-            DuelBoundaryAlert = false,
-            DuelWonCA = false,
-            DuelWonCSA = true,
-            DuelWonAlert = false,
-            DuelStartCA = false,
-            DuelStartCSA = true,
-            DuelStartAlert = false,
-            DuelStartOptions = 1,
-
-            -- Pledge of Mara
-            PledgeOfMaraCA = true,
-            PledgeOfMaraCSA = true,
-            PledgeOfMaraAlert = false,
-            PledgeOfMaraAlertOnlyFail = true,
-        },
-
-        -- Notifications
-        Notify =
-        {
-            -- Notifications
-            NotificationConfiscateCA = true,
-            NotificationConfiscateAlert = false,
-            NotificationLockpickCA = true,
-            NotificationLockpickAlert = false,
-            NotificationMailSendCA = false,
-            NotificationMailSendAlert = false,
-            NotificationMailErrorCA = true,
-            NotificationMailErrorAlert = false,
-            NotificationTradeCA = true,
-            NotificationTradeAlert = false,
-
-            -- Disguise
-            DisguiseCA = false,
-            DisguiseCSA = true,
-            DisguiseAlert = false,
-            DisguiseWarnCA = false,
-            DisguiseWarnCSA = true,
-            DisguiseWarnAlert = false,
-            DisguiseAlertColor = { 1, 0, 0, 1 },
-
-            -- Storage / Riding Upgrades
-            StorageRidingColor = { 0.75, 0.75, 0.75, 1 },
-            StorageRidingBookColor = { 0.75, 0.75, 0.75, 1 },
-            StorageRidingCA = true,
-            StorageRidingCSA = true,
-            StorageRidingAlert = false,
-
-            StorageBagColor = { 0.75, 0.75, 0.75, 1 },
-            StorageBagCA = true,
-            StorageBagCSA = true,
-            StorageBagAlert = false,
-
-            TimedActivityCA = false,
-            TimedActivityAlert = false,
-            PromotionalEventsActivityCA = false,
-            PromotionalEventsActivityAlert = false,
-
-            CraftedAbilityCA = true,
-            CraftedAbilityAlert = false,
-            CraftedAbilityScriptCA = true,
-            CraftedAbilityScriptAlert = false,
-        },
-
-        -- Collectibles
-        Collectibles =
-        {
-            CollectibleCA = true,
-            CollectibleCSA = true,
-            CollectibleAlert = false,
-            CollectibleBracket = 4,
-            CollectiblePrefix = GetString(LUIE_STRING_CA_COLLECTIBLE),
-            CollectibleIcon = true,
-            CollectibleColor1 = { 0.75, 0.75, 0.75, 1 },
-            CollectibleColor2 = { 0.75, 0.75, 0.75, 1 },
-            CollectibleCategory = true,
-            CollectibleSubcategory = true,
-            CollectibleUseCA = false,
-            CollectibleUseAlert = false,
-            CollectibleUsePetNickname = false,
-            CollectibleUseIcon = true,
-            CollectibleUseColor = { 0.75, 0.75, 0.75, 1 },
-            CollectibleUseCategory3 = true,  -- Appearance
-            CollectibleUseCategory7 = true,  -- Assistants
-            -- CollectibleUseCategory8       = true, -- Mementos
-            CollectibleUseCategory10 = true, -- Non-Combat Pets
-            CollectibleUseCategory12 = true, -- Special
-        },
-
-        -- Lorebooks
-        Lorebooks =
-        {
-            LorebookCA = true,          -- Display a CA for Lorebooks
-            LorebookCSA = true,         -- Display a CSA for Lorebooks
-            LorebookCSALoreOnly = true, -- Only Display a CSA for non-Eidetic Memory Books
-            LorebookAlert = false,      -- Display a ZO_Alert for Lorebooks
-            LorebookCollectionCA = true,
-            LorebookCollectionCSA = true,
-            LorebookCollectionAlert = false,
-            LorebookCollectionPrefix = GetString(SI_LORE_LIBRARY_COLLECTION_COMPLETED_LARGE),
-            LorebookPrefix1 = GetString(SI_LORE_LIBRARY_ANNOUNCE_BOOK_LEARNED),
-            LorebookPrefix2 = GetString(LUIE_STRING_CA_LOREBOOK_BOOK),
-            LorebookBracket = 4,                      -- Bracket Options
-            LorebookColor1 = { 0.75, 0.75, 0.75, 1 }, -- Lorebook Message Color 1
-            LorebookColor2 = { 0.75, 0.75, 0.75, 1 }, -- Lorebook Message Color 2
-            LorebookIcon = true,                      -- Display an icon for Lorebook CA
-            LorebookShowHidden = false,               -- Display books even when they are hidden in the journal menu
-            LorebookCategory = true,                  -- Display "added to X category" message
-        },
-
-        -- Antiquities
-        Antiquities =
-        {
-            AntiquityCA = true,
-            AntiquityCSA = true,
-            AntiquityAlert = false,
-            AntiquityBracket = 2,
-            AntiquityPrefix = GetString(LUIE_STRING_CA_ANTIQUITY_PREFIX),
-            AntiquityPrefixBracket = 4,
-            AntiquitySuffix = "",
-            AntiquityColor = { 0.75, 0.75, 0.75, 1 },
-            AntiquityIcon = true,
-        },
-
-        -- Quest
-        Quests =
-        {
-            QuestShareCA = true,
-            QuestShareAlert = false,
-            QuestColorLocName = { 1, 1, 1, 1 },
-            QuestColorLocDescription = { 0.75, 0.75, 0.75, 1 },
-            QuestColorName = { 1, 0.647058, 0, 1 },
-            QuestColorDescription = { 0.75, 0.75, 0.75, 1 },
-            QuestLocLong = true,
-            QuestIcon = true,
-            QuestLong = true,
-            QuestLocDiscoveryCA = true,
-            QuestLocDiscoveryCSA = true,
-            QuestLocDiscoveryAlert = false,
-            QuestLocObjectiveCA = true,
-            QuestLocObjectiveCSA = true,
-            QuestLocObjectiveAlert = false,
-            QuestLocCompleteCA = true,
-            QuestLocCompleteCSA = true,
-            QuestLocCompleteAlert = false,
-            QuestAcceptCA = true,
-            QuestAcceptCSA = true,
-            QuestAcceptAlert = false,
-            QuestCompleteCA = true,
-            QuestCompleteCSA = true,
-            QuestCompleteAlert = false,
-            QuestAbandonCA = true,
-            QuestAbandonCSA = true,
-            QuestAbandonAlert = false,
-            QuestFailCA = true,
-            QuestFailCSA = true,
-            QuestFailAlert = false,
-            QuestObjCompleteCA = false,
-            QuestObjCompleteCSA = true,
-            QuestObjCompleteAlert = false,
-            QuestObjUpdateCA = false,
-            QuestObjUpdateCSA = true,
-            QuestObjUpdateAlert = false,
-        },
-
-        -- Experience
-        XP =
-        {
-            ExperienceEnlightenedCA = false,
-            ExperienceEnlightenedCSA = true,
-            ExperienceEnlightenedAlert = false,
-            ExperienceLevelUpCA = true,
-            ExperienceLevelUpCSA = true,
-            ExperienceLevelUpAlert = false,
-            ExperienceLevelUpCSAExpand = true,
-            ExperienceLevelUpIcon = true,
-            ExperienceLevelColorByLevel = true,
-            ExperienceLevelUpColor = { 0.75, 0.75, 0.75, 1 },
-            Experience = true,
-            ExperienceIcon = true,
-            ExperienceMessage = GetString(LUIE_STRING_CA_EXPERIENCE_MESSAGE),
-            ExperienceName = GetString(LUIE_STRING_CA_EXPERIENCE_NAME),
-            ExperienceHideCombat = false,
-            ExperienceFilter = 0,
-            ExperienceThrottle = 3500,
-            ExperienceColorMessage = { 0.75, 0.75, 0.75, 1 },
-            ExperienceColorName = { 0.75, 0.75, 0.75, 1 },
-        },
-
-        -- Skills
-        Skills =
-        {
-            SkillPointCA = true,
-            SkillPointCSA = true,
-            SkillPointAlert = false,
-            SkillPointSkyshard = GetString(SI_SKYSHARD_GAINED),
-            SkillPointBracket = 4,
-            SkillPointsPartial = true,
-            SkillPointColor1 = { 0.75, 0.75, 0.75, 1 },
-            SkillPointColor2 = { 0.75, 0.75, 0.75, 1 },
-
-            SkillLineUnlockCA = true,
-            SkillLineUnlockCSA = true,
-            SkillLineUnlockAlert = false,
-            SkillLineCA = false,
-            SkillLineCSA = true,
-            SkillLineAlert = false,
-            SkillAbilityCA = false,
-            SkillAbilityCSA = true,
-            SkillAbilityAlert = false,
-            SkillLineIcon = true,
-            SkillLineColor = { 0.75, 0.75, 0.75, 1 },
-
-            SkillGuildFighters = true,
-            SkillGuildMages = true,
-            SkillGuildUndaunted = true,
-            SkillGuildThieves = true,
-            SkillGuildDarkBrotherhood = true,
-            SkillGuildPsijicOrder = true,
-            SkillGuildIcon = true,
-            SkillGuildMsg = GetString(LUIE_STRING_CA_SKILL_GUILD_MSG),
-            SkillGuildRepName = GetString(LUIE_STRING_CA_SKILL_GUILD_REPUTATION),
-            SkillGuildColor = { 0.75, 0.75, 0.75, 1 },
-            SkillGuildColorFG = { 0.75, 0.37, 0, 1 },
-            SkillGuildColorMG = { 0, 0.52, 0.75, 1 },
-            SkillGuildColorUD = { 0.58, 0.75, 0, 1 },
-            SkillGuildColorTG = { 0.29, 0.27, 0.42, 1 },
-            SkillGuildColorDB = { 0.70, 0, 0.19, 1 },
-            SkillGuildColorPO = { 0.5, 1, 1, 1 },
-
-            SkillGuildThrottle = 0,
-            SkillGuildThreshold = 0,
-            SkillGuildAlert = false,
-        },
-
-        -- Currency
-        Currency =
-        {
-            CurrencyAPColor = { 0.164706, 0.862745, 0.133333, 1 },
-            CurrencyAPFilter = 0,
-            CurrencyAPName = GetString(LUIE_STRING_CA_CURRENCY_ALLIANCE_POINT),
-            CurrencyIcon = true,
-            CurrencyAPShowChange = true,
-            CurrencyAPShowTotal = false,
-            CurrencyAPThrottle = 3500,
-            CurrencyColor = { 0.75, 0.75, 0.75, 1 },
-            CurrencyColorDown = { 0.7, 0, 0, 1 },
-            CurrencyColorUp = { 0.043137, 0.380392, 0.043137, 1 },
-            CurrencyContextColor = true,
-            CurrencyContextMergedColor = false,
-            CurrencyGoldChange = true,
-            CurrencyGoldColor = { 1, 1, 0.2, 1 },
-            CurrencyGoldFilter = 0,
-            CurrencyGoldHideAH = false,
-            CurrencyGoldHideListingAH = false,
-            CurrencyGoldName = GetString(LUIE_STRING_CA_CURRENCY_GOLD),
-            CurrencyGoldShowTotal = false,
-            CurrencyGoldThrottle = true,
-            CurrencyTVChange = true,
-            CurrencyTVColor = { 0.368627, 0.643137, 1, 1 },
-            CurrencyTVFilter = 0,
-            CurrencyTVName = GetString(LUIE_STRING_CA_CURRENCY_TELVAR_STONE),
-            CurrencyTVShowTotal = false,
-            CurrencyTVThrottle = 2500,
-            CurrencyWVChange = true,
-            CurrencyWVColor = { 1, 1, 1, 1 },
-            CurrencyWVName = GetString(LUIE_STRING_CA_CURRENCY_WRIT_VOUCHER),
-            CurrencyWVShowTotal = false,
-            CurrencyTransmuteChange = true,
-            CurrencyTransmuteColor = { 1, 1, 1, 1 },
-            CurrencyTransmuteName = GetString(LUIE_STRING_CA_CURRENCY_TRANSMUTE_CRYSTAL),
-            CurrencyTransmuteShowTotal = false,
-            CurrencyEventChange = true,
-            CurrencyEventColor = { 250 / 255, 173 / 255, 187 / 255, 1 },
-            CurrencyEventName = GetString(LUIE_STRING_CA_CURRENCY_EVENT_TICKET),
-            CurrencyEventShowTotal = false,
-            CurrencyCrownsChange = false,
-            CurrencyCrownsColor = { 1, 1, 1, 1 },
-            CurrencyCrownsName = GetString(LUIE_STRING_CA_CURRENCY_CROWN),
-            CurrencyCrownsShowTotal = false,
-            CurrencyCrownGemsChange = false,
-            CurrencyCrownGemsColor = { 244 / 255, 56 / 255, 247 / 255, 1 },
-            CurrencyCrownGemsName = GetString(LUIE_STRING_CA_CURRENCY_CROWN_GEM),
-            CurrencyCrownGemsShowTotal = false,
-            CurrencyEndeavorsChange = true,
-            CurrencyEndeavorsColor = { 1, 1, 1, 1 },
-            CurrencyEndeavorsName = GetString(LUIE_STRING_CA_CURRENCY_ENDEAVOR),
-            CurrencyEndeavorsShowTotal = false,
-            CurrencyOutfitTokenChange = true,
-            CurrencyOutfitTokenColor = { 255 / 255, 225 / 255, 125 / 255, 1 },
-            CurrencyOutfitTokenName = GetString(LUIE_STRING_CA_CURRENCY_OUTFIT_TOKENS),
-            CurrencyOutfitTokenShowTotal = false,
-            CurrencyUndauntedChange = true,
-            CurrencyUndauntedColor = { 1, 1, 1, 1 },
-            CurrencyUndauntedName = GetString(LUIE_STRING_CA_CURRENCY_UNDAUNTED),
-            CurrencyUndauntedShowTotal = false,
-            CurrencyEndlessChange = true,
-            CurrencyEndlessColor = { 1, 1, 1, 1 },
-            CurrencyEndlessName = GetString(LUIE_STRING_CA_CURRENCY_ENDLESS),
-            CurrencyEndlessTotal = false,
-            CurrencyMessageTotalAP = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALAP),
-            CurrencyMessageTotalGold = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALGOLD),
-            CurrencyMessageTotalTV = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALTV),
-            CurrencyMessageTotalWV = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALWV),
-            CurrencyMessageTotalTransmute = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALTRANSMUTE),
-            CurrencyMessageTotalEvent = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALEVENT),
-            CurrencyMessageTotalCrowns = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALCROWNS),
-            CurrencyMessageTotalCrownGems = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALGEMS),
-            CurrencyMessageTotalEndeavors = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALENDEAVORS),
-            CurrencyMessageTotalOutfitToken = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALOUTFITTOKENS),
-            CurrencyMessageTotalUndaunted = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALUNDAUNTED),
-            CurrencyMessageTotalEndless = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TOTALENDLESS),
-        },
-
-        -- Loot
-        Inventory =
-        {
-            Loot = true,
-            LootLogOverride = false,
-            -- LootIgnoreFiltering = false,
-            LootBank = true,
-            LootBlacklist = false,
-            LootTotal = false,
-            LootTotalString = GetString(LUIE_STRING_CA_LOOT_MESSAGE_TOTAL),
-            LootCraft = true,
-            LootGroup = true,
-            LootIcons = true,
-            LootMail = true,
-            LootNotTrash = true,
-            LootOnlyNotable = false,
-            LootShowArmorType = false,
-            LootShowStyle = false,
-            LootShowTrait = false,
-            LootConfiscate = true,
-            LootTrade = true,
-            LootVendor = true,
-            LootVendorCurrency = true,
-            LootVendorTotalCurrency = false,
-            LootVendorTotalItems = false,
-            LootShowCraftUse = false,
-            LootShowDestroy = true,
-            LootShowRemove = true,
-            LootShowTurnIn = true,
-            LootShowList = true,
-            LootShowUsePotion = false,
-            LootShowUseFood = false,
-            LootShowUseDrink = false,
-            LootShowUseRepairKit = true,
-            LootShowUseSoulGem = false,
-            LootShowUseSiege = true,
-            LootShowUseFish = true,
-            LootShowUseMisc = false,
-            LootShowContainer = true,
-            LootShowDisguise = true,
-            LootShowLockpick = true,
-            LootShowRecipe = true,
-            LootShowMotif = true,
-            LootShowStylePage = true,
-            LootRecipeHideAlert = true,
-            LootQuestAdd = true,
-            LootQuestRemove = false,
-        },
-
-        ContextMessages =
-        {
-            CurrencyMessageConfiscate = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_CONFISCATE),
-            CurrencyMessageDeposit = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DEPOSIT),
-            CurrencyMessageDepositStorage = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DEPOSITSTORAGE),
-            CurrencyMessageDepositGuild = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DEPOSITGUILD),
-            CurrencyMessageEarn = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_EARN),
-            CurrencyMessageLoot = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LOOT),
-            CurrencyMessageContainer = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_CONTAINER),
-            CurrencyMessageSteal = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_STEAL),
-            CurrencyMessageLost = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LOST),
-            CurrencyMessagePickpocket = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_PICKPOCKET),
-            CurrencyMessageReceive = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_RECEIVE),
-            CurrencyMessageSpend = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_SPEND),
-            CurrencyMessagePay = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_PAY),
-            CurrencyMessageUseKit = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_USEKIT),
-            CurrencyMessagePotion = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_POTION),
-            CurrencyMessageFood = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_EAT),
-            CurrencyMessageDrink = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DRINK),
-            CurrencyMessageDeploy = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DEPLOY),
-            CurrencyMessageStow = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_STOW),
-            CurrencyMessageFillet = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_FILLET),
-            CurrencyMessageLearnRecipe = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LEARN_RECIPE),
-            CurrencyMessageLearnMotif = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LEARN_MOTIF),
-            CurrencyMessageLearnStyle = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LEARN_STYLE),
-            CurrencyMessageExcavate = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_EXCAVATE),
-            CurrencyMessageTradeIn = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TRADEIN),
-            CurrencyMessageTradeInNoName = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TRADEIN_NO_NAME),
-            CurrencyMessageTradeOut = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TRADEOUT),
-            CurrencyMessageTradeOutNoName = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TRADEOUT_NO_NAME),
-            CurrencyMessageMailIn = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_MAILIN),
-            CurrencyMessageMailInNoName = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_MAILIN_NO_NAME),
-            CurrencyMessageMailOut = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_MAILOUT),
-            CurrencyMessageMailOutNoName = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_MAILOUT_NO_NAME),
-            CurrencyMessageMailCOD = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_MAILCOD),
-            CurrencyMessagePostage = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_POSTAGE),
-            CurrencyMessageWithdraw = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_WITHDRAW),
-            CurrencyMessageWithdrawStorage = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_WITHDRAWSTORAGE),
-            CurrencyMessageWithdrawGuild = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_WITHDRAWGUILD),
-            CurrencyMessageStable = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_STABLE),
-            CurrencyMessageStorage = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_STORAGE),
-            CurrencyMessageWayshrine = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_WAYSHRINE),
-            CurrencyMessageUnstuck = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_UNSTUCK),
-            CurrencyMessageChampion = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_CHAMPION),
-            CurrencyMessageAttributes = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_ATTRIBUTES),
-            CurrencyMessageSkills = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_SKILLS),
-            CurrencyMessageMorphs = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_MORPHS),
-            CurrencyMessageBounty = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_BOUNTY),
-            CurrencyMessageTrader = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TRADER),
-            CurrencyMessageRepair = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_REPAIR),
-            CurrencyMessageListing = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LISTING),
-            CurrencyMessageListingValue = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LISTING_VALUE),
-            CurrencyMessageList = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LIST),
-            CurrencyMessageCampaign = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_CAMPAIGN),
-            CurrencyMessageFence = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_FENCE_VALUE),
-            CurrencyMessageFenceNoV = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_FENCE),
-            CurrencyMessageSellNoV = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_SELL),
-            CurrencyMessageBuyNoV = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_BUY),
-            CurrencyMessageBuybackNoV = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_BUYBACK),
-            CurrencyMessageSell = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_SELL_VALUE),
-            CurrencyMessageBuy = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_BUY_VALUE),
-            CurrencyMessageBuyback = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_BUYBACK_VALUE),
-            CurrencyMessageLaunder = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LAUNDER_VALUE),
-            CurrencyMessageLaunderNoV = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LAUNDER),
-            CurrencyMessageUse = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_USE),
-            CurrencyMessageCraft = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_CRAFT),
-            CurrencyMessageExtract = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_EXTRACT),
-            CurrencyMessageUpgrade = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_UPGRADE),
-            CurrencyMessageUpgradeFail = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_UPGRADE_FAIL),
-            CurrencyMessageRefine = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_REFINE),
-            CurrencyMessageDeconstruct = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DECONSTRUCT),
-            CurrencyMessageResearch = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_RESEARCH),
-            CurrencyMessageDestroy = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DESTROY),
-            CurrencyMessageLockpick = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_LOCKPICK),
-            CurrencyMessageRemove = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_REMOVE),
-            CurrencyMessageQuestTurnIn = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_TURNIN),
-            CurrencyMessageQuestUse = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_QUESTUSE),
-            CurrencyMessageQuestExhaust = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_EXHAUST),
-            CurrencyMessageQuestOffer = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_OFFER),
-            CurrencyMessageQuestDiscard = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DISCARD),
-            CurrencyMessageQuestConfiscate = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_QUESTCONFISCATE),
-            CurrencyMessageQuestOpen = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_QUESTOPEN),
-            CurrencyMessageQuestAdminister = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_QUESTADMINISTER),
-            CurrencyMessageQuestPlace = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_QUESTPLACE),
-            CurrencyMessageQuestCombine = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_COMBINE),
-            CurrencyMessageQuestMix = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_MIX),
-            CurrencyMessageQuestBundle = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_BUNDLE),
-            CurrencyMessageGroup = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_GROUP),
-            CurrencyMessageDisguiseEquip = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DISGUISE_EQUIP),
-            CurrencyMessageDisguiseRemove = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DISGUISE_REMOVE),
-            CurrencyMessageDisguiseDestroy = GetString(LUIE_STRING_CA_CURRENCY_MESSAGE_DISGUISE_DESTROY),
-        },
-
-        DisplayAnnouncements =
-        {
-            Debug = false, -- Display EVENT_DISPLAY_ANNOUNCEMENT debug messages
-            General =
-            {
-                CA = false,
-                CSA = true,
-                Alert = false,
-            },
-            GroupArea =
-            {
-                CA = false,
-                CSA = true,
-                Alert = false,
-            },
-            Respec =
-            {
-                CA = true,
-                CSA = true,
-                Alert = false,
-            },
-            ZoneIC =
-            {
-                CA = true,
-                CSA = true,
-                Alert = false,
-                Description = true, -- For 2nd line of Display Announcements
-            },
-            ZoneCraglorn =
-            {
-                CA = false,
-                CSA = true,
-                Alert = false,
-            },
-            ArenaMaelstrom =
-            {
-                CA = true,
-                CSA = true,
-                Alert = false,
-            },
-            ArenaDragonstar =
-            {
-                CA = true,
-                CSA = true,
-                Alert = false,
-            },
-            DungeonEndlessArchive =
-            {
-                CA = true,
-                CSA = true,
-                Alert = false,
-            },
-        },
-    },
-}
+local moduleName = ChatAnnouncements.moduleName
 
 ------------------------------------------------
 
+--- @class (partial) ChatAnnouncements_ColorizeColors
 local ColorizeColors = ChatAnnouncements.Colors
 
 ------------------------------------------------
 -- LOCAL (GLOBAL) VARIABLE SETUP ---------------
 ------------------------------------------------
 
-local isWritCreatorEnabled = LUIE.OtherAddonCompatability.isWritCreatorEnabled or false
+local isWritCreatorEnabled = ChatAnnouncements.isWritCreatorEnabled
 
 -- Loot/Currency
-local g_savedPurchase = {}
-local g_savedLaunder = {}
-local g_savedItem = {}
-local g_isLooted = false                   -- Toggled on to modify loot notification to "looted."
-local g_isPickpocketed = false             -- Toggled on to modify loot notification to "pickpocketed."
-local g_isStolen = false                   -- Toggled on to modify loot notification to "stolen."
-local g_containerRecentlyOpened = false    -- Toggled on when a container has been recently opened.
-local g_itemReceivedIsQuestReward = false  -- Toggled on to modify loot notification to "received." This overrides the "looted" tag applied to quest item rewards.
-local g_itemReceivedIsQuestAbandon = false -- Toggled on to modify remove notification to "removed" when a quest is abandoned.
-local g_itemsConfiscated = false           -- Toggled on when items are confiscated to modify the notification message.
-local g_weAreInAStore = false              -- Toggled on when the player opens a store.
-local g_weAreInAFence = false              -- Toggled on when the player opens a fence.
-local g_weAreInAGuildStore = false         -- Toggled on when the player opens a guild store.
-local g_itemWasDestroyed = false           -- Tracker for item being destroyed
-local g_packSiege = false                  -- Tracker for siege packed
-local g_lockpickBroken = false             -- Tracker for lockpick being broken
-local g_groupLootIndex = {}                -- Table to hold group member names for group loot display.
-local g_stackSplit = false                 -- Determines if we just split an inventory item stack
-local g_combinedRecipe = false             -- Determines if we just used an item that combines a recipe to stop the "learned" message from showing.
-local g_InventoryOn = false                -- Determines if Inventory Updates for Item Changes are on
-local g_bankOn = false                     -- Determines if Bank Updates for Item Changes are on
+local g_savedPurchase = ChatAnnouncements.savedPurchase
+local g_savedLaunder = ChatAnnouncements.savedLaunder
+local g_savedItem = ChatAnnouncements.savedItem
+local g_isLooted = ChatAnnouncements.isLooted
+local g_isPickpocketed = ChatAnnouncements.isPickpocketed
+local g_isStolen = ChatAnnouncements.isStolen
+local g_containerRecentlyOpened = ChatAnnouncements.containerRecentlyOpened
+local g_itemReceivedIsQuestReward = ChatAnnouncements.itemReceivedIsQuestReward
+local g_itemReceivedIsQuestAbandon = ChatAnnouncements.itemReceivedIsQuestAbandon
+local g_itemsConfiscated = ChatAnnouncements.itemsConfiscated
+local g_weAreInAStore = ChatAnnouncements.weAreInAStore
+local g_weAreInAFence = ChatAnnouncements.weAreInAFence
+local g_weAreInAGuildStore = ChatAnnouncements.weAreInAGuildStore
+local g_itemWasDestroyed = ChatAnnouncements.itemWasDestroyed
+local g_packSiege = ChatAnnouncements.packSiege
+local g_lockpickBroken = ChatAnnouncements.lockpickBroken
+local g_groupLootIndex = ChatAnnouncements.groupLootIndex
+local g_stackSplit = ChatAnnouncements.stackSplit
+local g_combinedRecipe = ChatAnnouncements.combinedRecipe
+local g_InventoryOn = ChatAnnouncements.InventoryOn
+local g_bankOn = ChatAnnouncements.bankOn
 
 -- Currency Throttle
-local g_currencyGoldThrottleValue = 0 -- Held value for gold throttle (counter)
-local g_currencyGoldThrottleTotal = 0 -- Held value for gold throttle (total gold)
-local g_currencyAPThrottleValue = 0   -- Held value for AP throttle (counter)
-local g_currencyAPThrottleTotal = 0   -- Held value for AP throttle (total gold)
-local g_currencyTVThrottleValue = 0   -- Held value for TV throttle (counter)
-local g_currencyTVThrottleTotal = 0   -- Held value for TV throttle (total gold)
+local g_currencyGoldThrottleValue = ChatAnnouncements.currencyGoldThrottleValue
+local g_currencyGoldThrottleTotal = ChatAnnouncements.currencyGoldThrottleTotal
+local g_currencyAPThrottleValue = ChatAnnouncements.currencyAPThrottleValue
+local g_currencyAPThrottleTotal = ChatAnnouncements.currencyAPThrottleTotal
+local g_currencyTVThrottleValue = ChatAnnouncements.currencyTVThrottleValue
+local g_currencyTVThrottleTotal = ChatAnnouncements.currencyTVThrottleTotal
 
 -- Loot (Crafting)
-local g_smithing = {}   -- Table for smithing mode
-local g_enchanting = {} -- Table for enchanting mode
-local g_enchant_prefix_pos = {}
-local g_enchant_prefix_neg = {}
-local g_smithing_prefix_pos = {}
-local g_smithing_prefix_neg = {}
-local g_itemCounterGain = 0        -- Counter value for items created via crafting
-local g_itemCounterGainTracker = 0 -- Tracker for how many items have been counted, when we reach a certain threshold, it is too many items to display so we cut the string off.
-local g_itemStringGain = ""        -- Counter value for items created via crafting
-local g_itemCounterLoss = 0        -- Counter value for items removed via crafting
-local g_itemCounterLossTracker = 0 -- Tracker for how many items have been counted, when we reach a certain threshold, it is too many items to display so we cut the string off.
-local g_itemStringLoss = ""        -- Combined string variable for items removed via crafting
-local g_oldItem = {}               -- Saved old item for crafting upgrades
+local g_smithing = ChatAnnouncements.smithing
+local g_enchanting = ChatAnnouncements.enchanting
+local g_enchant_prefix_pos = ChatAnnouncements.enchant_prefix_pos
+local g_enchant_prefix_neg = ChatAnnouncements.enchant_prefix_neg
+local g_smithing_prefix_pos = ChatAnnouncements.smithing_prefix_pos
+local g_smithing_prefix_neg = ChatAnnouncements.smithing_prefix_neg
+local g_itemCounterGain = ChatAnnouncements.itemCounterGain
+local g_itemCounterGainTracker = ChatAnnouncements.itemCounterGainTracker
+local g_itemStringGain = ChatAnnouncements.itemStringGain
+local g_itemCounterLoss = ChatAnnouncements.itemCounterLoss
+local g_itemCounterLossTracker = ChatAnnouncements.itemCounterLossTracker
+local g_itemStringLoss = ChatAnnouncements.itemStringLoss
+local g_oldItem = ChatAnnouncements.oldItem
 
 -- Mail
-local g_mailCOD = 0            -- Tracks COD amount
-local g_postageAmount = 0      -- Tracks Postage amount
-local g_mailAmount = 0         -- Tracks sent money amount
-local g_mailCODPresent = false -- Tracks whether the currently opened mail has a COD value present. On receiving items from the mail this will modify the message displayed.
-local g_inMail = false         -- Toggled on when looting mail to prevent notable item display from hiding items acquired.
-local g_mailTarget = ""        -- Target of mail being sent.
-local g_mailStacksOut = {}     -- Table for storing items to be mailed out.
+local g_mailCOD = ChatAnnouncements.mailCOD
+local g_postageAmount = ChatAnnouncements.postageAmount
+local g_mailAmount = ChatAnnouncements.mailAmount
+local g_mailCODPresent = ChatAnnouncements.mailCODPresent
+local g_inMail = ChatAnnouncements.inMail
+local g_mailTarget = ChatAnnouncements.mailTarget
+local g_mailStacksOut = ChatAnnouncements.mailStacksOut
 
 -- Disguise
-local g_currentDisguise = nil -- Holds current disguise itemId
-local g_disguiseState = nil   -- Holds current disguise state
+local g_currentDisguise = ChatAnnouncements.currentDisguise
+local g_disguiseState = ChatAnnouncements.disguiseState
 
 -- Indexing
-local g_bankBag
-local g_bankStacks = {}           -- Bank Inventory Index
-local g_bankSubscriberStacks = {} -- Subscriber Bank Inventory Index
-local g_houseBags = {}            -- House Storage Index
-local g_equippedStacks = {}       -- Equipped Items Index
-local g_inventoryStacks = {}      -- Inventory Index
-local g_JusticeStacks = {}        -- Justice Items Index (only filled as a comparison table when items are confiscated)
-local g_guildBankCarry = nil      -- Saves item data when an item is removed/deposited into the guild bank.
+local g_bankBag = ChatAnnouncements.bankBag
+local g_bankStacks = ChatAnnouncements.bankStacks
+local g_bankSubscriberStacks = ChatAnnouncements.bankSubscriberStacks
+local g_houseBags = ChatAnnouncements.houseBags
+local g_equippedStacks = ChatAnnouncements.equippedStacks
+local g_inventoryStacks = ChatAnnouncements.inventoryStacks
+local g_JusticeStacks = ChatAnnouncements.JusticeStacks
+local g_guildBankCarry = ChatAnnouncements.guildBankCarry
 
 -- Group
-local g_currentGroupLeaderRawName = nil     -- Tracks current Group Leader Name
-local g_currentGroupLeaderDisplayName = nil -- Tracks current Group Leader Display Name
+local g_currentGroupLeaderRawName = ChatAnnouncements.currentGroupLeaderRawName
+local g_currentGroupLeaderDisplayName = ChatAnnouncements.currentGroupLeaderDisplayName
 
 -- LFG
-local g_currentActivityId = nil       -- current activity ID for LFG.
-local g_stopGroupLeaveQueue = false   -- Stops group notification messages from printing for a short time an LFG group is formed - Called when a ready check has the possible result of success.
-local g_lfgDisableGroupEvents = false -- Stops group notification messages from printing for a short time an LFG group is formed - Called when successfully joining a new LFG activity.
-local g_joinLFGOverride = false       -- Toggled on to stop display of standard group join message when joining an LFG group. Instead an alternate message with the LFG activity name will display.
-local g_leaveLFGOverride = false      -- Toggled on to modify group leave message to display "You are no longer in an LFG group."
-local g_showActivityStatus = true     -- Variable to control display of LFG status
-local g_lfgHideStatusCancel = false   -- Hide the cancel message that can be triggered by someone dropping queue while in an existing group.
-local g_showRCUpdates = true          -- Variable to control display of LFG Ready Check Announcements
-local g_weDeclinedTheQueue = false    -- Flagged when we decline a ready check popup for LFG queue.
-local g_savedQueueValue = 0           -- Saved LFG queue status
-local g_rcSpamPrevention = false      -- Stops LFG failed ready checks from spamming the player
+local g_currentActivityId = ChatAnnouncements.currentActivityId
+local g_stopGroupLeaveQueue = ChatAnnouncements.stopGroupLeaveQueue
+local g_lfgDisableGroupEvents = ChatAnnouncements.lfgDisableGroupEvents
+local g_joinLFGOverride = ChatAnnouncements.joinLFGOverride
+local g_leaveLFGOverride = ChatAnnouncements.leaveLFGOverride
+local g_showActivityStatus = ChatAnnouncements.showActivityStatus
+local g_lfgHideStatusCancel = ChatAnnouncements.lfgHideStatusCancel
+local g_showRCUpdates = ChatAnnouncements.showRCUpdates
+local g_weDeclinedTheQueue = ChatAnnouncements.weDeclinedTheQueue
+local g_savedQueueValue = ChatAnnouncements.savedQueueValue
+local g_rcSpamPrevention = ChatAnnouncements.rcSpamPrevention
 
 -- Guild
-local g_selectedGuild = 1          -- Set selected guild to 1 by default, whenever the player reloads their first guild will always be selected
+local g_selectedGuild = ChatAnnouncements.selectedGuild
 -- local g_pendingHeraldryCost         = 0             -- Pending cost of heraldry change used to modify currency messages. TODO: Fix later
-local g_disableRankMessage = false -- Variable is toggled to true when the player modifies a guild member's rank, this prevents the normal rank change message from displaying.
+local g_disableRankMessage = ChatAnnouncements.disableRankMessage
 
 -- Achievements
-local g_achievementLastPercentage = {} -- Here we will store last displayed percentage for achievement
+local g_achievementLastPercentage = ChatAnnouncements.achievementLastPercentage
 
 -- Collectible Usage Tracking
-local currentAssistant = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_ASSISTANT, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentCompanion = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_COMPANION, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentVanity = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_VANITY_PET, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentSpecial = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_ABILITY_FX_OVERRIDE, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentHat = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_HAT, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentHair = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_HAIR, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentHeadMark = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_HEAD_MARKING, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentFacialHair = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_FACIAL_HAIR_HORNS, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentMajorAdorn = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_FACIAL_ACCESSORY, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentMinorAdorn = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_PIERCING_JEWELRY, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentCostume = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_COSTUME, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentBodyMarking = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_BODY_MARKING, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentSkin = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_SKIN, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentPersonality = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_PERSONALITY, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local currentPolymorph = GetActiveCollectibleByType(COLLECTIBLE_CATEGORY_TYPE_POLYMORPH, GAMEPLAY_ACTOR_CATEGORY_PLAYER)
-local lastCollectibleUsed = 0
+local currentAssistant = ChatAnnouncements.currentAssistant
+local currentCompanion = ChatAnnouncements.currentCompanion
+local currentVanity = ChatAnnouncements.currentVanity
+local currentSpecial = ChatAnnouncements.currentSpecial
+local currentHat = ChatAnnouncements.currentHat
+local currentHair = ChatAnnouncements.currentHair
+local currentHeadMark = ChatAnnouncements.currentHeadMark
+local currentFacialHair = ChatAnnouncements.currentFacialHair
+local currentMajorAdorn = ChatAnnouncements.currentMajorAdorn
+local currentMinorAdorn = ChatAnnouncements.currentMinorAdorn
+local currentCostume = ChatAnnouncements.currentCostume
+local currentBodyMarking = ChatAnnouncements.currentBodyMarking
+local currentSkin = ChatAnnouncements.currentSkin
+local currentPersonality = ChatAnnouncements.currentPersonality
+local currentPolymorph = ChatAnnouncements.currentPolymorph
+local lastCollectibleUsed = ChatAnnouncements.lastCollectibleUsed
 
 -- Quest
-local g_stopDisplaySpam = false   -- Toggled on to stop spam display of EVENT_DISPLAY_ANNOUNCEMENTS from IC zone transitions.
-local g_questIndex = {}           -- Index of all current quests. Allows us to read the index so that all quest notifications can use the difficulty icon.
-local g_questItemAdded = {}       -- Hold index of Quest items that are added - Prevents pointless and annoying messages from appearing when the same quest item is immediately added and removed when quest updates.
-local g_questItemRemoved = {}     -- Hold index of Quest items that are removed - Prevents pointless and annoying messages from appearing when the same quest item is immediately added and removed when quest updates.
-local g_loginHideQuestLoot = true -- Set to true onPlayerActivated and toggled after 3 sec
-local g_talkingToNPC = false      -- Toggled when we're in dialogue with an NPC (EVENT_CHATTER_BEGIN & EVENT_CHATTER_END)
+local g_stopDisplaySpam = ChatAnnouncements.stopDisplaySpam
+local g_questIndex = ChatAnnouncements.questIndex
+local g_questItemAdded = ChatAnnouncements.questItemAdded
+local g_questItemRemoved = ChatAnnouncements.questItemRemoved
+local g_loginHideQuestLoot = ChatAnnouncements.loginHideQuestLoot
+local g_talkingToNPC = ChatAnnouncements.talkingToNPC
 
 -- Trade
-local g_tradeTarget = ""    -- Saves name of target player being traded with.
-local g_tradeStacksIn = {}  -- Table for storing items to be traded in.
-local g_tradeStacksOut = {} -- Table for storing items to be traded out.
-local g_inTrade = false     -- Toggled on when in a trade.
+local g_tradeTarget = ChatAnnouncements.tradeTarget
+local g_tradeStacksIn = ChatAnnouncements.tradeStacksIn
+local g_tradeStacksOut = ChatAnnouncements.tradeStacksOut
+local g_inTrade = ChatAnnouncements.inTrade
 
 -- Antiquities
-local g_weAreInADig = false -- When in a digsite.
+local g_weAreInADig = ChatAnnouncements.weAreInADig
 
 -- Experience
-local g_xpCombatBufferValue = 0      -- Buffered XP Value
-local g_guildSkillThrottle = 0       -- Buffered Fighter's Guild Reputation Value
-local g_guildSkillThrottleLine = nil -- Grab the name for Fighter's Guild reputation (since index isn't always the same) to pass over to Buffered Printer Function
+local g_xpCombatBufferValue = ChatAnnouncements.xpCombatBufferValue
+local g_guildSkillThrottle = ChatAnnouncements.guildSkillThrottle
+local g_guildSkillThrottleLine = ChatAnnouncements.guildSkillThrottleLine
 
 ------------------------------------------------
 -- BRACKET OPTIONS -----------------------------
 ------------------------------------------------
 
 -- 5 Option Bracket (1)
-local bracket1 =
-{
-    [1] = "[",
-    [2] = "(",
-    [3] = "",
-    [4] = "",
-    [5] = "",
-}
-
+local bracket1 = ChatAnnouncements.bracket1
 -- 5 Option Bracket (2)
-local bracket2 =
-{
-    [1] = "]",
-    [2] = ")",
-    [3] = " -",
-    [4] = ":",
-    [5] = "",
-}
+local bracket2 = ChatAnnouncements.bracket2
 
 -- 4 Option Bracket (1)
-local bracket3 =
-{
-    [1] = "[",
-    [2] = "(",
-    [3] = "- ",
-    [4] = "",
-}
+local bracket3 = ChatAnnouncements.bracket3
 
 -- 4 Option Bracket (2)
-local bracket4 =
-{
-    [1] = "]",
-    [2] = ")",
-    [3] = "",
-    [4] = "",
-}
+local bracket4 = ChatAnnouncements.bracket4
 
 ------------------------------------------------
 -- LINK BRACKET OPTIONS ------------------------
 ------------------------------------------------
 
-local linkBrackets =
-{
-    [1] = LINK_STYLE_DEFAULT,
-    [2] = LINK_STYLE_BRACKETS,
-}
+local linkBrackets = ChatAnnouncements.linkBrackets
 
-local linkBracket1 =
-{
-    [1] = "",
-    [2] = "[",
-}
-
-local linkBracket2 =
-{
-    [1] = "",
-    [2] = "]",
-}
+local linkBracket1 = ChatAnnouncements.linkBracket1
+local linkBracket2 = ChatAnnouncements.linkBracket2
 
 ------------------------------------------------
 -- ITEM BLACKLIST ------------------------------
 ------------------------------------------------
 
 -- List of items to whitelist as notable loot
-local g_notableIDs =
-{
-    [56862] = true, -- Fortified Nirncrux
-    [56863] = true, -- Potent Nirncrux
-    [68342] = true, -- Hakeijo
-}
+local g_notableIDs = ChatAnnouncements.notableIDs
 
 -- List of items that can be removed from the players equipped item slots.
-local g_removableIDs =
-{
-    [44486] = true, -- Prismatic Blade (Fighters Guild Quests)
-    [44487] = true, -- Prismatic Greatblade (Fighters Guild Quests)
-    [44488] = true, -- Prismatic Long Bow (Fighters Guild Quests)
-    [44489] = true, -- Prismatic Flamestaff (Fighters Guild Quests)
-    [33235] = true, -- Wabbajack (Mages Guild Quests)
-}
+local g_removableIDs = ChatAnnouncements.removableIDs
 
 -- List of items to blacklist as annoying loot
-local g_blacklistIDs =
-{
-    -- General
-    [64713] = true, -- Laurel
-    [64690] = true, -- Malachite Shard
-    [69432] = true, -- Glass Style Motif Fragment
-
-    -- Trial Plunder
-    [114427] = true, -- Undaunted Plunder
-    [81180] = true,  -- The Serpent's Egg-Tooth
-    [74453] = true,  -- The Rid-Thar's Moon Pearls
-    [87701] = true,  -- Star-Studded Champion's Baldric
-    [87700] = true,  -- Periapt of Elinhir
-
-    -- Trial Weekly Coffers
-    [139664] = true, -- Mage's Ignorant Coffer
-    [139674] = true, -- Saint's Beatified Coffer
-    [139670] = true, -- Dro-m'Athra's Burnished Coffer
-    [138711] = true, -- Welkynar's Grounded Coffer
-
-    -- Transmutation Geodes
-    [134583] = true, -- Transmutation Geode
-    [134588] = true, -- Transmutation Geode
-    [134590] = true, -- Transmutation Geode
-    [134591] = true, -- Transmutation Geode
-    [134595] = true, -- Tester's Infinite Transmutation Geode
-    [134618] = true, -- Uncracked Transmutation Geode
-    [134622] = true, -- Uncracked Transmutation Geode
-    [134623] = true, -- Uncracked Transmutation Geode
-    [140222] = true, -- 200 Transmute Crystals (This is probably just a test item)
-}
+local g_blacklistIDs = ChatAnnouncements.blacklistIDs
 
 ---
 --- @param topLevelIndex integer
@@ -1012,7 +297,7 @@ function ChatAnnouncements.SlayChatHandlers()
     end
 end
 
-function ChatAnnouncements.Initialize(enabled)
+function ChatAnnouncements:Initialize(enabled)
     -- Load settings
     local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
     if isCharacterSpecific then
@@ -2796,7 +2081,7 @@ function ChatAnnouncements.OnCurrencyUpdate(eventId, currencyType, currencyLocat
     end
 
     -- Send relevant values over to the currency printer
-    ChatAnnouncements.CurrencyPrinter(currencyType, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
+    ChatAnnouncements.CurrencyPrinter(currencyType, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType, "", "")
 end
 
 --- @alias LUIE_CURRENCY
@@ -2812,6 +2097,37 @@ end
 --- | "LUIE_CURRENCY_TRADE"
 --- | "LUIE_CURRENCY_TYPE
 --- | "LUIE_CURRENCY_VENDOR"
+
+local function ResolveStorageType(changeColor, messageType)
+    local bagType
+    local icon
+    if messageType == "LUIE_CURRENCY_BAG" then
+        bagType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_BAGTYPE1) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
+        icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/icons/store_upgrade_bag.dds|t " or ""
+    end
+    if messageType == "LUIE_CURRENCY_BANK" then
+        bagType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_BAGTYPE2) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
+        icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/icons/store_upgrade_bank.dds|t " or ""
+    end
+    return string_format("|r" .. icon .. "|cFFFFFF" .. bagType .. "|r|c" .. changeColor)
+end
+
+local function ResolveRidingStats(changeColor, messageType)
+    -- if some var then icon = else no
+    local skillType
+    local icon
+    if messageType == "LUIE_CURRENCY_RIDING_SPEED" then
+        skillType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_RIDINGTYPE1) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
+        icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/mounts/ridingskill_speed.dds|t " or ""
+    elseif messageType == "LUIE_CURRENCY_RIDING_CAPACITY" then
+        skillType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_RIDINGTYPE2) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
+        icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/mounts/ridingskill_capacity.dds|t " or ""
+    elseif messageType == "LUIE_CURRENCY_RIDING_STAMINA" then
+        skillType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_RIDINGTYPE3) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
+        icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/mounts/ridingskill_stamina.dds|t " or ""
+    end
+    return string_format("|r" .. icon .. "|cFFFFFF" .. skillType .. "|r|c" .. changeColor)
+end
 
 -- Printer function receives values from currency update or from other functions that display currency updates.
 -- Type here refers to an LUIE_CURRENCY_TYPE
@@ -2845,20 +2161,7 @@ function ChatAnnouncements.CurrencyPrinter(baseCurrencyType, formattedValue, cha
 
     local formattedMessageP1
     if messageType == "LUIE_CURRENCY_BAG" or messageType == "LUIE_CURRENCY_BANK" then
-        local function ResolveStorageType()
-            local bagType
-            local icon
-            if messageType == "LUIE_CURRENCY_BAG" then
-                bagType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_BAGTYPE1) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
-                icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/icons/store_upgrade_bag.dds|t " or ""
-            end
-            if messageType == "LUIE_CURRENCY_BANK" then
-                bagType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_BAGTYPE2) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
-                icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/icons/store_upgrade_bank.dds|t " or ""
-            end
-            return string_format("|r" .. icon .. "|cFFFFFF" .. bagType .. "|r|c" .. changeColor)
-        end
-        formattedMessageP1 = (string_format(messageChange, ResolveStorageType(), messageP1))
+        formattedMessageP1 = (string_format(messageChange, ResolveStorageType(changeColor, messageType), messageP1))
         -- TODO: Fix later
         --[[
     elseif messageType == "LUIE_CURRENCY_HERALDRY" then
@@ -2868,23 +2171,7 @@ function ChatAnnouncements.CurrencyPrinter(baseCurrencyType, formattedValue, cha
         ]]
         --
     elseif messageType == "LUIE_CURRENCY_RIDING_SPEED" or messageType == "LUIE_CURRENCY_RIDING_CAPACITY" or messageType == "LUIE_CURRENCY_RIDING_STAMINA" then
-        local function ResolveRidingStats()
-            -- if some var then icon = else no
-            local skillType
-            local icon
-            if messageType == "LUIE_CURRENCY_RIDING_SPEED" then
-                skillType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_RIDINGTYPE1) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
-                icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/mounts/ridingskill_speed.dds|t " or ""
-            elseif messageType == "LUIE_CURRENCY_RIDING_CAPACITY" then
-                skillType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_RIDINGTYPE2) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
-                icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/mounts/ridingskill_capacity.dds|t " or ""
-            elseif messageType == "LUIE_CURRENCY_RIDING_STAMINA" then
-                skillType = string_format(linkBracket1[ChatAnnouncements.SV.BracketOptionItem] .. GetString(LUIE_STRING_CA_STORAGE_RIDINGTYPE3) .. linkBracket2[ChatAnnouncements.SV.BracketOptionItem])
-                icon = ChatAnnouncements.SV.Inventory.LootIcons and "|t16:16:/esoui/art/mounts/ridingskill_stamina.dds|t " or ""
-            end
-            return string_format("|r" .. icon .. "|cFFFFFF" .. skillType .. "|r|c" .. changeColor)
-        end
-        formattedMessageP1 = (string_format(messageChange, ResolveRidingStats(), messageP1))
+        formattedMessageP1 = (string_format(messageChange, ResolveRidingStats(changeColor, messageType), messageP1))
     elseif messageType == "LUIE_CURRENCY_VENDOR" then
         item = string_format("|r" .. carriedItem .. "|c" .. changeColor)
         formattedMessageP1 = (string_format(messageChange, item, messageP1))
@@ -2941,7 +2228,7 @@ function ChatAnnouncements.CurrencyGoldThrottlePrinter()
         local messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalGold
         local messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageLoot
         local messageType = "LUIE_CURRENCY_THROTTLE"
-        ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
+        ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType, "", "")
     end
     g_currencyGoldThrottleValue = 0
     g_currencyGoldThrottleTotal = 0
@@ -2959,7 +2246,21 @@ function ChatAnnouncements.CurrencyAPThrottlePrinter()
         local messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalAP
         local messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageEarn
         local messageType = "LUIE_CURRENCY_THROTTLE"
-        ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
+        ChatAnnouncements.CurrencyPrinter(
+            CURT_ALLIANCE_POINTS,
+            formattedValue,
+            changeColor,
+            changeType,
+            currencyTypeColor,
+            currencyIcon,
+            currencyName,
+            currencyTotal,
+            messageChange,
+            messageTotal,
+            messageType,
+            nil,
+            nil
+        )
     end
     eventManager:UnregisterForUpdate(moduleName .. "BufferedAP")
     g_currencyAPThrottleValue = 0
@@ -2978,7 +2279,21 @@ function ChatAnnouncements.CurrencyTVThrottlePrinter()
         local messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalTV
         local messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageLoot
         local messageType = "LUIE_CURRENCY_THROTTLE"
-        ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
+        ChatAnnouncements.CurrencyPrinter(
+            CURT_TELVAR_STONES,
+            formattedValue,
+            changeColor,
+            changeType,
+            currencyTypeColor,
+            currencyIcon,
+            currencyName,
+            currencyTotal,
+            messageChange,
+            messageTotal,
+            messageType,
+            nil,
+            nil
+        )
     end
     eventManager:UnregisterForUpdate(moduleName .. "BufferedTV")
     g_currencyTVThrottleValue = 0
@@ -3391,7 +2706,9 @@ function ChatAnnouncements.TradingHouseResponseReceived(eventId, responseType, r
             g_savedPurchase.currencyTotal,
             messageChange,
             g_savedPurchase.messageTotal,
-            messageType
+            messageType,
+            nil,
+            nil
         )
     end
     g_savedPurchase = {}
@@ -3586,7 +2903,7 @@ function ChatAnnouncements.OnMailSuccess(eventId, playerName)
         local changeType = ZO_CommaDelimitDecimalNumber(g_postageAmount)
         local currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyGoldName, g_postageAmount)
         local messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessagePostage
-        ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
+        ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType, nil, nil)
     end
 
     if not g_mailCODPresent and g_mailAmount > 0 then
@@ -3594,7 +2911,7 @@ function ChatAnnouncements.OnMailSuccess(eventId, playerName)
         local changeType = ZO_CommaDelimitDecimalNumber(g_mailAmount)
         local currencyName = zo_strformat(ChatAnnouncements.SV.Currency.CurrencyGoldName, g_mailAmount)
         local messageChange = g_mailTarget ~= "" and ChatAnnouncements.SV.ContextMessages.CurrencyMessageMailOut or ChatAnnouncements.SV.ContextMessages.CurrencyMessageMailOutNoName
-        ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
+        ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType, nil, nil)
     end
 
     if ChatAnnouncements.SV.Notify.NotificationMailSendCA or ChatAnnouncements.SV.Notify.NotificationMailSendAlert then
@@ -3977,7 +3294,10 @@ function ChatAnnouncements.LogGuildBankChange()
             g_guildBankCarry.receivedBy,
             g_guildBankCarry.logPrefix,
             g_guildBankCarry.gainOrLoss,
-            false
+            false,
+            nil,
+            nil,
+            nil
         )
     end
     g_guildBankCarry = nil
@@ -4289,7 +3609,10 @@ function ChatAnnouncements.FenceSuccess(eventId, result)
                     "",
                     g_savedLaunder.logPrefix,
                     g_savedLaunder.gainOrLoss,
-                    false
+                    false,
+                    nil,
+                    nil,
+                    nil
                 )
             end
         end
@@ -4731,7 +4054,9 @@ function ChatAnnouncements.OnLootReceived(eventId, receivedBy, itemName, quantit
             logPrefix,
             gainOrLoss,
             false,
-            true
+            true,
+            nil,
+            nil
         )
     end
 end
@@ -5323,7 +4648,10 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                     receivedBy,
                     logPrefix,
                     gainOrLoss,
-                    false
+                    false,
+                    nil,
+                    nil,
+                    nil
                 )
             end
             -- EXISTING ITEM
@@ -5360,7 +4688,10 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                         receivedBy,
                         logPrefix,
                         gainOrLoss,
-                        false
+                        false,
+                        nil,
+                        nil,
+                        nil
                     )
                 end
                 -- STACK COUNT INCREMENTED DOWN
@@ -5378,7 +4709,10 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                         receivedBy,
                         logPrefix,
                         gainOrLoss,
-                        false
+                        false,
+                        nil,
+                        nil,
+                        nil
                     )
                 end
                 if not g_itemWasDestroyed then
@@ -5401,7 +4735,10 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                             receivedBy,
                             logPrefix,
                             gainOrLoss,
-                            false
+                            false,
+                            nil,
+                            nil,
+                            nil
                         )
                     elseif not g_itemWasDestroyed and g_removableIDs[itemId] and ChatAnnouncements.SV.Inventory.LootShowRemove then
                         gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
@@ -5415,7 +4752,10 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                             receivedBy,
                             logPrefix,
                             gainOrLoss,
-                            false
+                            false,
+                            nil,
+                            nil,
+                            nil
                         )
                     end
                 end
@@ -5602,7 +4942,10 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                         receivedBy,
                         logPrefix,
                         gainOrLoss,
-                        false
+                        false,
+                        nil,
+                        nil,
+                        nil
                     )
                     -- Check Lockpick next
                 elseif ChatAnnouncements.SV.Inventory.LootShowLockpick and g_lockpickBroken then
@@ -5617,7 +4960,10 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                         receivedBy,
                         logPrefix,
                         gainOrLoss,
-                        false
+                        false,
+                        nil,
+                        nil,
+                        nil
                     )
                     -- Check container is emptied next
                 elseif ChatAnnouncements.SV.Inventory.LootShowContainer and (removedItemType == ITEMTYPE_CONTAINER or removedItemType == ITEMTYPE_CONTAINER_CURRENCY) then
@@ -5637,7 +4983,8 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                             gainOrLoss,
                             false,
                             nil,
-                            true
+                            true,
+                            nil
                         )
                     end
                     -- Check to see if the item was removed in dialogue and Quest Item turnin is on.
@@ -5804,7 +5151,11 @@ function ChatAnnouncements.InventoryUpdate(eventId, bagId, slotIndex, isNewItem,
                         receivedBy,
                         logPrefix,
                         gainOrLoss,
-                        false)
+                        false,
+                        nil,
+                        nil,
+                        nil
+                    )
                 end
             end
 
@@ -5972,7 +5323,10 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                 receivedBy,
                 logPrefix,
                 gainOrLoss,
-                false
+                false,
+                nil,
+                nil,
+                nil
             )
             -- EXISTING ITEM
         elseif g_equippedStacks[slotIndex] then
@@ -6007,7 +5361,10 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                     receivedBy,
                     logPrefix,
                     gainOrLoss,
-                    false
+                    false,
+                    nil,
+                    nil,
+                    nil
                 )
                 -- STACK COUNT INCREMENTED UP
             elseif stackCountChange > 0 then
@@ -6025,7 +5382,10 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                     receivedBy,
                     logPrefix,
                     gainOrLoss,
-                    false
+                    false,
+                    nil,
+                    nil,
+                    nil
                 )
                 -- STACK COUNT INCREMENTED DOWN
             elseif stackCountChange < 0 then
@@ -6045,7 +5405,10 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                         receivedBy,
                         logPrefix,
                         gainOrLoss,
-                        false
+                        false,
+                        nil,
+                        nil,
+                        nil
                     )
                 end
             end
@@ -6145,7 +5508,10 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                     receivedBy,
                     logPrefix,
                     gainOrLoss,
-                    false
+                    false,
+                    nil,
+                    nil,
+                    nil
                 )
                 -- STACK COUNT INCREMENTED UP
             elseif stackCountChange > 0 then
@@ -6247,7 +5613,11 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                 receivedBy,
                 logPrefix,
                 gainOrLoss,
-                false)
+                false,
+                nil,
+                nil,
+                nil
+            )
             -- EXISTING ITEM
         elseif g_bankStacks[slotIndex] then
             itemLink = GetItemLink(bagId, slotIndex, linkBrackets[ChatAnnouncements.SV.BracketOptionItem])
@@ -6281,7 +5651,10 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                     receivedBy,
                     logPrefix,
                     gainOrLoss,
-                    false
+                    false,
+                    nil,
+                    nil,
+                    nil
                 )
                 -- STACK COUNT INCREMENTED UP
             elseif stackCountChange > 0 then
@@ -6383,7 +5756,10 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                 receivedBy,
                 logPrefix,
                 gainOrLoss,
-                false
+                false,
+                nil,
+                nil,
+                nil
             )
             -- EXISTING ITEM
         elseif g_bankSubscriberStacks[slotIndex] then
@@ -6418,7 +5794,10 @@ function ChatAnnouncements.InventoryUpdateCraft(eventId, bagId, slotIndex, isNew
                     receivedBy,
                     logPrefix,
                     gainOrLoss,
-                    false
+                    false,
+                    nil,
+                    nil,
+                    nil
                 )
                 -- STACK COUNT INCREMENTED UP
             elseif stackCountChange > 0 then
@@ -6594,7 +5973,19 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
             gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 1 or 3
             logPrefix = g_bankBag == 1 and ChatAnnouncements.SV.ContextMessages.CurrencyMessageWithdraw or ChatAnnouncements.SV.ContextMessages.CurrencyMessageWithdrawStorage
             if g_InventoryOn then
-                ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                ChatAnnouncements.ItemPrinter(
+                    icon,
+                    stackCountChange,
+                    itemType,
+                    itemId,
+                    itemLink,
+                    receivedBy,
+                    logPrefix,
+                    gainOrLoss,
+                    false,
+                    nil,
+                    nil,
+                    nil)
             end
             -- EXISTING ITEM
         elseif g_inventoryStacks[slotIndex] then
@@ -6620,7 +6011,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
                 gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 1 or 3
                 logPrefix = g_bankBag == 1 and ChatAnnouncements.SV.ContextMessages.CurrencyMessageWithdraw or ChatAnnouncements.SV.ContextMessages.CurrencyMessageWithdrawStorage
                 if g_InventoryOn then
-                    ChatAnnouncements.ItemPrinter(icon, stack, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, stack, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 -- STACK COUNT INCREMENTED DOWN
             elseif stackCountChange < 0 then
@@ -6628,12 +6019,12 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
                 if g_itemWasDestroyed and ChatAnnouncements.SV.Inventory.LootShowDestroy then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDestroy
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 if g_InventoryOn and not g_itemWasDestroyed then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = g_bankBag == 1 and ChatAnnouncements.SV.ContextMessages.CurrencyMessageDeposit or ChatAnnouncements.SV.ContextMessages.CurrencyMessageDepositStorage
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
             end
 
@@ -6676,7 +6067,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
             gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
             logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDeposit
             if g_bankOn then
-                ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
             end
             -- EXISTING ITEM
         elseif g_bankStacks[slotIndex] then
@@ -6702,7 +6093,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
                 gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                 logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDeposit
                 if g_bankOn then
-                    ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 -- STACK COUNT INCREMENTED DOWN
             elseif stackCountChange < 0 then
@@ -6710,12 +6101,12 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
                 if g_itemWasDestroyed and ChatAnnouncements.SV.Inventory.LootShowDestroy then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDestroy
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 if g_bankOn and not g_itemWasDestroyed then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDeposit
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
             end
 
@@ -6758,7 +6149,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
             gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
             logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDeposit
             if g_bankOn then
-                ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
             end
             -- EXISTING ITEM
         elseif g_bankSubscriberStacks[slotIndex] then
@@ -6784,7 +6175,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
                 gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                 logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDeposit
                 if g_bankOn then
-                    ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 -- STACK COUNT INCREMENTED DOWN
             elseif stackCountChange < 0 then
@@ -6792,12 +6183,12 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
                 if g_itemWasDestroyed and ChatAnnouncements.SV.Inventory.LootShowDestroy then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDestroy
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 if g_bankOn and not g_itemWasDestroyed then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDeposit
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
             end
 
@@ -6840,7 +6231,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
             gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
             logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDepositStorage
             if g_bankOn then
-                ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
             end
             -- EXISTING ITEM
         elseif g_houseBags[bagId][slotIndex] then
@@ -6866,7 +6257,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
                 gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                 logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDepositStorage
                 if g_bankOn then
-                    ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, stackCountChange, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 -- STACK COUNT INCREMENTED DOWN
             elseif stackCountChange < 0 then
@@ -6874,12 +6265,12 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
                 if g_itemWasDestroyed and ChatAnnouncements.SV.Inventory.LootShowDestroy then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDestroy
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 if g_bankOn and not g_itemWasDestroyed then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDepositStorage
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
             end
 
@@ -6923,7 +6314,7 @@ function ChatAnnouncements.InventoryUpdateBank(eventId, bagId, slotIndex, isNewI
             stack = stackCountChange
         end
 
-        ChatAnnouncements.ItemPrinter(icon, stack, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+        ChatAnnouncements.ItemPrinter(icon, stack, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
     end
 
     g_itemWasDestroyed = false
@@ -7026,7 +6417,7 @@ function ChatAnnouncements.InventoryUpdateGuildBank(eventId, bagId, slotIndex, i
                 if g_itemWasDestroyed and ChatAnnouncements.SV.Inventory.LootShowDestroy then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDestroy
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
                 if not g_itemWasDestroyed then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
@@ -7222,7 +6613,7 @@ function ChatAnnouncements.InventoryUpdateFence(eventId, bagId, slotIndex, isNew
                 if g_itemWasDestroyed and ChatAnnouncements.SV.Inventory.LootShowDestroy then
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageDestroy
-                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(icon, change, itemType, itemId, itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 else
                     gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 1 or 3
                     logPrefix = ChatAnnouncements.SV.Inventory.LootVendorCurrency and ChatAnnouncements.SV.ContextMessages.CurrencyMessageLaunder or ChatAnnouncements.SV.ContextMessages.CurrencyMessageLaunderNoV
@@ -7402,7 +6793,7 @@ function ChatAnnouncements.JusticeRemovePrint()
                 local receivedBy = ""
                 local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                 local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
-                ChatAnnouncements.ItemPrinter(inventoryitem.icon, inventoryitem.stack, inventoryitem.itemType, inventoryitem.itemId, inventoryitem.itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                ChatAnnouncements.ItemPrinter(inventoryitem.icon, inventoryitem.stack, inventoryitem.itemType, inventoryitem.itemId, inventoryitem.itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
             end
         end
 
@@ -7445,7 +6836,7 @@ function ChatAnnouncements.JusticeRemovePrint()
                     local receivedBy = ""
                     local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
                     local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
-                    ChatAnnouncements.ItemPrinter(previousItem.icon, previousItem.stack, previousItem.itemType, previousItem.itemId, previousItem.itemLink, receivedBy, logPrefix, gainOrLoss, false)
+                    ChatAnnouncements.ItemPrinter(previousItem.icon, previousItem.stack, previousItem.itemType, previousItem.itemId, previousItem.itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
                 end
             end
         end
@@ -7461,7 +6852,7 @@ function ChatAnnouncements.JusticeRemovePrint()
             local receivedBy = ""
             local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
             local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
-            ChatAnnouncements.ItemPrinter(previousActiveMain.icon, previousActiveMain.stack, previousActiveMain.itemType, previousActiveMain.itemId, previousActiveMain.itemLink, receivedBy, logPrefix, gainOrLoss, false)
+            ChatAnnouncements.ItemPrinter(previousActiveMain.icon, previousActiveMain.stack, previousActiveMain.itemType, previousActiveMain.itemId, previousActiveMain.itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
         end
 
         -- Check if active off hand was confiscated
@@ -7471,7 +6862,7 @@ function ChatAnnouncements.JusticeRemovePrint()
             local receivedBy = ""
             local gainOrLoss = ChatAnnouncements.SV.Currency.CurrencyContextColor and 2 or 4
             local logPrefix = ChatAnnouncements.SV.ContextMessages.CurrencyMessageConfiscate
-            ChatAnnouncements.ItemPrinter(previousActiveOff.icon, previousActiveOff.stack, previousActiveOff.itemType, previousActiveOff.itemId, previousActiveOff.itemLink, receivedBy, logPrefix, gainOrLoss, false)
+            ChatAnnouncements.ItemPrinter(previousActiveOff.icon, previousActiveOff.stack, previousActiveOff.itemType, previousActiveOff.itemId, previousActiveOff.itemLink, receivedBy, logPrefix, gainOrLoss, false, nil, nil, nil)
         end
     end
 
@@ -7943,7 +7334,7 @@ function ChatAnnouncements.HookFunction()
                 local currencyTotal = ChatAnnouncements.SV.Currency.CurrencyGoldShowTotal
                 local messageTotal = ChatAnnouncements.SV.Currency.CurrencyMessageTotalGold
                 local messageChange = ChatAnnouncements.SV.ContextMessages.CurrencyMessageStable
-                ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType)
+                ChatAnnouncements.CurrencyPrinter(nil, formattedValue, changeColor, changeType, currencyTypeColor, currencyIcon, currencyName, currencyTotal, messageChange, messageTotal, messageType, nil, nil)
             end
 
             if ChatAnnouncements.SV.Notify.StorageRidingCA then
@@ -11904,7 +11295,7 @@ function ChatAnnouncements.HookFunction()
             local isInGroup = IsPlayerInGroup(currentTargetCharacterNameRaw)
             local isRestrictedCommunicationPermitted
             if GetAPIVersion() >= 101046 then
-                isRestrictedCommunicationPermitted = CanCommunicateWith(currentTargetCharacterNameRaw)
+                isRestrictedCommunicationPermitted = CanCommunicateWith(currentTargetCharacterNameRaw, nil)
             elseif GetAPIVersion() < 101046 then
                 isRestrictedCommunicationPermitted = true
             end
@@ -13423,5 +12814,4 @@ function ChatAnnouncements.PrintBufferedGuildRep()
     g_guildSkillThrottleLine = ""
 end
 
---- @class (partial) ChatAnnouncements
-LUIE.ChatAnnouncements = ChatAnnouncements
+return ChatAnnouncements

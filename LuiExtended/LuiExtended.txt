@@ -50,6 +50,7 @@ frontend/CrowdControlTracker.xml
 src/Unlock.lua
 
 # Modules - Chat Announcements
+modules/ChatAnnouncements/ChatAnnouncements_Namespace.lua
 modules/ChatAnnouncements/ChatAnnouncements.lua
 
 # Modules - Combat Text

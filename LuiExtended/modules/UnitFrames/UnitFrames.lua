@@ -149,7 +149,7 @@ function UnitFrames.CustomFramesApplyBarAlignment()
 end
 
 -- Main entry point to this module
-function UnitFrames.Initialize(enabled)
+function UnitFrames:Initialize(enabled)
     -- Load settings
     local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
     if isCharacterSpecific then
@@ -212,17 +212,17 @@ function UnitFrames.Initialize(enabled)
         local totalHealth = 0
         local totalMaxHealth = 0
 
-        for unitTag, bossEntry in pairs(self.bossHealthValues) do
+        for unitTag, bossEntry in pairs(BOSS_BAR.bossHealthValues) do
             totalHealth = totalHealth + bossEntry.health
             totalMaxHealth = totalMaxHealth + bossEntry.maxHealth
         end
 
         local halfHealth = zo_floor(totalHealth / 2)
         local halfMax = zo_floor(totalMaxHealth / 2)
-        for i = 1, #self.bars do
-            ZO_StatusBar_SmoothTransition(self.bars[i], halfHealth, halfMax, not smoothAnimate)
+        for i = 1, #BOSS_BAR.bars do
+            ZO_StatusBar_SmoothTransition(BOSS_BAR.bars[i], halfHealth, halfMax, not smoothAnimate)
         end
-        self.healthText:SetText(ZO_FormatResourceBarCurrentAndMax(totalHealth, totalMaxHealth))
+        BOSS_BAR.healthText:SetText(ZO_FormatResourceBarCurrentAndMax(totalHealth, totalMaxHealth))
 
         if UnitFrames.SV.DefaultFramesNewBoss == 2 then
             COMPASS_FRAME:SetBossBarActive(totalHealth > 0)

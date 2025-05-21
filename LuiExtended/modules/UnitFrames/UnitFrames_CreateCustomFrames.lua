@@ -994,6 +994,9 @@ function UnitFrames.CreateCustomFrames()
                         ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
                         ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
                     }
+                    if GetUnitDisplayName("player") == "@dack_janiels" then
+                        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER].inc:SetColor(255, 0, 0, 0.7)
+                    end
                 end
             end
         end
@@ -1081,7 +1084,7 @@ function UnitFrames.CreateCustomFrames()
                                 local control = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER].inc
                                 local animation, timeline = CreateSimpleAnimation(ANIMATION_TEXTURE, control)
                                 animation:SetImageData(4, 8)
-                                animation:SetFramerate(32)
+                                animation:SetFramerate(GetFramerate())
                                 animation:SetDuration(1000)
                                 timeline:SetPlaybackType(ANIMATION_PLAYBACK_LOOP, LOOP_INDEFINITELY)
 

@@ -162,11 +162,11 @@ eventManager:RegisterForEvent(LUIE.name, EVENT_ADD_ON_LOADED, function (eventId,
     LUIE.PlayerFaction = GetUnitAlliance("player")
     -- -----------------------------------------------------------------------------
     -- Initialize this addon modules according to user preferences
-    LUIE.ChatAnnouncements.Initialize(LUIE.SV.ChatAnnouncements_Enable)
+    LUIE.ChatAnnouncements:Initialize(LUIE.SV.ChatAnnouncements_Enable)
     LUIE.CombatInfo.Initialize(LUIE.SV.CombatInfo_Enabled)
     LUIE.CombatText.Initialize(LUIE.SV.CombatText_Enabled)
     LUIE.InfoPanel.Initialize(LUIE.SV.InfoPanel_Enabled)
-    LUIE.UnitFrames.Initialize(LUIE.SV.UnitFrames_Enabled)
+    LUIE.UnitFrames:Initialize(LUIE.SV.UnitFrames_Enabled)
     LUIE.SpellCastBuffs.Initialize(LUIE.SV.SpellCastBuff_Enable)
     LUIE.SlashCommands.Initialize(LUIE.SV.SlashCommands_Enable)
     -- -----------------------------------------------------------------------------

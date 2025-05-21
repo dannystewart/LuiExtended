@@ -307,15 +307,36 @@ function CombatTextEventViewer:PrepareLabel(label, fontSize, color, text)
     label:SetAlpha(Settings.common.transparencyValue / 100)
 end
 
+--- @param control Control
+--- @param activeControls {[integer]:Control}
+--- @return boolean isOverlapping
 function CombatTextEventViewer:IsOverlapping(control, activeControls)
     local p = 5 -- Substract some padding
 
     local left, top, right, bottom = control:GetScreenRect()
-    local p1, p2 = { x = left + p, y = top + p }, { x = right - p, y = bottom - p }
+    local p1 =
+    {
+        x = left + p,
+        y = top + p
+    }
+    local p2 =
+    {
+        x = right - p,
+        y = bottom - p
+    }
 
     for _, c in pairs(activeControls) do
-        left, top, right, bottom = c:GetScreenRect()
-        local p3, p4 = { x = left + p, y = top + p }, { x = right - p, y = bottom - p }
+        local activeleft, activetop, activeright, activebottom = c:GetScreenRect()
+        local p3 =
+        {
+            x = activeleft + p,
+            y = activetop + p
+        }
+        local p4 =
+        {
+            x = activeright - p,
+            y = activebottom - p
+        }
 
         if p2.y >= p3.y and p1.y <= p4.y and p2.x >= p3.x and p1.x <= p4.x then
             return true

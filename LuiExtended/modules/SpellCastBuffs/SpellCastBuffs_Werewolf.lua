@@ -28,7 +28,8 @@ end
 
 function SpellCastBuffs.DisplayWerewolfIcon()
     SetWerewolfIcon()
-    local context = SpellCastBuffs.DetermineContextSimple("player1", g_werewolfId, g_werewolfName)
+    local contextTarget = "player1"
+    local context = SpellCastBuffs.DetermineContextSimple(contextTarget, g_werewolfId, g_werewolfName)
     local power = GetUnitPower("player", COMBAT_MECHANIC_FLAGS_WEREWOLF)
     SpellCastBuffs.EffectsList[context]["Werewolf Indicator"] =
     {
@@ -48,7 +49,8 @@ function SpellCastBuffs.DisplayWerewolfIcon()
 end
 
 function SpellCastBuffs.HideWerewolfIcon()
-    local context = SpellCastBuffs.DetermineContextSimple("player1", g_werewolfId, g_werewolfName)
+    local contextTarget = "player1"
+    local context = SpellCastBuffs.DetermineContextSimple(contextTarget, g_werewolfId, g_werewolfName)
     SpellCastBuffs.EffectsList[context]["Werewolf Indicator"] = nil
 end
 
