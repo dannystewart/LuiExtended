@@ -18,16 +18,17 @@ local eventPostfix = 1 -- Used to create unique name when registering multiple t
 
 --- @return CombatTextEventListener
 function CombatTextEventListener:New()
+    --- @class CombatTextEventListener
     local obj = setmetatable({}, self)
     return obj
 end
 
---- @param event any
---- @param func fun(...)
---- @param ... any
-function CombatTextEventListener:RegisterForEvent(event, func, ...)
-    eventManager:RegisterForEvent("LUIE_CombatText_EVENT_" .. event .. "_" .. eventPostfix, event, function (eventCode, ...)
-        func(...)
+--- @param event integer
+--- @param callback function
+--- @param ... any a list of event filters in format filterType1, filterArg1, filterType2, filterArg2, etc.
+function CombatTextEventListener:RegisterForEvent(event, callback, ...)
+    eventManager:RegisterForEvent("LUIE_CombatText_EVENT_" .. tostring(event) .. "_" .. tostring(eventPostfix), event, function (eventCode, ...)
+        callback(...)
     end)
 
     -- vararg ... is a list of event filters in format filterType1, filterArg1, filterType2, filterArg2, etc.
@@ -35,18 +36,17 @@ function CombatTextEventListener:RegisterForEvent(event, func, ...)
     local filtersCount = select("#", ...)
     local filters = filtersCount > 0 and { ... }
     for i = 1, filtersCount, 2 do
-        eventManager:AddFilterForEvent("LUIE_CombatText_EVENT_" .. event .. "_" .. eventPostfix, event, filters[i], filters[i + 1])
+        eventManager:AddFilterForEvent("LUIE_CombatText_EVENT_" .. tostring(event) .. "_" .. tostring(eventPostfix), event, filters[i], filters[i + 1])
     end
 
     eventPostfix = eventPostfix + 1
 end
 
---- @param name any
---- @param timer any
---- @param func fun(...)
---- @param ... any
-function CombatTextEventListener:RegisterForUpdate(name, timer, func, ...)
-    eventManager:RegisterForUpdate("LUIE_CombatText_EVENT_" .. name .. "_" .. eventPostfix, timer, func)
+--- @param name string
+--- @param minInterval integer
+--- @param callback function
+function CombatTextEventListener:RegisterForUpdate(name, minInterval, callback)
+    eventManager:RegisterForUpdate("LUIE_CombatText_EVENT_" .. name .. "_" .. tostring(eventPostfix), minInterval, callback)
 end
 
 --- @param ... any
