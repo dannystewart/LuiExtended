@@ -5,6 +5,10 @@
 
 --- @class (partial) LuiExtended
 local LUIE = LUIE
+-- LUIE utility functions
+local AddSystemMessage = LUIE.AddSystemMessage
+local printToChat = LUIE.PrintToChat
+
 --- @class (partial) LUIE.SpellCastBuffs
 local SpellCastBuffs = LUIE.SpellCastBuffs
 local LuiData = LuiData
@@ -14,8 +18,6 @@ local EffectOverride = Effects.EffectOverride
 local DebugAuras = Data.DebugAuras
 local DebugResults = Data.DebugResults
 local DebugStatus = Data.DebugStatus
-local Tooltips = Data.Tooltips
-local AssistantIcons = Effects.AssistantIcons
 
 -- -----------------------------------------------------------------------------
 -- Core Lua function localizations
@@ -25,7 +27,6 @@ local pairs = pairs
 local string_format = string.format
 local zo_strformat = zo_strformat
 local zo_iconFormat = zo_iconFormat
-local zo_strgsub = zo_strgsub
 local zo_round = zo_round
 local tostring = tostring
 
@@ -35,7 +36,6 @@ local GetAbilityName = GetAbilityName
 local GetAbilityDuration = GetAbilityDuration
 local GetAbilityCastInfo = GetAbilityCastInfo
 local DoesAbilityExist = DoesAbilityExist
-local GetDisplayName = GetDisplayName
 local GetZoneId = GetZoneId
 local GetCurrentMapZoneIndex = GetCurrentMapZoneIndex
 local GetPlayerLocationName = GetPlayerLocationName
@@ -44,37 +44,11 @@ local GetCurrentMapIndex = GetCurrentMapIndex
 local GetMapInfoById = GetMapInfoById
 local GetMapPlayerPosition = GetMapPlayerPosition
 local GetMapName = GetMapName
-local GetMapContentType = GetMapContentType
-local GetMapType = GetMapType
 local SetMapToPlayerLocation = SetMapToPlayerLocation
 local SetMapToMapListIndex = SetMapToMapListIndex
 local MapZoomOut = MapZoomOut
-local GetFrameTimeMilliseconds = GetFrameTimeMilliseconds
-local FormatTimeMilliseconds = FormatTimeMilliseconds
-
 local chatSystem = ZO_GetChatSystem()
 
--- LUIE utility functions
-local AddSystemMessage = LUIE.AddSystemMessage
-local GetSlotTrueBoundId = LUIE.GetSlotTrueBoundId
-local printToChat = LUIE.PrintToChat
-
--- -- Add millisecond timestamp to ability debug
--- local function MillisecondTimestampDebug(message)
---     local currentTime = GetGameTimeMilliseconds()
---     local timestamp = FormatTimeMilliseconds(currentTime, TIME_FORMAT_STYLE_COLONS, TIME_FORMAT_PRECISION_MILLISECONDS_NO_HOURS_OR_DAYS, TIME_FORMAT_DIRECTION_NONE)
---     timestamp = zo_strgsub(timestamp, "HH", "")
---     timestamp = zo_strgsub(timestamp, "H ", ":")
---     timestamp = zo_strgsub(timestamp, "hh", "")
---     timestamp = zo_strgsub(timestamp, "h ", ":")
---     timestamp = zo_strgsub(timestamp, "m ", ":")
---     timestamp = zo_strgsub(timestamp, "s ", ":")
---     timestamp = zo_strgsub(timestamp, "A", "")
---     timestamp = zo_strgsub(timestamp, "a", "")
---     timestamp = zo_strgsub(timestamp, "ms", "")
---     message = string_format("|c%s[%s]|r %s", LUIE.TimeStampColorize, timestamp, message)
---     return message
--- end
 
 --- Formats GPS coordinates for display
 --- @param number number The raw coordinate value
@@ -422,6 +396,12 @@ end
 --- @field worldY number
 --- @field mapName string
 --- @field zoneName string
+--- @field floorInfo table Floor information if available
+--- @field poiInfo table POI information if available
+--- @field fastTravelInfo table Fast travel information if available
+--- @field zoneFlags table Various boolean flags about the current zone
+--- @field keyInfo table Map key information if available
+--- @field cadwellInfo table Cadwell's Almanac information if available
 
 --- Collects and returns zone and map information
 --- @return ZoneMapInfo Information about current zone and map
@@ -435,7 +415,7 @@ local function CollectZoneMapInfo()
     local zoneid = GetZoneId(GetCurrentMapZoneIndex())
     local locName = GetPlayerLocationName()
     local mapid = GetCurrentMapId()
-    local mapindex = GetCurrentMapIndex()
+    local mapindex = GetCurrentMapIndex() or GetMapIndexByZoneId(zoneid)
     local name, mapType, mapContentType, zoneIndex, description = GetMapInfoById(mapid)
 
     -- Get coordinates at different map levels
@@ -446,7 +426,7 @@ local function CollectZoneMapInfo()
     local zoneName = mapName
 
     -- Handle dungeon/subzone cases
-    if GetMapContentType() == MAP_CONTENT_DUNGEON or GetMapType() == MAPTYPE_SUBZONE then
+    if mapContentType == MAP_CONTENT_DUNGEON or mapType == MAPTYPE_SUBZONE then
         MapZoomOut()
         zoneName = GetMapName()
         zoneX, zoneY = GetMapPlayerPosition("player")
@@ -457,6 +437,138 @@ local function CollectZoneMapInfo()
         SetMapToMapListIndex(1) -- Tamriel
         worldX, worldY = GetMapPlayerPosition("player")
     end
+
+    -- Get floor information if available
+    local floorInfo = {}
+    local currentFloor, numFloors = GetMapFloorInfo()
+    if numFloors > 0 then
+        floorInfo =
+        {
+            currentFloor = currentFloor,
+            numFloors = numFloors
+        }
+    end
+
+    -- Get POI info
+    local poiInfo = {}
+    local numPOIs = GetNumPOIs(zoneIndex)
+    if numPOIs > 0 then
+        poiInfo.count = numPOIs
+        poiInfo.items = {}
+
+        for i = 1, numPOIs do
+            local objectiveName, objectiveLevel, startDescription, finishedDescription = GetPOIInfo(zoneIndex, i)
+            local poiType = GetPOIType(zoneIndex, i)
+            local poiX, poiY, poiPinType, icon, isShown, isLocked, isDiscovered, isNearby = GetPOIMapInfo(zoneIndex, i)
+
+            poiInfo.items[i] =
+            {
+                name = objectiveName,
+                level = objectiveLevel,
+                type = poiType,
+                x = poiX,
+                y = poiY,
+                isDiscovered = isDiscovered,
+                isNearby = isNearby
+            }
+        end
+    end
+
+    -- Get fast travel information
+    local fastTravelInfo = {}
+    local numFastTravel = GetNumFastTravelNodes()
+    if numFastTravel > 0 then
+        fastTravelInfo.count = numFastTravel
+        fastTravelInfo.items = {}
+
+        for i = 1, numFastTravel do
+            local known, nodeName, nodeX, nodeY, icon, glowIcon, poiType, isShown, isLocked = GetFastTravelNodeInfo(i)
+            if isShown then
+                local cooldownRemain, cooldownDuration = GetRecallCooldown()
+                local recallCost = GetRecallCost(i)
+                local recallCurrency = GetRecallCurrency(i)
+
+                fastTravelInfo.items[#fastTravelInfo.items + 1] =
+                {
+                    name = nodeName,
+                    known = known,
+                    x = nodeX,
+                    y = nodeY,
+                    cooldown = { remain = cooldownRemain, duration = cooldownDuration },
+                    cost = recallCost,
+                    currency = recallCurrency
+                }
+            end
+        end
+    end
+
+    -- Get zone flags (various boolean checks)
+    local zoneFlags =
+    {
+        isInCyrodiil = IsInCyrodiil(),
+        isInImperialCity = IsInImperialCity(),
+        isInAvAZone = IsInAvAZone(),
+        isInOutlawZone = IsInOutlawZone(),
+        isInJusticeZone = IsInJusticeEnabledZone(),
+        allowsTeleport = CanLeaveCurrentLocationViaTeleport(),
+        allowsScaling = DoesCurrentZoneAllowScalingByLevel(),
+        hasTelvarBehavior = DoesCurrentZoneHaveTelvarStoneBehavior(),
+        allowsBattleLevelScaling = DoesCurrentZoneAllowBattleLevelScaling(),
+        isInAvAWorld = IsPlayerInAvAWorld(),
+        isInBattleground = IsActiveWorldBattleground(),
+        isGroupOwnable = IsActiveWorldGroupOwnable(),
+        isStarterWorld = IsActiveWorldStarterWorld()
+    }
+
+    -- Get map key information
+    local keyInfo = {}
+    local numKeySections = GetNumMapKeySections()
+    if numKeySections > 0 then
+        keyInfo.sections = {}
+        for i = 1, numKeySections do
+            local sectionName = GetMapKeySectionName(i)
+            local numSymbols = GetNumMapKeySectionSymbols(i)
+
+            local symbols = {}
+            for j = 1, numSymbols do
+                local symbolName, symbolIcon, symbolTooltip = GetMapKeySectionSymbolInfo(i, j)
+                symbols[j] =
+                {
+                    name = symbolName,
+                    icon = symbolIcon,
+                    tooltip = symbolTooltip
+                }
+            end
+
+            keyInfo.sections[i] =
+            {
+                name = sectionName,
+                symbols = symbols
+            }
+        end
+    end
+
+    -- Get Cadwell's Almanac information if available
+    local cadwellInfo = {}
+    local cadwellLevel = GetCadwellProgressionLevel()
+    if cadwellLevel > 0 then
+        cadwellInfo.level = cadwellLevel
+        cadwellInfo.zones = {}
+
+        local numZones = GetNumZonesForCadwellProgressionLevel(cadwellLevel)
+        for i = 1, numZones do
+            local cadwellZoneName, zoneDesc, zoneOrder = GetCadwellZoneInfo(cadwellLevel, i)
+            cadwellInfo.zones[i] =
+            {
+                name = cadwellZoneName,
+                description = zoneDesc,
+                order = zoneOrder
+            }
+        end
+    end
+
+    -- Get level scaling constraints
+    local scaleLevelType, minScaleLevel, maxScaleLevel = GetCurrentZoneLevelScalingConstraints()
 
     -- Reset map to player location
     if SetMapToPlayerLocation() == SET_MAP_RESULT_MAP_CHANGED then
@@ -483,6 +595,18 @@ local function CollectZoneMapInfo()
         worldY = worldY,
         mapName = mapName,
         zoneName = zoneName,
+        floorInfo = floorInfo,
+        poiInfo = poiInfo,
+        fastTravelInfo = fastTravelInfo,
+        zoneFlags = zoneFlags,
+        keyInfo = keyInfo,
+        cadwellInfo = cadwellInfo,
+        scaleLevelConstraints =
+        {
+            type = scaleLevelType,
+            min = minScaleLevel,
+            max = maxScaleLevel
+        }
     }
 end
 
@@ -539,8 +663,79 @@ function SpellCastBuffs.TempSlashZoneCheck()
         { "Map Content Type:",   info.mapContentType                                                                                                         },
         { "Zone Index:",         info.zoneIndex                                                                                                              },
         { "Description:",        info.description                                                                                                            },
-        { "--------------------"                                                                                                                             },
     }
+
+    -- Floor information
+    if info.floorInfo.numFloors and info.floorInfo.numFloors > 0 then
+        table.insert(displayInfo, { "--------------------" })
+        table.insert(displayInfo, { "Floor Information:" })
+        table.insert(displayInfo, { "Current Floor:", info.floorInfo.currentFloor })
+        table.insert(displayInfo, { "Total Floors:", info.floorInfo.numFloors })
+    end
+
+    -- Zone flags
+    table.insert(displayInfo, { "--------------------" })
+    table.insert(displayInfo, { "Zone Flags:" })
+    local flagsStr = ""
+    if info.zoneFlags.isInCyrodiil then flagsStr = flagsStr .. "Cyrodiil, " end
+    if info.zoneFlags.isInImperialCity then flagsStr = flagsStr .. "Imperial City, " end
+    if info.zoneFlags.isInAvAZone then flagsStr = flagsStr .. "AvA Zone, " end
+    if info.zoneFlags.isInOutlawZone then flagsStr = flagsStr .. "Outlaw Zone, " end
+    if info.zoneFlags.isInJusticeZone then flagsStr = flagsStr .. "Justice Zone, " end
+    if info.zoneFlags.hasTelvarBehavior then flagsStr = flagsStr .. "Telvar Stone, " end
+    if info.zoneFlags.isInBattleground then flagsStr = flagsStr .. "Battleground, " end
+    if info.zoneFlags.isStarterWorld then flagsStr = flagsStr .. "Starter World, " end
+    if flagsStr == "" then flagsStr = "None" else flagsStr = string.sub(flagsStr, 1, -3) end
+    table.insert(displayInfo, { "Active Flags:", flagsStr })
+
+    -- Level scaling
+    table.insert(displayInfo, { "--------------------" })
+    table.insert(displayInfo, { "Level Scaling:" })
+    table.insert(displayInfo, { "Scale Type:", info.scaleLevelConstraints.type })
+    table.insert(displayInfo, { "Min Level:", info.scaleLevelConstraints.min })
+    table.insert(displayInfo, { "Max Level:", info.scaleLevelConstraints.max })
+
+    -- POI information
+    if info.poiInfo.count and info.poiInfo.count > 0 then
+        table.insert(displayInfo, { "--------------------" })
+        table.insert(displayInfo, { "Points of Interest:", info.poiInfo.count .. " total POIs" })
+        table.insert(displayInfo, { "Discovered:", string_format("%d of %d", #info.poiInfo.items, info.poiInfo.count) })
+    end
+
+    -- Fast travel information
+    if info.fastTravelInfo.count and info.fastTravelInfo.count > 0 then
+        table.insert(displayInfo, { "--------------------" })
+        table.insert(displayInfo, { "Fast Travel Points:", info.fastTravelInfo.count .. " total nodes" })
+        table.insert(displayInfo, { "Available:", #info.fastTravelInfo.items .. " in current map" })
+
+        if #info.fastTravelInfo.items > 0 then
+            -- Show the nearest wayshrine
+            local nearestName = info.fastTravelInfo.items[1].name
+            local nearestDist = 999999
+
+            for _, node in ipairs(info.fastTravelInfo.items) do
+                local dist = math.sqrt((node.x - info.mapX) ^ 2 + (node.y - info.mapY) ^ 2)
+                if dist < nearestDist then
+                    nearestDist = dist
+                    nearestName = node.name
+                end
+            end
+
+            table.insert(displayInfo, { "Nearest Wayshrine:", nearestName })
+        end
+    end
+
+    -- Cadwell's Almanac information
+    if info.cadwellInfo.level and info.cadwellInfo.level > 0 then
+        table.insert(displayInfo, { "--------------------" })
+        table.insert(displayInfo, { "Cadwell's Almanac:" })
+        table.insert(displayInfo, { "Progress Level:", info.cadwellInfo.level })
+        if info.cadwellInfo.zones and #info.cadwellInfo.zones > 0 then
+            table.insert(displayInfo, { "Zones in Current Level:", #info.cadwellInfo.zones })
+        end
+    end
+
+    table.insert(displayInfo, { "--------------------" })
 
     for _, v in ipairs(displayInfo) do
         AddSystemMessage(#v == 1 and v[1] or string_format("%s %s", v[1], v[2]))
@@ -558,6 +753,63 @@ function SpellCastBuffs.TempSlashCheckRemovedAbilities()
     end
 end
 
+-- Add a new command for full zone info output
+function SpellCastBuffs.TempSlashZoneCheckFull()
+    local info = CollectZoneMapInfo()
+
+    -- Display basic info first
+    SpellCastBuffs.TempSlashZoneCheck()
+
+    -- Display POI details
+    if info.poiInfo.count and info.poiInfo.count > 0 and info.poiInfo.items and #info.poiInfo.items > 0 then
+        AddSystemMessage("--------------------")
+        AddSystemMessage("DETAILED POI INFORMATION:")
+        AddSystemMessage("--------------------")
+
+        for i, poi in ipairs(info.poiInfo.items) do
+            if i <= 5 then -- Limit to first 5 POIs to avoid spam
+                AddSystemMessage(string_format("POI %d: %s (Type: %d, Discovered: %s)",
+                                               i, poi.name, poi.type, poi.isDiscovered and "Yes" or "No"))
+            end
+        end
+
+        if #info.poiInfo.items > 5 then
+            AddSystemMessage(string_format("... and %d more POIs", #info.poiInfo.items - 5))
+        end
+    end
+
+    -- Display wayshrine details
+    if info.fastTravelInfo.count and info.fastTravelInfo.count > 0 and info.fastTravelInfo.items and #info.fastTravelInfo.items > 0 then
+        AddSystemMessage("--------------------")
+        AddSystemMessage("DETAILED WAYSHRINE INFORMATION:")
+        AddSystemMessage("--------------------")
+
+        for i, node in ipairs(info.fastTravelInfo.items) do
+            if i <= 5 then -- Limit to first 5 wayshrines
+                AddSystemMessage(string_format("Wayshrine %d: %s (Known: %s, Cost: %d)",
+                                               i, node.name, node.known and "Yes" or "No", node.cost))
+            end
+        end
+
+        if #info.fastTravelInfo.items > 5 then
+            AddSystemMessage(string_format("... and %d more wayshrines", #info.fastTravelInfo.items - 5))
+        end
+    end
+
+    -- Display key section info
+    if info.keyInfo.sections and #info.keyInfo.sections > 0 then
+        AddSystemMessage("--------------------")
+        AddSystemMessage("MAP KEY INFORMATION:")
+        AddSystemMessage("--------------------")
+
+        for i, section in ipairs(info.keyInfo.sections) do
+            AddSystemMessage(string_format("Section: %s (%d symbols)", section.name, #section.symbols))
+        end
+    end
+
+    AddSystemMessage("--------------------")
+end
+
 -- -----------------------------------------------------------------------------
 -- Slash Commands Registration
 -- -----------------------------------------------------------------------------
@@ -568,6 +820,7 @@ local DEBUG_COMMANDS =
     ["/filter"] = SpellCastBuffs.TempSlashFilter,
     ["/ground"] = SpellCastBuffs.TempSlashGround,
     ["/zonecheck"] = SpellCastBuffs.TempSlashZoneCheck,
+    ["/zonecheckfull"] = SpellCastBuffs.TempSlashZoneCheckFull,
     ["/abilitydump"] = SpellCastBuffs.TempSlashCheckRemovedAbilities,
 }
 
