@@ -163,21 +163,21 @@ local barHighlightOverride =
 
     -- Aedric Spear
     [26792] = { showFakeAura = true, noRemove = true, duration = 10000 }, -- Biting Jabs
-    [26158] = { newId = 37409 },   -- Piercing Javelin
-    [26800] = { newId = 37414 },   -- Aurora Javelin
-    [26804] = { newId = 32099 },   -- Binding Javelin
-    [22149] = { newId = 49205 },   -- Focused Charge
-    [22161] = { newId = 49213 },   -- Explosive Charge
-    [15540] = { newId = 15546 },   -- Toppling Charge
-    [26188] = { newId = 95933 },   -- Spear Shards (Spear Shards)
-    [26858] = { newId = 95957 },   -- Luminous Shards (Luminous Shards)
-    [26869] = { newId = 26880 },   -- Blazing Spear (Blazing Spear)
-    [22178] = { newId = 22179 },   -- Sun Shield
-    [22182] = { newId = 22183 },   -- Radiant Ward
-    [22180] = { newId = 49091 },   -- Blazing Shield
-    [22138] = { newId = 62593 },   -- Radial Sweep
-    [22144] = { newId = 62599 },   -- Empowering Sweep
-    [22139] = { newId = 62607 },   -- Crescent Sweep
+    [26158] = { newId = 37409 },                                          -- Piercing Javelin
+    [26800] = { newId = 37414 },                                          -- Aurora Javelin
+    [26804] = { newId = 32099 },                                          -- Binding Javelin
+    [22149] = { newId = 49205 },                                          -- Focused Charge
+    [22161] = { newId = 49213 },                                          -- Explosive Charge
+    [15540] = { newId = 15546 },                                          -- Toppling Charge
+    [26188] = { newId = 95933 },                                          -- Spear Shards (Spear Shards)
+    [26858] = { newId = 95957 },                                          -- Luminous Shards (Luminous Shards)
+    [26869] = { newId = 26880 },                                          -- Blazing Spear (Blazing Spear)
+    [22178] = { newId = 22179 },                                          -- Sun Shield
+    [22182] = { newId = 22183 },                                          -- Radiant Ward
+    [22180] = { newId = 49091 },                                          -- Blazing Shield
+    [22138] = { newId = 62593 },                                          -- Radial Sweep
+    [22144] = { newId = 62599 },                                          -- Empowering Sweep
+    [22139] = { newId = 62607 },                                          -- Crescent Sweep
 
     -- Dawn's Wrath
     [21726] = { newId = 21728 }, -- Sun Fire
@@ -282,30 +282,30 @@ local barHighlightOverride =
     ---------------------------
     -- Arcanist ---------------
     ---------------------------
-    [185817] = { newId = 185818 }, -- Abyssal Impact (abyssal ink)
-    [183006] = { newId = 183008 }, -- Cephaliarch's Flail (abyssal ink)
-    [185823] = { newId = 185825 }, -- Tentacular Dread (abyssal ink)
-    [185836] = { newId = 185838 }, -- The Imperfect Ring (the imperfect ring)
-    [201286] = { newId = 185838 }, -- The Imperfect Ring (cost mag)
-    [185839] = { newId = 185840 }, -- Rune of Displacement (rune of displacement)
-    [201293] = { newId = 185840 }, -- Rune of Displacement (cost stam)
-    [182988] = { newId = 182989 }, -- Fulminating Rune (cost mag)
-    [201296] = { newId = 182989 }, -- Fulminating Rune (cost stam)
-    [183165] = { newId = 38254 },  -- Runic Jolt (taunt)
-    [183430] = { newId = 187742 }, -- Runic Sunder (armor steal)
-    [186531] = { newId = 38254 },  -- Runic Embrace (taunt)
-    [185894] = { newId = 888101 }, -- Runespite Ward
-    [185901] = { newId = 888101 }, -- Spiteward of the Lucid Mind
-    [183241] = { newId = 888101 }, -- Impervious Runeward
-    [185912] = { newId = 194637 }, -- Runic Defense (TODO: see if can make the timer go away)
-    [183401] = { newId = 194646 }, -- Runeguard of Still Waters (TODO: see if can make the timer go away)
-    [186489] = { newId = 186492 }, -- Runeguard of Freedom (TODO: see if can make the timer go away)
-    [185918] = { newId = 79717 },  -- Rune of Eldritch Horror (minor vuln)
-    [185921] = { newId = 79717 },  -- Rune of Uncanny Adoration (minor vuln)
-    [183267] = { newId = 145975 }, -- Rune of the Colorless Pool (minor brittle)
-    [198567] = { newId = 888101 }, -- Tidal Chakram (cost stam)
-    [186209] = { newId = 888101 }, -- Tidal Chakram (cost mag)
-    [186189] = { newId = 189565 }, -- Evolving Runemend
+    [185817] = { newId = 185818 },                                       -- Abyssal Impact (abyssal ink)
+    [183006] = { newId = 183008 },                                       -- Cephaliarch's Flail (abyssal ink)
+    [185823] = { newId = 185825 },                                       -- Tentacular Dread (abyssal ink)
+    [185836] = { newId = 185838 },                                       -- The Imperfect Ring (the imperfect ring)
+    [201286] = { newId = 185838 },                                       -- The Imperfect Ring (cost mag)
+    [185839] = { newId = 185840 },                                       -- Rune of Displacement (rune of displacement)
+    [201293] = { newId = 185840 },                                       -- Rune of Displacement (cost stam)
+    [182988] = { newId = 182989 },                                       -- Fulminating Rune (cost mag)
+    [201296] = { newId = 182989 },                                       -- Fulminating Rune (cost stam)
+    [183165] = { newId = 38254 },                                        -- Runic Jolt (taunt)
+    [183430] = { newId = 187742 },                                       -- Runic Sunder (armor steal)
+    [186531] = { newId = 38254 },                                        -- Runic Embrace (taunt)
+    [185894] = { newId = 888101 },                                       -- Runespite Ward
+    [185901] = { newId = 888101 },                                       -- Spiteward of the Lucid Mind
+    [183241] = { newId = 888101 },                                       -- Impervious Runeward
+    [185912] = { newId = 194637 },                                       -- Runic Defense (TODO: see if can make the timer go away)
+    [183401] = { newId = 194646 },                                       -- Runeguard of Still Waters (TODO: see if can make the timer go away)
+    [186489] = { newId = 186492 },                                       -- Runeguard of Freedom (TODO: see if can make the timer go away)
+    [185918] = { newId = 79717 },                                        -- Rune of Eldritch Horror (minor vuln)
+    [185921] = { newId = 79717 },                                        -- Rune of Uncanny Adoration (minor vuln)
+    [183267] = { newId = 145975 },                                       -- Rune of the Colorless Pool (minor brittle)
+    [198567] = { newId = 888101 },                                       -- Tidal Chakram (cost stam)
+    [186209] = { newId = 888101 },                                       -- Tidal Chakram (cost mag)
+    [186189] = { newId = 189565 },                                       -- Evolving Runemend
     [183447] = { showFakeAura = true, noRemove = true, newId = 183449 }, -- Chakram Shields
 
     ---------------------------
@@ -493,10 +493,10 @@ local barHighlightOverride =
     [39104] = { newId = 137164 },                      -- Feral Pounce --> Feral Carnage
 
     [58317] = { newId = 137206, showFakeAura = true }, -- Hircine's Rage --> Major Berserk
-
-    [32633] = { newId = 137257 },                      -- Roar --> Off Balance
-    [39113] = { newId = 137287 },                      -- Ferocious Roar
-    [39114] = { newId = 137312 },                      -- Deafening Roar --> Off Balance
+    [58325] = { newId = 61704 },                       -- hircine's fortitude (minor fortitude)
+    [32633] = { newId = 137257 },                      -- roar (off-balance)
+    [39113] = { newId = 45834 },                       -- ferocious roar (off-balance); 137287 is heavy attack speed buff
+    [39114] = { newId = 61743 },                       -- deafening roar major breach; 137312 is off-balance
     [58855] = { newId = 58856 },                       -- Infectious Claws
     [58864] = { newId = 58865 },                       -- Claws of Anguish
     [58879] = { newId = 58880 },                       -- Claws of Life
