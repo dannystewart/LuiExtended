@@ -156,10 +156,8 @@ local function CreateDecreasedArmorOverlay(parent, small)
     return control
 end
 
--- Used to create custom frames extender controls for player and target.
--- Called from UnitFrames.Initialize
-function UnitFrames.CreateCustomFrames()
-    -- Create Custom unit frames
+-- Helper to create the Player Frame
+local function CreatePlayerFrame()
     if UnitFrames.SV.CustomFramesPlayer then
         -- Player Frame
         local playerTlw = UI:TopLevel(nil, nil)
@@ -266,7 +264,10 @@ function UnitFrames.CreateCustomFrames()
             ["unitTag"] = "controlledsiege", -- placeholder for alternative bar when using siege weapon
         }
     end
+end
 
+-- Helper to create the Target Frame
+local function CreateTargetFrame()
     if UnitFrames.SV.CustomFramesTarget then
         -- Target Frame
         local targetTlw = UI:TopLevel(nil, nil)
@@ -344,7 +345,10 @@ function UnitFrames.CreateCustomFrames()
         UnitFrames.CustomFrames["reticleover"].name:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
         UnitFrames.CustomFrames["reticleover"].className:SetDrawLayer(DL_BACKGROUND)
     end
+end
 
+-- Helper to create the Ava Player Target Frame
+local function CreateAvaPlayerTargetFrame()
     if UnitFrames.SV.AvaCustFramesTarget then
         -- Target Frame
         local targetTlw = UI:TopLevel(nil, nil)
@@ -413,8 +417,10 @@ function UnitFrames.CreateCustomFrames()
         -- Put in into table with secondary frames so it can be accessed by other functions in this module
         g_AvaCustFrames["reticleover"] = UnitFrames.CustomFrames["AvaPlayerTarget"]
     end
+end
 
-    -- Loop through Small Group members
+-- Helper to create the Small Group Frames
+local function CreateSmallGroupFrames()
     if UnitFrames.SV.CustomFramesGroup then
         -- Group Frame
         local group = UI:TopLevel(nil, nil)
@@ -480,8 +486,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
-    -- Loop through Raid Group members
+-- Helper to create the Raid Group Frames
+local function CreateRaidGroupFrames()
     if UnitFrames.SV.CustomFramesRaid then
         -- Raid Frame
         local raid = UI:TopLevel(nil, nil)
@@ -540,7 +548,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
+-- Helper to create the Pet Frames
+local function CreatePetFrames()
     if UnitFrames.SV.CustomFramesPet then
         -- Pet Frame
         local pet = UI:TopLevel(nil, nil)
@@ -586,7 +597,10 @@ function UnitFrames.CreateCustomFrames()
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label.format = "Current (Percentage%)"
         end
     end
+end
 
+-- Helper to create the Companion Frame
+local function CreateCompanionFrame()
     if UnitFrames.SV.CustomFramesCompanion then
         -- Companion Frame
         local companionTlw = UI:TopLevel(nil, nil)
@@ -630,8 +644,10 @@ function UnitFrames.CreateCustomFrames()
         UnitFrames.CustomFrames["companion"].name:SetWrapMode(TEXT_WRAP_MODE_TRUNCATE)
         UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].label.format = "Current (Percentage%)"
     end
+end
 
-    -- Loop through Bosses
+-- Helper to create the Bosses Frames
+local function CreateBossFrames()
     if UnitFrames.SV.CustomFramesBosses then
         -- Bosses Frame
         local bosses = UI:TopLevel(nil, nil)
@@ -681,7 +697,10 @@ function UnitFrames.CreateCustomFrames()
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].label.format = "Percentage%"
         end
     end
+end
 
+-- Helper to set up common actions for all created frames
+local function SetupCommonFrameActions()
     -- Callback used to hide anchor coords preview label on movement start
     local tlwOnMoveStart = function (self)
         eventManager:RegisterForUpdate(moduleName .. "PreviewMove", 200, function ()
@@ -783,9 +802,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
-    -- Create DOT / HOT animations for all attributes bars
-    -- We will use this ugly loop over too-many controls, but it will keep things clean and uni-style
+-- Helper to set up Player regen/degen animations
+local function SetupPlayerRegenAnimations()
     if UnitFrames.SV.PlayerEnableRegen then
         for _, baseName in pairs({ "player", "reticleover", "AvaPlayerTarget" }) do
             local unitTag = baseName
@@ -816,7 +836,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
+-- Helper to set up Group regen/degen animations
+local function SetupGroupRegenAnimations()
     if UnitFrames.SV.GroupEnableRegen then
         for i = 1, 4 do
             local unitTag = "SmallGroup" .. i
@@ -842,7 +865,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
+-- Helper to set up Raid regen/degen animations
+local function SetupRaidRegenAnimations()
     if UnitFrames.SV.RaidEnableRegen then
         for i = 1, 12 do
             local unitTag = "RaidGroup" .. i
@@ -868,7 +894,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
+-- Helper to set up Boss regen/degen animations
+local function SetupBossRegenAnimations()
     if UnitFrames.SV.BossEnableRegen then
         for i = 1, 7 do
             local unitTag = "boss" .. i
@@ -894,8 +923,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
-    -- Create armor stat change UI for player and target
+-- Helper to set up Player armor overlays
+local function SetupPlayerArmorOverlays()
     if UnitFrames.SV.PlayerEnableArmor then
         for _, baseName in pairs({ "player", "reticleover", "AvaPlayerTarget" }) do
             local unitTag = baseName
@@ -913,7 +944,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
+-- Helper to set up Group armor overlays
+local function SetupGroupArmorOverlays()
     if UnitFrames.SV.GroupEnableArmor then
         for i = 1, 4 do
             local unitTag = "SmallGroup" .. i
@@ -931,7 +965,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
+-- Helper to set up Raid armor overlays
+local function SetupRaidArmorOverlays()
     if UnitFrames.SV.RaidEnableArmor then
         for i = 1, 12 do
             local unitTag = "RaidGroup" .. i
@@ -949,7 +986,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
+-- Helper to set up Boss armor overlays
+local function SetupBossArmorOverlays()
     if UnitFrames.SV.BossEnableArmor then
         for i = 1, 7 do
             local unitTag = "boss" .. i
@@ -967,111 +1007,10 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
 
-    -- Create power stat change UI for player and target
-    if UnitFrames.SV.PlayerEnablePower then
-        for _, baseName in pairs({ "player", "reticleover", "AvaPlayerTarget" }) do
-            local unitTag = baseName
-            local size1, size2
-            if UnitFrames.CustomFrames[unitTag] then
-                if baseName == "player" then
-                    size1 = UnitFrames.SV.PlayerBarWidth
-                    size2 = UnitFrames.SV.PlayerBarHeightHealth
-                elseif baseName == "reticleover" then
-                    size1 = UnitFrames.SV.TargetBarWidth
-                    size2 = UnitFrames.SV.TargetBarHeight
-                elseif baseName == "AvaPlayerTarget" then
-                    size1 = UnitFrames.SV.AvaTargetBarWidth
-                    size2 = UnitFrames.SV.AvaTargetBarHeight
-                end
-                if size1 ~= nil and size2 ~= nil then
-                    if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat == nil then
-                        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat = {}
-                    end
-                    local backdrop = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER] =
-                    {
-                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
-                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
-                    }
-                    if GetUnitDisplayName("player") == "@dack_janiels" then
-                        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER].inc:SetColor(255, 0, 0, 0.7)
-                    end
-                end
-            end
-        end
-    end
-
-    if UnitFrames.SV.GroupEnablePower then
-        for i = 1, 4 do
-            local unitTag = "SmallGroup" .. i
-            if UnitFrames.CustomFrames[unitTag] then
-                -- assume that unitTag DO have [COMBAT_MECHANIC_FLAGS_HEALTH] field
-                local size1 = UnitFrames.SV.GroupBarWidth
-                local size2 = UnitFrames.SV.GroupBarHeight
-                -- elseif baseName == "RaidGroup" then
-                --    size1 = UnitFrames.SV.RaidBarWidth
-                --    size2 = UnitFrames.SV.RaidBarHeight
-                if size1 ~= nil and size2 ~= nil then
-                    if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat == nil then
-                        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat = {}
-                    end
-                    local backdrop = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER] =
-                    {
-                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
-                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
-                    }
-                end
-            end
-        end
-    end
-
-    if UnitFrames.SV.RaidEnablePower then
-        for i = 1, 12 do
-            local unitTag = "RaidGroup" .. i
-            if UnitFrames.CustomFrames[unitTag] then
-                -- assume that unitTag DO have [COMBAT_MECHANIC_FLAGS_HEALTH] field
-                local size1 = UnitFrames.SV.RaidBarWidth
-                local size2 = UnitFrames.SV.RaidBarHeight
-                if size1 ~= nil and size2 ~= nil then
-                    if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat == nil then
-                        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat = {}
-                    end
-                    local backdrop = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER] =
-                    {
-                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
-                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
-                    }
-                end
-            end
-        end
-    end
-
-    if UnitFrames.SV.BossEnablePower then
-        for i = 1, 7 do
-            local unitTag = "boss" .. i
-            if UnitFrames.CustomFrames[unitTag] then
-                -- assume that unitTag DO have [COMBAT_MECHANIC_FLAGS_HEALTH] field
-                local size1 = UnitFrames.SV.BossBarWidth
-                local size2 = UnitFrames.SV.BossBarHeight
-                if size1 ~= nil and size2 ~= nil then
-                    if UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat == nil then
-                        UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat = {}
-                    end
-                    local backdrop = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop
-                    UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].stat[STAT_POWER] =
-                    {
-                        ["inc"] = UI:Texture(backdrop, { CENTER, CENTER, 4, 0 }, { size1 * 1.8, size2 * 4.0 }, "LuiExtended/media/unitframes/unitattributevisualizer/increasedpower_animatedhalo_32fr.dds", 0, true),
-                        ["dec"] = UI:Texture(backdrop, { CENTER, CENTER, 0, 0 }, { size1 * 2.2, size2 * 3 }, "LuiExtended/media/unitframes/unitattributevisualizer/attributebar_dynamic_decreasedpower_halo.dds", 0, true),
-                    }
-                end
-            end
-        end
-    end
-
-    -- Animate Power Glow for all frames that have it displayed
+-- Helper to set up Power Glow animations for all frames that have it displayed
+local function SetupPowerGlowAnimations()
     for _, baseName in pairs({ "player", "reticleover", "AvaPlayerTarget", "boss", "SmallGroup", "RaidGroup" }) do
         for i = 0, 12 do
             local unitTag = (i == 0) and baseName or (baseName .. i)
@@ -1099,6 +1038,49 @@ function UnitFrames.CreateCustomFrames()
             end
         end
     end
+end
+
+-- Add the top level windows to global controls list, so they can be hidden.
+local function AddTopLevelWindows()
+    for _, unitTag in pairs(
+        {
+            "player",
+            "reticleover",
+            "companion",
+            "SmallGroup1",
+            "RaidGroup1",
+            "boss1",
+            "AvaPlayerTarget",
+            "PetGroup1",
+        }) do
+        if UnitFrames.CustomFrames[unitTag] then
+            LUIE.Components[moduleName .. "_CustomFrame_" .. unitTag] = UnitFrames.CustomFrames[unitTag].tlw
+        end
+    end
+end
+
+-- Used to create custom frames extender controls for player and target.
+-- Called from UnitFrames.Initialize
+function UnitFrames.CreateCustomFrames()
+    -- Create Custom unit frames
+    CreatePlayerFrame()
+    CreateTargetFrame()
+    CreateAvaPlayerTargetFrame()
+    CreateSmallGroupFrames()
+    CreateRaidGroupFrames()
+    CreatePetFrames()
+    CreateCompanionFrame()
+    CreateBossFrames()
+    SetupCommonFrameActions()
+    SetupPlayerRegenAnimations()
+    SetupGroupRegenAnimations()
+    SetupRaidRegenAnimations()
+    SetupBossRegenAnimations()
+    SetupPlayerArmorOverlays()
+    SetupGroupArmorOverlays()
+    SetupRaidArmorOverlays()
+    SetupBossArmorOverlays()
+    SetupPowerGlowAnimations()
 
     -- Set proper anchors according to user preferences
     UnitFrames.CustomFramesApplyLayoutPlayer(true)
@@ -1119,22 +1101,7 @@ function UnitFrames.CreateCustomFrames()
     UnitFrames.CustomFramesApplyFont()
     UnitFrames.CustomFramesApplyBarAlignment()
 
-    -- Add this top level window to global controls list, so it can be hidden
-    for _, unitTag in pairs(
-        {
-            "player",
-            "reticleover",
-            "companion",
-            "SmallGroup1",
-            "RaidGroup1",
-            "boss1",
-            "AvaPlayerTarget",
-            "PetGroup1",
-        }) do
-        if UnitFrames.CustomFrames[unitTag] then
-            LUIE.Components[moduleName .. "_CustomFrame_" .. unitTag] = UnitFrames.CustomFrames[unitTag].tlw
-        end
-    end
+    AddTopLevelWindows()
 end
 
 return UnitFrames
