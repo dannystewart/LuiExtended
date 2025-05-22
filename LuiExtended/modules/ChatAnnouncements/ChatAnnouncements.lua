@@ -283,6 +283,8 @@ local ChatEventFormattersDelete =
     [EVENT_SOCIAL_ERROR] = true,
 }
 
+local noop = function (...) end
+
 function ChatAnnouncements.SlayChatHandlers()
     -- Unregister ZOS handlers for events we need to modify
     for eventCode, _ in pairs(ChatEventFormattersDelete) do
@@ -292,8 +294,7 @@ function ChatAnnouncements.SlayChatHandlers()
     -- Slay these events in case LibChatMessage is active and hooks them
     local ChatEventFormatters = CHAT_ROUTER:GetRegisteredMessageFormatters()
     for eventType, _ in pairs(ChatEventFormattersDelete) do
-        ChatEventFormatters[eventType] = function (...)
-        end
+        ChatEventFormatters[eventType] = noop
     end
 end
 
