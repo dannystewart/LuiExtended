@@ -2771,27 +2771,39 @@ end
 --- @param eventId integer
 --- @param mailId id64
 function ChatAnnouncements.OnMailReadable(eventId, mailId)
-    local senderDisplayName, senderCharacterName, subject, icon, unread, fromSystem, fromCustomerService, returned, numAttachments, attachedMoney, codAmount, expiresInDays, secsSinceReceived, category = GetMailItemInfo(mailId)
+    local dataTable = {}
+    --- @cast dataTable MailDataTable
+    ZO_MailInboxShared_PopulateMailData(dataTable, mailId)
 
-    -- Use different color if the mail is from System (Hireling Mail, Rewards for the Worthy, etc)
-    if fromSystem or fromCustomerService then
-        g_mailTarget = ZO_GAME_REPRESENTATIVE_TEXT:Colorize(senderDisplayName)
-    elseif senderDisplayName ~= "" and senderCharacterName ~= "" then
-        local finalName = ChatAnnouncements.ResolveNameLink(senderCharacterName, senderDisplayName)
-        g_mailTarget = ZO_SELECTED_TEXT:Colorize(finalName)
-    else
-        local finalName
-        if ChatAnnouncements.SV.BracketOptionCharacter == 1 then
-            finalName = ZO_LinkHandler_CreateLinkWithoutBrackets(senderDisplayName, nil, DISPLAY_NAME_LINK_TYPE, senderDisplayName)
+    -- Debug: Log the raw sender names for verification
+    if LUIE.IsDevDebugEnabled() then
+        LUIE.Debug(string.format("Raw Mail Data - Display: %s, Character: %s, Category: %s, FromPlayer: %s",
+                                 dataTable.senderDisplayName, dataTable.senderCharacterName, dataTable.category, tostring(dataTable.isFromPlayer)))
+    end
+
+    -- Resolve the sender's name based on mail category and sender type
+    if dataTable.category == MAIL_CATEGORY_SYSTEM_MAIL and (dataTable.fromSystem or dataTable.fromCS) then
+        g_mailTarget = ZO_GAME_REPRESENTATIVE_TEXT:Colorize(dataTable.senderDisplayName)
+    elseif dataTable.category == MAIL_CATEGORY_PLAYER_MAIL and dataTable.isFromPlayer then
+        if dataTable.senderDisplayName ~= "" and dataTable.senderCharacterName ~= "" then
+            local finalName = ChatAnnouncements.ResolveNameLink(dataTable.senderCharacterName, dataTable.senderDisplayName)
+            g_mailTarget = ZO_SELECTED_TEXT:Colorize(finalName)
         else
-            finalName = ZO_LinkHandler_CreateLink(senderDisplayName, nil, DISPLAY_NAME_LINK_TYPE, senderDisplayName)
+            local finalName
+            if ChatAnnouncements.SV.BracketOptionCharacter == 1 then
+                finalName = ZO_LinkHandler_CreateLinkWithoutBrackets(dataTable.senderDisplayName, nil, DISPLAY_NAME_LINK_TYPE, dataTable.senderDisplayName)
+            else
+                finalName = ZO_LinkHandler_CreateLink(dataTable.senderDisplayName, nil, DISPLAY_NAME_LINK_TYPE, dataTable.senderDisplayName)
+            end
+            g_mailTarget = ZO_SELECTED_TEXT:Colorize(finalName)
         end
-        g_mailTarget = ZO_SELECTED_TEXT:Colorize(finalName)
+    else
+        -- Fallback for other cases
+        g_mailTarget = ZO_SELECTED_TEXT:Colorize(dataTable.senderDisplayName)
     end
 
-    if codAmount > 0 then
-        g_mailCODPresent = true
-    end
+    -- Handle COD
+    g_mailCODPresent = (dataTable.codAmount > 0)
 end
 
 --- - **EVENT_MAIL_TAKE_ATTACHED_ITEM_SUCCESS **
@@ -12183,157 +12195,6 @@ function ChatAnnouncements.ResetStackSplit()
     eventManager:UnregisterForUpdate(moduleName .. "StackTracker")
 end
 
-function ChatAnnouncements.PrintQueuedMessages()
-    -- Resolve notification messages first
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "NOTIFICATION" then
-            local isSystem
-            if ChatAnnouncements.QueuedMessages[i].isSystem then
-                isSystem = true
-            else
-                isSystem = false
-            end
-            printToChat(ChatAnnouncements.QueuedMessages[i].message, isSystem)
-        end
-    end
-
-    -- Resolve quest POI added
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_POI" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Next display Quest/Objective Completion and Experience
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and (ChatAnnouncements.QueuedMessages[i].messageType == "QUEST" or ChatAnnouncements.QueuedMessages[i].messageType == "EXPERIENCE") then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Level Up Notifications
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "EXPERIENCE_LEVEL" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Skill Gain
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_GAIN" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Skill Morph
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_MORPH" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Skill Line
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_LINE" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Skill
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Postage
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CURRENCY_POSTAGE" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Quest Items (Remove)
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_LOOT_REMOVE" then
-            local itemId = ChatAnnouncements.QueuedMessages[i].itemId
-            if not g_questItemAdded[itemId] == true then
-                printToChat(ChatAnnouncements.QueuedMessages[i].message)
-            end
-        end
-    end
-
-    -- Loot (Container)
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CONTAINER" then
-            ChatAnnouncements.ResolveItemMessage(ChatAnnouncements.QueuedMessages[i].message, ChatAnnouncements.QueuedMessages[i].formattedRecipient, ChatAnnouncements.QueuedMessages[i].color, ChatAnnouncements.QueuedMessages[i].logPrefix, ChatAnnouncements.QueuedMessages[i].totalString, ChatAnnouncements.QueuedMessages[i].groupLoot)
-        end
-    end
-
-    -- Currency
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CURRENCY" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Quest Items (ADD)
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_LOOT_ADD" then
-            local itemId = ChatAnnouncements.QueuedMessages[i].itemId
-            if not g_questItemRemoved[itemId] == true then
-                printToChat(ChatAnnouncements.QueuedMessages[i].message)
-            end
-        end
-    end
-
-    -- Loot
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "LOOT" then
-            ChatAnnouncements.ResolveItemMessage(ChatAnnouncements.QueuedMessages[i].message, ChatAnnouncements.QueuedMessages[i].formattedRecipient, ChatAnnouncements.QueuedMessages[i].color, ChatAnnouncements.QueuedMessages[i].logPrefix, ChatAnnouncements.QueuedMessages[i].totalString, ChatAnnouncements.QueuedMessages[i].groupLoot)
-        end
-    end
-
-    -- Resolve achievement update messages second to last
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "ANTIQUITY" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Collectible
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "COLLECTIBLE" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Resolve achievement update messages second to last
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "ACHIEVEMENT" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Display the rest
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "MESSAGE" then
-            local isSystem
-            if ChatAnnouncements.QueuedMessages[i].isSystem then
-                isSystem = true
-            else
-                isSystem = false
-            end
-            printToChat(ChatAnnouncements.QueuedMessages[i].message, isSystem)
-        end
-    end
-
-    -- Clear Messages and Unregister Print Event
-    ChatAnnouncements.QueuedMessages = {}
-    ChatAnnouncements.QueuedMessagesCounter = 1
-    eventManager:UnregisterForUpdate(moduleName .. "Printer")
-end
-
 local mementoTable =
 {
     [10287] = GetString(LUIE_STRING_SLASHCMDS_COLLECTIBLE_CAKE),
@@ -12613,206 +12474,6 @@ function ChatAnnouncements.CollectibleResult()
 
     lastCollectibleUsed = 0
     LUIE.SlashCollectibleOverride = false
-end
-
---- - **EVENT_EXPERIENCE_GAIN **
----
---- @param eventId integer
---- @param reason ProgressReason
---- @param level integer
---- @param previousExperience integer
---- @param currentExperience integer
---- @param championPoints integer
-function ChatAnnouncements.OnExperienceGain(eventId, reason, level, previousExperience, currentExperience, championPoints)
-    -- d("Experience Gain) previousExperience: " .. previousExperience .. " --- " .. "currentExperience: " .. currentExperience)
-    if ChatAnnouncements.SV.XP.Experience and (not (ChatAnnouncements.SV.XP.ExperienceHideCombat and reason == PROGRESS_REASON_KILL) or not reason == PROGRESS_REASON_KILL) then
-        local change = currentExperience - previousExperience -- Change in Experience Points on gaining them
-
-        -- If throttle is enabled, save value and end function here
-        if ChatAnnouncements.SV.XP.ExperienceThrottle > 0 and reason == PROGRESS_REASON_KILL then
-            g_xpCombatBufferValue = g_xpCombatBufferValue + change
-            -- We unregister the event, then re-register it, this keeps the buffer at a constant X throttle after XP is gained.
-            eventManager:UnregisterForUpdate(moduleName .. "BufferedXP")
-            eventManager:RegisterForUpdate(moduleName .. "BufferedXP", ChatAnnouncements.SV.XP.ExperienceThrottle, ChatAnnouncements.PrintBufferedXP)
-            return
-        end
-
-        -- If filter is enabled and value is below filter then end function here
-        if ChatAnnouncements.SV.XP.ExperienceFilter > 0 and reason == PROGRESS_REASON_KILL then
-            if change < ChatAnnouncements.SV.XP.ExperienceFilter then
-                return
-            end
-        end
-
-        -- If we gain experience from a non combat source, and our buffer function holds a value, then we need to immediately dump this value before the next XP update is processed.
-        if ChatAnnouncements.SV.XP.ExperienceThrottle > 0 and g_xpCombatBufferValue > 0 and (reason ~= PROGRESS_REASON_KILL and reason ~= 99) then
-            eventManager:UnregisterForUpdate(moduleName .. "BufferedXP")
-            ChatAnnouncements.PrintBufferedXP()
-        end
-
-        ChatAnnouncements.PrintExperienceGain(change)
-    end
-end
-
--- Print Experience Gain
-function ChatAnnouncements.PrintExperienceGain(change)
-    local icon = ChatAnnouncements.SV.XP.ExperienceIcon and "|t16:16:/esoui/art/icons/icon_experience.dds|t " or ""
-    local xpName = zo_strformat(ChatAnnouncements.SV.XP.ExperienceName, change)
-    local messageP1 = ("|r|c" .. ColorizeColors.ExperienceNameColorize .. icon .. ZO_CommaDelimitDecimalNumber(change) .. " " .. xpName .. "|r|c" .. ColorizeColors.ExperienceMessageColorize)
-    local formattedMessageP1 = (string_format(ChatAnnouncements.SV.XP.ExperienceMessage, messageP1))
-    local finalMessage = string_format("|c%s%s|r", ColorizeColors.ExperienceMessageColorize, formattedMessageP1)
-
-    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
-    {
-        message = finalMessage,
-        messageType = "EXPERIENCE"
-    }
-    ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
-    eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
-end
-
--- Print Buffered Experience Gain
-function ChatAnnouncements.PrintBufferedXP()
-    if g_xpCombatBufferValue > 0 and g_xpCombatBufferValue > ChatAnnouncements.SV.XP.ExperienceFilter then
-        local change = g_xpCombatBufferValue
-        ChatAnnouncements.PrintExperienceGain(change)
-    end
-    eventManager:UnregisterForUpdate(moduleName .. "BufferedXP")
-    g_xpCombatBufferValue = 0
-end
-
---- - **EVENT_SKILL_XP_UPDATE **
----
---- @param eventId integer
---- @param skillType SkillType
---- @param skillLineIndex luaindex
---- @param reason integer
---- @param rank luaindex
---- @param previousXP integer
---- @param currentXP integer
-function ChatAnnouncements.SkillXPUpdate(eventId, skillType, skillLineIndex, reason, rank, previousXP, currentXP)
-    if skillType == SKILL_TYPE_GUILD then
-        local skillLineData = SKILLS_DATA_MANAGER:GetSkillLineDataByIndices(skillType, skillLineIndex)
-        if skillLineData then
-            local lineName, lineId = skillLineData:GetName(), skillLineData:GetId()
-            local formattedName = zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, lineName)
-
-            -- Bail out early if a certain type is not set to be displayed
-            if lineId == 45 and not ChatAnnouncements.SV.Skills.SkillGuildFighters then
-                return
-            elseif lineId == 44 and not ChatAnnouncements.SV.Skills.SkillGuildMages then
-                return
-            elseif lineId == 55 and not ChatAnnouncements.SV.Skills.SkillGuildUndaunted then
-                return
-            elseif lineId == 117 and not ChatAnnouncements.SV.Skills.SkillGuildThieves then
-                return
-            elseif lineId == 118 and not ChatAnnouncements.SV.Skills.SkillGuildDarkBrotherhood then
-                return
-            elseif lineId == 130 and not ChatAnnouncements.SV.Skills.SkillGuildPsijicOrder then
-                return
-            end
-
-            local change = currentXP - previousXP
-            local priority
-
-            if ChatAnnouncements.SV.Skills.SkillGuildAlert then
-                local text = zo_strformat(GetString(LUIE_STRING_CA_SKILL_GUILD_ALERT), formattedName)
-                ZO_Alert(UI_ALERT_CATEGORY_ALERT, SOUNDS.NONE, text)
-            end
-
-            -- Bail out or save value if Throttle/Threshold conditions are met
-            if lineId == 45 then
-                priority = "EXPERIENCE_LEVEL"
-                -- FG rep is either a quest reward (10) or kills (1 & 5)
-                -- Only throttle values 5 or lower (FG Dailies give +10 skill)
-                if ChatAnnouncements.SV.Skills.SkillGuildThrottle > 0 and change <= 5 then
-                    g_guildSkillThrottle = g_guildSkillThrottle + change
-                    g_guildSkillThrottleLine = formattedName
-                    eventManager:UnregisterForUpdate(moduleName .. "BufferedRep")
-                    eventManager:RegisterForUpdate(moduleName .. "BufferedRep", ChatAnnouncements.SV.Skills.SkillGuildThrottle, ChatAnnouncements.PrintBufferedGuildRep)
-                    return
-                end
-
-                -- If throttle wasn't triggered and the value was below threshold then bail out.
-                if change <= ChatAnnouncements.SV.Skills.SkillGuildThreshold then
-                    return
-                end
-            end
-
-            if lineId == 44 then
-                -- Mages Guild rep is either a quest reward (10), book discovered (5), collection discovered (20)
-                if change == 10 then
-                    priority = "EXPERIENCE_LEVEL"
-                else
-                    priority = "MESSAGE"
-                end
-            end
-
-            if lineId == 55 or lineId == 117 or lineId == 118 or lineId == 130 then
-                -- Other guilds are usually either a quest reward or achievement reward
-                priority = "EXPERIENCE_LEVEL"
-            end
-            ChatAnnouncements.PrintGuildRep(change, formattedName, lineId, priority)
-        end
-    end
-end
-
--- Helper function to get the color for the Guild
-local function GetGuildColor(lineId)
-    local GUILD_SKILL_COLOR_TABLE =
-    {
-        [45] = ColorizeColors.SkillGuildColorizeFG,
-        [44] = ColorizeColors.SkillGuildColorizeMG,
-        [55] = ColorizeColors.SkillGuildColorizeUD,
-        [117] = ColorizeColors.SkillGuildColorizeTG,
-        [118] = ColorizeColors.SkillGuildColorizeDB,
-        [130] = ColorizeColors.SkillGuildColorizePO,
-    }
-    return GUILD_SKILL_COLOR_TABLE[lineId]
-end
-
--- TODO: Check if there is an equivalency in one of the handlers for this
-local GUILD_SKILL_ICONS =
-{
-    [45] = "/esoui/art/icons/mapkey/mapkey_fightersguild.dds",
-    [44] = "/esoui/art/icons/mapkey/mapkey_magesguild.dds",
-    [55] = "/esoui/art/icons/mapkey/mapkey_undaunted.dds",
-    [117] = "/esoui/art/icons/mapkey/mapkey_thievesguild.dds",
-    [118] = "/esoui/art/icons/mapkey/mapkey_darkbrotherhood.dds",
-    [130] = "LuiExtended/media/unitframes/mapkey_psijicorder.dds",
-}
-
--- Print Guild Rep Gain
-function ChatAnnouncements.PrintGuildRep(change, lineName, lineId, priority)
-    local icon = zo_iconFormatInheritColor(GUILD_SKILL_ICONS[lineId], 16, 16)
-    local formattedIcon = ChatAnnouncements.SV.Skills.SkillGuildIcon and (icon .. " ") or ""
-
-    local guildString = zo_strformat(ChatAnnouncements.SV.Skills.SkillGuildRepName, change)
-    local colorize = GetGuildColor(lineId)
-    local messageP1 = ("|r|c" .. colorize .. formattedIcon .. change .. " " .. lineName .. " " .. guildString .. "|r|c" .. ColorizeColors.SkillGuildColorize)
-    local formattedMessageP1 = (string_format(ChatAnnouncements.SV.Skills.SkillGuildMsg, messageP1))
-    local finalMessage = string_format("|c%s%s|r", ColorizeColors.SkillGuildColorize, formattedMessageP1)
-
-    -- We set this to skill gain, so as to avoid creating an entire additional chat message category (we want it to show after XP but before any other skill gains or level up so we place it on top of the level up priority).
-    ChatAnnouncements.QueuedMessages[ChatAnnouncements.QueuedMessagesCounter] =
-    {
-        message = finalMessage,
-        messageType = priority
-    }
-    ChatAnnouncements.QueuedMessagesCounter = ChatAnnouncements.QueuedMessagesCounter + 1
-    eventManager:RegisterForUpdate(moduleName .. "Printer", 50, ChatAnnouncements.PrintQueuedMessages)
-end
-
--- Print Buffered Guild Rep Gain
-function ChatAnnouncements.PrintBufferedGuildRep()
-    if g_guildSkillThrottle > 0 and g_guildSkillThrottle > ChatAnnouncements.SV.Skills.SkillGuildThreshold then
-        local lineId = 45
-        local lineName = g_guildSkillThrottleLine
-        ChatAnnouncements.PrintGuildRep(g_guildSkillThrottle, lineName, lineId, "EXPERIENCE_LEVEL")
-    end
-    eventManager:UnregisterForUpdate(moduleName .. "BufferedRep")
-    g_guildSkillThrottle = 0
-    g_guildSkillThrottleLine = ""
 end
 
 return ChatAnnouncements
