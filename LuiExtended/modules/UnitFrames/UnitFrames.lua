@@ -148,6 +148,27 @@ function UnitFrames.CustomFramesApplyBarAlignment()
     end
 end
 
+function UnitFrames.OverRideBossBar()
+    function BOSS_BAR:RefreshBossHealthBar(smoothAnimate)
+        local totalHealth = 0
+        local totalMaxHealth = 0
+
+        for unitTag, bossEntry in pairs(self.bossHealthValues) do
+            totalHealth = totalHealth + bossEntry.health
+            totalMaxHealth = totalMaxHealth + bossEntry.maxHealth
+        end
+
+        local halfHealth = zo_floor(totalHealth / 2)
+        local halfMax = zo_floor(totalMaxHealth / 2)
+        for i = 1, #self.bars do
+            ZO_StatusBar_SmoothTransition(self.bars[i], halfHealth, halfMax, not smoothAnimate)
+        end
+        self.healthText:SetText(ZO_FormatResourceBarCurrentAndMax(totalHealth, totalMaxHealth))
+
+        COMPASS_FRAME:SetBossBarActive(totalHealth > 0)
+    end
+end
+
 -- Main entry point to this module
 function UnitFrames:Initialize(enabled)
     -- Load settings
@@ -208,25 +229,8 @@ function UnitFrames:Initialize(enabled)
     UnitFrames.CreateDefaultFrames()
     UnitFrames.CreateCustomFrames()
 
-    function BOSS_BAR:RefreshBossHealthBar(smoothAnimate)
-        local totalHealth = 0
-        local totalMaxHealth = 0
-
-        for unitTag, bossEntry in pairs(BOSS_BAR.bossHealthValues) do
-            totalHealth = totalHealth + bossEntry.health
-            totalMaxHealth = totalMaxHealth + bossEntry.maxHealth
-        end
-
-        local halfHealth = zo_floor(totalHealth / 2)
-        local halfMax = zo_floor(totalMaxHealth / 2)
-        for i = 1, #BOSS_BAR.bars do
-            ZO_StatusBar_SmoothTransition(BOSS_BAR.bars[i], halfHealth, halfMax, not smoothAnimate)
-        end
-        BOSS_BAR.healthText:SetText(ZO_FormatResourceBarCurrentAndMax(totalHealth, totalMaxHealth))
-
-        if UnitFrames.SV.DefaultFramesNewBoss == 2 then
-            COMPASS_FRAME:SetBossBarActive(totalHealth > 0)
-        end
+    if UnitFrames.SV.DefaultFramesNewBoss == 2 then
+        UnitFrames.OverRideBossBar()
     end
 
     UnitFrames.SaveDefaultFramePositions()
