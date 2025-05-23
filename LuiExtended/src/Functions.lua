@@ -233,20 +233,11 @@ do
     --- @param messageOrFormatter string: The message to be printed.
     --- @param ... string: Variable number of arguments to be formatted into the message.
     local function AddSystemMessage(messageOrFormatter, ...)
-        -- Format the message if there are arguments
-        local formattedMessage
-        if select("#", ...) > 0 then
-            -- Escape '%' characters to prevent illegal format specifiers
-            local safeFormat = (string_gsub(messageOrFormatter, "%%", "%%%%"))
-            formattedMessage = string_format(safeFormat, ...)
-        else
-            formattedMessage = messageOrFormatter
-        end
-
+        local formattedMessage = string_format(messageOrFormatter or "", ...)
         CHAT_ROUTER:AddSystemMessage(formattedMessage)
 
         if LibDebugLogger and LUIE.IsDevDebugEnabled() then
-            LUIE.Debug(formattedMessage, ...)
+            LUIE.Debug(formattedMessage)
         end
     end
 
