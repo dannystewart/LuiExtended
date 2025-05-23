@@ -412,10 +412,11 @@ local function CollectZoneMapInfo()
     end
 
     -- Get basic zone and map info
-    local zoneid = GetZoneId(GetCurrentMapZoneIndex())
+    local zoneIdx = GetCurrentMapZoneIndex()
+    local zoneid = GetZoneId(zoneIdx)
     local locName = GetPlayerLocationName()
     local mapid = GetCurrentMapId()
-    local mapindex = GetCurrentMapIndex() or GetMapIndexByZoneId(zoneid)
+    local mapindex = GetCurrentMapIndex() or GetMapIndexByZoneId(zoneid) or zoneIdx
     local name, mapType, mapContentType, zoneIndex, description = GetMapInfoById(mapid)
 
     -- Get coordinates at different map levels
@@ -502,7 +503,7 @@ local function CollectZoneMapInfo()
         end
     end
 
-    -- Get zone flags (various boolean checks)
+    -- Zone flags.
     local zoneFlags =
     {
         isInCyrodiil = IsInCyrodiil(),

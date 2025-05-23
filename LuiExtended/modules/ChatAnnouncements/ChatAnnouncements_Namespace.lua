@@ -30,7 +30,7 @@ ChatAnnouncements.moduleName = LUIE.name .. "ChatAnnouncements"
 --- @field message string
 --- @field messageType string
 --- @field isSystem? boolean
---- @field itemId? any
+--- @field itemId? integer
 --- @field formattedRecipient? string
 --- @field color? any
 --- @field logPrefix? string
@@ -43,6 +43,25 @@ ChatAnnouncements.QueuedMessagesCounter = 1
 -- Setup Color Table
 --- @class (partial) ChatAnnouncements_ColorizeColors
 ChatAnnouncements.Colors = {}
+
+--- @class questItem
+--- @field questIndex integer
+--- @field questItemId integer
+--- @field stackCount integer
+--- @field inventory table
+--- @field slotIndex integer
+--- @field iconFile string
+
+--- @alias questItem_itemTable { [integer] : questItem }
+
+--- @alias luiequestItemIndex {
+--- stack : integer,
+--- counter : integer,
+--- icon : string,
+--- }
+
+--- @type table<integer, luiequestItemIndex>
+ChatAnnouncements.questItemIndex = {}
 ------------------------------------------------
 -- DEFAULT VARIABLE SETUP ----------------------
 ------------------------------------------------

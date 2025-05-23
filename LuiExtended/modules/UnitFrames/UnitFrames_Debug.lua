@@ -9,9 +9,6 @@ local LUIE = LUIE
 --- @class (partial) UnitFrames
 local UnitFrames = LUIE.UnitFrames
 
-local eventManager = GetEventManager()
-local windowManager = GetWindowManager()
-
 if not LUIE.IsDevDebugEnabled() then
     return
 end

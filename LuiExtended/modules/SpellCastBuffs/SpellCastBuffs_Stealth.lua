@@ -17,9 +17,6 @@ local Tooltips = Data.Tooltips
 
 -- TODO: Update id's here with fake ids probably, to set different icons etc for Prominent add/remove
 
--- Handles long term Disguise Item Icon (appears when wearing a disguise even if not in a disguised state)
-local g_currentDisguise = SpellCastBuffs.currentDisguise
-
 -- Called by SpellCastBuffs.DisguiseItem()
 function SpellCastBuffs.SetDisguiseItem()
     local abilityId = 999020
@@ -27,14 +24,14 @@ function SpellCastBuffs.SetDisguiseItem()
     SpellCastBuffs.ClearPlayerBuff(abilityId)
 
     -- If we don't have a disguise equipped, have a Monk's Disguise (already has buff icon) or Guild Tabard then bail out
-    if g_currentDisguise == 0 or g_currentDisguise == 79332 or g_currentDisguise == 55262 then
+    if SpellCastBuffs.currentDisguise == 0 or SpellCastBuffs.currentDisguise == 79332 or SpellCastBuffs.currentDisguise == 55262 then
         return
     end
 
     local name = GetItemName(BAG_WORN, EQUIP_SLOT_COSTUME)
     local abilityName = Abilities.Innate_Disguise
-    local icon = Effects.DisguiseIcons[g_currentDisguise].icon
-    local idTooltip = Effects.DisguiseIcons[g_currentDisguise].id or ""
+    local icon = Effects.DisguiseIcons[SpellCastBuffs.currentDisguise].icon
+    local idTooltip = Effects.DisguiseIcons[SpellCastBuffs.currentDisguise].id or ""
     local tooltip = Effects.EffectOverride[idTooltip] and Effects.EffectOverride[idTooltip].tooltip or Tooltips.Disguise_Generic
     -- Determine Context
     local context = SpellCastBuffs.DetermineContextSimple("player1", abilityId, abilityName)
@@ -77,7 +74,7 @@ function SpellCastBuffs.DisguiseItem(eventId, bagId, slotIndex, isNewItem, itemS
     end
 
     -- Set current disguise
-    g_currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0
+    SpellCastBuffs.currentDisguise = GetItemId(BAG_WORN, EQUIP_SLOT_COSTUME) or 0
 
     -- Set the icon for the disguise to display
     SpellCastBuffs.SetDisguiseItem()

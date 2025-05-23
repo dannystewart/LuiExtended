@@ -52,6 +52,8 @@ src/Unlock.lua
 # Modules - Chat Announcements
 modules/ChatAnnouncements/ChatAnnouncements_Namespace.lua
 modules/ChatAnnouncements/ChatAnnouncements_PrintQueuedMessages.lua
+modules/ChatAnnouncements/ChatAnnouncements_HookFunction.lua
+modules/ChatAnnouncements/ChatAnnouncements_Mail.lua
 modules/ChatAnnouncements/ChatAnnouncements_Experience.lua
 modules/ChatAnnouncements/ChatAnnouncements.lua
 

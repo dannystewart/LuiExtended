@@ -9,26 +9,6 @@ local LUIE = LUIE
 -- Unit Frames namespace
 --- @class (partial) UnitFrames
 local UnitFrames = LUIE.UnitFrames
-local moduleName = UnitFrames.moduleName
-
-local eventManager = GetEventManager()
-local sceneManager = SCENE_MANAGER
-
-local g_AvaCustFrames = UnitFrames.AvaCustFrames                   -- Another set of custom frames. Currently designed only to provide AvA Player Target reticleover frame
-local g_DefaultFrames = UnitFrames.DefaultFrames                   -- Default Unit Frames are not referenced by external modules
-local g_MaxChampionPoint = UnitFrames.MaxChampionPoint             -- Keep this value in local constant
-local g_defaultTargetNameLabel = UnitFrames.defaultTargetNameLabel -- Reference to default UI target name label
-local g_defaultThreshold = UnitFrames.defaultThreshold
-local g_isRaid = UnitFrames.isRaid                                 -- Used by resurrection tracking function to determine if we should use abbreviated or unabbreviated text for resurrection.
-local g_powerError = UnitFrames.powerError
-local g_savedHealth = UnitFrames.savedHealth
-local g_statFull = UnitFrames.statFull
-local g_targetThreshold = UnitFrames.targetThreshold
-local g_healthThreshold = UnitFrames.healthThreshold
-local g_magickaThreshold = UnitFrames.magickaThreshold
-local g_staminaThreshold = UnitFrames.staminaThreshold
-local g_targetUnitFrame = UnitFrames.targetUnitFrame
-local playerDisplayName = UnitFrames.playerDisplayName
 
 -- Update format for labels on CustomFrames
 ---

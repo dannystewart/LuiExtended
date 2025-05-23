@@ -37,21 +37,7 @@ local leaderIcons =
 }
 
 local moduleName = UnitFrames.moduleName
-local g_AvaCustFrames = UnitFrames.AvaCustFrames                   -- Another set of custom frames. Currently designed only to provide AvA Player Target reticleover frame
-local g_DefaultFrames = UnitFrames.DefaultFrames                   -- Default Unit Frames are not referenced by external modules
-local g_MaxChampionPoint = UnitFrames.MaxChampionPoint             -- Keep this value in local constant
-local g_defaultTargetNameLabel = UnitFrames.defaultTargetNameLabel -- Reference to default UI target name label
-local g_defaultThreshold = UnitFrames.defaultThreshold
-local g_isRaid = UnitFrames.isRaid                                 -- Used by resurrection tracking function to determine if we should use abbreviated or unabbreviated text for resurrection.
-local g_powerError = UnitFrames.powerError
-local g_savedHealth = UnitFrames.savedHealth
-local g_statFull = UnitFrames.statFull
-local g_targetThreshold = UnitFrames.targetThreshold
-local g_healthThreshold = UnitFrames.healthThreshold
-local g_magickaThreshold = UnitFrames.magickaThreshold
-local g_staminaThreshold = UnitFrames.staminaThreshold
-local g_targetUnitFrame = UnitFrames.targetUnitFrame
-local playerDisplayName = UnitFrames.playerDisplayName
+
 
 -- local group
 -- local unitTag
@@ -194,27 +180,27 @@ function UnitFrames:Initialize(enabled)
 
     -- Even if used do not want to use neither DefaultFrames nor CustomFrames, let us still create tables to hold health and shield values
     -- { powerValue, powerMax, powerEffectiveMax, shield, trauma }
-    g_savedHealth.player = { 1, 1, 1, 0, 0 }
-    g_savedHealth.controlledsiege = { 1, 1, 1, 0, 0 }
-    g_savedHealth.reticleover = { 1, 1, 1, 0, 0 }
-    g_savedHealth.companion = { 1, 1, 1, 0, 0 }
+    UnitFrames.savedHealth.player = { 1, 1, 1, 0, 0 }
+    UnitFrames.savedHealth.controlledsiege = { 1, 1, 1, 0, 0 }
+    UnitFrames.savedHealth.reticleover = { 1, 1, 1, 0, 0 }
+    UnitFrames.savedHealth.companion = { 1, 1, 1, 0, 0 }
     for i = 1, 12 do
-        g_savedHealth["group" .. i] = { 1, 1, 1, 0, 0 }
+        UnitFrames.savedHealth["group" .. i] = { 1, 1, 1, 0, 0 }
     end
     for i = 1, 7 do
-        g_savedHealth["boss" .. i] = { 1, 1, 1, 0, 0 }
+        UnitFrames.savedHealth["boss" .. i] = { 1, 1, 1, 0, 0 }
     end
     for i = 1, 7 do
-        g_savedHealth["playerpet" .. i] = { 1, 1, 1, 0, 0 }
+        UnitFrames.savedHealth["playerpet" .. i] = { 1, 1, 1, 0, 0 }
     end
 
     -- Get execute threshold percentage
-    g_targetThreshold = UnitFrames.SV.ExecutePercentage
+    UnitFrames.targetThreshold = UnitFrames.SV.ExecutePercentage
 
     -- Get low health threshold percentage
-    g_healthThreshold = UnitFrames.SV.LowResourceHealth
-    g_magickaThreshold = UnitFrames.SV.LowResourceMagicka
-    g_staminaThreshold = UnitFrames.SV.LowResourceStamina
+    UnitFrames.healthThreshold = UnitFrames.SV.LowResourceHealth
+    UnitFrames.magickaThreshold = UnitFrames.SV.LowResourceMagicka
+    UnitFrames.staminaThreshold = UnitFrames.SV.LowResourceStamina
 
     -- Variable adjustment if needed
     if not LUIESV["Default"][GetDisplayName()]["$AccountWide"].AdjustVarsUF then
@@ -298,7 +284,7 @@ function UnitFrames:Initialize(enabled)
         UnitFrames.RegisterForGroupElectionEvents()
     end
 
-    g_defaultTargetNameLabel = ZO_TargetUnitFramereticleoverName
+    UnitFrames.defaultTargetNameLabel = ZO_TargetUnitFramereticleoverName
 
     -- Initialize coloring. This is actually needed when user does NOT want those features
     UnitFrames.TargetColorByReaction()
@@ -313,7 +299,7 @@ function UnitFrames.TargetColorByReaction(value)
     end
     -- If this Target name coloring is not required, revert it back to white
     if not value then
-        g_defaultTargetNameLabel:SetColor(1, 1, 1, 1)
+        UnitFrames.defaultTargetNameLabel:SetColor(1, 1, 1, 1)
     end
 end
 
@@ -378,7 +364,7 @@ function UnitFrames.OnPlayerActivated(eventId, initial)
     UnitFrames.UpdateRegen("player", STAT_STAMINA_REGEN_COMBAT, ATTRIBUTE_STAMINA, COMBAT_MECHANIC_FLAGS_STAMINA)
 
     -- Create UI elements for default group members frames
-    if g_DefaultFrames.SmallGroup then
+    if UnitFrames.DefaultFrames.SmallGroup then
         for i = 1, 12 do
             local unitTag = "group" .. i
             if DoesUnitExist(unitTag) then
@@ -392,7 +378,7 @@ function UnitFrames.OnPlayerActivated(eventId, initial)
         UnitFrames.CustomFramesGroupUpdate()
 
         -- Else we need to manually scan and update DefaultFrames
-    elseif g_DefaultFrames.SmallGroup then
+    elseif UnitFrames.DefaultFrames.SmallGroup then
         for i = 1, 12 do
             local unitTag = "group" .. i
             if DoesUnitExist(unitTag) then
@@ -413,79 +399,6 @@ function UnitFrames.OnPlayerActivated(eventId, initial)
     -- We need to call this here to clear companion/pet unit frames when entering houses/instances as they are not destroyed
     UnitFrames.CompanionUpdate()
     UnitFrames.CustomPetUpdate()
-end
-
--- Runs on the EVENT_POWER_UPDATE listener.
--- This handler fires every time unit attribute changes.
----
---- @param eventId integer
---- @param unitTag string
---- @param powerIndex luaindex
---- @param powerType CombatMechanicFlags
---- @param powerValue integer
---- @param powerMax integer
---- @param powerEffectiveMax integer
-function UnitFrames.OnPowerUpdate(eventId, unitTag, powerIndex, powerType, powerValue, powerMax, powerEffectiveMax)
-    -- Save Health value for future reference -- do it only for tracked unitTags that were defined on initialization
-    if powerType == COMBAT_MECHANIC_FLAGS_HEALTH and g_savedHealth[unitTag] then
-        g_savedHealth[unitTag] = { powerValue, powerMax, powerEffectiveMax, g_savedHealth[unitTag][4] or 0, g_savedHealth[unitTag][5] or 0 }
-    end
-
-    -- DEBUG code. Normally should be commented out because it is redundant
-    -- if LUIE.IsDevDebugEnabled() then
-    --     if g_DefaultFrames[unitTag] and g_DefaultFrames[unitTag].unitTag ~= unitTag then
-    --         LUIE.Debug("LUIE_DBG DF: " .. tostring(g_DefaultFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
-    --     end
-    --     if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag].unitTag ~= unitTag then
-    --         LUIE.Debug("LUIE_DBG CF: " .. tostring(UnitFrames.CustomFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
-    --     end
-    --     if g_AvaCustFrames[unitTag] and g_AvaCustFrames[unitTag].unitTag ~= unitTag then
-    --         LUIE.Debug("LUIE_DBG AF: " .. tostring(g_AvaCustFrames[unitTag].unitTag) .. " ~= " .. tostring(unitTag))
-    --     end
-    -- end
-
-    -- Update frames ( if we manually not forbade it )
-    if g_DefaultFrames[unitTag] then
-        UnitFrames.UpdateAttribute(unitTag, powerType, g_DefaultFrames[unitTag][powerType], powerValue, powerEffectiveMax, false, nil)
-    end
-    if UnitFrames.CustomFrames[unitTag] then
-        if unitTag == "reticleover" and powerType == COMBAT_MECHANIC_FLAGS_HEALTH then
-            local isCritter = (g_savedHealth.reticleover[3] <= 9)
-            local isGuard = IsUnitInvulnerableGuard("reticleover")
-            if (isCritter or isGuard) and powerValue >= 1 then
-                return
-            else
-                UnitFrames.UpdateAttribute(unitTag, powerType, UnitFrames.CustomFrames[unitTag][powerType], powerValue, powerEffectiveMax, false, nil)
-            end
-        else
-            UnitFrames.UpdateAttribute(unitTag, powerType, UnitFrames.CustomFrames[unitTag][powerType], powerValue, powerEffectiveMax, false, nil)
-        end
-    end
-    if g_AvaCustFrames[unitTag] then
-        UnitFrames.UpdateAttribute(unitTag, powerType, g_AvaCustFrames[unitTag][powerType], powerValue, powerEffectiveMax, false, nil)
-    end
-
-    -- Record state of power loss to change transparency of player frame
-    if unitTag == "player" and (powerType == COMBAT_MECHANIC_FLAGS_HEALTH or powerType == COMBAT_MECHANIC_FLAGS_MAGICKA or powerType == COMBAT_MECHANIC_FLAGS_STAMINA or powerType == COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA) then
-        g_statFull[powerType] = (powerValue == powerEffectiveMax)
-        UnitFrames.CustomFramesApplyInCombat()
-    end
-
-    -- If players powerValue is zero, issue new blinking event on Custom Frames
-    if unitTag == "player" and powerValue == 0 and powerType ~= COMBAT_MECHANIC_FLAGS_WEREWOLF then
-        UnitFrames.OnCombatEvent(eventId, nil, true, nil, nil, nil, nil, COMBAT_UNIT_TYPE_PLAYER, nil, COMBAT_UNIT_TYPE_PLAYER, 0, powerType, nil, false, nil, nil, nil, nil)
-    end
-
-    -- Display skull icon for alive execute-level targets
-    if unitTag == "reticleover" and powerType == COMBAT_MECHANIC_FLAGS_HEALTH and UnitFrames.CustomFrames["reticleover"] and UnitFrames.CustomFrames["reticleover"].hostile then
-        -- Hide skull when target dies
-        if powerValue == 0 then
-            UnitFrames.CustomFrames["reticleover"].skull:SetHidden(true)
-            -- But show for _below_threshold_ level targets
-        elseif 100 * powerValue / powerEffectiveMax < UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold then
-            UnitFrames.CustomFrames["reticleover"].skull:SetHidden(false)
-        end
-    end
 end
 
 function UnitFrames.CustomFramesUnreferencePetControl(first)
@@ -599,7 +512,7 @@ function UnitFrames.OnUnitCreated(eventId, unitTag)
     --     LUIE.Debug(string_format("[%s] OnUnitCreated: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
     -- end
     -- Create on-fly UI controls for default UI group member and reread his values
-    if g_DefaultFrames.SmallGroup then
+    if UnitFrames.DefaultFrames.SmallGroup then
         UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
     end
     -- If CustomFrames are used then values for unitTag will be reloaded in delayed full group update
@@ -613,8 +526,8 @@ function UnitFrames.OnUnitCreated(eventId, unitTag)
             g_PendingUpdate.Group.flag = true
             eventManager:RegisterForUpdate(g_PendingUpdate.Group.name, g_PendingUpdate.Group.delay, UnitFrames.CustomFramesGroupUpdate)
         end
-        -- Else we need to manually update this unitTag in g_DefaultFrames
-    elseif g_DefaultFrames.SmallGroup then
+        -- Else we need to manually update this unitTag in UnitFrames.DefaultFrames
+    elseif UnitFrames.DefaultFrames.SmallGroup then
         UnitFrames.ReloadValues(unitTag)
     end
 
@@ -706,23 +619,23 @@ function UnitFrames.OnReticleTargetChanged(eventCode)
         end
 
         -- Is current target Critter? In Update 6 they all have 9 health
-        local isCritter = (g_savedHealth.reticleover[3] <= 9)
+        local isCritter = (UnitFrames.savedHealth.reticleover[3] <= 9)
         local isGuard = IsUnitInvulnerableGuard("reticleover")
 
         -- Hide custom label on Default Frames for critters.
-        if g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
-            g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(isCritter)
-            g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(isGuard)
+        if UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
+            UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(isCritter)
+            UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(isGuard)
         end
 
         -- Update level display based off our setting for Champion Points
-        if g_DefaultFrames.reticleover.isPlayer then
+        if UnitFrames.DefaultFrames.reticleover.isPlayer then
             UnitFrames.UpdateDefaultLevelTarget()
         end
 
         -- Update color of default target if requested
         if UnitFrames.SV.TargetColourByReaction then
-            g_defaultTargetNameLabel:SetColor(color[1], color[2], color[3], isWithinRange and 1 or 0.5)
+            UnitFrames.defaultTargetNameLabel:SetColor(color[1], color[2], color[3], isWithinRange and 1 or 0.5)
         end
         if UnitFrames.SV.ReticleColourByReaction then
             ZO_ReticleContainerReticle:SetColor(reticle_color[1], reticle_color[2], reticle_color[3], 1)
@@ -731,7 +644,7 @@ function UnitFrames.OnReticleTargetChanged(eventCode)
         -- And color of custom target name always. Also change 'labelOne' for critters
         if UnitFrames.CustomFrames["reticleover"] then
             UnitFrames.CustomFrames["reticleover"].hostile = (reactionType == UNIT_REACTION_HOSTILE) and UnitFrames.SV.TargetEnableSkull
-            UnitFrames.CustomFrames["reticleover"].skull:SetHidden(not UnitFrames.CustomFrames["reticleover"].hostile or (g_savedHealth.reticleover[1] == 0) or (100 * g_savedHealth.reticleover[1] / g_savedHealth.reticleover[3] > UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold))
+            UnitFrames.CustomFrames["reticleover"].skull:SetHidden(not UnitFrames.CustomFrames["reticleover"].hostile or (UnitFrames.savedHealth.reticleover[1] == 0) or (100 * UnitFrames.savedHealth.reticleover[1] / UnitFrames.savedHealth.reticleover[3] > UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold))
             UnitFrames.CustomFrames["reticleover"].name:SetColor(color[1], color[2], color[3], 1)
             UnitFrames.CustomFrames["reticleover"].className:SetColor(color[1], color[2], color[3], 1)
             if isCritter then
@@ -771,29 +684,29 @@ function UnitFrames.OnReticleTargetChanged(eventCode)
         end
 
         -- Update position of default target class icon
-        if UnitFrames.SV.TargetShowClass and g_DefaultFrames.reticleover.isPlayer then
-            g_DefaultFrames.reticleover.classIcon:ClearAnchors()
-            g_DefaultFrames.reticleover.classIcon:SetAnchor(TOPRIGHT, ZO_TargetUnitFramereticleoverTextArea, TOPLEFT, g_DefaultFrames.reticleover.isChampion and -32 or -2, -4)
+        if UnitFrames.SV.TargetShowClass and UnitFrames.DefaultFrames.reticleover.isPlayer then
+            UnitFrames.DefaultFrames.reticleover.classIcon:ClearAnchors()
+            UnitFrames.DefaultFrames.reticleover.classIcon:SetAnchor(TOPRIGHT, ZO_TargetUnitFramereticleoverTextArea, TOPLEFT, UnitFrames.DefaultFrames.reticleover.isChampion and -32 or -2, -4)
         else
-            g_DefaultFrames.reticleover.classIcon:SetHidden(true)
+            UnitFrames.DefaultFrames.reticleover.classIcon:SetHidden(true)
         end
         -- Instead just make sure it is hidden
-        if not UnitFrames.SV.TargetShowFriend or not g_DefaultFrames.reticleover.isPlayer then
-            g_DefaultFrames.reticleover.friendIcon:SetHidden(true)
+        if not UnitFrames.SV.TargetShowFriend or not UnitFrames.DefaultFrames.reticleover.isPlayer then
+            UnitFrames.DefaultFrames.reticleover.friendIcon:SetHidden(true)
         end
 
-        UnitFrames.CustomFramesApplyReactionColor(g_DefaultFrames.reticleover.isPlayer)
+        UnitFrames.CustomFramesApplyReactionColor(UnitFrames.DefaultFrames.reticleover.isPlayer)
 
         -- Target is invalid: reset stored values to defaults
     else
-        g_savedHealth.reticleover = { 1, 1, 1, 0, 0 }
+        UnitFrames.savedHealth.reticleover = { 1, 1, 1, 0, 0 }
 
         --[[ Removed due to causing custom UI elements to abruptly fade out. Left here in case there is any reason to re-enable.
-        if g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
-            g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(true)
+        if UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
+            UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label:SetHidden(true)
         end
-        g_DefaultFrames.reticleover.classIcon:SetHidden(true)
-        g_DefaultFrames.reticleover.friendIcon:SetHidden(true)
+        UnitFrames.DefaultFrames.reticleover.classIcon:SetHidden(true)
+        UnitFrames.DefaultFrames.reticleover.friendIcon:SetHidden(true)
         ]]
         --
 
@@ -815,7 +728,7 @@ function UnitFrames.OnReticleTargetChanged(eventCode)
     end
 
     -- Finally if user does not want to have default target frame we have to hide it here all the time
-    if not g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] and UnitFrames.SV.DefaultFramesNewTarget == 1 then
+    if not UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] and UnitFrames.SV.DefaultFramesNewTarget == 1 then
         ZO_TargetUnitFramereticleover:SetHidden(true)
     end
 end
@@ -830,8 +743,8 @@ end
 function UnitFrames.ReloadValues(unitTag)
     -- Build list of powerTypes this unitTag has in both DefaultFrames and CustomFrames
     local powerTypes = {}
-    if g_DefaultFrames[unitTag] then
-        for powerType, _ in pairs(g_DefaultFrames[unitTag]) do
+    if UnitFrames.DefaultFrames[unitTag] then
+        for powerType, _ in pairs(UnitFrames.DefaultFrames[unitTag]) do
             if type(powerType) == "number" then
                 powerTypes[powerType] = true
             end
@@ -844,8 +757,8 @@ function UnitFrames.ReloadValues(unitTag)
             end
         end
     end
-    if g_AvaCustFrames[unitTag] then
-        for powerType, _ in pairs(g_AvaCustFrames[unitTag]) do
+    if UnitFrames.AvaCustFrames[unitTag] then
+        for powerType, _ in pairs(UnitFrames.AvaCustFrames[unitTag]) do
             if type(powerType) == "number" then
                 powerTypes[powerType] = true
             end
@@ -866,9 +779,9 @@ function UnitFrames.ReloadValues(unitTag)
     UnitFrames.UpdateTrauma(unitTag, trauma or 0, nil)
 
     -- Now we need to update Name labels, classIcon
-    UnitFrames.UpdateStaticControls(g_DefaultFrames[unitTag])
+    UnitFrames.UpdateStaticControls(UnitFrames.DefaultFrames[unitTag])
     UnitFrames.UpdateStaticControls(UnitFrames.CustomFrames[unitTag])
-    UnitFrames.UpdateStaticControls(g_AvaCustFrames[unitTag])
+    UnitFrames.UpdateStaticControls(UnitFrames.AvaCustFrames[unitTag])
 
     -- Get regen/degen values
     UnitFrames.UpdateRegen(unitTag, STAT_HEALTH_REGEN_COMBAT, ATTRIBUTE_HEALTH, COMBAT_MECHANIC_FLAGS_HEALTH)
@@ -878,7 +791,7 @@ function UnitFrames.ReloadValues(unitTag)
     UnitFrames.UpdateStat(unitTag, STAT_POWER, ATTRIBUTE_HEALTH, COMBAT_MECHANIC_FLAGS_HEALTH)
 
     if unitTag == "player" then
-        g_statFull[COMBAT_MECHANIC_FLAGS_HEALTH] = (g_savedHealth.player[1] == g_savedHealth.player[3])
+        UnitFrames.statFull[COMBAT_MECHANIC_FLAGS_HEALTH] = (UnitFrames.savedHealth.player[1] == UnitFrames.savedHealth.player[3])
         UnitFrames.CustomFramesApplyInCombat()
     end
 end
@@ -902,7 +815,7 @@ local HIDE_LEVEL_TYPES =
  ]]
 local function IsGuildMate(unitTag)
     local displayName = GetUnitDisplayName(unitTag)
-    if displayName == playerDisplayName then
+    if displayName == UnitFrames.playerDisplayName then
         return
     end
     for i = 1, GetNumGuilds() do
@@ -932,7 +845,7 @@ function UnitFrames.UpdateStaticControls(unitFrame)
 
     unitFrame.isPlayer = IsUnitPlayer(unitFrame.unitTag)
     unitFrame.isChampion = IsUnitChampion(unitFrame.unitTag)
-    unitFrame.isLevelCap = (GetUnitChampionPoints(unitFrame.unitTag) == g_MaxChampionPoint)
+    unitFrame.isLevelCap = (GetUnitChampionPoints(unitFrame.unitTag) == UnitFrames.MaxChampionPoint)
     unitFrame.avaRankValue = GetUnitAvARank(unitFrame.unitTag)
 
     -- First update roleIcon, classIcon and friendIcon, so then we can set maximal length of name label
@@ -1150,113 +1063,20 @@ function UnitFrames.UpdateStaticControls(unitFrame)
     end
 end
 
--- Updates single attribute.
--- Usually called from OnPowerUpdate handler.
-function UnitFrames.UpdateAttribute(unitTag, powerType, attributeFrame, powerValue, powerEffectiveMax, isTraumaFlag, forceInit)
-    if attributeFrame == nil then
-        return
-    end
-
-    local pct = zo_floor(100 * powerValue / powerEffectiveMax)
-
-    -- Update Shield / Trauma values IF this is the health bar
-    local shield = (powerType == COMBAT_MECHANIC_FLAGS_HEALTH and g_savedHealth[unitTag][4] > 0) and g_savedHealth[unitTag][4] or nil
-    local trauma = (powerType == COMBAT_MECHANIC_FLAGS_HEALTH and g_savedHealth[unitTag][5] > 0) and g_savedHealth[unitTag][5] or nil
-    local isUnwaveringPower = (GetUnitAttributeVisualizerEffectInfo(unitTag, ATTRIBUTE_VISUAL_UNWAVERING_POWER, STAT_MITIGATION, ATTRIBUTE_HEALTH, COMBAT_MECHANIC_FLAGS_HEALTH) or 0)
-    local isGuard = (UnitFrames.CustomFrames and UnitFrames.CustomFrames["reticleover"] and attributeFrame == UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH] and IsUnitInvulnerableGuard("reticleover"))
-
-    -- Adjust health bar value to subtract the trauma bar value
-    local adjustedBarValue = powerValue
-    if powerType == COMBAT_MECHANIC_FLAGS_HEALTH and trauma then
-        adjustedBarValue = powerValue - trauma
-        if adjustedBarValue < 0 then
-            adjustedBarValue = 0
-        end
-    end
-
-    for _, label in pairs({ "label", "labelOne", "labelTwo" }) do
-        if attributeFrame[label] ~= nil then
-            -- Format specific to selected label
-            local format = tostring(attributeFrame[label].format or UnitFrames.SV.Format)
-            local str = zo_strgsub(format, "Percentage", tostring(pct))
-            str = zo_strgsub(str, "Max", AbbreviateNumber(powerEffectiveMax, UnitFrames.SV.ShortenNumbers, true))
-            str = zo_strgsub(str, "Current", AbbreviateNumber(powerValue, UnitFrames.SV.ShortenNumbers, true))
-            str = zo_strgsub(str, "+ Shield", shield and ("+ " .. AbbreviateNumber(shield, UnitFrames.SV.ShortenNumbers, true)) or "")
-            str = zo_strgsub(str, "- Trauma", trauma and ("- (" .. AbbreviateNumber(trauma, UnitFrames.SV.ShortenNumbers, true) .. ")") or "")
-            str = zo_strgsub(str, "Nothing", "")
-            str = zo_strgsub(str, "  ", " ")
-
-            -- Change text
-            if isGuard and label == "labelOne" then
-                attributeFrame[label]:SetText(" - Invulnerable - ")
-            else
-                attributeFrame[label]:SetText(str)
-            end
-
-            -- Don't update if dead
-            if (label == "labelOne" or label == "labelTwo") and UnitFrames.CustomFrames and UnitFrames.CustomFrames["reticleover"] and attributeFrame == UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH] and powerValue == 0 then
-                attributeFrame[label]:SetHidden(true)
-            end
-            -- If the unit is Invulnerable or a Guard show don't show a low HP color
-            if (isUnwaveringPower == 1 and powerValue > 0) or isGuard then
-                attributeFrame[label]:SetColor(unpack(attributeFrame.color or { 1, 1, 1 }))
-            else
-                -- And color it RED if attribute value is lower than the threshold
-                attributeFrame[label]:SetColor(unpack((pct < (attributeFrame.threshold or g_defaultThreshold)) and { 1, 0.25, 0.38 } or attributeFrame.color or { 1, 1, 1 }))
-            end
-        end
-    end
-
-    -- If attribute has also custom statusBar, update its value
-    if attributeFrame.bar ~= nil then
-        if UnitFrames.SV.CustomSmoothBar and not isTraumaFlag then
-            -- Make it twice faster then default UI ones: last argument .085
-            ZO_StatusBar_SmoothTransition(attributeFrame.bar, adjustedBarValue, powerEffectiveMax, forceInit, nil, 250)
-            if trauma then
-                ZO_StatusBar_SmoothTransition(attributeFrame.trauma, powerValue, powerEffectiveMax, forceInit, nil, 250)
-            end
-        else
-            attributeFrame.bar:SetMinMax(0, powerEffectiveMax)
-            attributeFrame.bar:SetValue(adjustedBarValue)
-            if trauma then
-                attributeFrame.trauma:SetMinMax(0, powerEffectiveMax)
-                attributeFrame.trauma:SetValue(powerValue)
-            end
-        end
-
-        -- If there is an invulnerable bar on this frame, then modify it if based on if Unwavering Power is active on the frame
-        if attributeFrame.invulnerable then
-            if (isUnwaveringPower == 1 and powerValue > 0) or isGuard then
-                attributeFrame.invulnerable:SetMinMax(0, powerEffectiveMax)
-                attributeFrame.invulnerable:SetValue(powerValue)
-                attributeFrame.invulnerable:SetHidden(false)
-                attributeFrame.invulnerableInlay:SetMinMax(0, powerEffectiveMax)
-                attributeFrame.invulnerableInlay:SetValue(powerValue)
-                attributeFrame.invulnerableInlay:SetHidden(false)
-                attributeFrame.bar:SetHidden(true)
-            else
-                attributeFrame.invulnerable:SetHidden(true)
-                attributeFrame.invulnerableInlay:SetHidden(true)
-                attributeFrame.bar:SetHidden(false)
-            end
-        end
-    end
-end
-
 -- Updates title for unit if changed, and also re-anchors buffs or toggles display on/off if the unitTag had no title selected previously
 -- Called from EVENT_TITLE_UPDATE & EVENT_RANK_POINT_UPDATE
 function UnitFrames.TitleUpdate(eventCode, unitTag)
-    UnitFrames.UpdateStaticControls(g_DefaultFrames[unitTag])
+    UnitFrames.UpdateStaticControls(UnitFrames.DefaultFrames[unitTag])
     UnitFrames.UpdateStaticControls(UnitFrames.CustomFrames[unitTag])
-    UnitFrames.UpdateStaticControls(g_AvaCustFrames[unitTag])
+    UnitFrames.UpdateStaticControls(UnitFrames.AvaCustFrames[unitTag])
 end
 
 -- Forces to reload static information on unit frames.
 -- Called from EVENT_LEVEL_UPDATE and EVENT_VETERAN_RANK_UPDATE listeners.
 function UnitFrames.OnLevelUpdate(eventCode, unitTag, level)
-    UnitFrames.UpdateStaticControls(g_DefaultFrames[unitTag])
+    UnitFrames.UpdateStaticControls(UnitFrames.DefaultFrames[unitTag])
     UnitFrames.UpdateStaticControls(UnitFrames.CustomFrames[unitTag])
-    UnitFrames.UpdateStaticControls(g_AvaCustFrames[unitTag])
+    UnitFrames.UpdateStaticControls(UnitFrames.AvaCustFrames[unitTag])
 
     -- For Custom Player Frame we have to setup experience bar
     if unitTag == "player" and UnitFrames.CustomFrames["player"] and UnitFrames.CustomFrames["player"].Experience then
@@ -1267,7 +1087,7 @@ end
 -- Runs on the EVENT_PLAYER_COMBAT_STATE listener.
 -- This handler fires every time player enters or leaves combat
 function UnitFrames.OnPlayerCombatState(eventCode, inCombat)
-    g_statFull.combat = not inCombat
+    UnitFrames.statFull.combat = not inCombat
     UnitFrames.CustomFramesApplyInCombat()
 end
 
@@ -1407,9 +1227,9 @@ function UnitFrames.ResurrectionMonitor(unitTag)
 
     if IsUnitDead(unitTag) then
         if IsUnitBeingResurrected(unitTag) then
-            UnitFrames.CustomFramesSetDeadLabel(UnitFrames.CustomFrames[unitTag], g_isRaid and strResCastRaid or strResCast)
+            UnitFrames.CustomFramesSetDeadLabel(UnitFrames.CustomFrames[unitTag], UnitFrames.isRaid and strResCastRaid or strResCast)
         elseif DoesUnitHaveResurrectPending(unitTag) then
-            UnitFrames.CustomFramesSetDeadLabel(UnitFrames.CustomFrames[unitTag], g_isRaid and strResPendingRaid or strResPending)
+            UnitFrames.CustomFramesSetDeadLabel(UnitFrames.CustomFrames[unitTag], UnitFrames.isRaid and strResPendingRaid or strResPending)
         else
             UnitFrames.CustomFramesSetDeadLabel(UnitFrames.CustomFrames[unitTag], strDead)
         end
@@ -1872,11 +1692,11 @@ end
 --- @param overflow integer
 function UnitFrames.OnCombatEvent(eventId, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
     if isError and sourceType == COMBAT_UNIT_TYPE_PLAYER and targetType == COMBAT_UNIT_TYPE_PLAYER and UnitFrames.CustomFrames["player"] ~= nil and UnitFrames.CustomFrames["player"][powerType] ~= nil and UnitFrames.CustomFrames["player"][powerType].backdrop ~= nil and (powerType == COMBAT_MECHANIC_FLAGS_HEALTH or powerType == COMBAT_MECHANIC_FLAGS_STAMINA or powerType == COMBAT_MECHANIC_FLAGS_MAGICKA) then
-        if g_powerError[powerType] or IsUnitDead("player") then
+        if UnitFrames.powerError[powerType] or IsUnitDead("player") then
             return
         end
 
-        g_powerError[powerType] = true
+        UnitFrames.powerError[powerType] = true
         -- Save original center color and color to red
         local backdrop = UnitFrames.CustomFrames["player"][powerType].backdrop
         --- @cast backdrop BackdropControl
@@ -1899,7 +1719,7 @@ function UnitFrames.OnCombatEvent(eventId, result, isError, abilityName, ability
                 firstRun = false
             else
                 eventManager:UnregisterForUpdate(uniqueId)
-                g_powerError[powerType] = false
+                UnitFrames.powerError[powerType] = false
             end
         end)
     end
@@ -2018,7 +1838,7 @@ function UnitFrames.CustomFramesGroupUpdate()
 
     -- Set raid variable for resurrection monitor.
     if raid ~= nil then
-        g_isRaid = raid
+        UnitFrames.isRaid = raid
     end
 
     -- Here we can check unlikely situation when neither custom frames were selected
@@ -3484,11 +3304,11 @@ end
 function UnitFrames.CustomFramesApplyInCombat()
     local idle = true
     if UnitFrames.SV.CustomOocAlphaPower then
-        for _, value in pairs(g_statFull) do
+        for _, value in pairs(UnitFrames.statFull) do
             idle = idle and value
         end
     else
-        idle = g_statFull.combat
+        idle = UnitFrames.statFull.combat
     end
 
     local oocAlphaPlayer = 0.01 * UnitFrames.SV.PlayerOocAlpha
@@ -3572,18 +3392,18 @@ function UnitFrames.CustomFramesGroupAlpha()
 end
 
 function UnitFrames.CustomFramesReloadLowResourceThreshold()
-    g_healthThreshold = UnitFrames.SV.LowResourceHealth
-    g_magickaThreshold = UnitFrames.SV.LowResourceMagicka
-    g_staminaThreshold = UnitFrames.SV.LowResourceStamina
+    UnitFrames.healthThreshold = UnitFrames.SV.LowResourceHealth
+    UnitFrames.magickaThreshold = UnitFrames.SV.LowResourceMagicka
+    UnitFrames.staminaThreshold = UnitFrames.SV.LowResourceStamina
 
     if UnitFrames.CustomFrames["player"] and UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH] then
-        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = g_healthThreshold
+        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = UnitFrames.healthThreshold
     end
     if UnitFrames.CustomFrames["player"] and UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA] then
-        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].threshold = g_magickaThreshold
+        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].threshold = UnitFrames.magickaThreshold
     end
     if UnitFrames.CustomFrames["player"] and UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA] then
-        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA].threshold = g_staminaThreshold
+        UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA].threshold = UnitFrames.staminaThreshold
     end
 end
 

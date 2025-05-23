@@ -23,10 +23,6 @@ local tonumber = tonumber
 --- @class (partial) LUIE.SpellCastBuffs
 local SpellCastBuffs = LUIE.SpellCastBuffs
 
-local hidePlayerEffects = SpellCastBuffs.hidePlayerEffects             -- Table of Effects to hide on Player - generated on load or updated from Menu
-local hideTargetEffects = SpellCastBuffs.hideTargetEffects             -- Table of Effects to hide on Target - generated on load or updated from Menu
-local debuffDisplayOverrideId = SpellCastBuffs.debuffDisplayOverrideId -- Table of Effects (by id) that should show on the target regardless of who applied them.
-
 
 -- Bulk list add from menu buttons
 function SpellCastBuffs.AddBulkToCustomList(list, table)
@@ -118,128 +114,128 @@ end
 
 -- Called from the menu and on initialize to build the table of hidden effects.
 function SpellCastBuffs.UpdateContextHideList()
-    hidePlayerEffects = {}
-    hideTargetEffects = {}
+    SpellCastBuffs.hidePlayerEffects = {}
+    SpellCastBuffs.hideTargetEffects = {}
 
     -- Hide Warden Crystallized Shield & morphs from effects on the player (we use fake buffs to track this so that the stack count can be displayed)
-    hidePlayerEffects[86135] = true
-    hidePlayerEffects[86139] = true
-    hidePlayerEffects[86143] = true
+    SpellCastBuffs.hidePlayerEffects[86135] = true
+    SpellCastBuffs.hidePlayerEffects[86139] = true
+    SpellCastBuffs.hidePlayerEffects[86143] = true
 
     if SpellCastBuffs.SV.IgnoreMundusPlayer then
         for k, v in pairs(Effects.IsBoon) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreMundusTarget then
         for k, v in pairs(Effects.IsBoon) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreVampPlayer then
         for k, v in pairs(Effects.IsVamp) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreVampTarget then
         for k, v in pairs(Effects.IsVamp) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreLycanPlayer then
         for k, v in pairs(Effects.IsLycan) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreLycanTarget then
         for k, v in pairs(Effects.IsLycan) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreDiseasePlayer then
         for k, v in pairs(Effects.IsVampLycanDisease) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreDiseaseTarget then
         for k, v in pairs(Effects.IsVampLycanDisease) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreBitePlayer then
         for k, v in pairs(Effects.IsVampLycanBite) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreBiteTarget then
         for k, v in pairs(Effects.IsVampLycanBite) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreCyrodiilPlayer then
         for k, v in pairs(Effects.IsCyrodiil) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreCyrodiilTarget then
         for k, v in pairs(Effects.IsCyrodiil) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreEsoPlusPlayer then
-        hidePlayerEffects[63601] = true
+        SpellCastBuffs.hidePlayerEffects[63601] = true
     end
     if SpellCastBuffs.SV.IgnoreEsoPlusTarget then
-        hideTargetEffects[63601] = true
+        SpellCastBuffs.hideTargetEffects[63601] = true
     end
     if SpellCastBuffs.SV.IgnoreSoulSummonsPlayer then
         for k, v in pairs(Effects.IsSoulSummons) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreSoulSummonsTarget then
         for k, v in pairs(Effects.IsSoulSummons) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreFoodPlayer then
         for k, v in pairs(Effects.IsFoodBuff) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreFoodTarget then
         for k, v in pairs(Effects.IsFoodBuff) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreExperiencePlayer then
         for k, v in pairs(Effects.IsExperienceBuff) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreExperienceTarget then
         for k, v in pairs(Effects.IsExperienceBuff) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreAllianceXPPlayer then
         for k, v in pairs(Effects.IsAllianceXPBuff) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if SpellCastBuffs.SV.IgnoreAllianceXPTarget then
         for k, v in pairs(Effects.IsAllianceXPBuff) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
     if not SpellCastBuffs.SV.ShowBlockPlayer then
         for k, v in pairs(Effects.IsBlock) do
-            hidePlayerEffects[k] = v
+            SpellCastBuffs.hidePlayerEffects[k] = v
         end
     end
     if not SpellCastBuffs.SV.ShowBlockTarget then
         for k, v in pairs(Effects.IsBlock) do
-            hideTargetEffects[k] = v
+            SpellCastBuffs.hideTargetEffects[k] = v
         end
     end
 end
@@ -247,24 +243,24 @@ end
 -- Called from the menu and on initialize to build the table of effects we should show regardless of source (by id).
 function SpellCastBuffs.UpdateDisplayOverrideIdList()
     -- Clear the list
-    debuffDisplayOverrideId = {}
+    SpellCastBuffs.debuffDisplayOverrideId = {}
 
     -- Add effects from table if enabled
     if SpellCastBuffs.SV.ShowSharedEffects then
         for k, v in pairs(Effects.DebuffDisplayOverrideId) do
-            debuffDisplayOverrideId[k] = v
+            SpellCastBuffs.debuffDisplayOverrideId[k] = v
         end
     end
 
     -- Always show NPC self applied debuffs
     for k, v in pairs(Effects.DebuffDisplayOverrideIdAlways) do
-        debuffDisplayOverrideId[k] = v
+        SpellCastBuffs.debuffDisplayOverrideId[k] = v
     end
 
     -- Major/Minor
     if SpellCastBuffs.SV.ShowSharedMajorMinor then
         for k, v in pairs(Effects.DebuffDisplayOverrideMajorMinor) do
-            debuffDisplayOverrideId[k] = v
+            SpellCastBuffs.debuffDisplayOverrideId[k] = v
         end
     end
 end

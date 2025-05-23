@@ -9,26 +9,6 @@ local LUIE = LUIE
 -- Unit Frames namespace
 --- @class (partial) UnitFrames
 local UnitFrames = LUIE.UnitFrames
-local moduleName = UnitFrames.moduleName
-
-local eventManager = GetEventManager()
-local sceneManager = SCENE_MANAGER
-
-local g_AvaCustFrames = UnitFrames.AvaCustFrames                   -- Another set of custom frames. Currently designed only to provide AvA Player Target reticleover frame
-local g_DefaultFrames = UnitFrames.DefaultFrames                   -- Default Unit Frames are not referenced by external modules
-local g_MaxChampionPoint = UnitFrames.MaxChampionPoint             -- Keep this value in local constant
-local g_defaultTargetNameLabel = UnitFrames.defaultTargetNameLabel -- Reference to default UI target name label
-local g_defaultThreshold = UnitFrames.defaultThreshold
-local g_isRaid = UnitFrames.isRaid                                 -- Used by resurrection tracking function to determine if we should use abbreviated or unabbreviated text for resurrection.
-local g_powerError = UnitFrames.powerError
-local g_savedHealth = UnitFrames.savedHealth
-local g_statFull = UnitFrames.statFull
-local g_targetThreshold = UnitFrames.targetThreshold
-local g_healthThreshold = UnitFrames.healthThreshold
-local g_magickaThreshold = UnitFrames.magickaThreshold
-local g_staminaThreshold = UnitFrames.staminaThreshold
-local g_targetUnitFrame = UnitFrames.targetUnitFrame
-local playerDisplayName = UnitFrames.playerDisplayName
 
 function UnitFrames.MenuUpdatePlayerFrameOptions(option)
     if UnitFrames.CustomFrames["reticleover"] then
@@ -636,19 +616,19 @@ end
 
 -- Reload Names from Menu function call
 function UnitFrames.CustomFramesReloadControlsMenu(player, group, raid)
-    UnitFrames.UpdateStaticControls(g_DefaultFrames["player"])
+    UnitFrames.UpdateStaticControls(UnitFrames.DefaultFrames["player"])
     UnitFrames.UpdateStaticControls(UnitFrames.CustomFrames["player"])
-    UnitFrames.UpdateStaticControls(g_AvaCustFrames["player"])
+    UnitFrames.UpdateStaticControls(UnitFrames.AvaCustFrames["player"])
 
-    UnitFrames.UpdateStaticControls(g_DefaultFrames["reticleover"])
+    UnitFrames.UpdateStaticControls(UnitFrames.DefaultFrames["reticleover"])
     UnitFrames.UpdateStaticControls(UnitFrames.CustomFrames["reticleover"])
-    UnitFrames.UpdateStaticControls(g_AvaCustFrames["reticleover"])
+    UnitFrames.UpdateStaticControls(UnitFrames.AvaCustFrames["reticleover"])
 
     for i = 1, 12 do
         local unitTag = "group" .. i
-        UnitFrames.UpdateStaticControls(g_DefaultFrames[unitTag])
+        UnitFrames.UpdateStaticControls(UnitFrames.DefaultFrames[unitTag])
         UnitFrames.UpdateStaticControls(UnitFrames.CustomFrames[unitTag])
-        UnitFrames.UpdateStaticControls(g_AvaCustFrames[unitTag])
+        UnitFrames.UpdateStaticControls(UnitFrames.AvaCustFrames[unitTag])
     end
 
     UnitFrames.CustomFramesApplyLayoutPlayer(player)
@@ -657,22 +637,22 @@ function UnitFrames.CustomFramesReloadControlsMenu(player, group, raid)
 end
 
 function UnitFrames.CustomFramesReloadExecuteMenu()
-    g_targetThreshold = UnitFrames.SV.ExecutePercentage
+    UnitFrames.targetThreshold = UnitFrames.SV.ExecutePercentage
 
-    if g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
-        g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].threshold = g_targetThreshold
+    if UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
+        UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].threshold = UnitFrames.targetThreshold
     end
     if UnitFrames.CustomFrames["reticleover"] and UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH] then
-        UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = g_targetThreshold
+        UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = UnitFrames.targetThreshold
     end
-    if g_AvaCustFrames["reticleover"] and g_AvaCustFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH] then
-        g_AvaCustFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = g_targetThreshold
+    if UnitFrames.AvaCustFrames["reticleover"] and UnitFrames.AvaCustFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH] then
+        UnitFrames.AvaCustFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = UnitFrames.targetThreshold
     end
 
     for i = 1, 7 do
         local unitTag = "boss" .. i
         if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] then
-            UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = g_targetThreshold
+            UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = UnitFrames.targetThreshold
         end
     end
 end

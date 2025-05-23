@@ -17,22 +17,6 @@ local eventManager = GetEventManager()
 
 local defaultPos = {}
 
-local g_AvaCustFrames = UnitFrames.AvaCustFrames                   -- Another set of custom frames. Currently designed only to provide AvA Player Target reticleover frame
-local g_DefaultFrames = UnitFrames.DefaultFrames                   -- Default Unit Frames are not referenced by external modules
-local g_MaxChampionPoint = UnitFrames.MaxChampionPoint             -- Keep this value in local constant
-local g_defaultTargetNameLabel = UnitFrames.defaultTargetNameLabel -- Reference to default UI target name label
-local g_defaultThreshold = UnitFrames.defaultThreshold
-local g_isRaid = UnitFrames.isRaid                                 -- Used by resurrection tracking function to determine if we should use abbreviated or unabbreviated text for resurrection.
-local g_powerError = UnitFrames.powerError
-local g_savedHealth = UnitFrames.savedHealth
-local g_statFull = UnitFrames.statFull
-local g_targetThreshold = UnitFrames.targetThreshold
-local g_healthThreshold = UnitFrames.healthThreshold
-local g_magickaThreshold = UnitFrames.magickaThreshold
-local g_staminaThreshold = UnitFrames.staminaThreshold
-local g_targetUnitFrame = UnitFrames.targetUnitFrame
-local playerDisplayName = UnitFrames.playerDisplayName
-
 
 
 -- Following settings will be used in options menu to define DefaultFrames behaviour
@@ -151,15 +135,15 @@ function UnitFrames.CreateDefaultFrames()
     end
     if UnitFrames.SV.DefaultFramesNewTarget == 3 then
         default_controls.reticleover = { [COMBAT_MECHANIC_FLAGS_HEALTH] = ZO_TargetUnitFramereticleover }
-        -- g_DefaultFrames.reticleover should be always present to hold target classIcon and friendIcon
+        -- UnitFrames.DefaultFrames.reticleover should be always present to hold target classIcon and friendIcon
     else
-        g_DefaultFrames.reticleover = { ["unitTag"] = "reticleover" }
+        UnitFrames.DefaultFrames.reticleover = { ["unitTag"] = "reticleover" }
     end
     -- Now loop through `default_controls` table and create actual labels (if any)
     for unitTag, fields in pairs(default_controls) do
-        g_DefaultFrames[unitTag] = { ["unitTag"] = unitTag }
+        UnitFrames.DefaultFrames[unitTag] = { ["unitTag"] = unitTag }
         for powerType, parent in pairs(fields) do
-            g_DefaultFrames[unitTag][powerType] =
+            UnitFrames.DefaultFrames[unitTag][powerType] =
             {
                 ["label"] = UI:Label(parent, { CENTER, CENTER }, nil, nil, nil, nil, false),
                 ["color"] = UnitFrames.SV.DefaultTextColour,
@@ -168,25 +152,25 @@ function UnitFrames.CreateDefaultFrames()
     end
 
     -- Reference to target unit frame. this is not an UI control! Used to add custom controls to existing fade-out components table
-    g_targetUnitFrame = ZO_UnitFrames_GetUnitFrame("reticleover")
+    UnitFrames.targetUnitFrame = ZO_UnitFrames_GetUnitFrame("reticleover")
 
     -- When default Target frame is enabled set the threshold value to change color of label and add label to default fade list
-    if g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
-        g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].threshold = g_targetThreshold
-        table.insert(g_targetUnitFrame.fadeComponents, g_DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label)
+    if UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH] then
+        UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].threshold = UnitFrames.targetThreshold
+        table.insert(UnitFrames.targetUnitFrame.fadeComponents, UnitFrames.DefaultFrames.reticleover[COMBAT_MECHANIC_FLAGS_HEALTH].label)
     end
 
     -- Create classIcon and friendIcon: they should work even when default unit frames extender is disabled
-    g_DefaultFrames.reticleover.classIcon = UI:Texture(g_targetUnitFrame.frame, nil, { 32, 32 }, nil, nil, true)
-    g_DefaultFrames.reticleover.friendIcon = UI:Texture(g_targetUnitFrame.frame, nil, { 32, 32 }, nil, nil, true)
-    g_DefaultFrames.reticleover.friendIcon:SetAnchor(TOPLEFT, ZO_TargetUnitFramereticleoverTextArea, TOPRIGHT, 30, -4)
+    UnitFrames.DefaultFrames.reticleover.classIcon = UI:Texture(UnitFrames.targetUnitFrame.frame, nil, { 32, 32 }, nil, nil, true)
+    UnitFrames.DefaultFrames.reticleover.friendIcon = UI:Texture(UnitFrames.targetUnitFrame.frame, nil, { 32, 32 }, nil, nil, true)
+    UnitFrames.DefaultFrames.reticleover.friendIcon:SetAnchor(TOPLEFT, ZO_TargetUnitFramereticleoverTextArea, TOPRIGHT, 30, -4)
     -- add those 2 icons to automatic fade list, so fading will be done automatically by game
-    table.insert(g_targetUnitFrame.fadeComponents, g_DefaultFrames.reticleover.classIcon)
-    table.insert(g_targetUnitFrame.fadeComponents, g_DefaultFrames.reticleover.friendIcon)
+    table.insert(UnitFrames.targetUnitFrame.fadeComponents, UnitFrames.DefaultFrames.reticleover.classIcon)
+    table.insert(UnitFrames.targetUnitFrame.fadeComponents, UnitFrames.DefaultFrames.reticleover.friendIcon)
 
     -- When default Group frame in use, then create dummy boolean field, so this setting remain constant between /reloadui calls
     if UnitFrames.SV.DefaultFramesNewGroup == 3 then
-        g_DefaultFrames.SmallGroup = true
+        UnitFrames.DefaultFrames.SmallGroup = true
     end
 
     -- Apply fonts
@@ -235,8 +219,8 @@ end
 --- @param unitTag string
 function UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
     -- First make preparation for "groupN" unitTag labels
-    if g_DefaultFrames[unitTag] == nil then         -- If unitTag is already in our list, then skip this
-        if "group" == zo_strsub(unitTag, 0, 5) then -- If it is really a group member unitTag
+    if UnitFrames.DefaultFrames[unitTag] == nil then -- If unitTag is already in our list, then skip this
+        if "group" == zo_strsub(unitTag, 0, 5) then  -- If it is really a group member unitTag
             local i = zo_strsub(unitTag, 6)
             if _G["ZO_GroupUnitFramegroup" .. i] then
                 local parentBar = _G["ZO_GroupUnitFramegroup" .. i .. "Hp"]
@@ -245,7 +229,7 @@ function UnitFrames.DefaultFramesCreateUnitGroupControls(unitTag)
                 -- Prepare dimension of regen bar
                 local width, height = parentBar:GetDimensions()
                 -- Populate UI elements
-                g_DefaultFrames[unitTag] =
+                UnitFrames.DefaultFrames[unitTag] =
                 {
                     ["unitTag"] = unitTag,
                     [COMBAT_MECHANIC_FLAGS_HEALTH] =

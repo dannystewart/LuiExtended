@@ -12,32 +12,26 @@ local eventManager = GetEventManager()
 
 local moduleName = SpellCastBuffs.moduleName
 
-local g_werewolfName = SpellCastBuffs.werewolfName       -- Name for current Werewolf Transformation morph
-local g_werewolfIcon = SpellCastBuffs.werewolfIcon       -- Icon for current Werewolf Transformation morph
-local g_werewolfId = SpellCastBuffs.werewolfId           -- AbilityId for Werewolf Transformation morph
-local g_werewolfCounter = SpellCastBuffs.werewolfCounter -- Counter for Werewolf transformation events
-local g_werewolfQuest = SpellCastBuffs.werewolfQuest     -- Counter for Werewolf transformation events (Quest)
-
 -- Function to pull Werewolf Cast Bar / Buff Aura Icon based off the players morph choice
 local function SetWerewolfIcon()
     local skillType, skillIndex, abilityIndex, morphChoice, rankIndex = GetSpecificSkillAbilityKeysByAbilityId(32455)
     local abilityInfo = { GetSkillAbilityInfo(skillType, skillIndex, abilityIndex) }
-    g_werewolfName, g_werewolfIcon = abilityInfo[1], abilityInfo[2]
-    g_werewolfId = GetSkillAbilityId(skillType, skillIndex, abilityIndex, false)
+    SpellCastBuffs.werewolfName, SpellCastBuffs.werewolfIcon = abilityInfo[1], abilityInfo[2]
+    SpellCastBuffs.werewolfId = GetSkillAbilityId(skillType, skillIndex, abilityIndex, false)
 end
 
 function SpellCastBuffs.DisplayWerewolfIcon()
     SetWerewolfIcon()
     local contextTarget = "player1"
-    local context = SpellCastBuffs.DetermineContextSimple(contextTarget, g_werewolfId, g_werewolfName)
+    local context = SpellCastBuffs.DetermineContextSimple(contextTarget, SpellCastBuffs.werewolfId, SpellCastBuffs.werewolfName)
     local power = GetUnitPower("player", COMBAT_MECHANIC_FLAGS_WEREWOLF)
     SpellCastBuffs.EffectsList[context]["Werewolf Indicator"] =
     {
         target = "player",
         type = 1,
-        id = g_werewolfId,
-        name = g_werewolfName,
-        icon = g_werewolfIcon,
+        id = SpellCastBuffs.werewolfId,
+        name = SpellCastBuffs.werewolfName,
+        icon = SpellCastBuffs.werewolfIcon,
         dur = 0,
         starts = 1,
         ends = nil, -- ends=nil : last buff in sorting
@@ -50,7 +44,7 @@ end
 
 function SpellCastBuffs.HideWerewolfIcon()
     local contextTarget = "player1"
-    local context = SpellCastBuffs.DetermineContextSimple(contextTarget, g_werewolfId, g_werewolfName)
+    local context = SpellCastBuffs.DetermineContextSimple(contextTarget, SpellCastBuffs.werewolfId, SpellCastBuffs.werewolfName)
     SpellCastBuffs.EffectsList[context]["Werewolf Indicator"] = nil
 end
 
@@ -61,30 +55,30 @@ function SpellCastBuffs.WerewolfState(eventCode, werewolf, onActivation)
             local skillLineData = SKILLS_DATA_MANAGER:GetSkillLineDataByIndices(SKILL_TYPE_WORLD, i)
             local name, discovered, skillLineId = skillLineData:GetName(), skillLineData:IsAvailable(), skillLineData:GetId()
             if skillLineId == 50 and discovered then
-                g_werewolfCounter = g_werewolfCounter + 1
-                if g_werewolfCounter == 3 or onActivation then
+                SpellCastBuffs.werewolfCounter = SpellCastBuffs.werewolfCounter + 1
+                if SpellCastBuffs.werewolfCounter == 3 or onActivation then
                     SpellCastBuffs.DisplayWerewolfIcon()
                     eventManager:RegisterForEvent(moduleName, EVENT_POWER_UPDATE, SpellCastBuffs.OnPowerUpdate)
                     eventManager:AddFilterForEvent(moduleName, EVENT_POWER_UPDATE, REGISTER_FILTER_POWER_TYPE, COMBAT_MECHANIC_FLAGS_WEREWOLF, REGISTER_FILTER_UNIT_TAG, "player")
-                    g_werewolfCounter = 0
+                    SpellCastBuffs.werewolfCounter = 0
                 end
                 return
             end
         end
 
-        g_werewolfQuest = g_werewolfQuest + 1
+        SpellCastBuffs.werewolfQuest = SpellCastBuffs.werewolfQuest + 1
         -- If we didn't return from the above statement this must be quest based werewolf transformation - so just display an unlimited duration passive as the counter.
-        if g_werewolfQuest == 2 or onActivation then
-            g_werewolfCounter = 0
+        if SpellCastBuffs.werewolfQuest == 2 or onActivation then
+            SpellCastBuffs.werewolfCounter = 0
         end
     else
         SpellCastBuffs.HideWerewolfIcon()
         eventManager:UnregisterForEvent(moduleName, EVENT_POWER_UPDATE)
         eventManager:UnregisterForUpdate(moduleName .. "WerewolfTicker")
-        g_werewolfCounter = 0
+        SpellCastBuffs.werewolfCounter = 0
         -- Delay resetting this value - as the quest werewolf transform event causes werewolf true, false, true in succession.
         zo_callLater(function ()
-                         g_werewolfQuest = 0
+                         SpellCastBuffs.werewolfQuest = 0
                      end, 5000)
     end
 end
@@ -102,10 +96,10 @@ function SpellCastBuffs.OnPowerUpdate(eventCode, unitTag, powerIndex, powerType,
         SpellCastBuffs.HideWerewolfIcon()
         eventManager:UnregisterForEvent(moduleName, EVENT_POWER_UPDATE)
         eventManager:UnregisterForUpdate(moduleName .. "WerewolfTicker")
-        g_werewolfCounter = 0
+        SpellCastBuffs.werewolfCounter = 0
         -- Delay resetting this value - as the quest werewolf transform event causes werewolf true, false, true in succession.
         zo_callLater(function ()
-                         g_werewolfQuest = 0
+                         SpellCastBuffs.werewolfQuest = 0
                      end, 5000)
     end
 end

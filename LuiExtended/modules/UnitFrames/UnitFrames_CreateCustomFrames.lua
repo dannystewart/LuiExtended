@@ -16,22 +16,6 @@ local sceneManager = SCENE_MANAGER
 
 -- -----------------------------------------------------------------------------
 
-local g_AvaCustFrames = UnitFrames.AvaCustFrames                   -- Another set of custom frames. Currently designed only to provide AvA Player Target reticleover frame
-local g_DefaultFrames = UnitFrames.DefaultFrames                   -- Default Unit Frames are not referenced by external modules
-local g_MaxChampionPoint = UnitFrames.MaxChampionPoint             -- Keep this value in local constant
-local g_defaultTargetNameLabel = UnitFrames.defaultTargetNameLabel -- Reference to default UI target name label
-local g_defaultThreshold = UnitFrames.defaultThreshold
-local g_isRaid = UnitFrames.isRaid                                 -- Used by resurrection tracking function to determine if we should use abbreviated or unabbreviated text for resurrection.
-local g_powerError = UnitFrames.powerError
-local g_savedHealth = UnitFrames.savedHealth
-local g_statFull = UnitFrames.statFull
-local g_targetThreshold = UnitFrames.targetThreshold
-local g_healthThreshold = UnitFrames.healthThreshold
-local g_magickaThreshold = UnitFrames.magickaThreshold
-local g_staminaThreshold = UnitFrames.staminaThreshold
-local g_targetUnitFrame = UnitFrames.targetUnitFrame
-local playerDisplayName = UnitFrames.playerDisplayName
-
 
 -- Default Regen/degen animation used on default group frames and custom frames
 local function CreateRegenAnimation(parent, anchors, dims, alpha, number)
@@ -203,7 +187,7 @@ local function CreatePlayerFrame()
                 ["trauma"] = UI:StatusBar(phb, nil, nil, nil, true),
                 ["bar"] = UI:StatusBar(phb, nil, nil, nil, false),
                 ["shield"] = UI:StatusBar(phb, nil, nil, nil, true),
-                ["threshold"] = g_healthThreshold,
+                ["threshold"] = UnitFrames.healthThreshold,
             },
             [COMBAT_MECHANIC_FLAGS_MAGICKA] =
             {
@@ -211,7 +195,7 @@ local function CreatePlayerFrame()
                 ["labelOne"] = UI:Label(pmb, { LEFT, LEFT, 5, 0 }, nil, { 0, 1 }, nil, "xx / yy", false),
                 ["labelTwo"] = UI:Label(pmb, { RIGHT, RIGHT, -5, 0 }, nil, { 2, 1 }, nil, "zz%", false),
                 ["bar"] = UI:StatusBar(pmb, nil, nil, nil, false),
-                ["threshold"] = g_magickaThreshold,
+                ["threshold"] = UnitFrames.magickaThreshold,
             },
             [COMBAT_MECHANIC_FLAGS_STAMINA] =
             {
@@ -219,7 +203,7 @@ local function CreatePlayerFrame()
                 ["labelOne"] = UI:Label(psb, { LEFT, LEFT, 5, 0 }, nil, { 0, 1 }, nil, "xx / yy", false),
                 ["labelTwo"] = UI:Label(psb, { RIGHT, RIGHT, -5, 0 }, nil, { 2, 1 }, nil, "zz%", false),
                 ["bar"] = UI:StatusBar(psb, nil, nil, nil, false),
-                ["threshold"] = g_staminaThreshold,
+                ["threshold"] = UnitFrames.staminaThreshold,
             },
             ["alternative"] =
             {
@@ -320,7 +304,7 @@ local function CreateTargetFrame()
                 ["invulnerable"] = UI:StatusBar(thb, nil, nil, nil, false),
                 ["invulnerableInlay"] = UI:StatusBar(thb, nil, nil, nil, false),
                 ["shield"] = UI:StatusBar(thb, nil, nil, nil, true),
-                ["threshold"] = g_targetThreshold,
+                ["threshold"] = UnitFrames.targetThreshold,
             },
             ["topInfo"] = topInfo,
             ["name"] = UI:Label(topInfo, { BOTTOMLEFT, BOTTOMLEFT }, nil, { 0, 4 }, nil, "Target Name", false),
@@ -377,7 +361,7 @@ local function CreateAvaPlayerTargetFrame()
         -- Collect all together
         -- Notice, that we put this table into same UnitFrames.CustomFrames table.
         -- This is done to apply formating more easier
-        -- Later this table will be referenced from g_AvaCustFrames
+        -- Later this table will be referenced from UnitFrames.AvaCustFrames
         UnitFrames.CustomFrames["AvaPlayerTarget"] =
         {
             ["unitTag"] = "reticleover",
@@ -395,7 +379,7 @@ local function CreateAvaPlayerTargetFrame()
                 ["invulnerable"] = UI:StatusBar(thb, nil, nil, nil, false),
                 ["invulnerableInlay"] = UI:StatusBar(thb, nil, nil, nil, false),
                 ["shield"] = UI:StatusBar(thb, nil, nil, nil, true),
-                ["threshold"] = g_targetThreshold,
+                ["threshold"] = UnitFrames.targetThreshold,
             },
             ["topInfo"] = topInfo,
             ["name"] = UI:Label(topInfo, { BOTTOM, BOTTOM }, nil, { 1, 4 }, nil, "Target Name", false),
@@ -415,7 +399,7 @@ local function CreateAvaPlayerTargetFrame()
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].labelTwo.format = "Max"
 
         -- Put in into table with secondary frames so it can be accessed by other functions in this module
-        g_AvaCustFrames["reticleover"] = UnitFrames.CustomFrames["AvaPlayerTarget"]
+        UnitFrames.AvaCustFrames["reticleover"] = UnitFrames.CustomFrames["AvaPlayerTarget"]
     end
 end
 
@@ -688,7 +672,7 @@ local function CreateBossFrames()
                     ["invulnerable"] = UI:StatusBar(bhb, nil, nil, nil, false),
                     ["invulnerableInlay"] = UI:StatusBar(bhb, nil, nil, nil, false),
                     ["shield"] = UI:StatusBar(bhb, nil, nil, nil, true),
-                    ["threshold"] = g_targetThreshold,
+                    ["threshold"] = UnitFrames.targetThreshold,
                 },
                 ["dead"] = UI:Label(bhb, { RIGHT, RIGHT, -5, 0 }, nil, { 2, 1 }, nil, "Status", true),
                 ["name"] = UI:Label(bhb, { LEFT, LEFT, 5, 0 }, nil, { 0, 1 }, nil, unitTag, false),

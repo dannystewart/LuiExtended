@@ -13,8 +13,7 @@ local printToChat = LUIE.PrintToChat
 --- @class (partial) ChatAnnouncements
 local ChatAnnouncements = LUIE.ChatAnnouncements
 local moduleName = ChatAnnouncements.moduleName
-local g_questItemAdded = ChatAnnouncements.questItemAdded
-local g_questItemRemoved = ChatAnnouncements.questItemRemoved
+
 
 function ChatAnnouncements.PrintQueuedMessages()
     -- Resolve notification messages first
@@ -90,7 +89,7 @@ function ChatAnnouncements.PrintQueuedMessages()
     for i = 1, #ChatAnnouncements.QueuedMessages do
         if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_LOOT_REMOVE" then
             local itemId = ChatAnnouncements.QueuedMessages[i].itemId
-            if not g_questItemAdded[itemId] == true then
+            if not ChatAnnouncements.questItemAdded[itemId] == true then
                 printToChat(ChatAnnouncements.QueuedMessages[i].message)
             end
         end
@@ -114,7 +113,7 @@ function ChatAnnouncements.PrintQueuedMessages()
     for i = 1, #ChatAnnouncements.QueuedMessages do
         if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_LOOT_ADD" then
             local itemId = ChatAnnouncements.QueuedMessages[i].itemId
-            if not g_questItemRemoved[itemId] == true then
+            if not ChatAnnouncements.questItemRemoved[itemId] == true then
                 printToChat(ChatAnnouncements.QueuedMessages[i].message)
             end
         end
