@@ -233,7 +233,12 @@ do
     --- @param messageOrFormatter string: The message to be printed.
     --- @param ... string: Variable number of arguments to be formatted into the message.
     local function AddSystemMessage(messageOrFormatter, ...)
-        local formattedMessage = string_format(messageOrFormatter or "", ...)
+        local formattedMessage
+        if select("#", ...) > 0 then
+            formattedMessage = string_format(messageOrFormatter or "", ...)
+        else
+            formattedMessage = messageOrFormatter or ""
+        end
         CHAT_ROUTER:AddSystemMessage(formattedMessage)
 
         if LibDebugLogger and LUIE.IsDevDebugEnabled() then
