@@ -217,6 +217,10 @@ SpellCastBuffs.EffectsList =
     promd_target = {},
     reticleover1 = {},
     reticleover2 = {},
+    prominentbuffs = {},
+    prominentdebuffs = {},
+    target1 = {},
+    target2 = {},
     saved = {},
 }
 
@@ -244,18 +248,22 @@ local uiTlw = {} -- GUI
 -- Routing for Auras
 SpellCastBuffs.containerRouting =
 {
-    player1 = nil,
-    player2 = nil,
-    reticleover1 = nil,
-    reticleover2 = nil,
-    ground = nil,
-    player_long = nil,
-    promb_ground = nil,
-    promb_target = nil,
-    promb_player = nil,
-    promd_ground = nil,
-    promd_target = nil,
-    promd_player = nil,
+    ["player1"]          = nil,
+    ["player2"]          = nil,
+    ["reticleover1"]     = nil,
+    ["reticleover2"]     = nil,
+    ["ground"]           = nil,
+    ["player_long"]      = nil,
+    ["promb_ground"]     = nil,
+    ["promb_target"]     = nil,
+    ["promb_player"]     = nil,
+    ["promd_ground"]     = nil,
+    ["promd_target"]     = nil,
+    ["promd_player"]     = nil,
+    ["prominentbuffs"]   = nil,
+    ["prominentdebuffs"] = nil,
+    ["target1"]          = nil,
+    ["target2"]          = nil,
 }
 
 SpellCastBuffs.alignmentDirection = {}    -- Holds alignment direction for all containers
@@ -284,6 +292,10 @@ SpellCastBuffs.werewolfIcon = ""   -- Icon for current Werewolf Transformation m
 SpellCastBuffs.werewolfId = 0      -- AbilityId for Werewolf Transformation morph
 SpellCastBuffs.werewolfCounter = 0 -- Counter for Werewolf transformation events
 SpellCastBuffs.werewolfQuest = 0   -- Counter for Werewolf transformation events (Quest)
+
+-- Counter variable for ACTION_RESULT_EFFECT_GAINED / ACTION_RESULT_EFFECT_FADED tracking for some buffs that are broken
+-- Handles buffs that rather than refreshing on reapplication create an individual instance and therefore have GAINED/FADED events every single time the effect ticks.
+SpellCastBuffs.InternalStackCounter = {}
 
 --- @class (partial) LUIE.SpellCastBuffs
 LUIE.SpellCastBuffs = SpellCastBuffs

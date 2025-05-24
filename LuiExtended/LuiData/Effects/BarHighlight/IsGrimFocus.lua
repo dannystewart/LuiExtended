@@ -23,3 +23,9 @@ local isGrimFocus =
 
 --- @class (partial) IsGrimFocus
 Effects.IsGrimFocus = isGrimFocus
+
+
+Effects.IsBoundArmaments =
+{
+    [203447] = true, -- Bound Armaments IV
+}

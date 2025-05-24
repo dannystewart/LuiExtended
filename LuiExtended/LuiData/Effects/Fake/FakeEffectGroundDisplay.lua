@@ -16,23 +16,23 @@ local Abilities = Data.Abilities
 --------------------------------------------------------------------------------------------------------------------------------
 -- EFFECTS TABLE FOR FAKE EFFECTS
 --------------------------------------------------------------------------------------------------------------------------------
-
+--- @class EffectGroundDisplayData
+--- @field buff boolean -- Choose whether this effect shows up in any of these containers
+--- @field debuff boolean -- Choose whether this effect shows up in any of these containers
+--- @field ground boolean -- Choose whether this effect shows up in any of these containers
+--- @field name? string -- Add a custom name
+--- @field icon? string -- Add a custom icon
+--- @field stackAdd? integer -- How many stacks to add when this effect begins (used for Ground Mines)
+--- @field stackRemove? integer -- How many stacks to remove when this effect ends (used for Ground Mines)
+--- @field stackReset? integer -- Maximum stack counter (used for Ground Mines)
+--- @field noRemove? boolean -- Do not end this aura on EFFECT_RESULT_FADED
 --------------------------------------------------------------------------------------------------------------------------------
 -- Adds this aura to a list of fake Ground auras to display when the player casts them
 --------------------------------------------------------------------------------------------------------------------------------
 --- @class (partial) EffectGroundDisplay
-local effectGroundDisplay =
+--- @field [integer] EffectGroundDisplayData
+Effects.EffectGroundDisplay =
 {
-    -- Required:
-    -- buff, debuff, ground = true/false -- Choose whether this effect shows up in any of these containers
-    -- Optional:
-    -- name = '' -- Add a custom name
-    -- icon = '' -- Add a custom icon
-    -- stackAdd = # -- How many stacks to add when this effect begins (used for Ground Mines)
-    -- stackRemove = # -- How many stacks to remove when this effect ends (used for Ground Mines)
-    -- stackReset = # -- Maximum stack counter (used for Ground Mines)
-    -- noRemove = true -- Do not end this aura on EFFECT_RESULT_FADED
-
     -- Cyrodiil
     [88714] = { icon = "LuiExtended/media/icons/abilities/ability_ava_siege_meatbag_catapult.dds", name = Abilities.Skill_Meatbag_Catapult, buff = false, debuff = false, ground = true },          -- Meatbag (Meatbag Catapult)
     [104700] = { icon = "LuiExtended/media/icons/abilities/ability_spell_gtaoe_oil_snare.dds", name = Abilities.Skill_Oil_Catapult, buff = false, debuff = false, ground = true },                  -- Twisting Path (Oil Catapult)
@@ -280,6 +280,3 @@ local effectGroundDisplay =
     [61522] = { name = Abilities.Skill_Lingering_Flare, buff = false, debuff = false, ground = true }, -- Nova (Lingering Flare)
     [61526] = { buff = false, debuff = false, ground = true },                                         -- Blinding Flare (Blinding Flare)
 }
-
---- @class (partial) EffectGroundDisplay
-Effects.EffectGroundDisplay = effectGroundDisplay

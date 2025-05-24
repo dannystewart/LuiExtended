@@ -185,6 +185,7 @@ local Effects =
     IsExperienceBuff = {},
     IsFoodBuff = {},
     IsGrimFocus = {},
+    IsBoundArmaments = {},
     IsGroundMineAura = {},
     IsGroundMineDamage = {},
     IsGroundMineStack = {},

@@ -94,14 +94,21 @@ modules/CombatInfo/CrowdControlTracker.lua
 modules/InfoPanel/InfoPanel.lua
 
 # Modules - Spell Cast Buffs
-modules/SpellCastBuffs/SpellCastBuffs_Namespace.lua
-modules/SpellCastBuffs/SpellCastBuffs_ContextFunctions.lua
-modules/SpellCastBuffs/SpellCastBuffs_ListFunctions.lua
-modules/SpellCastBuffs/SpellCastBuffs_Collectibles.lua
-modules/SpellCastBuffs/SpellCastBuffs_Cyrodiil.lua
-modules/SpellCastBuffs/SpellCastBuffs_Stealth.lua
-modules/SpellCastBuffs/SpellCastBuffs_Debug.lua
-modules/SpellCastBuffs/SpellCastBuffs_Werewolf.lua
+modules/SpellCastBuffs/_Namespace.lua
+modules/SpellCastBuffs/_Collectibles.lua
+modules/SpellCastBuffs/_ContextFunctions.lua
+modules/SpellCastBuffs/_Cyrodiil.lua
+modules/SpellCastBuffs/_Debug.lua
+modules/SpellCastBuffs/_ListFunctions.lua
+modules/SpellCastBuffs/_OnCombatAddNameEvent.lua
+modules/SpellCastBuffs/_OnCombatEventIn.lua
+modules/SpellCastBuffs/_OnCombatEventOut.lua
+modules/SpellCastBuffs/_OnEffectChanged.lua
+modules/SpellCastBuffs/_OnEffectChangedGround.lua
+modules/SpellCastBuffs/_OnUpdate.lua
+modules/SpellCastBuffs/_ReloadEffects.lua
+modules/SpellCastBuffs/_Stealth.lua
+modules/SpellCastBuffs/_Werewolf.lua
 modules/SpellCastBuffs/SpellCastBuffs.lua
 
 # Modules - Slash Commands
