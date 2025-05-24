@@ -2439,6 +2439,12 @@ function UnitFrames.CustomFramesApplyTexture()
             applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
         end
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
+        local shieldStatusBarControl = UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shield
+        if shieldStatusBarControl then
+            shieldStatusBarControl:EnableFadeOut(true)
+            shieldStatusBarControl:EnableLeadingEdge(true)
+            shieldStatusBarControl:SetPixelRoundingEnabled(true)
+        end
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].backdrop)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].bar:SetTexture(texture)
@@ -2457,9 +2463,22 @@ function UnitFrames.CustomFramesApplyTexture()
             applyTextureToBackdrop(UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
         end
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
+        local shieldStatusBarControl = UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shield
+        if shieldStatusBarControl then
+            shieldStatusBarControl:EnableFadeOut(true)
+            shieldStatusBarControl:EnableLeadingEdge(true)
+            shieldStatusBarControl:SetPixelRoundingEnabled(true)
+        end
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerable:SetTexture(texture)
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerableInlay:SetTexture("LuiExtended/media/unitframes/invulnerable_munge.dds")
+        local invulInlay = UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerableInlay
+        if invulInlay then
+            invulInlay:EnableFadeOut(true)
+            invulInlay:EnableLeadingEdge(true)
+            invulInlay:SetPixelRoundingEnabled(true)
+            invulInlay:SetTextureCoords(0, 1, 0, 1) -- full texture
+        end
         UnitFrames.CustomFrames["reticleover"].tlw:SetHidden(false)
     end
 
@@ -2470,9 +2489,22 @@ function UnitFrames.CustomFramesApplyTexture()
             applyTextureToBackdrop(UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
         end
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
+        local shieldStatusBarControl = UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].shield
+        if shieldStatusBarControl then
+            shieldStatusBarControl:EnableFadeOut(true)
+            shieldStatusBarControl:EnableLeadingEdge(true)
+            shieldStatusBarControl:SetPixelRoundingEnabled(true)
+        end
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerable:SetTexture(texture)
         UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerableInlay:SetTexture("LuiExtended/media/unitframes/invulnerable_munge.dds")
+        local invulInlay = UnitFrames.CustomFrames["AvaPlayerTarget"][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerableInlay
+        if invulInlay then
+            invulInlay:EnableFadeOut(true)
+            invulInlay:EnableLeadingEdge(true)
+            invulInlay:SetPixelRoundingEnabled(true)
+            invulInlay:SetTextureCoords(0, 1, 0, 1) -- full texture
+        end
         UnitFrames.CustomFrames["AvaPlayerTarget"].tlw:SetHidden(false)
     end
 
@@ -2480,6 +2512,12 @@ function UnitFrames.CustomFramesApplyTexture()
         applyTextureToBackdrop(UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
         UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
         UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
+        local shieldStatusBarControl = UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].shield
+        if shieldStatusBarControl then
+            shieldStatusBarControl:EnableFadeOut(true)
+            shieldStatusBarControl:EnableLeadingEdge(true)
+            shieldStatusBarControl:SetPixelRoundingEnabled(true)
+        end
         UnitFrames.CustomFrames["companion"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         UnitFrames.CustomFrames["companion"].tlw:SetHidden(false)
     end
@@ -2493,6 +2531,12 @@ function UnitFrames.CustomFramesApplyTexture()
                 applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
             end
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
+            local shieldStatusBarControl = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield
+            if shieldStatusBarControl then
+                shieldStatusBarControl:EnableFadeOut(true)
+                shieldStatusBarControl:EnableLeadingEdge(true)
+                shieldStatusBarControl:SetPixelRoundingEnabled(true)
+            end
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         end
         UnitFrames.CustomFrames["SmallGroup1"].tlw:SetHidden(false)
@@ -2504,6 +2548,12 @@ function UnitFrames.CustomFramesApplyTexture()
             applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
+            local shieldStatusBarControl = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield
+            if shieldStatusBarControl then
+                shieldStatusBarControl:EnableFadeOut(true)
+                shieldStatusBarControl:EnableLeadingEdge(true)
+                shieldStatusBarControl:SetPixelRoundingEnabled(true)
+            end
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         end
         UnitFrames.CustomFrames["RaidGroup1"].tlw:SetHidden(false)
@@ -2515,6 +2565,12 @@ function UnitFrames.CustomFramesApplyTexture()
             applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
+            local shieldStatusBarControl = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield
+            if shieldStatusBarControl then
+                shieldStatusBarControl:EnableFadeOut(true)
+                shieldStatusBarControl:EnableLeadingEdge(true)
+                shieldStatusBarControl:SetPixelRoundingEnabled(true)
+            end
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         end
         UnitFrames.CustomFrames["PetGroup1"].tlw:SetHidden(false)
@@ -2526,9 +2582,22 @@ function UnitFrames.CustomFramesApplyTexture()
             applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield:SetTexture(texture)
+            local shieldStatusBarControl = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].shield
+            if shieldStatusBarControl then
+                shieldStatusBarControl:EnableFadeOut(true)
+                shieldStatusBarControl:EnableLeadingEdge(true)
+                shieldStatusBarControl:SetPixelRoundingEnabled(true)
+            end
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerable:SetTexture(texture)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerableInlay:SetTexture("LuiExtended/media/unitframes/invulnerable_munge.dds")
+            local invulInlay = UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].invulnerableInlay
+            if invulInlay then
+                invulInlay:EnableFadeOut(true)
+                invulInlay:EnableLeadingEdge(true)
+                invulInlay:SetPixelRoundingEnabled(true)
+                invulInlay:SetTextureCoords(0, 1, 0, 1) -- full texture
+            end
         end
         UnitFrames.CustomFrames["boss1"].tlw:SetHidden(false)
     end
