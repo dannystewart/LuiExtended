@@ -201,6 +201,9 @@ function SpellCastBuffs.Initialize(enabled)
         table_insert(fragments, fragment2)
     end
 
+    -- Initialize group buff tracking
+    SpellCastBuffs.InitializeGroupBuffs()
+
     -- Create TopLevelWindows for buff frames when NOT locked to Custom Unit Frames
     if SpellCastBuffs.SV.lockPositionToUnitFrames and LUIE.UnitFrames.CustomFrames.reticleover and LUIE.UnitFrames.CustomFrames.reticleover.buffs and LUIE.UnitFrames.CustomFrames.reticleover.debuffs then
         SpellCastBuffs.BuffContainers.target1 = LUIE.UnitFrames.CustomFrames.reticleover.buffs
@@ -1268,7 +1271,7 @@ function SpellCastBuffs.Buff_OnMouseUp(self, button, upInside)
         local id, name = self.effectId, self.effectName
         -- Blacklist
         local blacklist = SpellCastBuffs.SV.BlacklistTable
-        local isBlacklisted = SpellCastBuffs.IsBuffListed(id, name)
+        local isBlacklisted = blacklist[id] or blacklist[name]
         AddMenuItem(isBlacklisted and "Remove from Blacklist" or "Add to Blacklist", function ()
             if isBlacklisted then
                 SpellCastBuffs.RemoveFromCustomList(blacklist, id)
@@ -1278,18 +1281,18 @@ function SpellCastBuffs.Buff_OnMouseUp(self, button, upInside)
                 SpellCastBuffs.AddToCustomList(blacklist, name)
             end
         end)
-        -- -- Whitelist
-        -- local whitelist = SpellCastBuffs.SV.WhitelistTable
-        -- local isWhitelisted = whitelist[id] or whitelist[name]
-        -- AddMenuItem(isWhitelisted and "Remove from Whitelist" or "Add to Whitelist", function ()
-        --     if isWhitelisted then
-        --         SpellCastBuffs.RemoveFromCustomList(whitelist, id)
-        --         SpellCastBuffs.RemoveFromCustomList(whitelist, name)
-        --     else
-        --         SpellCastBuffs.AddToCustomList(whitelist, id)
-        --         SpellCastBuffs.AddToCustomList(whitelist, name)
-        --     end
-        -- end)
+        -- GroupBuff
+        local GroupBufflist = SpellCastBuffs.SV.GroupTrackedBuffs
+        local isGroupBufflist = GroupBufflist[id] or GroupBufflist[name]
+        AddMenuItem(isGroupBufflist and "Remove from GroupBufflist" or "Add to GroupBufflist", function ()
+            if isGroupBufflist then
+                SpellCastBuffs.RemoveFromCustomList(GroupBufflist, id)
+                SpellCastBuffs.RemoveFromCustomList(GroupBufflist, name)
+            else
+                SpellCastBuffs.AddToCustomList(GroupBufflist, id)
+                SpellCastBuffs.AddToCustomList(GroupBufflist, name)
+            end
+        end)
         -- Prominent Buffs
         local promBuffs = SpellCastBuffs.SV.PromBuffTable
         local isPromBuff = promBuffs[id] or promBuffs[name]

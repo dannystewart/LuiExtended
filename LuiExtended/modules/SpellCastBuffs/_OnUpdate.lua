@@ -311,6 +311,7 @@ end
 
 -- Runs OnUpdate - 100 ms buffer
 SpellCastBuffs.OnUpdate = function (currentTimeMs)
+    currentTimeMs = currentTimeMs or GetFrameTimeMilliseconds()
     local buffsSorted = {}
     local needs_update = {}
     local isProminent = {}

@@ -3717,6 +3717,125 @@ function SpellCastBuffs.CreateSettings()
         end,
     }
 
+    -- Group Buff Tracking Settings
+    local groupBuffOptions =
+    {
+        type = "submenu",
+        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_HEADER),
+        controls =
+        {
+            {
+                type = "submenu",
+                name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_SUBMENU),
+                controls =
+                {
+                    {
+                        type = "slider",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_SIZE),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_SIZE_TP),
+                        min = 16,
+                        max = 64,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.GroupBuffIconSize end,
+                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffIconSize = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_OFFSET),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_OFFSET_TP),
+                        min = 0,
+                        max = 50,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.GroupBuffIconOffset end,
+                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffIconOffset = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_START_X),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_START_X_TP),
+                        min = 0,
+                        max = 450,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.GroupBuffStartX end,
+                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffStartX = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_START_Y),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_START_Y_TP),
+                        min = -100,
+                        max = 100,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.GroupBuffStartY end,
+                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffStartY = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_SIZE),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_SIZE_TP),
+                        min = 8,
+                        max = 32,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.GroupBuffTimerSize end,
+                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffTimerSize = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "colorpicker",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_COLOR),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_COLOR_TP),
+                        getFunc = function ()
+                            local c = SpellCastBuffs.SV.GroupBuffTimerColor
+                            return unpack(c or { 1, 1, 1, 1 })
+                        end,
+                        setFunc = function (r, g, b, a)
+                            SpellCastBuffs.SV.GroupBuffTimerColor = { r, g, b, a }
+                        end,
+                        width = "full",
+                    },
+                },
+            },
+            {
+                type = "submenu",
+                name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_SUBMENU),
+                controls = (function ()
+                    local controls =
+                    {
+                        {
+                            type = "description",
+                            text = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_DESC),
+                            width = "full",
+                        },
+                    }
+                    for buffId, _ in pairs(SpellCastBuffs.DefaultGroupBuffs) do
+                        local icon = GetAbilityIcon(buffId) or "/esoui/art/icons/default.dds"
+                        local buffName = GetAbilityName(buffId) or ("Buff " .. tostring(buffId))
+                        local buffNameWithIcon = ("|t24:24:%s|t %s"):format(icon, buffName)
+                        table_insert(controls,
+                                     {
+                                         type = "checkbox",
+                                         name = buffNameWithIcon,
+                                         getFunc = function ()
+                                             return SpellCastBuffs.SV.GroupTrackedBuffs[buffId]
+                                         end,
+                                         setFunc = function (value)
+                                             SpellCastBuffs.SV.GroupTrackedBuffs[buffId] = value
+                                         end,
+                                         width = "full",
+                                     })
+                    end
+                    return controls
+                end)(),
+            },
+        },
+    }
+    -- Insert before Debug section
+    table.insert(optionsDataBuffsDebuffs, #optionsDataBuffsDebuffs - 8, groupBuffOptions)
+
     -- Register the settings panel
     if LUIE.SV.SpellCastBuff_Enable then
         LAM:RegisterAddonPanel(LUIE.name .. "BuffsAndDebuffsOptions", panelDataBuffsDebuffs)

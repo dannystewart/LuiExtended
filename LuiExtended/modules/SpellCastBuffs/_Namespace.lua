@@ -185,6 +185,14 @@ SpellCastBuffs.Defaults =
     DefaultIconOptions = 1,
     ShowSharedEffects = true,
     ShowSharedMajorMinor = true,
+    -- Group Buff Tracking
+    GroupBuffIconSize = 24,
+    GroupBuffIconOffset = 5,
+    GroupBuffStartX = 75,
+    GroupBuffStartY = 0,
+    GroupBuffTimerSize = 16,
+    GroupBuffTimerColor = { 1, 1, 1, 1 },
+    GroupTrackedBuffs = {},
 }
 SpellCastBuffs.SV = {}
 
