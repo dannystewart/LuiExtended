@@ -1036,32 +1036,32 @@ function SpellCastBuffs.Reset()
     if SpellCastBuffs.BuffContainers.playerb and SpellCastBuffs.BuffContainers.playerb:GetType() == CT_TOPLEVELCONTROL then
         SpellCastBuffs.BuffContainers.playerb:SetDimensions(SpellCastBuffs.SV.WidthPlayerBuffs, SpellCastBuffs.SV.IconSize + 6)
         SpellCastBuffs.BuffContainers.playerd:SetDimensions(SpellCastBuffs.SV.WidthPlayerDebuffs, SpellCastBuffs.SV.IconSize + 6)
-        SpellCastBuffs.BuffContainers.playerb.maxIcons = zo_floor((SpellCastBuffs.BuffContainers.playerb:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding))
-        SpellCastBuffs.BuffContainers.playerd.maxIcons = zo_floor((SpellCastBuffs.BuffContainers.playerd:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding))
+        SpellCastBuffs.BuffContainers.playerb.maxIcons = zo_max(1, zo_floor((SpellCastBuffs.BuffContainers.playerb:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding)))
+        SpellCastBuffs.BuffContainers.playerd.maxIcons = zo_max(1, zo_floor((SpellCastBuffs.BuffContainers.playerd:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding)))
     else
         SpellCastBuffs.BuffContainers.player2:SetHeight(SpellCastBuffs.SV.IconSize)
         SpellCastBuffs.BuffContainers.player2.firstAnchor = { TOPLEFT, TOP }
-        SpellCastBuffs.BuffContainers.player2.maxIcons = zo_floor((SpellCastBuffs.BuffContainers.player2:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding))
+        SpellCastBuffs.BuffContainers.player2.maxIcons = zo_max(1, zo_floor((SpellCastBuffs.BuffContainers.player2:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding)))
 
         SpellCastBuffs.BuffContainers.player1:SetHeight(SpellCastBuffs.SV.IconSize)
         SpellCastBuffs.BuffContainers.player1.firstAnchor = { TOPLEFT, TOP }
-        SpellCastBuffs.BuffContainers.player1.maxIcons = zo_floor((SpellCastBuffs.BuffContainers.player1:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding))
+        SpellCastBuffs.BuffContainers.player1.maxIcons = zo_max(1, zo_floor((SpellCastBuffs.BuffContainers.player1:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding)))
     end
 
     -- Target
     if SpellCastBuffs.BuffContainers.targetb and SpellCastBuffs.BuffContainers.targetb:GetType() == CT_TOPLEVELCONTROL then
         SpellCastBuffs.BuffContainers.targetb:SetDimensions(SpellCastBuffs.SV.WidthTargetBuffs, SpellCastBuffs.SV.IconSize + 6)
         SpellCastBuffs.BuffContainers.targetd:SetDimensions(SpellCastBuffs.SV.WidthTargetDebuffs, SpellCastBuffs.SV.IconSize + 6)
-        SpellCastBuffs.BuffContainers.targetb.maxIcons = zo_floor((SpellCastBuffs.BuffContainers.targetb:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding))
-        SpellCastBuffs.BuffContainers.targetd.maxIcons = zo_floor((SpellCastBuffs.BuffContainers.targetd:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding))
+        SpellCastBuffs.BuffContainers.targetb.maxIcons = zo_max(1, zo_floor((SpellCastBuffs.BuffContainers.targetb:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding)))
+        SpellCastBuffs.BuffContainers.targetd.maxIcons = zo_max(1, zo_floor((SpellCastBuffs.BuffContainers.targetd:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding)))
     else
         SpellCastBuffs.BuffContainers.target2:SetHeight(SpellCastBuffs.SV.IconSize)
         SpellCastBuffs.BuffContainers.target2.firstAnchor = { TOPLEFT, TOP }
-        SpellCastBuffs.BuffContainers.target2.maxIcons = zo_floor((SpellCastBuffs.BuffContainers.target2:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding))
+        SpellCastBuffs.BuffContainers.target2.maxIcons = zo_max(1, zo_floor((SpellCastBuffs.BuffContainers.target2:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding)))
 
         SpellCastBuffs.BuffContainers.target1:SetHeight(SpellCastBuffs.SV.IconSize)
         SpellCastBuffs.BuffContainers.target1.firstAnchor = { TOPLEFT, TOP }
-        SpellCastBuffs.BuffContainers.target1.maxIcons = zo_floor((SpellCastBuffs.BuffContainers.target1:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding))
+        SpellCastBuffs.BuffContainers.target1.maxIcons = zo_max(1, zo_floor((SpellCastBuffs.BuffContainers.target1:GetWidth() - 4 * SpellCastBuffs.padding) / (SpellCastBuffs.SV.IconSize + SpellCastBuffs.padding)))
     end
 
     -- Player long buffs
