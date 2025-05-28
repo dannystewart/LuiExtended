@@ -158,5 +158,3 @@ function UnitFrames.CustomFramesFormatLabels(menu)
         end
     end
 end
-
-return UnitFrames

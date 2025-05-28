@@ -656,5 +656,3 @@ function UnitFrames.CustomFramesReloadExecuteMenu()
         end
     end
 end
-
-return UnitFrames

@@ -206,5 +206,3 @@ function SpellCastBuffs.StealthStateChanged(eventId, unitTag, stealthState)
         }
     end
 end
-
-return SpellCastBuffs

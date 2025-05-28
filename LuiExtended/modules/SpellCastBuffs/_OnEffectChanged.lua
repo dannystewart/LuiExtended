@@ -401,5 +401,3 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
         }
     end
 end
-
-return SpellCastBuffs

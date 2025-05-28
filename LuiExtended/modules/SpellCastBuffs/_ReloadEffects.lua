@@ -97,5 +97,3 @@ SpellCastBuffs.ReloadEffects = function (unitTag)
         SpellCastBuffs.LoadBattleSpiritTarget()
     end
 end
-
-return SpellCastBuffs.ReloadEffects

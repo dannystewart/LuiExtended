@@ -11,6 +11,8 @@ local LUIE = LUIE
 -- SpellCastBuffs namespace
 --- @class (partial) LUIE.SpellCastBuffs
 local SpellCastBuffs = ZO_Object:Subclass()
+--- @class (partial) LUIE.SpellCastBuffs
+LUIE.SpellCastBuffs = SpellCastBuffs
 
 SpellCastBuffs.moduleName = LUIE.name .. "SpellCastBuffs"
 
@@ -202,27 +204,23 @@ SpellCastBuffs.SV = {}
 --- | `"targetb"`
 --- | `"targetd"`
 
-
 -- Saved Effects
 SpellCastBuffs.EffectsList =
 {
-    ground = {},
     player1 = {},
     player2 = {},
-    promb_ground = {},
-    promb_player = {},
-    promb_target = {},
-    promd_ground = {},
-    promd_player = {},
-    promd_target = {},
     reticleover1 = {},
     reticleover2 = {},
-    prominentbuffs = {},
-    prominentdebuffs = {},
-    target1 = {},
-    target2 = {},
+    ground = {},
     saved = {},
+    promb_ground = {},
+    promb_target = {},
+    promb_player = {},
+    promd_ground = {},
+    promd_target = {},
+    promd_player = {}
 }
+
 
 SpellCastBuffs.hidePlayerEffects = {}       -- Table of Effects to hide on Player - generated on load or updated from Menu
 SpellCastBuffs.hideTargetEffects = {}       -- Table of Effects to hide on Target - generated on load or updated from Menu
@@ -246,25 +244,7 @@ SpellCastBuffs.windowTitles =
 local uiTlw = {} -- GUI
 
 -- Routing for Auras
-SpellCastBuffs.containerRouting =
-{
-    ["player1"]          = nil,
-    ["player2"]          = nil,
-    ["reticleover1"]     = nil,
-    ["reticleover2"]     = nil,
-    ["ground"]           = nil,
-    ["player_long"]      = nil,
-    ["promb_ground"]     = nil,
-    ["promb_target"]     = nil,
-    ["promb_player"]     = nil,
-    ["promd_ground"]     = nil,
-    ["promd_target"]     = nil,
-    ["promd_player"]     = nil,
-    ["prominentbuffs"]   = nil,
-    ["prominentdebuffs"] = nil,
-    ["target1"]          = nil,
-    ["target2"]          = nil,
-}
+SpellCastBuffs.containerRouting = {}
 
 SpellCastBuffs.alignmentDirection = {}    -- Holds alignment direction for all containers
 SpellCastBuffs.sortDirection = {}         -- Holds sorting direction for all containers
@@ -296,8 +276,3 @@ SpellCastBuffs.werewolfQuest = 0   -- Counter for Werewolf transformation events
 -- Counter variable for ACTION_RESULT_EFFECT_GAINED / ACTION_RESULT_EFFECT_FADED tracking for some buffs that are broken
 -- Handles buffs that rather than refreshing on reapplication create an individual instance and therefore have GAINED/FADED events every single time the effect ticks.
 SpellCastBuffs.InternalStackCounter = {}
-
---- @class (partial) LUIE.SpellCastBuffs
-LUIE.SpellCastBuffs = SpellCastBuffs
-
-return SpellCastBuffs

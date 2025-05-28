@@ -73,4 +73,3 @@ function UnitFrames.RemoveFromCustomList(list, input)
 end
 
 -- -----------------------------------------------------------------------------
-return UnitFrames

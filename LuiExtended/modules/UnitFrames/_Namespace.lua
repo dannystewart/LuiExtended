@@ -12,6 +12,8 @@ local LUIE = LUIE
 -- Unit Frames namespace
 --- @class (partial) UnitFrames
 local UnitFrames = ZO_Object:Subclass()
+--- @class (partial) UnitFrames
+LUIE.UnitFrames = UnitFrames
 
 UnitFrames.moduleName = LUIE.name .. "UnitFrames"
 UnitFrames.AvaCustFrames = {}
@@ -257,8 +259,3 @@ UnitFrames.CustomFrames =
     ["SmallGroup4"] = nil, --- @type LUIE_SmallGroup
 }
 UnitFrames.CustomFramesMovingState = false
-
---- @class (partial) UnitFrames
-LUIE.UnitFrames = UnitFrames
-
-return UnitFrames

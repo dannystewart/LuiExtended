@@ -1087,5 +1087,3 @@ function UnitFrames.CreateCustomFrames()
 
     AddTopLevelWindows()
 end
-
-return UnitFrames

@@ -347,10 +347,10 @@ function SpellCastBuffs.Initialize(enabled)
     SpellCastBuffs.UpdateDisplayOverrideIdList()
 
     -- Register events
-    eventManager:RegisterForUpdate(moduleName .. "OnUpdate", 100, SpellCastBuffs.OnUpdate)
+    eventManager:RegisterForUpdate(moduleName, 100, SpellCastBuffs.OnUpdate)
+
     -- Target Events
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, SpellCastBuffs.OnTargetChange)
-    eventManager:AddFilterForEvent(moduleName, EVENT_TARGET_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
     eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, SpellCastBuffs.OnReticleTargetChanged)
     eventManager:RegisterForEvent(moduleName .. "Disposition", EVENT_DISPOSITION_UPDATE, SpellCastBuffs.OnDispositionUpdate)
     eventManager:AddFilterForEvent(moduleName .. "Disposition", EVENT_DISPOSITION_UPDATE, REGISTER_FILTER_UNIT_TAG, "reticleover")
@@ -360,14 +360,15 @@ function SpellCastBuffs.Initialize(enabled)
     eventManager:RegisterForEvent(moduleName .. "Target", EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChanged)
     eventManager:AddFilterForEvent(moduleName .. "Player", EVENT_EFFECT_CHANGED, REGISTER_FILTER_UNIT_TAG, "player")
     eventManager:AddFilterForEvent(moduleName .. "Target", EVENT_EFFECT_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
+
     -- GROUND & MINE EFFECTS - add a filtered event for each AbilityId
     for k, v in pairs(Effects.EffectGroundDisplay) do
-        eventManager:RegisterForEvent(moduleName .. "Ground1" .. k, EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
-        eventManager:AddFilterForEvent(moduleName .. "Ground1" .. k, EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
+        eventManager:RegisterForEvent(moduleName .. "Ground" .. tostring(k), EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
+        eventManager:AddFilterForEvent(moduleName .. "Ground" .. tostring(k), EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
     end
     for k, v in pairs(Effects.LinkedGroundMine) do
-        eventManager:RegisterForEvent(moduleName .. "Ground2" .. k, EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
-        eventManager:AddFilterForEvent(moduleName .. "Ground2" .. k, EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
+        eventManager:RegisterForEvent(moduleName .. "Ground" .. tostring(k), EVENT_EFFECT_CHANGED, SpellCastBuffs.OnEffectChangedGround)
+        eventManager:AddFilterForEvent(moduleName .. "Ground" .. tostring(k), EVENT_EFFECT_CHANGED, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_ABILITY_ID, k)
     end
 
     -- Combat Events
@@ -378,8 +379,8 @@ function SpellCastBuffs.Initialize(enabled)
     eventManager:AddFilterForEvent(moduleName .. "Event2", EVENT_COMBAT_EVENT, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER, REGISTER_FILTER_IS_ERROR, false)     -- Player -> Target
     eventManager:AddFilterForEvent(moduleName .. "Event3", EVENT_COMBAT_EVENT, REGISTER_FILTER_SOURCE_COMBAT_UNIT_TYPE, COMBAT_UNIT_TYPE_PLAYER_PET, REGISTER_FILTER_IS_ERROR, false) -- Player Pet -> Target
     for k, v in pairs(Effects.AddNameOnEvent) do
-        eventManager:RegisterForEvent(moduleName .. "Event4" .. k, EVENT_COMBAT_EVENT, SpellCastBuffs.OnCombatAddNameEvent)
-        eventManager:AddFilterForEvent(moduleName .. "Event4" .. k, EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, k)
+        eventManager:RegisterForEvent(moduleName .. "Event4" .. tostring(k), EVENT_COMBAT_EVENT, SpellCastBuffs.OnCombatAddNameEvent)
+        eventManager:AddFilterForEvent(moduleName .. "Event4" .. tostring(k), EVENT_COMBAT_EVENT, REGISTER_FILTER_ABILITY_ID, k)
     end
     eventManager:RegisterForEvent(moduleName, EVENT_BOSSES_CHANGED, SpellCastBuffs.AddNameOnBossEngaged)
 
@@ -2025,6 +2026,9 @@ end
 -- This handler fires every time someone target changes.
 -- This function is needed in case the player teleports via Way Shrine
 function SpellCastBuffs.OnTargetChange(eventCode, unitTag)
+    if unitTag ~= "player" then
+        return
+    end
     SpellCastBuffs.OnReticleTargetChanged(eventCode)
 end
 

@@ -264,5 +264,3 @@ function SpellCastBuffs.UpdateDisplayOverrideIdList()
         end
     end
 end
-
-return SpellCastBuffs

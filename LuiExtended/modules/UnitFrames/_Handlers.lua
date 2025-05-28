@@ -184,4 +184,3 @@ function UnitFrames.AltBar_OnMouseExit(control)
     eventManager:UnregisterForEvent(moduleName .. "TooltipPower", EVENT_POWER_UPDATE)
 end
 
-return UnitFrames

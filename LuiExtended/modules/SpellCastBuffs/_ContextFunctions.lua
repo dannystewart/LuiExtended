@@ -64,5 +64,3 @@ function SpellCastBuffs.DetermineTarget(context)
         return "prominent"
     end
 end
-
-return SpellCastBuffs

@@ -165,5 +165,3 @@ function ChatAnnouncements.PrintQueuedMessages()
     ChatAnnouncements.QueuedMessagesCounter = 1
     eventManager:UnregisterForUpdate(moduleName .. "Printer")
 end
-
-return ChatAnnouncements

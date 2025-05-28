@@ -377,5 +377,3 @@ function SpellCastBuffs.OnCombatEventOut(eventCode, result, isError, abilityName
         end
     end
 end
-
-return SpellCastBuffs

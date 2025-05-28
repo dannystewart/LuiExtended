@@ -112,5 +112,3 @@ function SpellCastBuffs.OnCombatAddNameEvent(eventCode, result, isError, ability
         end
     end
 end
-
-return SpellCastBuffs

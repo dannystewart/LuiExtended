@@ -522,4 +522,3 @@ function UnitFrames.UpdateStat(unitTag, statType, attributeType, powerType)
 end
 
 -- -----------------------------------------------------------------------------
-return UnitFrames

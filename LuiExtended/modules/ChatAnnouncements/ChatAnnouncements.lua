@@ -121,7 +121,7 @@ function ChatAnnouncements.SlayChatHandlers()
     end
 end
 
-function ChatAnnouncements:Initialize(enabled)
+function ChatAnnouncements.Initialize(enabled)
     -- Load settings
     local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
     if isCharacterSpecific then
@@ -7217,5 +7217,3 @@ function ChatAnnouncements.CollectibleResult()
     ChatAnnouncements.lastCollectibleUsed = 0
     LUIE.SlashCollectibleOverride = false
 end
-
-return ChatAnnouncements

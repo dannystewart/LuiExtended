@@ -185,5 +185,3 @@ function UnitFrames.CustomFramesApplyFont()
         end
     end
 end
-
-return UnitFrames

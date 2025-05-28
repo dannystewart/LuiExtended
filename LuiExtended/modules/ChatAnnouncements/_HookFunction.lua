@@ -4826,4 +4826,3 @@ function ChatAnnouncements.GuildHooks()
     end
 end
 
-return ChatAnnouncements

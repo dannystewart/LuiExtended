@@ -932,5 +932,3 @@ ChatAnnouncements.blacklistIDs =
     [134623] = true, -- Uncracked Transmutation Geode
     [140222] = true, -- 200 Transmute Crystals (This is probably just a test item)
 }
-
-return ChatAnnouncements

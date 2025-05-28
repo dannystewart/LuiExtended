@@ -275,5 +275,3 @@ function UnitFrames.UpdateDefaultLevelTarget()
         targetChamp:SetHidden(true)
     end
 end
-
-return UnitFrames

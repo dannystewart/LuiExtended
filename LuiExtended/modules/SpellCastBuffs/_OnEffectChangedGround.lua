@@ -175,5 +175,3 @@ SpellCastBuffs.OnEffectChangedGround = function (eventId, changeType, effectSlot
         end
     end
 end
-
-return SpellCastBuffs

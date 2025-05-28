@@ -223,5 +223,3 @@ function ChatAnnouncements.RegisterXPEvents()
         eventManager:RegisterForEvent(moduleName, EVENT_EXPERIENCE_GAIN, ChatAnnouncements.OnExperienceGain)
     end
 end
-
-return ChatAnnouncements

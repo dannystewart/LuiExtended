@@ -103,5 +103,3 @@ function SpellCastBuffs.OnPowerUpdate(eventCode, unitTag, powerIndex, powerType,
                      end, 5000)
     end
 end
-
-return SpellCastBuffs

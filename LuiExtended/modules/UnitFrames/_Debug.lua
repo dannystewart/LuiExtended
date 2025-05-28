@@ -177,5 +177,3 @@ local DEBUG_COMMANDS =
 for command, handler in pairs(DEBUG_COMMANDS) do
     SLASH_COMMANDS[command] = handler
 end
-
-return UnitFrames

@@ -134,29 +134,8 @@ function UnitFrames.CustomFramesApplyBarAlignment()
     end
 end
 
-function UnitFrames.OverRideBossBar()
-    function BOSS_BAR:RefreshBossHealthBar(smoothAnimate)
-        local totalHealth = 0
-        local totalMaxHealth = 0
-
-        for unitTag, bossEntry in pairs(self.bossHealthValues) do
-            totalHealth = totalHealth + bossEntry.health
-            totalMaxHealth = totalMaxHealth + bossEntry.maxHealth
-        end
-
-        local halfHealth = zo_floor(totalHealth / 2)
-        local halfMax = zo_floor(totalMaxHealth / 2)
-        for i = 1, #self.bars do
-            ZO_StatusBar_SmoothTransition(self.bars[i], halfHealth, halfMax, not smoothAnimate)
-        end
-        self.healthText:SetText(ZO_FormatResourceBarCurrentAndMax(totalHealth, totalMaxHealth))
-
-        COMPASS_FRAME:SetBossBarActive(totalHealth > 0)
-    end
-end
-
 -- Main entry point to this module
-function UnitFrames:Initialize(enabled)
+function UnitFrames.Initialize(enabled)
     -- Load settings
     local isCharacterSpecific = LUIESV["Default"][GetDisplayName()]["$AccountWide"].CharacterSpecificSV
     if isCharacterSpecific then
@@ -215,8 +194,25 @@ function UnitFrames:Initialize(enabled)
     UnitFrames.CreateDefaultFrames()
     UnitFrames.CreateCustomFrames()
 
-    if UnitFrames.SV.DefaultFramesNewBoss == 2 then
-        UnitFrames.OverRideBossBar()
+    function BOSS_BAR:RefreshBossHealthBar(smoothAnimate)
+        local totalHealth = 0
+        local totalMaxHealth = 0
+
+        for unitTag, bossEntry in pairs(self.bossHealthValues) do
+            totalHealth = totalHealth + bossEntry.health
+            totalMaxHealth = totalMaxHealth + bossEntry.maxHealth
+        end
+
+        local halfHealth = zo_floor(totalHealth / 2)
+        local halfMax = zo_floor(totalMaxHealth / 2)
+        for i = 1, #self.bars do
+            ZO_StatusBar_SmoothTransition(self.bars[i], halfHealth, halfMax, not smoothAnimate)
+        end
+        self.healthText:SetText(ZO_FormatResourceBarCurrentAndMax(totalHealth, totalMaxHealth))
+
+        if UnitFrames.SV.DefaultFramesNewBoss == 2 then
+            COMPASS_FRAME:SetBossBarActive(totalHealth > 0)
+        end
     end
 
     UnitFrames.SaveDefaultFramePositions()
@@ -230,17 +226,13 @@ function UnitFrames:Initialize(enabled)
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_ATTRIBUTE_VISUAL_REMOVED, UnitFrames.OnVisualizationRemoved)
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_ATTRIBUTE_VISUAL_UPDATED, UnitFrames.OnVisualizationUpdated)
     eventManager:RegisterForEvent(moduleName, EVENT_TARGET_CHANGED, UnitFrames.OnTargetChange)
-    eventManager:AddFilterForEvent(moduleName, EVENT_TARGET_CHANGED, REGISTER_FILTER_UNIT_TAG, "reticleover")
     eventManager:RegisterForEvent(moduleName, EVENT_RETICLE_TARGET_CHANGED, UnitFrames.OnReticleTargetChanged)
     eventManager:RegisterForEvent(moduleName, EVENT_DISPOSITION_UPDATE, UnitFrames.OnDispositionUpdate)
-    eventManager:AddFilterForEvent(moduleName, EVENT_DISPOSITION_UPDATE, REGISTER_FILTER_UNIT_TAG, "reticleover")
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_CREATED, UnitFrames.OnUnitCreated)
     eventManager:RegisterForEvent(moduleName, EVENT_LEVEL_UPDATE, UnitFrames.OnLevelUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_CHAMPION_POINT_UPDATE, UnitFrames.OnLevelUpdate)
     eventManager:RegisterForEvent(moduleName, EVENT_TITLE_UPDATE, UnitFrames.TitleUpdate)
-    eventManager:AddFilterForEvent(moduleName, EVENT_TITLE_UPDATE, REGISTER_FILTER_UNIT_TAG, "reticleover")
     eventManager:RegisterForEvent(moduleName, EVENT_RANK_POINT_UPDATE, UnitFrames.TitleUpdate)
-    eventManager:AddFilterForEvent(moduleName, EVENT_RANK_POINT_UPDATE, REGISTER_FILTER_UNIT_TAG, "reticleover")
 
     -- Next events make sense only for CustomFrames
     if UnitFrames.CustomFrames["player"] or UnitFrames.CustomFrames["reticleover"] or UnitFrames.CustomFrames["companion"] or UnitFrames.CustomFrames["SmallGroup1"] or UnitFrames.CustomFrames["RaidGroup1"] or UnitFrames.CustomFrames["boss1"] or UnitFrames.CustomFrames["PetGroup1"] then
@@ -574,6 +566,9 @@ end
 --- @param eventId integer
 --- @param unitTag string
 function UnitFrames.OnTargetChange(eventId, unitTag)
+    if unitTag ~= "player" then
+        return
+    end
     UnitFrames.OnReticleTargetChanged(eventId)
 end
 
@@ -736,7 +731,9 @@ end
 -- Runs on the EVENT_DISPOSITION_UPDATE listener.
 -- Used to reread parameters of the target
 function UnitFrames.OnDispositionUpdate(eventCode, unitTag)
-    UnitFrames.OnReticleTargetChanged(eventCode)
+    if unitTag == "reticleover" then
+        UnitFrames.OnReticleTargetChanged(eventCode)
+    end
 end
 
 -- Used to query initial values and display them in corresponding control

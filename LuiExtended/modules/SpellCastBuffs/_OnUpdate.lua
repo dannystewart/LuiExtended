@@ -407,5 +407,3 @@ SpellCastBuffs.OnUpdate = function (currentTimeMs)
         end
     end
 end
-
-return SpellCastBuffs

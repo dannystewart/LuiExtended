@@ -325,5 +325,3 @@ function ChatAnnouncements.RegisterMailEvents()
         eventManager:RegisterForEvent(moduleName, EVENT_MAIL_CLOSE_MAILBOX, ChatAnnouncements.OnMailCloseBox)
     end
 end
-
-return ChatAnnouncements

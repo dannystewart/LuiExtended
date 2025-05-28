@@ -224,4 +224,3 @@ function UnitFrames.RegisterForGroupElectionEvents()
 end
 
 -- -----------------------------------------------------------------------------
-return UnitFrames
