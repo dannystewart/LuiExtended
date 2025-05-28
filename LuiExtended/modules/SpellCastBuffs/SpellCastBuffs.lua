@@ -1770,7 +1770,8 @@ function SpellCastBuffs.AddNameOnBossEngaged(eventCode)
 
     -- Check for bosses and add name auras when engaged.
     for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
-        local bossName = DoesUnitExist("boss" .. i) and zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetUnitName("boss" .. i)) or ""
+        local unitTag = "boss" .. i
+        local bossName = DoesUnitExist(unitTag) and zo_strformat(LUIE_UPPER_CASE_NAME_FORMATTER, GetUnitName(unitTag)) or ""
         if Effects.AddNameOnBossEngaged[bossName] then
             for k, v in pairs(Effects.AddNameOnBossEngaged[bossName]) do
                 Effects.AddNameAura[k] = {}
