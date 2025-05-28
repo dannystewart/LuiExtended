@@ -764,7 +764,8 @@ function UnitFrames.ReloadValues(unitTag)
 
     -- For all attributes query its value and force updating
     for powerType, _ in pairs(powerTypes) do
-        UnitFrames.OnPowerUpdate(unitTag, nil, powerType, GetUnitPower(unitTag, powerType))
+        local powerValue, powerMax, powerEffectiveMax = GetUnitPower(unitTag, powerType)
+        UnitFrames.OnPowerUpdate(unitTag, nil, powerType, powerValue, powerMax, powerEffectiveMax)
     end
 
     -- Update shield value on controls; this will also update health attribute value, again.
@@ -1391,8 +1392,8 @@ function UnitFrames.CustomFramesSetupAlternative(isWerewolf, isSiege, isMounted)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA] = nil
         UnitFrames.CustomFrames["player"].ChampionXP = nil
         UnitFrames.CustomFrames["player"].Experience = nil
-
-        UnitFrames.OnPowerUpdate("player", nil, COMBAT_MECHANIC_FLAGS_WEREWOLF, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_WEREWOLF))
+        local powerValue, powerMax, powerEffectiveMax = GetUnitPower("player", COMBAT_MECHANIC_FLAGS_WEREWOLF)
+        UnitFrames.OnPowerUpdate("player", nil, COMBAT_MECHANIC_FLAGS_WEREWOLF, powerValue, powerMax, powerEffectiveMax)
 
         if UnitFrames.SV.PlayerFrameOptions ~= 1 then
             if UnitFrames.SV.ReverseResourceBars then
@@ -1418,8 +1419,8 @@ function UnitFrames.CustomFramesSetupAlternative(isWerewolf, isSiege, isMounted)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA] = nil
         UnitFrames.CustomFrames["player"].ChampionXP = nil
         UnitFrames.CustomFrames["player"].Experience = nil
-
-        UnitFrames.OnPowerUpdate("controlledsiege", nil, COMBAT_MECHANIC_FLAGS_HEALTH, GetUnitPower("controlledsiege", COMBAT_MECHANIC_FLAGS_HEALTH))
+        local powerValue, powerMax, powerEffectiveMax = GetUnitPower("controlledsiege", COMBAT_MECHANIC_FLAGS_HEALTH)
+        UnitFrames.OnPowerUpdate("controlledsiege", nil, COMBAT_MECHANIC_FLAGS_HEALTH, powerValue, powerMax, powerEffectiveMax)
 
         recenter = true
 
@@ -1449,8 +1450,8 @@ function UnitFrames.CustomFramesSetupAlternative(isWerewolf, isSiege, isMounted)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA] = UnitFrames.CustomFrames["player"].alternative
         UnitFrames.CustomFrames["player"].ChampionXP = nil
         UnitFrames.CustomFrames["player"].Experience = nil
-
-        UnitFrames.OnPowerUpdate("player", nil, COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA))
+        local powerValue, powerMax, powerEffectiveMax = GetUnitPower("player", COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA)
+        UnitFrames.OnPowerUpdate("player", nil, COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA, powerValue, powerMax, powerEffectiveMax)
 
         if UnitFrames.SV.PlayerFrameOptions ~= 1 then
             if UnitFrames.SV.ReverseResourceBars then

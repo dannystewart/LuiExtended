@@ -28,9 +28,14 @@ UnitFrames.RegisterRecentEventHandler = function ()
         return ZO_MostRecentEventHandler.New(self, namespace, EVENT_POWER_UPDATE, LUIE_PowerUpdateEqualityFunction, handlerFunction)
     end
 
+    --- @param unitTag string
+    --- @param powerIndex luaindex
+    --- @param powerType CombatMechanicFlags
+    --- @param powerValue integer
+    --- @param powerMax integer
+    --- @param powerEffectiveMax integer
     local function MostRecentPowerUpdateHandlerFunction(unitTag, powerIndex, powerType, powerValue, powerMax, powerEffectiveMax)
-        -- eventId is not provided by the handler, so pass nil for compatibility
-        UnitFrames.OnPowerUpdate(nil, unitTag, powerIndex, powerType, powerValue, powerMax, powerEffectiveMax)
+        UnitFrames.OnPowerUpdate(unitTag, powerIndex, powerType, powerValue, powerMax, powerEffectiveMax)
     end
 
     UnitFrames.MostRecentEventHandler:New(moduleName, MostRecentPowerUpdateHandlerFunction)
