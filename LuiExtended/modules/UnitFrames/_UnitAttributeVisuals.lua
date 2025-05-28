@@ -23,14 +23,13 @@ end
 -- Runs on the EVENT_POWER_UPDATE listener.
 -- This handler fires every time unit attribute changes.
 ---
---- @param eventId integer
 --- @param unitTag string
 --- @param powerIndex luaindex
 --- @param powerType CombatMechanicFlags
 --- @param powerValue integer
 --- @param powerMax integer
 --- @param powerEffectiveMax integer
-function UnitFrames.OnPowerUpdate(eventId, unitTag, powerIndex, powerType, powerValue, powerMax, powerEffectiveMax)
+function UnitFrames.OnPowerUpdate(unitTag, powerIndex, powerType, powerValue, powerMax, powerEffectiveMax)
     -- Save Health value for future reference -- do it only for tracked unitTags that were defined on initialization
     if powerType == COMBAT_MECHANIC_FLAGS_HEALTH and UnitFrames.savedHealth[unitTag] then
         UnitFrames.savedHealth[unitTag] = { powerValue, powerMax, powerEffectiveMax, UnitFrames.savedHealth[unitTag][4] or 0, UnitFrames.savedHealth[unitTag][5] or 0 }
@@ -78,7 +77,7 @@ function UnitFrames.OnPowerUpdate(eventId, unitTag, powerIndex, powerType, power
 
     -- If players powerValue is zero, issue new blinking event on Custom Frames
     if unitTag == "player" and powerValue == 0 and powerType ~= COMBAT_MECHANIC_FLAGS_WEREWOLF then
-        UnitFrames.OnCombatEvent(eventId, nil, true, nil, nil, nil, nil, COMBAT_UNIT_TYPE_PLAYER, nil, COMBAT_UNIT_TYPE_PLAYER, 0, powerType, nil, false, nil, nil, nil, nil)
+        UnitFrames.OnCombatEvent(nil, nil, true, nil, nil, nil, nil, COMBAT_UNIT_TYPE_PLAYER, nil, COMBAT_UNIT_TYPE_PLAYER, 0, powerType, nil, false, nil, nil, nil, nil)
     end
 
     -- Display skull icon for alive execute-level targets

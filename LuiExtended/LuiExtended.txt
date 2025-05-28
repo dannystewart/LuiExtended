@@ -120,6 +120,7 @@ modules/SlashCommands/Social.lua
 
 # Modules - Unit Frames
 modules/UnitFrames/_Namespace.lua
+modules/UnitFrames/_MostRecentPowerUpdateHandler.lua
 modules/UnitFrames/_CreateCustomFrames.lua
 modules/UnitFrames/_CustomFrames.lua
 modules/UnitFrames/_DefaultFrames.lua

@@ -28,8 +28,6 @@ local zo_strformat = zo_strformat
 local eventManager = GetEventManager()
 local sceneManager = SCENE_MANAGER
 
-
-
 local leaderIcons =
 {
     [0] = "LuiExtended/media/unitframes/unitframes_class_none.dds",
@@ -221,7 +219,9 @@ function UnitFrames.Initialize(enabled)
 
     -- Set event handlers
     eventManager:RegisterForEvent(moduleName, EVENT_PLAYER_ACTIVATED, UnitFrames.OnPlayerActivated)
-    eventManager:RegisterForEvent(moduleName, EVENT_POWER_UPDATE, UnitFrames.OnPowerUpdate)
+    -- eventManager:RegisterForEvent(moduleName, EVENT_POWER_UPDATE, UnitFrames.OnPowerUpdate) -- Now handled by UnitFrames_MostRecentPowerUpdateHandler
+    UnitFrames.RegisterRecentEventHandler()
+
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_ATTRIBUTE_VISUAL_ADDED, UnitFrames.OnVisualizationAdded)
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_ATTRIBUTE_VISUAL_REMOVED, UnitFrames.OnVisualizationRemoved)
     eventManager:RegisterForEvent(moduleName, EVENT_UNIT_ATTRIBUTE_VISUAL_UPDATED, UnitFrames.OnVisualizationUpdated)
@@ -764,7 +764,7 @@ function UnitFrames.ReloadValues(unitTag)
 
     -- For all attributes query its value and force updating
     for powerType, _ in pairs(powerTypes) do
-        UnitFrames.OnPowerUpdate(nil, unitTag, nil, powerType, GetUnitPower(unitTag, powerType))
+        UnitFrames.OnPowerUpdate(unitTag, nil, powerType, GetUnitPower(unitTag, powerType))
     end
 
     -- Update shield value on controls; this will also update health attribute value, again.
@@ -1392,7 +1392,7 @@ function UnitFrames.CustomFramesSetupAlternative(isWerewolf, isSiege, isMounted)
         UnitFrames.CustomFrames["player"].ChampionXP = nil
         UnitFrames.CustomFrames["player"].Experience = nil
 
-        UnitFrames.OnPowerUpdate(nil, "player", nil, COMBAT_MECHANIC_FLAGS_WEREWOLF, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_WEREWOLF))
+        UnitFrames.OnPowerUpdate("player", nil, COMBAT_MECHANIC_FLAGS_WEREWOLF, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_WEREWOLF))
 
         if UnitFrames.SV.PlayerFrameOptions ~= 1 then
             if UnitFrames.SV.ReverseResourceBars then
@@ -1419,7 +1419,7 @@ function UnitFrames.CustomFramesSetupAlternative(isWerewolf, isSiege, isMounted)
         UnitFrames.CustomFrames["player"].ChampionXP = nil
         UnitFrames.CustomFrames["player"].Experience = nil
 
-        UnitFrames.OnPowerUpdate(nil, "controlledsiege", nil, COMBAT_MECHANIC_FLAGS_HEALTH, GetUnitPower("controlledsiege", COMBAT_MECHANIC_FLAGS_HEALTH))
+        UnitFrames.OnPowerUpdate("controlledsiege", nil, COMBAT_MECHANIC_FLAGS_HEALTH, GetUnitPower("controlledsiege", COMBAT_MECHANIC_FLAGS_HEALTH))
 
         recenter = true
 
@@ -1450,7 +1450,7 @@ function UnitFrames.CustomFramesSetupAlternative(isWerewolf, isSiege, isMounted)
         UnitFrames.CustomFrames["player"].ChampionXP = nil
         UnitFrames.CustomFrames["player"].Experience = nil
 
-        UnitFrames.OnPowerUpdate(nil, "player", nil, COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA))
+        UnitFrames.OnPowerUpdate("player", nil, COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA, GetUnitPower("player", COMBAT_MECHANIC_FLAGS_MOUNT_STAMINA))
 
         if UnitFrames.SV.PlayerFrameOptions ~= 1 then
             if UnitFrames.SV.ReverseResourceBars then
