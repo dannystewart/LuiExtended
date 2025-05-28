@@ -5,6 +5,7 @@
 
 --- @class (partial) LuiExtended
 local LUIE = LUIE
+local UI = LUIE.UI
 
 -- SpellCastBuffs namespace
 --- @class (partial) LUIE.SpellCastBuffs
@@ -14,9 +15,193 @@ local LuiData = LuiData
 --- @type Data
 local Data = LuiData.Data
 local Abilities = Data.Abilities
+local Effects = Data.Effects
 
+
+-- Helper function to get CC color
+--- @param ccType integer
+--- @return table
+local function getCCColor(ccType)
+    local ccColors =
+    {
+        [LUIE_CC_TYPE_STUN] = SpellCastBuffs.SV.colors.stun,
+        [LUIE_CC_TYPE_KNOCKDOWN] = SpellCastBuffs.SV.colors.stun,
+        [LUIE_CC_TYPE_KNOCKBACK] = SpellCastBuffs.SV.colors.knockback,
+        [LUIE_CC_TYPE_PULL] = SpellCastBuffs.SV.colors.levitate,
+        [LUIE_CC_TYPE_DISORIENT] = SpellCastBuffs.SV.colors.disorient,
+        [LUIE_CC_TYPE_FEAR] = SpellCastBuffs.SV.colors.fear,
+        [LUIE_CC_TYPE_SILENCE] = SpellCastBuffs.SV.colors.silence,
+        [LUIE_CC_TYPE_STAGGER] = SpellCastBuffs.SV.colors.stagger,
+        [LUIE_CC_TYPE_SNARE] = SpellCastBuffs.SV.colors.snare,
+        [LUIE_CC_TYPE_ROOT] = SpellCastBuffs.SV.colors.root,
+    }
+    return ccColors[ccType] or SpellCastBuffs.SV.colors.nocc
+end
+
+--- @param buff table
+--- @param buffType integer
+--- @param unbreakable integer
+--- @param id integer
+local SetSingleIconBuffType = function (buff, buffType, unbreakable, id)
+    -- Determine context type and get ability name
+    local contextType = (buffType == BUFF_EFFECT_TYPE_BUFF) and "buff" or "debuff"
+    local abilityName = GetAbilityName(id)
+
+    -- Helper function to determine if effect is priority
+    local function isPriorityEffect()
+        if contextType == "buff" then
+            return SpellCastBuffs.SV.PriorityBuffTable[id] or SpellCastBuffs.SV.PriorityBuffTable[abilityName]
+        else
+            return SpellCastBuffs.SV.PriorityDebuffTable[id] or SpellCastBuffs.SV.PriorityDebuffTable[abilityName]
+        end
+    end
+
+    -- Determine fill color based on buff type and conditions
+    local function determineFillColor()
+        if contextType == "buff" then
+            if isPriorityEffect() then
+                return SpellCastBuffs.SV.colors.prioritybuff
+            elseif unbreakable == 1 and SpellCastBuffs.SV.ColorCosmetic then
+                return SpellCastBuffs.SV.colors.cosmetic
+            else
+                return SpellCastBuffs.SV.colors.buff
+            end
+        else -- debuff
+            if isPriorityEffect() then
+                return SpellCastBuffs.SV.colors.prioritydebuff
+            elseif unbreakable == 1 and SpellCastBuffs.SV.ColorUnbreakable then
+                return SpellCastBuffs.SV.colors.unbreakable
+            elseif SpellCastBuffs.SV.ColorCC and Effects.EffectOverride[id] and Effects.EffectOverride[id].cc then
+                return getCCColor(Effects.EffectOverride[id].cc)
+            else
+                return SpellCastBuffs.SV.colors.debuff
+            end
+        end
+    end
+
+    -- Helper function to set progress bar colors
+    local function setProgressBarColors(isDebuff, isPriority)
+        local colors
+        if isDebuff then
+            colors = isPriority and SpellCastBuffs.SV.ProminentProgressDebuffPriorityC2 or SpellCastBuffs.SV.ProminentProgressDebuffC2
+        else
+            colors = isPriority and SpellCastBuffs.SV.ProminentProgressBuffPriorityC2 or SpellCastBuffs.SV.ProminentProgressBuffC2
+        end
+
+        local gradientColors = isDebuff and
+            (isPriority and SpellCastBuffs.SV.ProminentProgressDebuffPriorityC1 or SpellCastBuffs.SV.ProminentProgressDebuffC1) or
+            (isPriority and SpellCastBuffs.SV.ProminentProgressBuffPriorityC1 or SpellCastBuffs.SV.ProminentProgressBuffC1)
+
+        buff.bar.backdrop:SetCenterColor(0.1 * colors[1], 0.1 * colors[2], 0.1 * colors[3], 0.75)
+        buff.bar.bar:SetGradientColors(colors[1], colors[2], colors[3], 1, gradientColors[1], gradientColors[2], gradientColors[3], 1)
+    end
+
+    -- Apply visual settings
+    local fillColor = determineFillColor()
+    local labelColor = contextType == "buff" and SpellCastBuffs.SV.colors.buff or SpellCastBuffs.SV.colors.debuff
+    local textColor = SpellCastBuffs.SV.RemainingTextColoured and labelColor or { 1, 1, 1, 1 }
+
+    -- Set visual properties
+    buff.frame:SetTexture("/esoui/art/actionbar/" .. contextType .. "_frame.dds")
+    buff.label:SetColor(unpack(textColor))
+    buff.stack:SetColor(unpack(textColor))
+
+    buff.back:SetHidden(true)
+    buff.drop:SetHidden(false)
+
+    -- Set cooldown color if it exists
+    if buff.cd then
+        buff.cd:SetFillColor(unpack(fillColor))
+    end
+
+    -- Set progress bar colors if they exist
+    if buff.bar then
+        setProgressBarColors(buffType == BUFF_EFFECT_TYPE_DEBUFF, isPriorityEffect())
+    end
+end
+
+local CreateSingleIcon = function (container, AnchorItem, effectType)
+    -- Create main buff container
+    local buff = UI:Backdrop(SpellCastBuffs.BuffContainers[container], nil, nil, { 0, 0, 0, 0.5 }, { 0, 0, 0, 1 }, false)
+    -- Setup mouse interaction
+    buff:SetMouseEnabled(true)
+    buff:SetHandler("OnMouseEnter", SpellCastBuffs.Buff_OnMouseEnter)
+    buff:SetHandler("OnMouseExit", SpellCastBuffs.Buff_OnMouseExit)
+    buff:SetHandler("OnMouseUp", SpellCastBuffs.Buff_OnMouseUp)
+
+    -- Border layer - hidden by default, shown only for non-collectible buffs
+    buff.back = UI:Texture(buff, "fill", nil, "EsoUI/Art/ActionBar/abilityFrame_buff.dds", DL_BACKGROUND, true)
+
+    -- Glow border layer
+    buff.frame = UI:Texture(buff, { CENTER, CENTER }, nil, nil, DL_OVERLAY, false)
+
+    -- Background layer (except for player_long container)
+    if container ~= "player_long" then
+        -- Create background texture
+        buff.iconbg = UI:Texture(buff, "fill", nil, "EsoUI/Art/ActionBar/abilityInset.dds", DL_CONTROLS, false)
+        -- Create dark backdrop behind the texture
+        local bgBackdrop = UI:Backdrop(buff.iconbg, "fill", nil, { 0, 0, 0, 0.9 }, { 0, 0, 0, 0.9 }, false)
+        bgBackdrop:SetDrawLevel(DL_CONTROLS)
+    end
+
+    -- Collectible/mount background
+    buff.drop = UI:Texture(buff, nil, nil, "LuiExtended/media/icons/abilities/ability_innate_background.dds", DL_BACKGROUND, true)
+
+    -- Main ability icon
+    buff.icon = UI:Texture(buff, nil, nil, "/esoui/art/icons/icon_missing.dds", DL_CONTROLS, false)
+
+    -- Duration label
+    buff.label = UI:Label(buff, nil, nil, nil, SpellCastBuffs.buffsFont, nil, false)
+    buff.label:SetAnchor(TOPLEFT, buff, LEFT, -SpellCastBuffs.padding, -SpellCastBuffs.SV.LabelPosition)
+    buff.label:SetAnchor(BOTTOMRIGHT, buff, BOTTOMRIGHT, SpellCastBuffs.padding, -2)
+
+    -- Debug ability ID label
+    buff.abilityId = UI:Label(buff, { CENTER, CENTER }, nil, nil, SpellCastBuffs.buffsFont, nil, false)
+    buff.abilityId:SetDrawLayer(DL_OVERLAY)
+    buff.abilityId:SetDrawTier(DT_MEDIUM)
+
+    -- Stack count label
+    buff.stack = UI:Label(buff, nil, nil, nil, SpellCastBuffs.buffsFont, nil, false)
+    buff.stack:SetAnchor(CENTER, buff, BOTTOMLEFT, 0, 0)
+    buff.stack:SetAnchor(CENTER, buff, TOPRIGHT, -SpellCastBuffs.padding * 3, SpellCastBuffs.padding * 3)
+
+    if buff.iconbg then
+        buff.cd = UI:ControlWithType(buff, "fill", nil, false, nil, CT_COOLDOWN)
+        buff.cd:SetAnchor(TOPLEFT, buff, TOPLEFT, 1, 1)
+        buff.cd:SetAnchor(BOTTOMRIGHT, buff, BOTTOMRIGHT, -1, -1)
+        buff.cd:SetDrawLayer(DL_BACKGROUND)
+    end
+
+    if container == "prominentbuffs" or container == "prominentdebuffs" then
+        buff.effectType = effectType
+        buff.name = UI:Label(buff, nil, nil, nil, SpellCastBuffs.prominentFont, nil, false)
+
+        -- Create progress bar
+        buff.bar =
+        {
+            backdrop = UI:Backdrop(buff, nil, { 154, 16 }, nil, nil, false),
+            bar = UI:StatusBar(buff, nil, { 150, 12 }, nil, false),
+        }
+
+        -- Setup bar properties
+        buff.bar.backdrop:SetEdgeTexture("", 8, 2, 2, 2)
+        buff.bar.backdrop:SetDrawLayer(DL_BACKGROUND)
+        buff.bar.backdrop:SetDrawLevel(DL_CONTROLS)
+        buff.bar.bar:SetMinMax(0, 1)
+    end
+
+    -- Reset icon properties
+    SpellCastBuffs.ResetSingleIcon(container, buff, AnchorItem)
+
+    return buff
+end
 
 -- Quadratic easing out - decelerating to zero velocity (For buff fade)
+--- @param t number
+--- @param b number
+--- @param c number
+--- @param d number
+--- @return number
 local EaseOutQuad = function (t, b, c, d)
     -- protect against 1 / 0
     if t == 0 then
@@ -30,6 +215,9 @@ local EaseOutQuad = function (t, b, c, d)
     return -c * t * (t - 2) + b
 end
 
+--- @param currentTimeMs number
+--- @param sortedList table
+--- @param container string
 local updateBar = function (currentTimeMs, sortedList, container)
     local iconsNum = #sortedList
     local istart, iend, istep
@@ -75,6 +263,9 @@ local updateBar = function (currentTimeMs, sortedList, container)
     end
 end
 
+--- @param currentTimeMs number
+--- @param sortedList table
+--- @param container string
 local updateIcons = function (currentTimeMs, sortedList, container)
     -- Special workaround for container with player long buffs. We do not need to update it every 100ms, but rather 3 times less often
     if SpellCastBuffs.BuffContainers[container].skipUpdate then
@@ -126,7 +317,7 @@ local updateIcons = function (currentTimeMs, sortedList, container)
         index = index + 1
         -- Check if the icon for buff #index exists otherwise create new icon
         if SpellCastBuffs.BuffContainers[container].icons[index] == nil then
-            SpellCastBuffs.BuffContainers[container].icons[index] = SpellCastBuffs.CreateSingleIcon(container, SpellCastBuffs.BuffContainers[container].icons[index - 1], effect.type)
+            SpellCastBuffs.BuffContainers[container].icons[index] = CreateSingleIcon(container, SpellCastBuffs.BuffContainers[container].icons[index - 1], effect.type)
         end
 
         -- Calculate remaining time
@@ -188,7 +379,7 @@ local updateIcons = function (currentTimeMs, sortedList, container)
         if effect.iconNum ~= index then
             effect.iconNum = index
             effect.restart = true
-            SpellCastBuffs.SetSingleIconBuffType(buff, effect.type, effect.unbreakable, effect.id)
+            SetSingleIconBuffType(buff, effect.type, effect.unbreakable, effect.id)
 
             -- Setup Info for Tooltip function to pull
             buff.effectId = effect.id
@@ -199,9 +390,6 @@ local updateIcons = function (currentTimeMs, sortedList, container)
             buff.duration = effect.dur or 0
             buff.container = container
 
-            -- Reset label cache when icon is re-initialized
-            buff.lastLabelValue = nil
-
             if effect.backdrop then
                 buff.drop:SetHidden(false)
             else
@@ -211,17 +399,12 @@ local updateIcons = function (currentTimeMs, sortedList, container)
             buff:SetAlpha(1)
             buff:SetHidden(false)
             if not remain or effect.fakeDuration then
-                local labelValue
                 if effect.toggle then
-                    labelValue = "T"
+                    buff.label:SetText("T")
                 elseif effect.groundLabel then
-                    labelValue = "G"
+                    buff.label:SetText("G")
                 else
-                    labelValue = nil
-                end
-                if buff.lastLabelValue ~= labelValue then
-                    buff.label:SetText(labelValue)
-                    buff.lastLabelValue = labelValue
+                    buff.label:SetText(nil)
                 end
             end
 
@@ -243,26 +426,21 @@ local updateIcons = function (currentTimeMs, sortedList, container)
 
         -- For update remaining text. For temporary effects this is not very efficient, but we have not much such effects
         if remain and not effect.fakeDuration then
-            local labelValue
             if remain > 86400000 then
                 -- more then 1 day
-                labelValue = string.format("%d d", zo_floor(remain / 86400000))
+                buff.label:SetText(string.format("%d d", zo_floor(remain / 86400000)))
             elseif remain > 6000000 then
                 -- over 100 minutes - display XXh
-                labelValue = string.format("%dh", zo_floor(remain / 3600000))
+                buff.label:SetText(string.format("%dh", zo_floor(remain / 3600000)))
             elseif remain > 600000 then
                 -- over 10 minutes - display XXm
-                labelValue = string.format("%dm", zo_floor(remain / 60000))
+                buff.label:SetText(string.format("%dm", zo_floor(remain / 60000)))
             elseif remain > 60000 or container == "player_long" then
                 local m = zo_floor(remain / 60000)
                 local s = remain / 1000 - 60 * m
-                labelValue = string.format("%d:%.2d", m, s)
+                buff.label:SetText(string.format("%d:%.2d", m, s))
             else
-                labelValue = string.format(SpellCastBuffs.SV.RemainingTextMillis and "%.1f" or "%.1d", remain / 1000)
-            end
-            if buff.lastLabelValue ~= labelValue then
-                buff.label:SetText(labelValue)
-                buff.lastLabelValue = labelValue
+                buff.label:SetText(string.format(SpellCastBuffs.SV.RemainingTextMillis and "%.1f" or "%.1d", remain / 1000))
             end
         end
         if effect.restart and buff.cd ~= nil then
@@ -296,6 +474,23 @@ end
 
 
 -- Helper function to sort buffs
+--- @param x {
+--- dur: number|nil,
+--- ends: number|nil,
+--- groundLabel: string,
+--- name: string,
+--- starts: number,
+--- toggle: boolean,
+--- }
+--- @param y {
+--- dur: number|nil,
+--- ends: number|nil,
+--- groundLabel: string,
+--- name: string,
+--- starts: number,
+--- toggle: boolean,
+--- }
+--- @return boolean?
 local buffSort = function (x, y)
     local xDuration = (x.ends == nil or x.dur == 0 or x.groundLabel or x.toggle) and 0 or x.dur
     local yDuration = (y.ends == nil or y.dur == 0 or y.groundLabel or y.toggle) and 0 or y.dur
@@ -320,11 +515,12 @@ local buffSort = function (x, y)
     else
         return (xDuration == 0)
     end
+    return nil
 end
 
 -- Runs OnUpdate - 100 ms buffer
-SpellCastBuffs.OnUpdate = function (currentTimeMs)
-    currentTimeMs = currentTimeMs or GetFrameTimeMilliseconds()
+--- @param currentTimeMs number
+function SpellCastBuffs.OnUpdate(currentTimeMs)
     local buffsSorted = {}
     local needs_update = {}
     local isProminent = {}
