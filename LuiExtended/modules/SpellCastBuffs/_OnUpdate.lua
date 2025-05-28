@@ -199,6 +199,9 @@ local updateIcons = function (currentTimeMs, sortedList, container)
             buff.duration = effect.dur or 0
             buff.container = container
 
+            -- Reset label cache when icon is re-initialized
+            buff.lastLabelValue = nil
+
             if effect.backdrop then
                 buff.drop:SetHidden(false)
             else
@@ -208,12 +211,17 @@ local updateIcons = function (currentTimeMs, sortedList, container)
             buff:SetAlpha(1)
             buff:SetHidden(false)
             if not remain or effect.fakeDuration then
+                local labelValue
                 if effect.toggle then
-                    buff.label:SetText("T")
+                    labelValue = "T"
                 elseif effect.groundLabel then
-                    buff.label:SetText("G")
+                    labelValue = "G"
                 else
-                    buff.label:SetText(nil)
+                    labelValue = nil
+                end
+                if buff.lastLabelValue ~= labelValue then
+                    buff.label:SetText(labelValue)
+                    buff.lastLabelValue = labelValue
                 end
             end
 
@@ -235,21 +243,26 @@ local updateIcons = function (currentTimeMs, sortedList, container)
 
         -- For update remaining text. For temporary effects this is not very efficient, but we have not much such effects
         if remain and not effect.fakeDuration then
+            local labelValue
             if remain > 86400000 then
                 -- more then 1 day
-                buff.label:SetText(string.format("%d d", zo_floor(remain / 86400000)))
+                labelValue = string.format("%d d", zo_floor(remain / 86400000))
             elseif remain > 6000000 then
                 -- over 100 minutes - display XXh
-                buff.label:SetText(string.format("%dh", zo_floor(remain / 3600000)))
+                labelValue = string.format("%dh", zo_floor(remain / 3600000))
             elseif remain > 600000 then
                 -- over 10 minutes - display XXm
-                buff.label:SetText(string.format("%dm", zo_floor(remain / 60000)))
+                labelValue = string.format("%dm", zo_floor(remain / 60000))
             elseif remain > 60000 or container == "player_long" then
                 local m = zo_floor(remain / 60000)
                 local s = remain / 1000 - 60 * m
-                buff.label:SetText(string.format("%d:%.2d", m, s))
+                labelValue = string.format("%d:%.2d", m, s)
             else
-                buff.label:SetText(string.format(SpellCastBuffs.SV.RemainingTextMillis and "%.1f" or "%.1d", remain / 1000))
+                labelValue = string.format(SpellCastBuffs.SV.RemainingTextMillis and "%.1f" or "%.1d", remain / 1000)
+            end
+            if buff.lastLabelValue ~= labelValue then
+                buff.label:SetText(labelValue)
+                buff.lastLabelValue = labelValue
             end
         end
         if effect.restart and buff.cd ~= nil then
