@@ -32,7 +32,7 @@ end
 
 function UnitFrames.ResetCompassBarMenu()
     if UnitFrames.SV.DefaultFramesNewBoss == 2 then
-        for i = 1, 7 do
+        for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
             local unitTag = "boss" .. i
             if DoesUnitExist(unitTag) then
                 COMPASS_FRAME:SetBossBarActive(true)
@@ -649,7 +649,7 @@ function UnitFrames.CustomFramesReloadExecuteMenu()
         UnitFrames.AvaCustFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = UnitFrames.targetThreshold
     end
 
-    for i = 1, 7 do
+    for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
         local unitTag = "boss" .. i
         if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] then
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].threshold = UnitFrames.targetThreshold

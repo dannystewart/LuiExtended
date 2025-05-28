@@ -126,7 +126,7 @@ function UnitFrames.CustomFramesFormatLabels(menu)
     end
 
     -- Format Boss Labels
-    for i = 1, 7 do
+    for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
         local unitTag = "boss" .. i
         if UnitFrames.CustomFrames[unitTag] and
         UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH] and

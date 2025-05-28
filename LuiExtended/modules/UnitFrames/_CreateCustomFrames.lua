@@ -650,7 +650,7 @@ local function CreateBossFrames()
         sceneManager:GetScene("siegeBarUI"):AddFragment(fragment)
         sceneManager:GetScene("loot"):AddFragment(fragment)
 
-        for i = 1, 7 do
+        for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
             local unitTag = "boss" .. i
             local control = UI:Control(bosses, nil, nil, false)
             local bhb = UI:Backdrop(control, "fill", nil, nil, nil, false)
@@ -883,7 +883,7 @@ end
 -- Helper to set up Boss regen/degen animations
 local function SetupBossRegenAnimations()
     if UnitFrames.SV.BossEnableRegen then
-        for i = 1, 7 do
+        for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
             local unitTag = "boss" .. i
             if UnitFrames.CustomFrames[unitTag] then
                 for _, powerType in pairs(
@@ -975,7 +975,7 @@ end
 -- Helper to set up Boss armor overlays
 local function SetupBossArmorOverlays()
     if UnitFrames.SV.BossEnableArmor then
-        for i = 1, 7 do
+        for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
             local unitTag = "boss" .. i
             if UnitFrames.CustomFrames[unitTag] then
                 -- Assume that unitTag DO have [COMBAT_MECHANIC_FLAGS_HEALTH] field

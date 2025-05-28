@@ -110,7 +110,7 @@ function UnitFrames.CustomFramesApplyBarAlignment()
         end
     end
 
-    for i = 1, 7 do
+    for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
         local unitTag = "boss" .. i
         if DoesUnitExist(unitTag) then
             if UnitFrames.CustomFrames[unitTag] then
@@ -1917,7 +1917,7 @@ function UnitFrames.OnBossesChanged(eventCode)
         return
     end
 
-    for i = 1, 7 do
+    for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
         local unitTag = "boss" .. i
         if DoesUnitExist(unitTag) then
             if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag].tlw then
@@ -2433,6 +2433,12 @@ function UnitFrames.CustomFramesApplyTexture()
     if UnitFrames.CustomFrames["player"] and UnitFrames.CustomFrames["player"].tlw then
         applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
+        -- local healthStatusBarControl = UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].bar
+        -- if healthStatusBarControl then
+        --     healthStatusBarControl:EnableFadeOut(true)
+        --     healthStatusBarControl:EnableLeadingEdge(true)
+        --     healthStatusBarControl:SetPixelRoundingEnabled(true)
+        -- end
         if UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop then
             applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
         end
@@ -2446,8 +2452,20 @@ function UnitFrames.CustomFramesApplyTexture()
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_HEALTH].trauma:SetTexture(texture)
         applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].backdrop)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].bar:SetTexture(texture)
+        -- local magikaStatusBarControl = UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_MAGICKA].bar
+        -- if magikaStatusBarControl then
+        --     magikaStatusBarControl:EnableFadeOut(true)
+        --     magikaStatusBarControl:EnableLeadingEdge(true)
+        --     magikaStatusBarControl:SetPixelRoundingEnabled(true)
+        -- end
         applyTextureToBackdrop(UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA].backdrop)
         UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA].bar:SetTexture(texture)
+        -- local staminaStatusBarControl = UnitFrames.CustomFrames["player"][COMBAT_MECHANIC_FLAGS_STAMINA].bar
+        -- if staminaStatusBarControl then
+        --     staminaStatusBarControl:EnableFadeOut(true)
+        --     staminaStatusBarControl:EnableLeadingEdge(true)
+        --     staminaStatusBarControl:SetPixelRoundingEnabled(true)
+        -- end
         applyTextureToBackdrop(UnitFrames.CustomFrames["player"].alternative.backdrop)
         UnitFrames.CustomFrames["player"].alternative.bar:SetTexture(texture)
         UnitFrames.CustomFrames["player"].alternative.enlightenment:SetTexture(texture)
@@ -2457,6 +2475,12 @@ function UnitFrames.CustomFramesApplyTexture()
     if UnitFrames.CustomFrames["reticleover"] and UnitFrames.CustomFrames["reticleover"].tlw then
         applyTextureToBackdrop(UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
         UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
+        -- local healthStatusBarControl = UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].bar
+        -- if healthStatusBarControl then
+        --     healthStatusBarControl:EnableFadeOut(true)
+        --     healthStatusBarControl:EnableLeadingEdge(true)
+        --     healthStatusBarControl:SetPixelRoundingEnabled(true)
+        -- end
         if UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop then
             applyTextureToBackdrop(UnitFrames.CustomFrames["reticleover"][COMBAT_MECHANIC_FLAGS_HEALTH].shieldbackdrop)
         end
@@ -2575,7 +2599,7 @@ function UnitFrames.CustomFramesApplyTexture()
     end
 
     if UnitFrames.CustomFrames["boss1"] and UnitFrames.CustomFrames["boss1"].tlw then
-        for i = 1, 7 do
+        for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
             local unitTag = "boss" .. i
             applyTextureToBackdrop(UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].backdrop)
             UnitFrames.CustomFrames[unitTag][COMBAT_MECHANIC_FLAGS_HEALTH].bar:SetTexture(texture)
@@ -3424,7 +3448,7 @@ function UnitFrames.CustomFramesApplyInCombat()
     end
 
     -- Set boss transparency
-    for i = 1, 7 do
+    for i = BOSS_RANK_ITERATION_BEGIN, BOSS_RANK_ITERATION_END do
         local unitTag = "boss" .. i
         if UnitFrames.CustomFrames[unitTag] and UnitFrames.CustomFrames[unitTag].tlw then
             UnitFrames.CustomFrames[unitTag].control:SetAlpha(idle and oocAlphaBoss or incAlphaBoss)
