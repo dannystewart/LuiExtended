@@ -42,6 +42,25 @@ SpellCastBuffs.DefaultGroupBuffs =
     [61747] = true,  -- Force Move
 }
 
+-- Default tracked debuffs
+SpellCastBuffs.DefaultGroupDebuffs =
+{
+    -- Major Debuffs
+    [178118] = true, -- Status Effect Magic (Overcharged)
+    [95136] = true,  -- Status Effect Frost (Chill)
+    [95134] = true,  -- Status Effect Lightning (Concussion)
+    [178123] = true, -- Status Effect Physical (Sundered)
+    [178127] = true, -- Status Effect Foulness (Diseased)
+    [148801] = true, -- Status Effect Bleeding (Hemorrhaging)
+
+    -- Minor Debuffs
+    [120007] = true, -- Crusher
+    [120011] = true, -- Engulfing Flames
+    [120018] = true, -- Roar of Alkosh
+    [17906] = true,  -- Crusher (Glyph of Crushing)
+    [17945] = true,  -- Weakening (Glyph of Weakening)
+}
+
 -- Bugged long duration buffs that need special handling
 SpellCastBuffs.BuggedLongDuration =
 {
@@ -136,8 +155,14 @@ end
 --- @param abilityId integer
 --- @param sourceType CombatUnitType
 function SpellCastBuffs.OnGroupEffectChanged(eventId, changeType, effectSlot, effectName, unitTag, beginTime, endTime, stackCount, iconName, deprecatedBuffType, effectType, abilityType, statusEffectType, unitName, unitId, abilityId, sourceType)
-    -- Check if we should track this buff
-    if not SpellCastBuffs.SV.GroupTrackedBuffs[abilityId] then return end
+    -- Check if we should track this effect
+    local shouldTrack = false
+    if effectType == BUFF_EFFECT_TYPE_BUFF and SpellCastBuffs.SV.GroupTrackedBuffs[abilityId] then
+        shouldTrack = true
+    elseif effectType == BUFF_EFFECT_TYPE_DEBUFF and SpellCastBuffs.SV.GroupTrackedDebuffs[abilityId] then
+        shouldTrack = true
+    end
+    if not shouldTrack then return end
 
     local unitFrame = GetUnitFrame(unitTag)
     if not unitFrame then return end
@@ -233,8 +258,9 @@ end
 
 -- Initialize group buff tracking
 function SpellCastBuffs.InitializeGroupBuffs()
-    -- Initialize tracked buffs from saved vars
+    -- Initialize tracked buffs and debuffs from saved vars
     SpellCastBuffs.SV.GroupTrackedBuffs = SpellCastBuffs.SV.GroupTrackedBuffs or {}
+    SpellCastBuffs.SV.GroupTrackedDebuffs = SpellCastBuffs.SV.GroupTrackedDebuffs or {}
 
     -- Set defaults for any new buffs
     for buffId, _ in pairs(SpellCastBuffs.DefaultGroupBuffs) do
@@ -243,8 +269,23 @@ function SpellCastBuffs.InitializeGroupBuffs()
         end
     end
 
+    -- Set defaults for any new debuffs
+    for debuffId, _ in pairs(SpellCastBuffs.DefaultGroupDebuffs) do
+        if SpellCastBuffs.SV.GroupTrackedDebuffs[debuffId] == nil then
+            SpellCastBuffs.SV.GroupTrackedDebuffs[debuffId] = true
+        end
+    end
+
     -- Register event handlers
     eventManager:RegisterForEvent("LuiExtendedSpellCastBuffsGroupBuffs", EVENT_EFFECT_CHANGED, SpellCastBuffs.OnGroupEffectChanged)
     eventManager:AddFilterForEvent("LuiExtendedSpellCastBuffsGroupBuffs", EVENT_EFFECT_CHANGED, REGISTER_FILTER_UNIT_TAG_PREFIX, "group")
     eventManager:RegisterForUpdate("LuiExtendedSpellCastBuffsGroupBuffsUpdate", 1000, SpellCastBuffs.UpdateGroupBuffs)
+
+    -- Force an initial update of all group members
+    for i = 1, GetGroupSize() do
+        local unitTag = GetGroupUnitTagByIndex(i)
+        if DoesUnitExist(unitTag) then
+            SpellCastBuffs.OnGroupEffectChanged(EVENT_EFFECT_CHANGED, EFFECT_RESULT_GAINED, 0, "", unitTag, 0, 0, 0, "", "", 0, 0, 0, "", 0, 0, 0)
+        end
+    end
 end

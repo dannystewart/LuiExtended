@@ -1269,6 +1269,7 @@ function SpellCastBuffs.Buff_OnMouseUp(self, button, upInside)
     if upInside and button == MOUSE_BUTTON_INDEX_RIGHT then
         ClearMenu()
         local id, name = self.effectId, self.effectName
+
         -- Blacklist
         local blacklist = SpellCastBuffs.SV.BlacklistTable
         local isBlacklisted = blacklist[id] or blacklist[name]
@@ -1281,18 +1282,33 @@ function SpellCastBuffs.Buff_OnMouseUp(self, button, upInside)
                 SpellCastBuffs.AddToCustomList(blacklist, name)
             end
         end)
-        -- GroupBuff
-        local GroupBufflist = SpellCastBuffs.SV.GroupTrackedBuffs
-        local isGroupBufflist = GroupBufflist[id] or GroupBufflist[name]
-        AddMenuItem(isGroupBufflist and "Remove from GroupBufflist" or "Add to GroupBufflist", function ()
-            if isGroupBufflist then
-                SpellCastBuffs.RemoveFromCustomList(GroupBufflist, id)
-                SpellCastBuffs.RemoveFromCustomList(GroupBufflist, name)
+
+        -- Group Buffs
+        local groupBuffs = SpellCastBuffs.SV.GroupTrackedBuffs
+        local isGroupBuff = groupBuffs[id] or groupBuffs[name]
+        AddMenuItem(isGroupBuff and "Remove from Group Buffs" or "Add to Group Buffs", function ()
+            if isGroupBuff then
+                SpellCastBuffs.RemoveFromCustomList(groupBuffs, id)
+                SpellCastBuffs.RemoveFromCustomList(groupBuffs, name)
             else
-                SpellCastBuffs.AddToCustomList(GroupBufflist, id)
-                SpellCastBuffs.AddToCustomList(GroupBufflist, name)
+                SpellCastBuffs.AddToCustomList(groupBuffs, id)
+                SpellCastBuffs.AddToCustomList(groupBuffs, name)
             end
         end)
+
+        -- Group Debuffs
+        local groupDebuffs = SpellCastBuffs.SV.GroupTrackedDebuffs
+        local isGroupDebuff = groupDebuffs[id] or groupDebuffs[name]
+        AddMenuItem(isGroupDebuff and "Remove from Group Debuffs" or "Add to Group Debuffs", function ()
+            if isGroupDebuff then
+                SpellCastBuffs.RemoveFromCustomList(groupDebuffs, id)
+                SpellCastBuffs.RemoveFromCustomList(groupDebuffs, name)
+            else
+                SpellCastBuffs.AddToCustomList(groupDebuffs, id)
+                SpellCastBuffs.AddToCustomList(groupDebuffs, name)
+            end
+        end)
+
         -- Prominent Buffs
         local promBuffs = SpellCastBuffs.SV.PromBuffTable
         local isPromBuff = promBuffs[id] or promBuffs[name]
@@ -1305,6 +1321,7 @@ function SpellCastBuffs.Buff_OnMouseUp(self, button, upInside)
                 SpellCastBuffs.AddToCustomList(promBuffs, name)
             end
         end)
+
         -- Prominent Debuffs
         local promDebuffs = SpellCastBuffs.SV.PromDebuffTable
         local isPromDebuff = promDebuffs[id] or promDebuffs[name]
@@ -1317,6 +1334,7 @@ function SpellCastBuffs.Buff_OnMouseUp(self, button, upInside)
                 SpellCastBuffs.AddToCustomList(promDebuffs, name)
             end
         end)
+
         -- Cancel Buff (if possible)
         if self.buffSlot then
             AddMenuItem("Cancel Buff", function ()

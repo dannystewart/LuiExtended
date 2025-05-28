@@ -464,6 +464,8 @@ local strings =
     LUIE_STRING_LAM_BUFF_COLOR_CHARM = "Charm Color",
     LUIE_STRING_LAM_BUFF_COLOR_CHARM_TP = "Choose the color to use for effects that Charm.",
     -- SpellCastBuffs Group Buffs
+    LUIE_STRING_CUSTOM_LIST_GROUP_BUFFS = "Custom Group Buffs",
+    LUIE_STRING_CUSTOM_LIST_GROUP_DEBUFFS = "Custom Group Debuffs",
     LUIE_STRING_LAM_SCB_GROUP_BUFFS_HEADER = "Group Buff Tracking",
     LUIE_STRING_LAM_SCB_GROUP_BUFFS_SUBMENU = "Display Settings",
     LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_SIZE = "Icon Size",
