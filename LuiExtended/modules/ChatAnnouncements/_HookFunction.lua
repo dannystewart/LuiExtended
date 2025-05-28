@@ -179,8 +179,6 @@ local SUPPRESS_SKILL_POINT_CSA_REASONS =
     [SKILL_POINT_CHANGE_REASON_SKILL_RESET] = true,
 }
 
-local alertHandlers = ZO_AlertText_GetHandlers()
-
 -- EVENT_STYLE_LEARNED (Alert Handler)
 local function StyleLearnedHook(itemStyleId, chapterIndex, isDefaultRacialStyle)
     local flag
@@ -4318,6 +4316,7 @@ local function PlayerToPlayerHook()
 end
 
 local function Hook1()
+    local alertHandlers = ZO_AlertText_GetHandlers()
     ZO_PreHook(alertHandlers, EVENT_LORE_BOOK_ALREADY_KNOWN, AlreadyKnowBookHook)
     ZO_PreHook(alertHandlers, EVENT_RIDING_SKILL_IMPROVEMENT, RidingSkillImprovementAlertHook)
     ZO_PreHook(alertHandlers, EVENT_LORE_BOOK_LEARNED, LoreBookLearnedAlertHook)
@@ -4345,6 +4344,7 @@ local function Hook1()
 end
 
 local function Hook2()
+    local alertHandlers = ZO_AlertText_GetHandlers()
     ZO_PreHook(alertHandlers, EVENT_GUILD_SELF_LEFT_GUILD, GuildSelfLeftAlert)
     ZO_PreHook(alertHandlers, EVENT_SAVE_GUILD_RANKS_RESPONSE, GuildRanksResponseAlert)
     ZO_PreHook(alertHandlers, EVENT_LOCKPICK_FAILED, LockpickFailedAlert)
