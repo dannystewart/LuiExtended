@@ -480,8 +480,10 @@ local strings =
     LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_SIZE_TP = "Adjust the size of the timer text on group buff icons.",
     LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_COLOR = "Timer Text Color",
     LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_COLOR_TP = "Adjust the color of the timer text on group buff icons.",
-    LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_SUBMENU = "Tracked Buffs",
-    LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_DESC = "Select which buffs to track on group members.",
+    LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_SUBMENU = "Default Tracked Buffs",
+    LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_DESC = "Select which default buffs to track on group members.",
+    LUIE_STRING_LAM_SCB_GROUP_DEBUFFS_TRACKED_SUBMENU = "Default Tracked Debuffs",
+    LUIE_STRING_LAM_SCB_GROUP_DEBUFFS_TRACKED_DESC = "Select which default debuffs to track on group members.",
     -- Module: Chat Announcements
     LUIE_STRING_LAM_CA_ACHIEVE_BRACKET = "Achievement Prefix Bracket",
     LUIE_STRING_LAM_CA_ACHIEVE_BRACKET_TP = "This bracket will encompass the prefix message when an Achievement is updated or unlocked.",

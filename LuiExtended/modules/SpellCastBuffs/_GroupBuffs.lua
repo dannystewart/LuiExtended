@@ -16,6 +16,20 @@ local table_insert = table.insert
 local table_sort = table.sort
 local eventManager = GetEventManager()
 
+-- Default group buff settings
+SpellCastBuffs.DefaultGroupSettings = {
+    GroupBuffIconSize = 24,
+    GroupBuffIconOffset = 5,
+    GroupBuffStartX = 75,
+    GroupBuffStartY = 0,
+    SmallGroupBuffStartX = 75,
+    SmallGroupBuffStartY = 0,
+    LargeGroupBuffStartX = 75,
+    LargeGroupBuffStartY = 0,
+    GroupBuffTimerSize = 16,
+    GroupBuffTimerColor = { 1, 1, 1, 1 },
+}
+
 -- Default tracked buffs
 SpellCastBuffs.DefaultGroupBuffs =
 {
@@ -74,18 +88,34 @@ SpellCastBuffs.BuggedLongDuration =
 --- @param index any
 --- @return table|TextureControl
 local function CreateBuffIcon(parent, lastIcon, index)
-    local iconSize = SpellCastBuffs.SV.GroupBuffIconSize or 24
+    local defaults = SpellCastBuffs.DefaultGroupSettings
+    local iconSize = SpellCastBuffs.SV.GroupBuffIconSize or defaults.GroupBuffIconSize
     local icon = UI:Texture(parent, { LEFT, LEFT }, { iconSize, iconSize }, nil, DL_OVERLAY, false)
 
     if lastIcon then
-        icon:SetAnchor(LEFT, lastIcon, RIGHT, SpellCastBuffs.SV.GroupBuffIconOffset or 5, 0)
+        icon:SetAnchor(LEFT, lastIcon, RIGHT, SpellCastBuffs.SV.GroupBuffIconOffset or defaults.GroupBuffIconOffset, 0)
     else
-        icon:SetAnchor(LEFT, parent, LEFT, SpellCastBuffs.SV.GroupBuffStartX or 75, SpellCastBuffs.SV.GroupBuffStartY or 0)
+        -- Check group size to determine which position settings to use
+        local groupSize = GetGroupSize()
+        local startX, startY
+        
+        if groupSize <= 4 then
+            -- Use small group settings
+            startX = SpellCastBuffs.SV.SmallGroupBuffStartX or defaults.SmallGroupBuffStartX
+            startY = SpellCastBuffs.SV.SmallGroupBuffStartY or defaults.SmallGroupBuffStartY
+        else
+            -- Use large group settings
+            startX = SpellCastBuffs.SV.LargeGroupBuffStartX or defaults.LargeGroupBuffStartX
+            startY = SpellCastBuffs.SV.LargeGroupBuffStartY or defaults.LargeGroupBuffStartY
+        end
+        
+        icon:SetAnchor(LEFT, parent, LEFT, startX, startY)
     end
 
     -- Add timer label
-    local label = UI:Label(icon, { CENTER, CENTER }, nil, { 0, 0 }, string_format("$(BOLD_FONT)|%d|soft-shadow-thick", SpellCastBuffs.SV.GroupBuffTimerSize or 16), "", false)
-    local r, g, b, a = unpack(SpellCastBuffs.SV.GroupBuffTimerColor or { 1, 1, 1, 1 })
+    local timerSize = SpellCastBuffs.SV.GroupBuffTimerSize or defaults.GroupBuffTimerSize
+    local label = UI:Label(icon, { CENTER, CENTER }, nil, { 0, 0 }, string_format("$(BOLD_FONT)|%d|soft-shadow-thick", timerSize), "", false)
+    local r, g, b, a = unpack(SpellCastBuffs.SV.GroupBuffTimerColor or defaults.GroupBuffTimerColor)
     label:SetColor(r, g, b, a)
     label:SetDrawLayer(DL_OVERLAY)
     label:SetDrawTier(DT_HIGH)
@@ -121,15 +151,30 @@ local function RepositionBuffIcons(unitFrame)
     end
     table_sort(keys)
 
+    -- Check group size to determine which position settings to use
+    local defaults = SpellCastBuffs.DefaultGroupSettings
+    local groupSize = GetGroupSize()
+    local startX, startY
+    
+    if groupSize <= 4 then
+        -- Use small group settings
+        startX = SpellCastBuffs.SV.SmallGroupBuffStartX or defaults.SmallGroupBuffStartX
+        startY = SpellCastBuffs.SV.SmallGroupBuffStartY or defaults.SmallGroupBuffStartY
+    else
+        -- Use large group settings
+        startX = SpellCastBuffs.SV.LargeGroupBuffStartX or defaults.LargeGroupBuffStartX
+        startY = SpellCastBuffs.SV.LargeGroupBuffStartY or defaults.LargeGroupBuffStartY
+    end
+    
     local lastIcon = nil
     for _, id in ipairs(keys) do
         local bufficon = unitFrame.buffIconsById[id]
         if bufficon and not bufficon:IsHidden() then
             bufficon:ClearAnchors()
             if lastIcon then
-                bufficon:SetAnchor(LEFT, lastIcon, RIGHT, SpellCastBuffs.SV.GroupBuffIconOffset or 5, 0)
+                bufficon:SetAnchor(LEFT, lastIcon, RIGHT, SpellCastBuffs.SV.GroupBuffIconOffset or defaults.GroupBuffIconOffset, 0)
             else
-                bufficon:SetAnchor(LEFT, unitFrame, LEFT, SpellCastBuffs.SV.GroupBuffStartX or 75, SpellCastBuffs.SV.GroupBuffStartY or 0)
+                bufficon:SetAnchor(LEFT, unitFrame, LEFT, startX, startY)
             end
             lastIcon = bufficon
         end
@@ -256,11 +301,46 @@ function SpellCastBuffs.UpdateGroupBuffs()
     end
 end
 
+-- Handle group size changes to update buff positions
+local function OnGroupSizeChanged()
+    -- Reposition all buff icons for each group member
+    for i = 1, GetGroupSize() do
+        local unitTag = GetGroupUnitTagByIndex(i)
+        if DoesUnitExist(unitTag) then
+            local unitFrame = GetUnitFrame(unitTag)
+            if unitFrame and unitFrame.buffIconsById then
+                RepositionBuffIcons(unitFrame)
+            end
+        end
+    end
+end
+
 -- Initialize group buff tracking
 function SpellCastBuffs.InitializeGroupBuffs()
     -- Initialize tracked buffs and debuffs from saved vars
     SpellCastBuffs.SV.GroupTrackedBuffs = SpellCastBuffs.SV.GroupTrackedBuffs or {}
     SpellCastBuffs.SV.GroupTrackedDebuffs = SpellCastBuffs.SV.GroupTrackedDebuffs or {}
+    
+    -- Initialize position settings from defaults
+    local defaults = SpellCastBuffs.DefaultGroupSettings
+    
+    -- Initialize common settings
+    SpellCastBuffs.SV.GroupBuffIconSize = SpellCastBuffs.SV.GroupBuffIconSize or defaults.GroupBuffIconSize
+    SpellCastBuffs.SV.GroupBuffIconOffset = SpellCastBuffs.SV.GroupBuffIconOffset or defaults.GroupBuffIconOffset
+    SpellCastBuffs.SV.GroupBuffTimerSize = SpellCastBuffs.SV.GroupBuffTimerSize or defaults.GroupBuffTimerSize
+    SpellCastBuffs.SV.GroupBuffTimerColor = SpellCastBuffs.SV.GroupBuffTimerColor or defaults.GroupBuffTimerColor
+    
+    -- Initialize position settings
+    SpellCastBuffs.SV.GroupBuffStartX = SpellCastBuffs.SV.GroupBuffStartX or defaults.GroupBuffStartX
+    SpellCastBuffs.SV.GroupBuffStartY = SpellCastBuffs.SV.GroupBuffStartY or defaults.GroupBuffStartY
+    
+    -- Initialize small group position settings
+    SpellCastBuffs.SV.SmallGroupBuffStartX = SpellCastBuffs.SV.SmallGroupBuffStartX or defaults.SmallGroupBuffStartX
+    SpellCastBuffs.SV.SmallGroupBuffStartY = SpellCastBuffs.SV.SmallGroupBuffStartY or defaults.SmallGroupBuffStartY
+    
+    -- Initialize large group position settings
+    SpellCastBuffs.SV.LargeGroupBuffStartX = SpellCastBuffs.SV.LargeGroupBuffStartX or defaults.LargeGroupBuffStartX
+    SpellCastBuffs.SV.LargeGroupBuffStartY = SpellCastBuffs.SV.LargeGroupBuffStartY or defaults.LargeGroupBuffStartY
 
     -- Set defaults for any new buffs
     for buffId, _ in pairs(SpellCastBuffs.DefaultGroupBuffs) do
@@ -280,6 +360,10 @@ function SpellCastBuffs.InitializeGroupBuffs()
     eventManager:RegisterForEvent("LuiExtendedSpellCastBuffsGroupBuffs", EVENT_EFFECT_CHANGED, SpellCastBuffs.OnGroupEffectChanged)
     eventManager:AddFilterForEvent("LuiExtendedSpellCastBuffsGroupBuffs", EVENT_EFFECT_CHANGED, REGISTER_FILTER_UNIT_TAG_PREFIX, "group")
     eventManager:RegisterForUpdate("LuiExtendedSpellCastBuffsGroupBuffsUpdate", 1000, SpellCastBuffs.UpdateGroupBuffs)
+    
+    -- Register for group size changes
+    eventManager:RegisterForEvent("LuiExtendedSpellCastBuffsGroupSize", EVENT_GROUP_MEMBER_JOINED, OnGroupSizeChanged)
+    eventManager:RegisterForEvent("LuiExtendedSpellCastBuffsGroupSize", EVENT_GROUP_MEMBER_LEFT, OnGroupSizeChanged)
 
     -- Force an initial update of all group members
     for i = 1, GetGroupSize() do
@@ -288,4 +372,90 @@ function SpellCastBuffs.InitializeGroupBuffs()
             SpellCastBuffs.OnGroupEffectChanged(EVENT_EFFECT_CHANGED, EFFECT_RESULT_GAINED, 0, "", unitTag, 0, 0, 0, "", "", 0, 0, 0, "", 0, 0, 0)
         end
     end
+end
+
+-- Add a custom buff to track for group members
+function SpellCastBuffs.AddGroupBuff(buffId)
+    if type(buffId) == "string" then
+        -- Try to convert to number if it's a string representation of a number
+        buffId = tonumber(buffId)
+    end
+    
+    if not buffId or type(buffId) ~= "number" then
+        return false
+    end
+    
+    -- Add to tracked list
+    SpellCastBuffs.SV.GroupTrackedBuffs[buffId] = true
+    return true
+end
+
+-- Add a custom debuff to track for group members
+function SpellCastBuffs.AddGroupDebuff(debuffId)
+    if type(debuffId) == "string" then
+        -- Try to convert to number if it's a string representation of a number
+        debuffId = tonumber(debuffId)
+    end
+    
+    if not debuffId or type(debuffId) ~= "number" then
+        return false
+    end
+    
+    -- Add to tracked list
+    SpellCastBuffs.SV.GroupTrackedDebuffs[debuffId] = true
+    return true
+end
+
+-- Remove a buff from tracking
+function SpellCastBuffs.RemoveGroupBuff(buffId)
+    if type(buffId) == "string" then
+        -- Try to convert to number if it's a string representation of a number
+        buffId = tonumber(buffId)
+    end
+    
+    if not buffId or type(buffId) ~= "number" then
+        return false
+    end
+    
+    -- Remove from tracked list
+    SpellCastBuffs.SV.GroupTrackedBuffs[buffId] = nil
+    return true
+end
+
+-- Remove a debuff from tracking
+function SpellCastBuffs.RemoveGroupDebuff(debuffId)
+    if type(debuffId) == "string" then
+        -- Try to convert to number if it's a string representation of a number
+        debuffId = tonumber(debuffId)
+    end
+    
+    if not debuffId or type(debuffId) ~= "number" then
+        return false
+    end
+    
+    -- Remove from tracked list
+    SpellCastBuffs.SV.GroupTrackedDebuffs[debuffId] = nil
+    return true
+end
+
+-- Clear all custom buffs
+function SpellCastBuffs.ClearGroupBuffs()
+    local defaultBuffs = {}
+    -- Keep default buffs
+    for buffId in pairs(SpellCastBuffs.DefaultGroupBuffs) do
+        defaultBuffs[buffId] = true
+    end
+    -- Reset to only default buffs
+    SpellCastBuffs.SV.GroupTrackedBuffs = defaultBuffs
+end
+
+-- Clear all custom debuffs
+function SpellCastBuffs.ClearGroupDebuffs()
+    local defaultDebuffs = {}
+    -- Keep default debuffs
+    for debuffId in pairs(SpellCastBuffs.DefaultGroupDebuffs) do
+        defaultDebuffs[debuffId] = true
+    end
+    -- Reset to only default debuffs
+    SpellCastBuffs.SV.GroupTrackedDebuffs = defaultDebuffs
 end

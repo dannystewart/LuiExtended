@@ -145,6 +145,40 @@ local dialogs =
             LUIE_Priority_Debuffs_List:UpdateChoices(GenerateCustomList(SpellCastBuffs.SV.PriorityDebuffTable))
         end,
     },
+    [6] =
+    { -- Clear Custom Group Buffs
+        identifier = "LUIE_CLEAR_GROUP_CUSTOM_BUFFS",
+        title = "Reset Group Buffs",
+        text = "Are you sure you want to reset all group buffs to defaults? This will remove any custom buffs you've added.",
+        callback = function (_)
+            SpellCastBuffs.ClearGroupBuffs()
+            -- Update the dropdown
+            local customBuffs = {}
+            for buffId, _ in pairs(SpellCastBuffs.SV.GroupTrackedBuffs) do
+                if not SpellCastBuffs.DefaultGroupBuffs[buffId] then
+                    customBuffs[buffId] = true
+                end
+            end
+            LUIE_Group_Custom_Buffs_List:UpdateChoices(GenerateCustomList(customBuffs))
+        end,
+    },
+    [7] =
+    { -- Clear Custom Group Debuffs
+        identifier = "LUIE_CLEAR_GROUP_CUSTOM_DEBUFFS",
+        title = "Reset Group Debuffs",
+        text = "Are you sure you want to reset all group debuffs to defaults? This will remove any custom debuffs you've added.",
+        callback = function (_)
+            SpellCastBuffs.ClearGroupDebuffs()
+            -- Update the dropdown
+            local customDebuffs = {}
+            for debuffId, _ in pairs(SpellCastBuffs.SV.GroupTrackedDebuffs) do
+                if not SpellCastBuffs.DefaultGroupDebuffs[debuffId] then
+                    customDebuffs[debuffId] = true
+                end
+            end
+            LUIE_Group_Custom_Debuffs_List:UpdateChoices(GenerateCustomList(customDebuffs))
+        end,
+    },
 }
 
 local function loadDialogButtons()
@@ -289,6 +323,335 @@ function SpellCastBuffs.CreateSettings()
         default = Defaults.lockPositionToUnitFrames,
         requiresReload = true,
     }
+
+    -- Group Buff Tracking Settings
+    local groupBuffOptions =
+    {
+        type = "submenu",
+        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_HEADER) .. " (BETA)",
+        controls =
+        {
+            {
+                type = "submenu",
+                name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_SUBMENU),
+                controls =
+                {
+                    {
+                        type = "slider",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_SIZE),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_SIZE_TP),
+                        min = 16,
+                        max = 64,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.GroupBuffIconSize end,
+                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffIconSize = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_OFFSET),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_OFFSET_TP),
+                        min = 0,
+                        max = 50,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.GroupBuffIconOffset end,
+                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffIconOffset = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "header",
+                        name = "Small Group Settings (4 or fewer members)",
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = "Small Group Start X",
+                        tooltip = "Horizontal position of the first buff icon for small groups.",
+                        min = 0,
+                        max = 450,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.SmallGroupBuffStartX or SpellCastBuffs.SV.GroupBuffStartX end,
+                        setFunc = function (value) SpellCastBuffs.SV.SmallGroupBuffStartX = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = "Small Group Start Y",
+                        tooltip = "Vertical position of the first buff icon for small groups.",
+                        min = -100,
+                        max = 100,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.SmallGroupBuffStartY or SpellCastBuffs.SV.GroupBuffStartY end,
+                        setFunc = function (value) SpellCastBuffs.SV.SmallGroupBuffStartY = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "header",
+                        name = "Large Group Settings (more than 4 members)",
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = "Large Group Start X",
+                        tooltip = "Horizontal position of the first buff icon for large groups.",
+                        min = 0,
+                        max = 450,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.LargeGroupBuffStartX or SpellCastBuffs.SV.GroupBuffStartX end,
+                        setFunc = function (value) SpellCastBuffs.SV.LargeGroupBuffStartX = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = "Large Group Start Y",
+                        tooltip = "Vertical position of the first buff icon for large groups.",
+                        min = -100,
+                        max = 100,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.LargeGroupBuffStartY or SpellCastBuffs.SV.GroupBuffStartY end,
+                        setFunc = function (value) SpellCastBuffs.SV.LargeGroupBuffStartY = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "header",
+                        name = "Common Settings",
+                        width = "full",
+                    },
+                    {
+                        type = "slider",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_SIZE),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_SIZE_TP),
+                        min = 8,
+                        max = 32,
+                        step = 1,
+                        getFunc = function () return SpellCastBuffs.SV.GroupBuffTimerSize end,
+                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffTimerSize = value end,
+                        width = "full",
+                    },
+                    {
+                        type = "colorpicker",
+                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_COLOR),
+                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_COLOR_TP),
+                        getFunc = function ()
+                            local c = SpellCastBuffs.SV.GroupBuffTimerColor
+                            return unpack(c or { 1, 1, 1, 1 })
+                        end,
+                        setFunc = function (r, g, b, a)
+                            SpellCastBuffs.SV.GroupBuffTimerColor = { r, g, b, a }
+                        end,
+                        width = "full",
+                    },
+                },
+            },
+            {
+                type = "submenu",
+                name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_SUBMENU),
+                controls = (function ()
+                    local controls =
+                    {
+                        {
+                            type = "description",
+                            text = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_DESC),
+                            width = "full",
+                        },
+                    }
+                    for buffId, _ in pairs(SpellCastBuffs.DefaultGroupBuffs) do
+                        local icon = GetAbilityIcon(buffId) or "/esoui/art/icons/default.dds"
+                        local buffName = GetAbilityName(buffId) or ("Buff " .. tostring(buffId))
+                        local buffNameWithIcon = ("|t24:24:%s|t %s"):format(icon, buffName)
+                        table_insert(controls,
+                                     {
+                                         type = "checkbox",
+                                         name = buffNameWithIcon,
+                                         getFunc = function ()
+                                             return SpellCastBuffs.SV.GroupTrackedBuffs[buffId]
+                                         end,
+                                         setFunc = function (value)
+                                             SpellCastBuffs.SV.GroupTrackedBuffs[buffId] = value
+                                         end,
+                                         width = "full",
+                                     })
+                    end
+                    return controls
+                end)(),
+            },
+            {
+                type = "submenu",
+                name = GetString(LUIE_STRING_LAM_SCB_GROUP_DEBUFFS_TRACKED_SUBMENU),
+                controls = (function ()
+                    local controls =
+                    {
+                        {
+                            type = "description",
+                            text = GetString(LUIE_STRING_LAM_SCB_GROUP_DEBUFFS_TRACKED_DESC),
+                            width = "full",
+                        },
+                    }
+                    for debuffId, _ in pairs(SpellCastBuffs.DefaultGroupDebuffs) do
+                        local icon = GetAbilityIcon(debuffId) or "/esoui/art/icons/default.dds"
+                        local debuffName = GetAbilityName(debuffId) or ("Debuff " .. tostring(debuffId))
+                        local debuffNameWithIcon = ("|t24:24:%s|t %s"):format(icon, debuffName)
+                        table_insert(controls,
+                                     {
+                                         type = "checkbox",
+                                         name = debuffNameWithIcon,
+                                         getFunc = function ()
+                                             return SpellCastBuffs.SV.GroupTrackedDebuffs[debuffId]
+                                         end,
+                                         setFunc = function (value)
+                                             SpellCastBuffs.SV.GroupTrackedDebuffs[debuffId] = value
+                                         end,
+                                         width = "full",
+                                     })
+                    end
+                    return controls
+                end)(),
+            },
+            {
+                type = "submenu",
+                name = "Custom Group Buffs",
+                controls =
+                {
+                    {
+                        type = "description",
+                        text = "Add custom buffs to track on group members by entering the Ability ID below.",
+                        width = "full",
+                    },
+                    {
+                        -- Custom Group Buffs List (Add)
+                        type = "editbox",
+                        name = "Add Custom Group Buff",
+                        tooltip = "Enter an Ability ID to add to the group buffs tracking list.",
+                        getFunc = function () return "" end,
+                        setFunc = function (value)
+                            if SpellCastBuffs.AddGroupBuff(value) then
+                                LUIE_Group_Custom_Buffs_List:UpdateChoices(GenerateCustomList(SpellCastBuffs.SV.GroupTrackedBuffs))
+                            end
+                        end,
+                        width = "full",
+                    },
+                    {
+                        -- Custom Group Buffs List (Remove)
+                        type = "dropdown",
+                        name = "Remove Custom Group Buff",
+                        tooltip = "Select a buff to remove from tracking.",
+                        choices = {},       -- Will be populated by UpdateChoices
+                        choicesValues = {}, -- Will be populated by UpdateChoices
+                        scrollable = true,
+                        sort = "name-up",
+                        getFunc = function ()
+                            -- Filter out default buffs so we only see custom ones
+                            local customBuffs = {}
+                            for buffId, _ in pairs(SpellCastBuffs.SV.GroupTrackedBuffs) do
+                                if not SpellCastBuffs.DefaultGroupBuffs[buffId] then
+                                    customBuffs[buffId] = true
+                                end
+                            end
+                            LUIE_Group_Custom_Buffs_List:UpdateChoices(GenerateCustomList(customBuffs))
+                            return nil
+                        end,
+                        setFunc = function (value)
+                            if value then
+                                SpellCastBuffs.RemoveGroupBuff(value)
+                                -- Refresh the dropdown
+                                local customBuffs = {}
+                                for buffId, _ in pairs(SpellCastBuffs.SV.GroupTrackedBuffs) do
+                                    if not SpellCastBuffs.DefaultGroupBuffs[buffId] then
+                                        customBuffs[buffId] = true
+                                    end
+                                end
+                                LUIE_Group_Custom_Buffs_List:UpdateChoices(GenerateCustomList(customBuffs))
+                            end
+                        end,
+                        width = "full",
+                        reference = "LUIE_Group_Custom_Buffs_List",
+                    },
+                    {
+                        -- Clear Custom Group Buffs
+                        type = "button",
+                        name = "Reset to Default Group Buffs",
+                        tooltip = "Remove all custom buffs and reset to defaults.",
+                        func = function ()
+                            ZO_Dialogs_ShowDialog("LUIE_CLEAR_GROUP_CUSTOM_BUFFS")
+                        end,
+                        width = "full",
+                    },
+                },
+            },
+            {
+                type = "submenu",
+                name = "Custom Group Debuffs",
+                controls =
+                {
+                    {
+                        type = "description",
+                        text = "Add custom debuffs to track on group members by entering the Ability ID below.",
+                        width = "full",
+                    },
+                    {
+                        -- Custom Group Debuffs List (Add)
+                        type = "editbox",
+                        name = "Add Custom Group Debuff",
+                        tooltip = "Enter an Ability ID to add to the group debuffs tracking list.",
+                        getFunc = function () return "" end,
+                        setFunc = function (value)
+                            if SpellCastBuffs.AddGroupDebuff(value) then
+                                LUIE_Group_Custom_Debuffs_List:UpdateChoices(GenerateCustomList(SpellCastBuffs.SV.GroupTrackedDebuffs))
+                            end
+                        end,
+                        width = "full",
+                    },
+                    {
+                        -- Custom Group Debuffs List (Remove)
+                        type = "dropdown",
+                        name = "Remove Custom Group Debuff",
+                        tooltip = "Select a debuff to remove from tracking.",
+                        choices = {},       -- Will be populated by UpdateChoices
+                        choicesValues = {}, -- Will be populated by UpdateChoices
+                        scrollable = true,
+                        sort = "name-up",
+                        getFunc = function ()
+                            -- Filter out default debuffs so we only see custom ones
+                            local customDebuffs = {}
+                            for debuffId, _ in pairs(SpellCastBuffs.SV.GroupTrackedDebuffs) do
+                                if not SpellCastBuffs.DefaultGroupDebuffs[debuffId] then
+                                    customDebuffs[debuffId] = true
+                                end
+                            end
+                            LUIE_Group_Custom_Debuffs_List:UpdateChoices(GenerateCustomList(customDebuffs))
+                            return nil
+                        end,
+                        setFunc = function (value)
+                            if value then
+                                SpellCastBuffs.RemoveGroupDebuff(value)
+                                -- Refresh the dropdown
+                                local customDebuffs = {}
+                                for debuffId, _ in pairs(SpellCastBuffs.SV.GroupTrackedDebuffs) do
+                                    if not SpellCastBuffs.DefaultGroupDebuffs[debuffId] then
+                                        customDebuffs[debuffId] = true
+                                    end
+                                end
+                                LUIE_Group_Custom_Debuffs_List:UpdateChoices(GenerateCustomList(customDebuffs))
+                            end
+                        end,
+                        width = "full",
+                        reference = "LUIE_Group_Custom_Debuffs_List",
+                    },
+                    {
+                        -- Clear Custom Group Debuffs
+                        type = "button",
+                        name = "Reset to Default Group Debuffs",
+                        tooltip = "Remove all custom debuffs and reset to defaults.",
+                        func = function ()
+                            ZO_Dialogs_ShowDialog("LUIE_CLEAR_GROUP_CUSTOM_DEBUFFS")
+                        end,
+                        width = "full",
+                    },
+                },
+            },
+        },
+    }
+    optionsDataBuffsDebuffs[#optionsDataBuffsDebuffs + 1] = groupBuffOptions
 
     -- Buffs&Debuffs - Position and Display Options Submenu
     optionsDataBuffsDebuffs[#optionsDataBuffsDebuffs + 1] =
@@ -3716,125 +4079,6 @@ function SpellCastBuffs.CreateSettings()
             return not LUIE.SV.SpellCastBuff_Enable
         end,
     }
-
-    -- Group Buff Tracking Settings
-    local groupBuffOptions =
-    {
-        type = "submenu",
-        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_HEADER),
-        controls =
-        {
-            {
-                type = "submenu",
-                name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_SUBMENU),
-                controls =
-                {
-                    {
-                        type = "slider",
-                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_SIZE),
-                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_SIZE_TP),
-                        min = 16,
-                        max = 64,
-                        step = 1,
-                        getFunc = function () return SpellCastBuffs.SV.GroupBuffIconSize end,
-                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffIconSize = value end,
-                        width = "full",
-                    },
-                    {
-                        type = "slider",
-                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_OFFSET),
-                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_ICON_OFFSET_TP),
-                        min = 0,
-                        max = 50,
-                        step = 1,
-                        getFunc = function () return SpellCastBuffs.SV.GroupBuffIconOffset end,
-                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffIconOffset = value end,
-                        width = "full",
-                    },
-                    {
-                        type = "slider",
-                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_START_X),
-                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_START_X_TP),
-                        min = 0,
-                        max = 450,
-                        step = 1,
-                        getFunc = function () return SpellCastBuffs.SV.GroupBuffStartX end,
-                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffStartX = value end,
-                        width = "full",
-                    },
-                    {
-                        type = "slider",
-                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_START_Y),
-                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_START_Y_TP),
-                        min = -100,
-                        max = 100,
-                        step = 1,
-                        getFunc = function () return SpellCastBuffs.SV.GroupBuffStartY end,
-                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffStartY = value end,
-                        width = "full",
-                    },
-                    {
-                        type = "slider",
-                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_SIZE),
-                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_SIZE_TP),
-                        min = 8,
-                        max = 32,
-                        step = 1,
-                        getFunc = function () return SpellCastBuffs.SV.GroupBuffTimerSize end,
-                        setFunc = function (value) SpellCastBuffs.SV.GroupBuffTimerSize = value end,
-                        width = "full",
-                    },
-                    {
-                        type = "colorpicker",
-                        name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_COLOR),
-                        tooltip = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TIMER_COLOR_TP),
-                        getFunc = function ()
-                            local c = SpellCastBuffs.SV.GroupBuffTimerColor
-                            return unpack(c or { 1, 1, 1, 1 })
-                        end,
-                        setFunc = function (r, g, b, a)
-                            SpellCastBuffs.SV.GroupBuffTimerColor = { r, g, b, a }
-                        end,
-                        width = "full",
-                    },
-                },
-            },
-            {
-                type = "submenu",
-                name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_SUBMENU),
-                controls = (function ()
-                    local controls =
-                    {
-                        {
-                            type = "description",
-                            text = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_TRACKED_DESC),
-                            width = "full",
-                        },
-                    }
-                    for buffId, _ in pairs(SpellCastBuffs.DefaultGroupBuffs) do
-                        local icon = GetAbilityIcon(buffId) or "/esoui/art/icons/default.dds"
-                        local buffName = GetAbilityName(buffId) or ("Buff " .. tostring(buffId))
-                        local buffNameWithIcon = ("|t24:24:%s|t %s"):format(icon, buffName)
-                        table_insert(controls,
-                                     {
-                                         type = "checkbox",
-                                         name = buffNameWithIcon,
-                                         getFunc = function ()
-                                             return SpellCastBuffs.SV.GroupTrackedBuffs[buffId]
-                                         end,
-                                         setFunc = function (value)
-                                             SpellCastBuffs.SV.GroupTrackedBuffs[buffId] = value
-                                         end,
-                                         width = "full",
-                                     })
-                    end
-                    return controls
-                end)(),
-            },
-        },
-    }
-    -- Insert before Debug section
-    table.insert(optionsDataBuffsDebuffs, #optionsDataBuffsDebuffs - 8, groupBuffOptions)
 
     -- Register the settings panel
     if LUIE.SV.SpellCastBuff_Enable then
