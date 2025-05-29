@@ -99,6 +99,7 @@ modules/SpellCastBuffs/_Collectibles.lua
 modules/SpellCastBuffs/_ContextFunctions.lua
 modules/SpellCastBuffs/_Cyrodiil.lua
 modules/SpellCastBuffs/_Debug.lua
+modules/SpellCastBuffs/_DevDebug.lua
 modules/SpellCastBuffs/_ListFunctions.lua
 modules/SpellCastBuffs/_OnCombatAddNameEvent.lua
 modules/SpellCastBuffs/_OnCombatEventIn.lua
