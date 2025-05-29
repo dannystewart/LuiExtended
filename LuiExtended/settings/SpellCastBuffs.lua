@@ -332,6 +332,27 @@ function SpellCastBuffs.CreateSettings()
         controls =
         {
             {
+                -- Master toggle for group buff tracking
+                type = "checkbox",
+                name = "Enable Group Buff Tracking",
+                tooltip = "Enable or disable the tracking of buffs and debuffs on group members. When disabled, no group buff icons will be shown.",
+                getFunc = function ()
+                    return Settings.EnableGroupBuffTracking
+                end,
+                setFunc = function (value)
+                    Settings.EnableGroupBuffTracking = value
+                    -- Handle toggling the feature on/off
+                    if value then
+                        SpellCastBuffs.InitializeGroupBuffs()
+                    else
+                        SpellCastBuffs.ShutdownGroupBuffs()
+                    end
+                end,
+                width = "full",
+                requiresReload = true,
+                default = Defaults.EnableGroupBuffTracking,
+            },
+            {
                 type = "submenu",
                 name = GetString(LUIE_STRING_LAM_SCB_GROUP_BUFFS_SUBMENU),
                 controls =
@@ -346,6 +367,9 @@ function SpellCastBuffs.CreateSettings()
                         getFunc = function () return SpellCastBuffs.SV.GroupBuffIconSize end,
                         setFunc = function (value) SpellCastBuffs.SV.GroupBuffIconSize = value end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         type = "slider",
@@ -357,6 +381,9 @@ function SpellCastBuffs.CreateSettings()
                         getFunc = function () return SpellCastBuffs.SV.GroupBuffIconOffset end,
                         setFunc = function (value) SpellCastBuffs.SV.GroupBuffIconOffset = value end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         type = "header",
@@ -373,6 +400,9 @@ function SpellCastBuffs.CreateSettings()
                         getFunc = function () return SpellCastBuffs.SV.SmallGroupBuffStartX or SpellCastBuffs.SV.GroupBuffStartX end,
                         setFunc = function (value) SpellCastBuffs.SV.SmallGroupBuffStartX = value end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         type = "slider",
@@ -384,6 +414,9 @@ function SpellCastBuffs.CreateSettings()
                         getFunc = function () return SpellCastBuffs.SV.SmallGroupBuffStartY or SpellCastBuffs.SV.GroupBuffStartY end,
                         setFunc = function (value) SpellCastBuffs.SV.SmallGroupBuffStartY = value end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         type = "header",
@@ -400,6 +433,9 @@ function SpellCastBuffs.CreateSettings()
                         getFunc = function () return SpellCastBuffs.SV.LargeGroupBuffStartX or SpellCastBuffs.SV.GroupBuffStartX end,
                         setFunc = function (value) SpellCastBuffs.SV.LargeGroupBuffStartX = value end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         type = "slider",
@@ -411,6 +447,9 @@ function SpellCastBuffs.CreateSettings()
                         getFunc = function () return SpellCastBuffs.SV.LargeGroupBuffStartY or SpellCastBuffs.SV.GroupBuffStartY end,
                         setFunc = function (value) SpellCastBuffs.SV.LargeGroupBuffStartY = value end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         type = "header",
@@ -427,6 +466,9 @@ function SpellCastBuffs.CreateSettings()
                         getFunc = function () return SpellCastBuffs.SV.GroupBuffTimerSize end,
                         setFunc = function (value) SpellCastBuffs.SV.GroupBuffTimerSize = value end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         type = "colorpicker",
@@ -440,6 +482,9 @@ function SpellCastBuffs.CreateSettings()
                             SpellCastBuffs.SV.GroupBuffTimerColor = { r, g, b, a }
                         end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                 },
             },
@@ -470,6 +515,9 @@ function SpellCastBuffs.CreateSettings()
                                              SpellCastBuffs.SV.GroupTrackedBuffs[buffId] = value
                                          end,
                                          width = "full",
+                                         disabled = function ()
+                                             return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                                         end,
                                      })
                     end
                     return controls
@@ -502,6 +550,9 @@ function SpellCastBuffs.CreateSettings()
                                              SpellCastBuffs.SV.GroupTrackedDebuffs[debuffId] = value
                                          end,
                                          width = "full",
+                                         disabled = function ()
+                                             return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                                         end,
                                      })
                     end
                     return controls
@@ -529,6 +580,9 @@ function SpellCastBuffs.CreateSettings()
                             end
                         end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         -- Custom Group Buffs List (Remove)
@@ -565,6 +619,9 @@ function SpellCastBuffs.CreateSettings()
                         end,
                         width = "full",
                         reference = "LUIE_Group_Custom_Buffs_List",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         -- Clear Custom Group Buffs
@@ -575,6 +632,9 @@ function SpellCastBuffs.CreateSettings()
                             ZO_Dialogs_ShowDialog("LUIE_CLEAR_GROUP_CUSTOM_BUFFS")
                         end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                 },
             },
@@ -600,6 +660,9 @@ function SpellCastBuffs.CreateSettings()
                             end
                         end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         -- Custom Group Debuffs List (Remove)
@@ -636,6 +699,9 @@ function SpellCastBuffs.CreateSettings()
                         end,
                         width = "full",
                         reference = "LUIE_Group_Custom_Debuffs_List",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                     {
                         -- Clear Custom Group Debuffs
@@ -646,6 +712,9 @@ function SpellCastBuffs.CreateSettings()
                             ZO_Dialogs_ShowDialog("LUIE_CLEAR_GROUP_CUSTOM_DEBUFFS")
                         end,
                         width = "full",
+                        disabled = function ()
+                            return not SpellCastBuffs.SV.EnableGroupBuffTracking
+                        end,
                     },
                 },
             },

@@ -193,6 +193,7 @@ SpellCastBuffs.Defaults =
     GroupBuffTimerSize = 16,
     GroupBuffTimerColor = { 1, 1, 1, 1 },
     GroupTrackedBuffs = {},
+    EnableGroupBuffTracking = true,
 }
 SpellCastBuffs.SV = {}
 
