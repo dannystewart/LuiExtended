@@ -36,7 +36,7 @@ LUIE.translation = "https://github.com/DakJaniels/LuiExtended/tree/translations"
 LUIE.donation = "https://paypal.me/dakjaniels"
 -- -----------------------------------------------------------------------------
 -- Saved variables options
----@diagnostic disable-next-line: missing-fields
+--- @diagnostic disable-next-line: missing-fields
 LUIE.SV = {}
 LUIE.SVVer = 2
 LUIE.SVName = "LUIESV"
@@ -157,6 +157,7 @@ LUIE.Fonts =
     ["Trajan Pro"] = ZoFontBookTablet:GetFontInfo(),
     ["Univers 57"] = ZoFontGame:GetFontInfo(),
     ["Univers 67"] = ZoFontWinH1:GetFontInfo(),
+    ["a_font"] = "LuiExtended/media/fonts/Custom/a_font.slug",
 }
 
 -- -----------------------------------------------------------------------------
