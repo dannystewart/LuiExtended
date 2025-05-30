@@ -114,12 +114,12 @@ function SpellCastBuffs.EventEffectDebug(eventId, changeType, effectSlot, effect
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
     local nameFormatted = zo_strformat("<<C:1>>", GetAbilityName(abilityId))
 
+    if unitName == "Offline" then
+        unitName = "GROUND?"
+    end
     unitName = zo_strformat("<<C:1>>", unitName)
     if unitName == LUIE.PlayerNameFormatted then
         unitName = "Player"
-    end
-    if unitName == "Offline" then
-        unitName = "GROUND?"
     end
     unitName = unitName .. " (" .. unitTag .. ")"
 

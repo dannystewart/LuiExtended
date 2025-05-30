@@ -61,48 +61,34 @@ local function FormatCoords(number)
     return ("%05.02f"):format(FormatGPSCoords(number) / 100)
 end
 
-local function getAbilityName(abilityId, casterUnitTag)
-    return GetAbilityName(abilityId, casterUnitTag)
-end
-
-local function getAbilityDuration(abilityId, overrideActiveRank, overrideCasterUnitTag)
-    return GetAbilityDuration(abilityId, overrideActiveRank, overrideCasterUnitTag)
-end
-
-local function getAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
-    return GetAbilityCastInfo(abilityId, overrideActiveRank, overrideCasterUnitTag)
-end
-
-
 -- Account specific DEBUG for ArtOfShred (These are only registered to give me some additional debug options)
 function SpellCastBuffs.AuthorCombatDebug(eventCode, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId)
     local iconFormatted = zo_iconFormat(GetAbilityIcon(abilityId), 16, 16)
     local nameFormatted = zo_strformat("<<C:1>>", GetAbilityName(abilityId))
 
-    local source = zo_strformat("<<C:1>>", sourceName)
-    local target = zo_strformat("<<C:1>>", targetName)
-    local ability = zo_strformat("<<C:1>>", nameFormatted)
+    local source
+    local target
+    if sourceName == "" and targetName == "" then
+        source = "NIL"
+        target = "NIL"
+    end
+    source = zo_strformat("<<C:1>>", sourceName)
+    target = zo_strformat("<<C:1>>", targetName)
     if source == LUIE.PlayerNameFormatted then
         source = "Player"
     end
     if target == LUIE.PlayerNameFormatted then
         target = "Player"
     end
-    if source == "" and target == "" then
-        source = "NIL"
-        target = "NIL"
-    end
 
     local formattedResult = DebugResults[result]
 
     if EffectOverride[abilityId] and EffectOverride[abilityId].hide then
         local finalString = (iconFormatted .. "[" .. abilityId .. "] " .. nameFormatted .. ": HIDDEN LUI" .. ": [S] " .. source .. " --> [T] " .. target .. " [R] " .. formattedResult)
-        if chatSystem.primaryContainer then
-            for k, cc in ipairs(chatSystem.containers) do
-                local chatContainer = cc
-                local chatWindow = cc.windows[2]
-                if chatContainer then chatContainer:AddEventMessageToWindow(chatWindow, finalString, CHAT_CATEGORY_SYSTEM) end
-            end
+        for k, cc in ipairs(chatSystem.containers) do
+            local chatContainer = cc
+            local chatWindow = cc.windows[2]
+            chatContainer:AddEventMessageToWindow(chatWindow, finalString, CHAT_CATEGORY_SYSTEM)
         end
     end
 end
@@ -125,12 +111,10 @@ function SpellCastBuffs.AuthorEffectDebug(eventCode, changeType, effectSlot, eff
 
     if EffectOverride[abilityId] and EffectOverride[abilityId].hide then
         local finalString = (iconFormatted .. refreshOnly .. "|c00E200 [" .. abilityId .. "] " .. nameFormatted .. ": HIDDEN LUI" .. ": [Tag] " .. unitName .. "|r")
-        if chatSystem.primaryContainer then
-            for k, cc in ipairs(chatSystem.containers) do
-                local chatContainer = cc
-                local chatWindow = cc.windows[2]
-                if chatContainer then chatContainer:AddEventMessageToWindow(chatWindow, finalString, CHAT_CATEGORY_SYSTEM) end
-            end
+        for k, cc in ipairs(chatSystem.containers) do
+            local chatContainer = cc
+            local chatWindow = cc.windows[2]
+            chatContainer:AddEventMessageToWindow(chatWindow, finalString, CHAT_CATEGORY_SYSTEM)
         end
     end
 end
@@ -459,9 +443,20 @@ function SpellCastBuffs.TempSlashZoneCheck()
 
     -- POI information
     if info.poiInfo.count and info.poiInfo.count > 0 then
-        table.insert(displayInfo, { "--------------------" })
-        table.insert(displayInfo, { "Points of Interest:", info.poiInfo.count .. " total POIs" })
-        table.insert(displayInfo, { "Discovered:", string_format("%d of %d", #info.poiInfo.items, info.poiInfo.count) })
+        AddSystemMessage("--------------------")
+        AddSystemMessage("DETAILED POI INFORMATION:")
+        AddSystemMessage("--------------------")
+
+        for i, poi in ipairs(info.poiInfo.items) do
+            if i <= 5 then -- Limit to first 5 POIs to avoid spam
+                AddSystemMessage(string_format("POI %d: %s (Type: %d, Discovered: %s)",
+                                               i, poi.name, poi.type, poi.isDiscovered and "Yes" or "No"))
+            end
+        end
+
+        if #info.poiInfo.items > 5 then
+            AddSystemMessage(string_format("... and %d more POIs", #info.poiInfo.items - 5))
+        end
     end
 
     -- Fast travel information
@@ -523,7 +518,7 @@ function SpellCastBuffs.TempSlashZoneCheckFull()
     SpellCastBuffs.TempSlashZoneCheck()
 
     -- Display POI details
-    if info.poiInfo.count and info.poiInfo.count > 0 and info.poiInfo.items and #info.poiInfo.items > 0 then
+    if info.poiInfo.count and info.poiInfo.count > 0 then
         AddSystemMessage("--------------------")
         AddSystemMessage("DETAILED POI INFORMATION:")
         AddSystemMessage("--------------------")
@@ -541,7 +536,7 @@ function SpellCastBuffs.TempSlashZoneCheckFull()
     end
 
     -- Display wayshrine details
-    if info.fastTravelInfo.count and info.fastTravelInfo.count > 0 and info.fastTravelInfo.items and #info.fastTravelInfo.items > 0 then
+    if info.fastTravelInfo.count and info.fastTravelInfo.count > 0 then
         AddSystemMessage("--------------------")
         AddSystemMessage("DETAILED WAYSHRINE INFORMATION:")
         AddSystemMessage("--------------------")
