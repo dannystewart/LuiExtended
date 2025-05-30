@@ -14,149 +14,193 @@ local printToChat = LUIE.PrintToChat
 local ChatAnnouncements = LUIE.ChatAnnouncements
 local moduleName = ChatAnnouncements.moduleName
 
+-- Message processor registry with explicit ordering.
+local MessageProcessors =
+{
+    [1] =
+    {
+        messageType = "NOTIFICATION",
+        processor = function (message)
+            local isSystem = message.isSystem or false
+            printToChat(message.message, isSystem)
+        end
+    },
+    [2] =
+    {
+        messageType = "QUEST_POI",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [3] =
+    {
+        messageType = "QUEST",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [4] =
+    {
+        messageType = "EXPERIENCE",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [5] =
+    {
+        messageType = "EXPERIENCE_LEVEL",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [6] =
+    {
+        messageType = "SKILL_GAIN",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [7] =
+    {
+        messageType = "SKILL_MORPH",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [8] =
+    {
+        messageType = "SKILL_LINE",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [9] =
+    {
+        messageType = "SKILL",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [10] =
+    {
+        messageType = "CURRENCY_POSTAGE",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [11] =
+    {
+        messageType = "QUEST_LOOT_REMOVE",
+        processor = function (message)
+            if not ChatAnnouncements.questItemAdded[message.itemId] then
+                printToChat(message.message)
+            end
+        end
+    },
+    [12] =
+    {
+        messageType = "CONTAINER",
+        processor = function (message)
+            ChatAnnouncements.ResolveItemMessage(
+                message.message,
+                message.formattedRecipient,
+                message.color,
+                message.logPrefix,
+                message.totalString,
+                message.groupLoot
+            )
+        end
+    },
+    [13] =
+    {
+        messageType = "CURRENCY",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [14] =
+    {
+        messageType = "QUEST_LOOT_ADD",
+        processor = function (message)
+            if not ChatAnnouncements.questItemRemoved[message.itemId] then
+                printToChat(message.message)
+            end
+        end
+    },
+    [15] =
+    {
+        messageType = "LOOT",
+        processor = function (message)
+            ChatAnnouncements.ResolveItemMessage(
+                message.message,
+                message.formattedRecipient,
+                message.color,
+                message.logPrefix,
+                message.totalString,
+                message.groupLoot
+            )
+        end
+    },
+    [16] =
+    {
+        messageType = "ANTIQUITY",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [17] =
+    {
+        messageType = "COLLECTIBLE",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [18] =
+    {
+        messageType = "ACHIEVEMENT",
+        processor = function (message)
+            printToChat(message.message)
+        end
+    },
+    [19] =
+    {
+        messageType = "MESSAGE",
+        processor = function (message)
+            local isSystem = message.isSystem or false
+            printToChat(message.message, isSystem)
+        end
+    }
+}
 
+-- Validate a message.
+local function IsValidMessage(message)
+    return message and message.message ~= ""
+end
+
+-- Process messages of a specific type.
+local function ProcessMessages(messageType)
+    local QueuedMessages = ChatAnnouncements.QueuedMessages
+    for i = 1, #QueuedMessages do
+        local message = QueuedMessages[i]
+        if IsValidMessage(message) and message.messageType == messageType then
+            -- Find the processor for this message type
+            for order, processor in pairs(MessageProcessors) do
+                if processor.messageType == messageType then
+                    processor.processor(message)
+                    break
+                end
+            end
+        end
+    end
+end
+
+-- Print queued messages.
 function ChatAnnouncements.PrintQueuedMessages()
-    -- Resolve notification messages first
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "NOTIFICATION" then
-            local isSystem
-            if ChatAnnouncements.QueuedMessages[i].isSystem then
-                isSystem = true
-            else
-                isSystem = false
-            end
-            printToChat(ChatAnnouncements.QueuedMessages[i].message, isSystem)
-        end
-    end
-
-    -- Resolve quest POI added
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_POI" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Next display Quest/Objective Completion and Experience
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and (ChatAnnouncements.QueuedMessages[i].messageType == "QUEST" or ChatAnnouncements.QueuedMessages[i].messageType == "EXPERIENCE") then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Level Up Notifications
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "EXPERIENCE_LEVEL" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Skill Gain
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_GAIN" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Skill Morph
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_MORPH" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Skill Line
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL_LINE" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Skill
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "SKILL" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Postage
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CURRENCY_POSTAGE" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Quest Items (Remove)
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_LOOT_REMOVE" then
-            local itemId = ChatAnnouncements.QueuedMessages[i].itemId
-            if not ChatAnnouncements.questItemAdded[itemId] == true then
-                printToChat(ChatAnnouncements.QueuedMessages[i].message)
-            end
-        end
-    end
-
-    -- Loot (Container)
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CONTAINER" then
-            ChatAnnouncements.ResolveItemMessage(ChatAnnouncements.QueuedMessages[i].message, ChatAnnouncements.QueuedMessages[i].formattedRecipient, ChatAnnouncements.QueuedMessages[i].color, ChatAnnouncements.QueuedMessages[i].logPrefix, ChatAnnouncements.QueuedMessages[i].totalString, ChatAnnouncements.QueuedMessages[i].groupLoot)
-        end
-    end
-
-    -- Currency
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "CURRENCY" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Quest Items (ADD)
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "QUEST_LOOT_ADD" then
-            local itemId = ChatAnnouncements.QueuedMessages[i].itemId
-            if not ChatAnnouncements.questItemRemoved[itemId] == true then
-                printToChat(ChatAnnouncements.QueuedMessages[i].message)
-            end
-        end
-    end
-
-    -- Loot
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "LOOT" then
-            ChatAnnouncements.ResolveItemMessage(ChatAnnouncements.QueuedMessages[i].message, ChatAnnouncements.QueuedMessages[i].formattedRecipient, ChatAnnouncements.QueuedMessages[i].color, ChatAnnouncements.QueuedMessages[i].logPrefix, ChatAnnouncements.QueuedMessages[i].totalString, ChatAnnouncements.QueuedMessages[i].groupLoot)
-        end
-    end
-
-    -- Resolve achievement update messages second to last
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "ANTIQUITY" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Collectible
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "COLLECTIBLE" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Resolve achievement update messages second to last
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "ACHIEVEMENT" then
-            printToChat(ChatAnnouncements.QueuedMessages[i].message)
-        end
-    end
-
-    -- Display the rest
-    for i = 1, #ChatAnnouncements.QueuedMessages do
-        if ChatAnnouncements.QueuedMessages[i] and ChatAnnouncements.QueuedMessages[i].message ~= "" and ChatAnnouncements.QueuedMessages[i].messageType == "MESSAGE" then
-            local isSystem
-            if ChatAnnouncements.QueuedMessages[i].isSystem then
-                isSystem = true
-            else
-                isSystem = false
-            end
-            printToChat(ChatAnnouncements.QueuedMessages[i].message, isSystem)
+    -- Process messages in order using numeric indices
+    for i = 1, #MessageProcessors do
+        local processor = MessageProcessors[i]
+        if processor then
+            ProcessMessages(processor.messageType)
         end
     end
 
