@@ -202,7 +202,7 @@ function SpellCastBuffs.Initialize(enabled)
     end
 
     -- Initialize group buff tracking
-    SpellCastBuffs.InitializeGroupBuffs()
+    SpellCastBuffs.InitializeGroupBuffs(SpellCastBuffs.SV.EnableGroupBuffTracking)
 
     -- Create TopLevelWindows for buff frames when NOT locked to Custom Unit Frames
     if SpellCastBuffs.SV.lockPositionToUnitFrames and LUIE.UnitFrames.CustomFrames.reticleover and LUIE.UnitFrames.CustomFrames.reticleover.buffs and LUIE.UnitFrames.CustomFrames.reticleover.debuffs then
@@ -497,8 +497,8 @@ function SpellCastBuffs.RegisterDebugEvents()
     if LUIE.IsDevDebugEnabled() then
         eventManager:UnregisterForEvent(moduleName .. "AuthorDebugCombat", EVENT_COMBAT_EVENT)
         if SpellCastBuffs.SV.ShowDebugCombat then
-            eventManager:RegisterForEvent(moduleName .. "AuthorDebugCombat", EVENT_COMBAT_EVENT, function (eventId, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
-                SpellCastBuffs.AuthorCombatDebug(eventId, result, isError, abilityName, abilityGraphic, abilityActionSlotType, sourceName, sourceType, targetName, targetType, hitValue, powerType, damageType, log, sourceUnitId, targetUnitId, abilityId, overflow)
+            eventManager:RegisterForEvent(moduleName .. "AuthorDebugCombat", EVENT_COMBAT_EVENT, function (eventId, ...)
+                SpellCastBuffs.AuthorCombatDebug(eventId, ...)
             end)
         end
         eventManager:UnregisterForEvent(moduleName .. "AuthorDebugEffect", EVENT_EFFECT_CHANGED)
@@ -1285,27 +1285,23 @@ function SpellCastBuffs.Buff_OnMouseUp(self, button, upInside)
 
         -- Group Buffs
         local groupBuffs = SpellCastBuffs.SV.GroupTrackedBuffs
-        local isGroupBuff = groupBuffs[id] or groupBuffs[name]
+        local isGroupBuff = groupBuffs[id]
         AddMenuItem(isGroupBuff and "Remove from Group Buffs" or "Add to Group Buffs", function ()
             if isGroupBuff then
-                SpellCastBuffs.RemoveFromCustomList(groupBuffs, id)
-                SpellCastBuffs.RemoveFromCustomList(groupBuffs, name)
+                SpellCastBuffs.RemoveGroupBuff(id)
             else
-                SpellCastBuffs.AddToCustomList(groupBuffs, id)
-                SpellCastBuffs.AddToCustomList(groupBuffs, name)
+                SpellCastBuffs.AddGroupBuff(id)
             end
         end)
 
         -- Group Debuffs
         local groupDebuffs = SpellCastBuffs.SV.GroupTrackedDebuffs
-        local isGroupDebuff = groupDebuffs[id] or groupDebuffs[name]
+        local isGroupDebuff = groupDebuffs[id]
         AddMenuItem(isGroupDebuff and "Remove from Group Debuffs" or "Add to Group Debuffs", function ()
             if isGroupDebuff then
-                SpellCastBuffs.RemoveFromCustomList(groupDebuffs, id)
-                SpellCastBuffs.RemoveFromCustomList(groupDebuffs, name)
+                SpellCastBuffs.RemoveGroupDebuff(id)
             else
-                SpellCastBuffs.AddToCustomList(groupDebuffs, id)
-                SpellCastBuffs.AddToCustomList(groupDebuffs, name)
+                SpellCastBuffs.AddGroupDebuff(id)
             end
         end)
 
