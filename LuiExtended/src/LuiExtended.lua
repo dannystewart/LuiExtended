@@ -112,6 +112,7 @@ LUIE.Defaults =
 }
 
 -- -----------------------------------------------------------------------------
+
 LUIE.Fonts =
 {
     ["Adventure"] = "LuiExtended/media/fonts/Adventure/adventure.slug",
@@ -157,7 +158,6 @@ LUIE.Fonts =
     ["Trajan Pro"] = ZoFontBookTablet:GetFontInfo(),
     ["Univers 57"] = ZoFontGame:GetFontInfo(),
     ["Univers 67"] = ZoFontWinH1:GetFontInfo(),
-    ["a_font"] = "LuiExtended/media/fonts/Custom/a_font.slug",
 }
 
 -- -----------------------------------------------------------------------------
