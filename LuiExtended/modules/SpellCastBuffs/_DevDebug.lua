@@ -88,6 +88,7 @@ function SpellCastBuffs.AuthorCombatDebug(eventCode, result, isError, abilityNam
         for k, cc in ipairs(chatSystem.containers) do
             local chatContainer = cc
             local chatWindow = cc.windows[2]
+            if chatWindow == nil then chatWindow = cc.windows[1] end
             chatContainer:AddEventMessageToWindow(chatWindow, finalString, CHAT_CATEGORY_SYSTEM)
         end
     end
@@ -114,6 +115,7 @@ function SpellCastBuffs.AuthorEffectDebug(eventCode, changeType, effectSlot, eff
         for k, cc in ipairs(chatSystem.containers) do
             local chatContainer = cc
             local chatWindow = cc.windows[2]
+            if chatWindow == nil then chatWindow = cc.windows[1] end
             chatContainer:AddEventMessageToWindow(chatWindow, finalString, CHAT_CATEGORY_SYSTEM)
         end
     end
