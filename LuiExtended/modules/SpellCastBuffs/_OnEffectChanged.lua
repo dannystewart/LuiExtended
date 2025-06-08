@@ -261,6 +261,13 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
             end
         end
     else
+        -- Special handling for Bound Armaments - only show in prominent buffs if stack count >= 4
+        if abilityId == 203447 and stackCount < 4 then
+            -- Force context to be non-prominent if stacks are too low
+            if context == "promb_player" then
+                context = "player1"
+            end
+        end
         context = SpellCastBuffs.DetermineContext(context, abilityId, effectName, sourceType)
     end
 
@@ -370,11 +377,6 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
             if stackCount > Effects.EffectOverride[abilityId].stackMax then
                 stackCount = Effects.EffectOverride[abilityId].stackMax
             end
-        end
-
-        -- Don't add to prominent buffs if the stack count is less than 4. This is for Bound Armaments.
-        if abilityId == 203447 and stackCount < 4 then
-            return
         end
 
         -- Buffs are created based on their effectSlot, this allows multiple buffs/debuffs of the same type to appear.
