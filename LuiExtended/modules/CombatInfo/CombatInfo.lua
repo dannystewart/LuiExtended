@@ -1646,15 +1646,16 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
         end
     else
         -- Also create visual enhancements from skill bar
-        -- Handle proc sound for Bound Armaments (4 and 8 stacks) / Grim Focus (5 stacks)
+        -- Handle proc sound for Bound Armaments (4 and 8 stacks) / Grim Focus (10 stacks)
         if Effects.IsGrimFocus[abilityId] then
             if CombatInfo.SV.ShowTriggered and CombatInfo.SV.ProcEnableSound then
-                local grimFocusProcStack = 5
+                local grimFocusProcStack = 10
                 if stackCount ~= grimFocusProcStack then
                     g_boundArmamentsPlayed = false
                 end
                 if stackCount == grimFocusProcStack and not g_boundArmamentsPlayed then
                     PlaySound(g_ProcSound)
+
                     PlaySound(g_ProcSound)
                     g_boundArmamentsPlayed = true
                 end
