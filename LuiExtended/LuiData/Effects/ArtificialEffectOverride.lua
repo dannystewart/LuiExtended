@@ -51,7 +51,7 @@ local artificialEffectOverride =
     [2] =
     {
         override = true,
-        name = zo_strgsub(GetArtificialEffectInfo(1), "For", "for"), -- Adjusts capitalization in LFG text
+        name = (zo_strgsub(GetArtificialEffectInfo(1), "For", "for")), -- Adjusts capitalization in LFG text
         tooltip = Tooltips.Innate_Looking_for_Group                  -- Custom tooltip for LFG status
     },
 

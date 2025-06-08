@@ -1646,35 +1646,55 @@ function CombatInfo.OnEffectChanged(eventCode, changeType, effectSlot, effectNam
         end
     else
         -- Also create visual enhancements from skill bar
-        -- Handle proc sound for Bound Armaments (4 and 8 stacks) / Grim Focus (10 stacks)
+        -- Handle proc sound for Bound Armaments (4 and 8 stacks) / Grim Focus (5 and 10 stacks)
         if Effects.IsGrimFocus[abilityId] then
             if CombatInfo.SV.ShowTriggered and CombatInfo.SV.ProcEnableSound then
-                local grimFocusProcStack = 10
-                if stackCount ~= grimFocusProcStack then
-                    g_boundArmamentsPlayed = false
-                end
-                if stackCount == grimFocusProcStack and not g_boundArmamentsPlayed then
-                    PlaySound(g_ProcSound)
+                -- Initialize tracking table if it doesn't exist
+                g_boundArmamentsPlayed = g_boundArmamentsPlayed or {}
 
+                -- Grim Focus procs at both 5 and 10 stacks
+                if not g_boundArmamentsPlayed[abilityId] then
+                    g_boundArmamentsPlayed[abilityId] = {}
+                end
+
+                -- Play sound when reaching 5 or 10 stacks, but only if we haven't played it yet
+                if (stackCount == 5 or stackCount == 10) and not g_boundArmamentsPlayed[abilityId][stackCount] then
                     PlaySound(g_ProcSound)
-                    g_boundArmamentsPlayed = true
+                    PlaySound(g_ProcSound)
+                    g_boundArmamentsPlayed[abilityId][stackCount] = true
+                end
+
+                -- Reset the tracking when stack count drops below the threshold
+                if stackCount < 5 then
+                    g_boundArmamentsPlayed[abilityId][5] = false
+                    g_boundArmamentsPlayed[abilityId][10] = false
+                elseif stackCount < 10 and stackCount > 5 then
+                    g_boundArmamentsPlayed[abilityId][10] = false
                 end
             end
         elseif Effects.IsBoundArmaments[abilityId] then
             if CombatInfo.SV.ShowTriggered and CombatInfo.SV.ProcEnableSound then
-                -- Bound Armaments procs at both 4 and 8 stacks
+                -- Initialize tracking table if it doesn't exist
                 g_boundArmamentsPlayed = g_boundArmamentsPlayed or {}
-                if not g_boundArmamentsPlayed[stackCount] then
-                    if stackCount == 4 or stackCount == 8 then
-                        PlaySound(g_ProcSound)
-                        PlaySound(g_ProcSound)
-                        g_boundArmamentsPlayed[stackCount] = true
-                    end
+
+                -- Bound Armaments procs at both 4 and 8 stacks
+                if not g_boundArmamentsPlayed[abilityId] then
+                    g_boundArmamentsPlayed[abilityId] = {}
                 end
-                -- Reset the proc flags if we're not at a proc stack
-                if stackCount ~= 4 and stackCount ~= 8 then
-                    g_boundArmamentsPlayed[4] = false
-                    g_boundArmamentsPlayed[8] = false
+
+                -- Play sound when reaching 4 or 8 stacks, but only if we haven't played it yet
+                if (stackCount == 4 or stackCount == 8) and not g_boundArmamentsPlayed[abilityId][stackCount] then
+                    PlaySound(g_ProcSound)
+                    PlaySound(g_ProcSound)
+                    g_boundArmamentsPlayed[abilityId][stackCount] = true
+                end
+
+                -- Reset the tracking when stack count drops below the threshold
+                if stackCount < 4 then
+                    g_boundArmamentsPlayed[abilityId][4] = false
+                    g_boundArmamentsPlayed[abilityId][8] = false
+                elseif stackCount < 8 and stackCount > 4 then
+                    g_boundArmamentsPlayed[abilityId][8] = false
                 end
             end
         end

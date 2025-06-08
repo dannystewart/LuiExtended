@@ -99,10 +99,10 @@ function AddonProfiler:MarkEvent(eventName)
     RecordScriptProfilerUserEvent(eventName)
 
     if eventName:match("Start$") then
-        local section = eventName:gsub(" Start$", "")
+        local section = (zo_strgsub(eventName, " Start$", ""))
         self:CaptureMemoryState(section, "before")
     elseif eventName:match("End$") then
-        local section = eventName:gsub(" End$", "")
+        local section = (zo_strgsub(eventName, " End$", ""))
         self:CaptureMemoryState(section, "after")
     end
 end

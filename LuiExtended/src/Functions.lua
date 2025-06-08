@@ -170,15 +170,15 @@ do
         -- create new one
         -- >If you add new formats make sure to update the tooltip at LUIE_STRING_LAM_CA_TIMESTAMPFORMAT_TP too
         local timestamp = formatStr
-        timestamp = string_gsub(timestamp, "HH", hours)
-        timestamp = string_gsub(timestamp, "H", hoursNoLead)
-        timestamp = string_gsub(timestamp, "hh", hours12)
-        timestamp = string_gsub(timestamp, "h", hours12NoLead)
-        timestamp = string_gsub(timestamp, "m", minutes)
-        timestamp = string_gsub(timestamp, "s", seconds)
-        timestamp = string_gsub(timestamp, "A", pUp)
-        timestamp = string_gsub(timestamp, "a", pLow)
-        timestamp = string_gsub(timestamp, "xy", milliseconds)
+        timestamp = (string_gsub(timestamp, "HH", hours))
+        timestamp = (string_gsub(timestamp, "H", hoursNoLead))
+        timestamp = (string_gsub(timestamp, "hh", hours12))
+        timestamp = (string_gsub(timestamp, "h", hours12NoLead))
+        timestamp = (string_gsub(timestamp, "m", minutes))
+        timestamp = (string_gsub(timestamp, "s", seconds))
+        timestamp = (string_gsub(timestamp, "A", pUp))
+        timestamp = (string_gsub(timestamp, "a", pLow))
+        timestamp = (string_gsub(timestamp, "xy", milliseconds))
         return timestamp
     end
 
@@ -517,12 +517,12 @@ end
 function LUIE.UpdateMundusTooltipSyntax(abilityId, tooltipText)
     -- Update syntax for The Lady, The Lover, and the Thief Mundus stones since they aren't consistent with other buffs.
     if abilityId == 13976 or abilityId == 13981 then -- The Lady / The Lover
-        tooltipText = string_gsub(tooltipText, GetString(LUIE_STRING_SKILL_MUNDUS_SUB_RES_PEN), GetString(LUIE_STRING_SKILL_MUNDUS_SUB_RES_PEN_REPLACE))
+        tooltipText = (string_gsub(tooltipText, GetString(LUIE_STRING_SKILL_MUNDUS_SUB_RES_PEN), GetString(LUIE_STRING_SKILL_MUNDUS_SUB_RES_PEN_REPLACE)))
     elseif abilityId == 13975 then                   -- The Thief
-        tooltipText = string_gsub(tooltipText, GetString(LUIE_STRING_SKILL_MUNDUS_SUB_THIEF), GetString(LUIE_STRING_SKILL_MUNDUS_SUB_THIEF_REPLACE))
+        tooltipText = (string_gsub(tooltipText, GetString(LUIE_STRING_SKILL_MUNDUS_SUB_THIEF), GetString(LUIE_STRING_SKILL_MUNDUS_SUB_THIEF_REPLACE)))
     end
     -- Replace "Increases your" with "Increase"
-    tooltipText = string_gsub(tooltipText, GetString(LUIE_STRING_SKILL_MUNDUS_STRING), GetString(LUIE_STRING_SKILL_DRINK_INCREASE))
+    tooltipText = (string_gsub(tooltipText, GetString(LUIE_STRING_SKILL_MUNDUS_STRING), GetString(LUIE_STRING_SKILL_DRINK_INCREASE)))
     return tooltipText
 end
 

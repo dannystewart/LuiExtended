@@ -1523,7 +1523,7 @@ function SpellCastBuffs.Buff_OnMouseEnter(control)
         -- Set the Tooltip to be default if custom tooltips aren't enabled
         if not LUIE.SpellCastBuffs.SV.TooltipCustom then
             tooltipText = GetAbilityEffectDescription(control.buffSlot)
-            tooltipText = zo_strgsub(tooltipText, "\n$", "") -- Remove blank end line
+            tooltipText = (zo_strgsub(tooltipText, "\n$", "")) -- Remove blank end line
         end
 
         local thirdLine

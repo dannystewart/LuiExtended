@@ -153,7 +153,8 @@ LUIE.HookKeyboardStats = function ()
         local trackBuffs = {}
         for i = 1, GetNumBuffs("player") do
             local buffName, startTime, endTime, buffSlot, stackCount, iconFile, deprecatedBuffType, effectType, abilityType, statusEffectType, abilityId = GetUnitBuffInfo("player", i)
-            trackBuffs[i] = {
+            trackBuffs[i] =
+            {
                 buffName = buffName,
                 startTime = startTime,
                 endTime = endTime,
@@ -446,8 +447,8 @@ LUIE.HookKeyboardStats = function ()
         else
             detailedName = skillProgressionData:GetFormattedName()
         end
-        detailedName = string.gsub(detailedName, "With", "with")               -- Easiest way to fix the capitalization of the skill "Bond With Nature"
-        detailedName = string.gsub(detailedName, "Blessing Of", "Blessing of") -- Easiest way to fix the capitalization of the skill "Blessing of Restoration"
+        detailedName = (string.gsub(detailedName, "With", "with"))               -- Easiest way to fix the capitalization of the skill "Bond With Nature"
+        detailedName = (string.gsub(detailedName, "Blessing Of", "Blessing of")) -- Easiest way to fix the capitalization of the skill "Blessing of Restoration"
         control.nameLabel:SetText(detailedName)
         control.nameLabel:SetColor(PURCHASED_COLOR:UnpackRGBA())
     end
