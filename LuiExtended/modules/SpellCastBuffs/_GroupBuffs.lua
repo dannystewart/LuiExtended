@@ -137,9 +137,7 @@ local function GetUnitFrame(unitTag)
     local customFrames = LUIE.UnitFrames.CustomFrames
     if customFrames[unitTag] then
         local control = customFrames[unitTag].control
-        if control then
-            return control
-        end
+        return control
     end
     return nil
 end
@@ -167,7 +165,7 @@ local function RepositionBuffIcons(unitFrame)
         startY = SpellCastBuffs.SV.LargeGroupBuffStartY or defaults.LargeGroupBuffStartY
     end
 
-    local lastIcon = nil
+    local lastIcon
     for _, id in ipairs(keys) do
         local bufficon = unitFrame.buffIconsById[id]
         if bufficon and not bufficon:IsHidden() then
@@ -317,12 +315,10 @@ local function OnGroupSizeChanged()
 end
 
 -- Initialize group buff tracking
-function SpellCastBuffs.InitializeGroupBuffs()
-    -- Check if group buff tracking is enabled
-    if SpellCastBuffs.SV.EnableGroupBuffTracking == false then
+function SpellCastBuffs.InitializeGroupBuffs(enabled)
+    if not enabled then
         return
     end
-
     -- Initialize tracked buffs and debuffs from saved vars
     SpellCastBuffs.SV.GroupTrackedBuffs = SpellCastBuffs.SV.GroupTrackedBuffs or {}
     SpellCastBuffs.SV.GroupTrackedDebuffs = SpellCastBuffs.SV.GroupTrackedDebuffs or {}
@@ -406,11 +402,6 @@ end
 
 -- Add a custom buff to track for group members
 function SpellCastBuffs.AddGroupBuff(buffId)
-    if type(buffId) == "string" then
-        -- Try to convert to number if it's a string representation of a number
-        buffId = tonumber(buffId)
-    end
-
     if not buffId or type(buffId) ~= "number" then
         return false
     end
@@ -422,11 +413,6 @@ end
 
 -- Add a custom debuff to track for group members
 function SpellCastBuffs.AddGroupDebuff(debuffId)
-    if type(debuffId) == "string" then
-        -- Try to convert to number if it's a string representation of a number
-        debuffId = tonumber(debuffId)
-    end
-
     if not debuffId or type(debuffId) ~= "number" then
         return false
     end
@@ -438,11 +424,6 @@ end
 
 -- Remove a buff from tracking
 function SpellCastBuffs.RemoveGroupBuff(buffId)
-    if type(buffId) == "string" then
-        -- Try to convert to number if it's a string representation of a number
-        buffId = tonumber(buffId)
-    end
-
     if not buffId or type(buffId) ~= "number" then
         return false
     end
@@ -454,11 +435,6 @@ end
 
 -- Remove a debuff from tracking
 function SpellCastBuffs.RemoveGroupDebuff(debuffId)
-    if type(debuffId) == "string" then
-        -- Try to convert to number if it's a string representation of a number
-        debuffId = tonumber(debuffId)
-    end
-
     if not debuffId or type(debuffId) ~= "number" then
         return false
     end

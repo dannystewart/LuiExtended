@@ -299,13 +299,13 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
             endTime = endTime - Effects.EffectOverride[abilityId].duration
         end
 
-        -- Outdated and unused - might be useful in the future
-        -- Specific override for old version of Mend Spirit -- Updates Major Resolve to use the remaining duration of Mend Spirit.
-        --[[
         if Effects.EffectPullDuration[abilityId] then
             local matchId = Effects.EffectPullDuration[abilityId]
             for i = 1, GetNumBuffs(unitTag) do
-                local _, timeStarted, timeEnding, _, _, _, _, _, _, _, abilityId = GetUnitBuffInfo(unitTag, i)
+                local unitBuffInfo = { GetUnitBuffInfo(unitTag, i) }
+                local timeStarted = unitBuffInfo[2]
+                local timeEnding = unitBuffInfo[3]
+                abilityId = unitBuffInfo[11]
                 if abilityId == matchId then
                     duration = timeEnding - timeStarted
                     beginTime = timeStarted
@@ -313,8 +313,6 @@ function SpellCastBuffs.OnEffectChanged(eventId, changeType, effectSlot, effectN
                 end
             end
         end
-        ]]
-        --
 
         -- EffectCreateSkillAura
         if Effects.EffectCreateSkillAura[abilityId] then
