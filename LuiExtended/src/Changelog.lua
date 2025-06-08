@@ -19,6 +19,7 @@ local changelogMessages =
     -- Fixes
     "|cFFFF00Fixes:|r",
     "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Grim Focus and Bound Armorments count now go to the new 10/8 respectively.",
+    "|t12:12:EsoUI/Art/Miscellaneous/bullet.dds|t Merged dannystewart PR # 338 to \"Fix trailing dash persisting after countdown timer expires in AbilityAlerts.\"",
     "",
     -- New Features
     "|cFFFF00New:|r",
