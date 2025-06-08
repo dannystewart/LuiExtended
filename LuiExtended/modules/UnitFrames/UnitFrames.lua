@@ -510,7 +510,7 @@ function UnitFrames.OnUnitCreated(eventId, unitTag)
     -- If CustomFrames are used then values for unitTag will be reloaded in delayed full group update
     if UnitFrames.CustomFrames["SmallGroup1"] ~= nil or UnitFrames.CustomFrames["RaidGroup1"] ~= nil then
         -- Make sure we do not try to update bars on this unitTag before full group update is complete
-        if "group" == zo_strsub(unitTag, 0, 5) then
+        if "group" == (zo_strsub(unitTag, 0, 5)) then
             UnitFrames.CustomFrames[unitTag] = nil
         end
         -- We should avoid calling full update on CustomFrames too often
@@ -524,7 +524,7 @@ function UnitFrames.OnUnitCreated(eventId, unitTag)
     end
 
     if UnitFrames.CustomFrames["PetGroup1"] ~= nil then
-        if "playerpet" == zo_strsub(unitTag, 0, 9) then
+        if "playerpet" == (zo_strsub(unitTag, 0, 9)) then
             UnitFrames.CustomFrames[unitTag] = nil
         end
         UnitFrames.CustomPetUpdate()
@@ -541,7 +541,7 @@ function UnitFrames.OnUnitDestroyed(eventId, unitTag)
     --     LUIE.Debug(string_format("[%s] OnUnitDestroyed: %s (%s)", GetTimeString(), unitTag, GetUnitName(unitTag)))
     -- end
     -- Make sure we do not try to update bars on this unitTag before full group update is complete
-    if "group" == zo_strsub(unitTag, 0, 5) then
+    if "group" == (zo_strsub(unitTag, 0, 5)) then
         UnitFrames.CustomFrames[unitTag] = nil
     end
     -- We should avoid calling full update on CustomFrames too often
@@ -550,7 +550,7 @@ function UnitFrames.OnUnitDestroyed(eventId, unitTag)
         eventManager:RegisterForUpdate(g_PendingUpdate.Group.name, g_PendingUpdate.Group.delay, UnitFrames.CustomFramesGroupUpdate)
     end
 
-    if "playerpet" == zo_strsub(unitTag, 0, 9) then
+    if "playerpet" == (zo_strsub(unitTag, 0, 9)) then
         UnitFrames.CustomFrames[unitTag] = nil
     end
 
@@ -884,7 +884,7 @@ function UnitFrames.UpdateStaticControls(unitFrame)
         local className = zo_strformat(GetString(SI_CLASS_NAME), GetClassName(GENDER_MALE, classId))
         local showClass = unitFrame.isPlayer and className ~= nil and UnitFrames.SV.TargetEnableClass
         if showClass then
-            local classNameText = zo_strgsub(className, "%^%a+", "")
+            local classNameText = (zo_strgsub(className, "%^%a+", ""))
             unitFrame.className:SetText(classNameText)
         end
         -- this condition is somehow extra, but let keep it to be in consistency with all others
@@ -990,7 +990,7 @@ function UnitFrames.UpdateStaticControls(unitFrame)
             end
         end
         title = title or ""
-        local titletext = zo_strgsub(title, "%^%a+", "")
+        local titletext = (zo_strgsub(title, "%^%a+", ""))
         unitFrame.title:SetText(titletext)
         if unitFrame.unitTag == "reticleover" then
             unitFrame.title:SetHidden(not UnitFrames.SV.TargetEnableRank and not UnitFrames.SV.TargetEnableTitle)
@@ -1056,7 +1056,7 @@ function UnitFrames.UpdateStaticControls(unitFrame)
         end
     end
     -- Finally set transparency for group frames that has .control field
-    if unitFrame.unitTag and "group" == zo_strsub(unitFrame.unitTag, 0, 5) and unitFrame.control then
+    if unitFrame.unitTag and "group" == (zo_strsub(unitFrame.unitTag, 0, 5)) and unitFrame.control then
         unitFrame.control:SetAlpha(IsUnitInGroupSupportRange(unitFrame.unitTag) and (UnitFrames.SV.GroupAlpha * 0.01) or (UnitFrames.SV.GroupAlpha * 0.01) / 2)
     end
 end
