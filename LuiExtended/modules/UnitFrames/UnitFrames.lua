@@ -191,6 +191,7 @@ function UnitFrames.Initialize(enabled)
 
     UnitFrames.CreateDefaultFrames()
     UnitFrames.CreateCustomFrames()
+    UnitFrames.CustomFramesReloadExecuteMenu()
 
     function BOSS_BAR:RefreshBossHealthBar(smoothAnimate)
         local totalHealth = 0

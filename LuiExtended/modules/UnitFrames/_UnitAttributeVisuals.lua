@@ -153,8 +153,8 @@ function UnitFrames.UpdateAttribute(unitTag, powerType, attributeFrame, powerVal
                 attributeFrame[label]:SetColor(unpack(attributeFrame.color or { 1, 1, 1, 1 }))
             else
                 -- And color it RED if attribute value is lower than the threshold
-                attributeFrame[label]:SetColor(unpack((pct < (attributeFrame.threshold or UnitFrames.defaultThreshold)) and { 1, 0.25, 0.38, 1 } or attributeFrame.color or { 1, 1, 1, 1 }))
-            end
+                local threshold = (attributeFrame.threshold ~= nil) and attributeFrame.threshold or UnitFrames.defaultThreshold
+                attributeFrame[label]:SetColor(unpack((pct < threshold) and { 1, 0.25, 0.38, 1 } or attributeFrame.color or { 1, 1, 1, 1 }))            end
         end
     end
 
