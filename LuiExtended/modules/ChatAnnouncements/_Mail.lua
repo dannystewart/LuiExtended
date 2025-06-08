@@ -92,11 +92,11 @@ function ChatAnnouncements.OnMailReadable(eventId, mailId)
             --- @cast dataTable MailDataTable
             ZO_MailInboxShared_PopulateMailData(dataTable, mailId)
 
-            -- Debug: Log the raw sender names for verification
-            if LUIE.IsDevDebugEnabled() then
-                LUIE.Debug(string.format("Raw Mail Data - Display: %s, Character: %s, Category: %s, FromPlayer: %s",
-                                         dataTable.senderDisplayName, dataTable.senderCharacterName, dataTable.category, tostring(dataTable.isFromPlayer)))
-            end
+            -- -- Debug: Log the raw sender names for verification
+            -- if LUIE.IsDevDebugEnabled() then
+            --     LUIE.Debug(string.format("Raw Mail Data - Display: %s, Character: %s, Category: %s, FromPlayer: %s",
+            --                              dataTable.senderDisplayName, dataTable.senderCharacterName, dataTable.category, tostring(dataTable.isFromPlayer)))
+            -- end
 
             -- Resolve the sender's name based on mail category and sender type
             if dataTable.fromSystem or dataTable.fromCS then
